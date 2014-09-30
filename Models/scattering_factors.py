@@ -11,6 +11,7 @@ print scattering_intensity_param['K']['Ca']
 
 print scattering_factor_param.index.values
 
+
 def calculate_coherent_scattering_factor(element, q):
     if not element in scattering_factor_param.index.values:
         raise ElementNotImplementedException(element)
@@ -25,15 +26,16 @@ def calculate_coherent_scattering_factor(element, q):
     fs_coh+=C
     return fs_coh
 
-def calculate_incoherent_scattering_factor(element, q):
-    fs_coh = calculate_coherent_scattering_factor(element, q)
+def calculate_incoherent_scattered_intensity(element, q):
+    fs_coherent = calculate_coherent_scattering_factor(element, q)
+    intensity_coherent = fs_coherent**2
     s=q/(4*np.pi)
     Z = np.float(scattering_intensity_param['Z'][element])
     M = np.float(scattering_intensity_param['M'][element])
     K = np.float(scattering_intensity_param['K'][element])
     L = np.float(scattering_intensity_param['L'][element])
-    fs_incoh = (Z-fs_coh/Z)*(1-M*np.exp(-K*s)-np.exp(-L*s))
-    return fs_incoh
+    intensity_incoherent = (Z-intensity_coherent/Z)*(1-M*(np.exp(-K*s)-np.exp(-L*s)))
+    return intensity_incoherent
 
 class ElementNotImplementedException(Exception):
     def __init__(self, element):
@@ -43,15 +45,15 @@ class ElementNotImplementedException(Exception):
 
 if __name__ == '__main__':
     q = np.linspace(0,30,1600)
-    fs_coh = calculate_incoherent_scattering_factor('He',q)
+    fs_coh = calculate_incoherent_scattered_intensity('He',q)
     plt.plot(q, fs_coh, label = 'He')
-    fs_coh = calculate_incoherent_scattering_factor('Ca',q)
+    fs_coh = calculate_incoherent_scattered_intensity('Ca',q)
     plt.plot(q, fs_coh, label = 'Ca')
-    fs_coh = calculate_incoherent_scattering_factor('Na',q)
+    fs_coh = calculate_incoherent_scattered_intensity('Na',q)
     plt.plot(q, fs_coh, label = 'Na')
-    fs_coh = calculate_incoherent_scattering_factor('Mg',q)
+    fs_coh = calculate_incoherent_scattered_intensity('Mg',q)
     plt.plot(q, fs_coh, label = 'Mg')
-    fs_coh = calculate_incoherent_scattering_factor('Fe',q)
+    fs_coh = calculate_incoherent_scattered_intensity('Fe',q)
     plt.plot(q, fs_coh, label = 'Fe')
     plt.legend()
     plt.show()
