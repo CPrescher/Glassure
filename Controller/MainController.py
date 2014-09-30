@@ -5,6 +5,14 @@ from PyQt4 import QtGui, QtCore
 
 from Views.MainWidget import MainWidget
 
+import pyqtgraph as pg
+# # Switch to using white background and black foreground
+pg.setConfigOption('useOpenGL', False)
+pg.setConfigOption('leftButtonPan', False)
+pg.setConfigOption('background', 'k')
+pg.setConfigOption('foreground', 'w')
+pg.setConfigOption('antialias', True)
+
 class MainController(object):
     def __init__(self):
         self.view = MainWidget()

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Main.ui'
 #
-# Created: Tue Sep 30 12:09:14 2014
+# Created: Tue Sep 30 15:59:50 2014
 #      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -61,10 +61,10 @@ class Ui_MainWidget(object):
         self.label = QtGui.QLabel(self.groupBox)
         self.label.setObjectName(_fromUtf8("label"))
         self.gridLayout.addWidget(self.label, 1, 0, 1, 1)
-        self.offset_step_sb = QtGui.QLineEdit(self.groupBox)
-        self.offset_step_sb.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.offset_step_sb.setObjectName(_fromUtf8("offset_step_sb"))
-        self.gridLayout.addWidget(self.offset_step_sb, 2, 2, 1, 1)
+        self.offset_step_txt = QtGui.QLineEdit(self.groupBox)
+        self.offset_step_txt.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.offset_step_txt.setObjectName(_fromUtf8("offset_step_txt"))
+        self.gridLayout.addWidget(self.offset_step_txt, 2, 2, 1, 1)
         self.offset_scale_sb = QtGui.QDoubleSpinBox(self.groupBox)
         self.offset_scale_sb.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.offset_scale_sb.setObjectName(_fromUtf8("offset_scale_sb"))
