@@ -38,7 +38,7 @@ class MainController(object):
                 self.view, caption="Load Spectrum", directory = ''))
 
         if filename is not '':
-            self.model.load_bkg(filename)
+            self.model.load_data(filename)
 
     def load_bkg(self, filename = None):
         if filename is None:
@@ -49,8 +49,8 @@ class MainController(object):
             self.model.load_bkg(filename)
 
     def model_changed(self):
-        self.view.spectrum_widget.plot_data(self.model.original_spectrum.data[0],
-                                            self.model.original_spectrum.data[1])
+        x, y = self.model.original_spectrum.data
+        self.view.spectrum_widget.plot_data(x,y)
 
     def raise_window(self):
         self.view.show()

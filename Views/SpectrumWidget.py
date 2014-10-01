@@ -59,11 +59,8 @@ class SpectrumWidget(QtCore.QObject):
     def get_pos_line(self):
         return self.pos_line.value()
 
-    def plot_data(self, x, y, name=None):
+    def plot_data(self, x, y):
         self.plot_item.setData(x, y)
-        if name is not None:
-            self.legend.legendItems[0][1].setText(name)
-            self.plot_name = name
         self.update_graph_limits()
 
     def update_graph_limits(self):
