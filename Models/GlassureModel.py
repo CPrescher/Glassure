@@ -20,10 +20,14 @@ class GlassureModel(Observable):
         self.original_spectrum.set_background(self.background_spectrum)
         self.notify()
 
-    def set_bkg_scaling(self, scaling):
+    def set_bkg_scale(self, scaling):
         self.background_spectrum.scaling = scaling
         self.notify()
 
     def set_bkg_offset(self, offset):
         self.background_spectrum.offset = offset
+        self.notify()
+
+    def set_smooth(self, value):
+        self.original_spectrum.set_smoothing(value)
         self.notify()

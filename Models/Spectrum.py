@@ -3,7 +3,9 @@ __author__ = 'Clemens Prescher'
 
 import numpy as np
 from scipy.interpolate import interp1d
+from scipy.ndimage import gaussian_filter1d
 import os
+
 
 class Spectrum(object):
     def __init__(self, x=None, y=None, name=''):
@@ -18,6 +20,7 @@ class Spectrum(object):
         self.name = name
         self.offset = 0
         self._scaling = 1
+        self.smoothing = 0
         self.bkg_spectrum = None
 
     def load(self, filename, skiprows=0):
@@ -43,31 +46,38 @@ class Spectrum(object):
     def reset_background(self):
         self.bkg_spectrum = None
 
+    def set_smoothing(self, amount):
+        self.smoothing = amount
+
     @property
     def data(self):
         if self.bkg_spectrum is not None:
-            #create background function
+            # create background function
             x_bkg, y_bkg = self.bkg_spectrum.data
 
-            if np.array_equal(x_bkg, self._x):
+            if not np.array_equal(x_bkg, self._x):
+                #the background will be interpolated
+                f_bkg = interp1d(x_bkg, y_bkg, kind='linear')
+
+                #find overlapping x and y values:
+                ind = np.where((self._x <= np.max(x_bkg)) & (self._x >= np.min(x_bkg)))
+                x = self._x[ind]
+                y = self._y[ind]
+
+                if len(x) == 0:
+                    #if there is no overlapping between background and spectrum, raise an error
+                    raise BkgNotInRangeError(self.name)
+
+                y = y * self._scaling + self.offset - f_bkg(x)
+            else:
                 #if spectrum and bkg have the same x basis we just delete y-y_bkg
-                return self._x, self._y * self._scaling + self.offset - y_bkg
-
-            #otherwise the background will be interpolated
-            f_bkg = interp1d(x_bkg, y_bkg, kind='linear')
-
-            #find overlapping x and y values:
-            ind = np.where((self._x <= np.max(x_bkg)) & (self._x >= np.min(x_bkg)))
-            x = self._x[ind]
-            y = self._y[ind]
-
-            if len(x) == 0:
-                #if there is no overlapping between background and spectrum, raise an error
-                raise BkgNotInRangeError(self.name)
-
-            return x, y * self._scaling + self.offset - f_bkg(x)
+                x,y = self._x, self._y * self._scaling + self.offset - y_bkg
         else:
-            return self.original_data
+            x, y = self.original_data
+
+        if self.smoothing > 0:
+            y = gaussian_filter1d(y, self.smoothing)
+        return x, y
 
 
     @data.setter

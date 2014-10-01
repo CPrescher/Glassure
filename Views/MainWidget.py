@@ -16,8 +16,7 @@ class MainWidget(QtGui.QWidget,Ui_MainWidget):
         self.spectrum_widget = SpectrumWidget(self.spectrum_pg_layout, 'Q(A<sup>-1</sup>)', 'Intensity')
         self.set_validators()
 
-
-
     def set_validators(self):
-        self.scale_step_txt.setValidator(QtGui.QDoubleValidator())
-        self.offset_step_txt.setValidator(QtGui.QDoubleValidator())
+        self.bkg_scale_step_txt.setValidator(QtGui.QDoubleValidator())
+        self.bkg_offset_step_txt.setValidator(QtGui.QDoubleValidator())
+        self.smooth_step_txt.setValidator(QtGui.QDoubleValidator())
