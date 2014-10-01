@@ -12,7 +12,7 @@ from Controller.MainController import MainController
 class GlassureFunctionalTest(unittest.TestCase):
     def setUp(self):
         self.app = QtGui.QApplication(sys.argv)
-        self.main_controller = MainController
+        self.main_controller = MainController()
         self.main_view = self.main_controller.view
 
     def tearDown(self):
@@ -21,8 +21,8 @@ class GlassureFunctionalTest(unittest.TestCase):
     def test_normal_workflow(self):
         #Edd opens the program and wants to load his data and background file:
 
-        self.main_controller.load_data('Mg2SiO4_120.xy')
-        self.main_controller.load_bkg_data('Mg2SiO4_120_bkg.xy')
+        self.main_controller.load_data('TestData/Mg2SiO4_120.xy')
+        self.main_controller.load_bkg('TestData/Mg2SiO4_120_bkg.xy')
 
         #then he adjusts the scale and offset of the background data
 

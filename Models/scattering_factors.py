@@ -4,12 +4,8 @@ import numpy as np
 import pandas
 import matplotlib.pyplot as plt
 
-scattering_factor_param = pandas.read_csv('data/param_atomic_scattering_factors.csv', index_col=0)
-scattering_intensity_param = pandas.read_csv('data/param_incoherent_scattering_intensities.csv', index_col=0)
-
-print scattering_intensity_param['K']['Ca']
-
-print scattering_factor_param.index.values
+scattering_factor_param = pandas.read_csv('Models/data/param_atomic_scattering_factors.csv', index_col=0)
+scattering_intensity_param = pandas.read_csv('Models/data/param_incoherent_scattering_intensities.csv', index_col=0)
 
 
 def calculate_coherent_scattering_factor(element, q):
@@ -26,6 +22,7 @@ def calculate_coherent_scattering_factor(element, q):
     fs_coh+=C
     return fs_coh
 
+
 def calculate_incoherent_scattered_intensity(element, q):
     fs_coherent = calculate_coherent_scattering_factor(element, q)
     intensity_coherent = fs_coherent**2
@@ -37,11 +34,13 @@ def calculate_incoherent_scattered_intensity(element, q):
     intensity_incoherent = (Z-intensity_coherent/Z)*(1-M*(np.exp(-K*s)-np.exp(-L*s)))
     return intensity_incoherent
 
+
 class ElementNotImplementedException(Exception):
     def __init__(self, element):
         self.element = element
     def __str__(self):
         return repr('Element '+self.element+' not known or available.')
+
 
 if __name__ == '__main__':
     q = np.linspace(0,30,1600)

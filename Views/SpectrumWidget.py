@@ -68,18 +68,6 @@ class SpectrumWidget(QtCore.QObject):
 
     def update_graph_limits(self):
         x_range = list(self.plot_item.dataBounds(0))
-        for ind, overlay in enumerate(self.overlays):
-            if self.overlay_show[ind]:
-                x_range_overlay = overlay.dataBounds(0)
-                if x_range_overlay[0] < x_range[0]:
-                    x_range[0] = x_range_overlay[0]
-                if x_range_overlay[1] > x_range[1]:
-                    x_range[1] = x_range_overlay[1]
-
-        diff = x_range[1] - x_range[0]
-        x_range = [x_range[0] - 0.02 * diff,
-                   x_range[1] + 0.02 * diff]
-
         self.view_box.setLimits(xMin=x_range[0], xMax=x_range[1],
                                 minXRange=x_range[0], maxXRange=x_range[1])\
 
