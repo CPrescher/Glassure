@@ -1,6 +1,8 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 
+__version__ = 0.1
+
 import pyqtgraph as pg
 # # Switch to using white background and black foreground
 pg.setConfigOption('useOpenGL', False)
@@ -18,7 +20,7 @@ from Models.GlassureModel import GlassureModel
 
 class MainController(object):
     def __init__(self):
-        self.view = MainWidget()
+        self.view = MainWidget("Glassure {}".format(__version__)+u' - © 2014 C. Prescher')
 
         self.model = GlassureModel()
         self.model.subscribe(self.model_changed)

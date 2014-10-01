@@ -9,11 +9,11 @@ from .SpectrumWidget import SpectrumWidget
 
 class MainWidget(QtGui.QWidget,Ui_MainWidget):
 
-    def __init__(self):
+    def __init__(self, title=''):
         super(MainWidget, self).__init__(None)
         self.setupUi(self)
-
-        self.spectrum_widget = SpectrumWidget(self.spectrum_pg_layout, 'Q(A<sup>-1</sup>)', 'Intensity')
+        self.setWindowTitle(title)
+        self.spectrum_widget = SpectrumWidget(self.spectrum_pg_layout, 'Q(A<sup>-1</sup>)')
         self.set_validators()
 
     def set_validators(self):
