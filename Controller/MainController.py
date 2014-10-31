@@ -39,6 +39,9 @@ class MainController(object):
         self.view.smooth_sb.valueChanged.connect(self.smooth_changed)
         self.view.smooth_step_txt.editingFinished.connect(self.update_smooth_step)
 
+        self.connect_click_function(self.view.add_element_btn, self.add_element_btn_clicked)
+        self.connect_click_function(self.view.delete_element_btn, self.delete_element_btn_clicked)
+
 
     def connect_click_function(self, emitter, function):
         self.view.connect(emitter, QtCore.SIGNAL('clicked()'), function)
@@ -83,6 +86,12 @@ class MainController(object):
     def update_smooth_step(self):
         value = np.float(self.view.smooth_step_txt.text())
         self.view.smooth_sb.setSingleStep(value)
+
+    def add_element_btn_clicked(self):
+        self.view.add_element_to_composition_tw(element = "Si", value = 1.0)
+
+    def delete_element_btn_clicked(self):
+        pass
 
     def raise_window(self):
         self.view.show()

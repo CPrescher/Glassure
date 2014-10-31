@@ -9,9 +9,14 @@ from Models import module_path
 
 scattering_factor_param = pandas.read_csv(os.path.join(module_path(), 'data/param_atomic_scattering_factors.csv'),
                                           index_col=0)
-scattering_intensity_param = pandas.read_csv(os.path.join(module_path(), \
-                                                          'data/param_incoherent_scattering_intensities.csv'),
-                                             index_col=0)
+
+scattering_intensity_param = pandas.read_csv(
+    os.path.join(module_path(), 'data/param_incoherent_scattering_intensities.csv'),
+    index_col=0)
+
+atomic_weights = pandas.read_csv(os.path.join(
+    module_path(), 'data/atomic_weights.csv'),
+                                 index_col=0)
 
 
 def calculate_coherent_scattering_factor(element, q):

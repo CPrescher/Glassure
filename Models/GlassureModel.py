@@ -4,8 +4,8 @@ __author__ = 'Clemens Prescher'
 from .Spectrum import Spectrum
 from .HelperModule import Observable
 
-class GlassureModel(Observable):
 
+class GlassureModel(Observable):
     def __init__(self):
         super(GlassureModel, self).__init__()
         self.original_spectrum = Spectrum()
