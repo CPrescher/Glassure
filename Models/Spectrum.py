@@ -56,22 +56,22 @@ class Spectrum(object):
             x_bkg, y_bkg = self.bkg_spectrum.data
 
             if not np.array_equal(x_bkg, self._x):
-                #the background will be interpolated
+                # the background will be interpolated
                 f_bkg = interp1d(x_bkg, y_bkg, kind='linear')
 
-                #find overlapping x and y values:
+                # find overlapping x and y values:
                 ind = np.where((self._x <= np.max(x_bkg)) & (self._x >= np.min(x_bkg)))
                 x = self._x[ind]
                 y = self._y[ind]
 
                 if len(x) == 0:
-                    #if there is no overlapping between background and spectrum, raise an error
+                    # if there is no overlapping between background and spectrum, raise an error
                     raise BkgNotInRangeError(self.name)
 
                 y = y * self._scaling + self.offset - f_bkg(x)
             else:
-                #if spectrum and bkg have the same x basis we just delete y-y_bkg
-                x,y = self._x, self._y * self._scaling + self.offset - y_bkg
+                # if spectrum and bkg have the same x basis we just delete y-y_bkg
+                x, y = self._x, self._y * self._scaling + self.offset - y_bkg
         else:
             x, y = self.original_data
 
@@ -102,6 +102,17 @@ class Spectrum(object):
             self._scaling = 0
         else:
             self._scaling = value
+
+    # Operators:
+    def __sub__(self, other):
+        orig_x, orig_y = self.data
+        other_x, other_y = other.data
+        return Spectrum(orig_x, orig_y - other_y)
+
+    def __add__(self, other):
+        orig_x, orig_y = self.data
+        other_x, other_y = other.data
+        return Spectrum(orig_x, orig_y + other_y)
 
 
 class BkgNotInRangeError(Exception):
