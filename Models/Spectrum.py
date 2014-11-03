@@ -114,6 +114,11 @@ class Spectrum(object):
         other_x, other_y = other.data
         return Spectrum(orig_x, orig_y + other_y)
 
+    def __rmul__(self, other):
+        orig_x, orig_y = self.data
+        return Spectrum(orig_x, orig_y*other)
+
+
 
 class BkgNotInRangeError(Exception):
     def __init__(self, spectrum_name):
