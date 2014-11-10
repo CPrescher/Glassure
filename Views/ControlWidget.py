@@ -183,8 +183,13 @@ class CompositionGroupBox(QtGui.QGroupBox):
         self.density_txt.setValidator(QtGui.QDoubleValidator())
         self.density_txt.editingFinished.connect(self.emit_composition_changed_signal)
         self.density_txt.setMaximumWidth(100)
+        self.density_error_lbl = QtGui.QLabel("NaN")
         self.density_layout.addWidget(self.density_lbl)
         self.density_layout.addWidget(self.density_txt)
+        self.density_layout.addWidget(QtGui.QLabel('+-'))
+        self.density_layout.addWidget(self.density_error_lbl)
+        self.density_layout.addWidget(QtGui.QLabel('A'))
+
 
         self.composition_tw = QtGui.QTableWidget()
         self.composition_tw.setFixedHeight(100)

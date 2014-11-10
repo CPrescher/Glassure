@@ -10,7 +10,6 @@ from PyQt4 import QtCore, QtGui
 
 
 class SpectrumWidget(QtGui.QWidget):
-
     def __init__(self, *args, **kwargs):
         super(SpectrumWidget, self).__init__(*args, **kwargs)
         self._layout = QtGui.QVBoxLayout()
@@ -18,6 +17,11 @@ class SpectrumWidget(QtGui.QWidget):
         self.create_plots()
         self.style_plots()
         self.create_items()
+
+        self.mouse_position_widget = MousePositionWidget()
+        self._layout.addWidget(self.mouse_position_widget)
+
+        self.create_signals()
 
         self.setLayout(self._layout)
 
@@ -59,6 +63,18 @@ class SpectrumWidget(QtGui.QWidget):
         self.spectrum_plot.addItem(self.bkg_item)
         self.sq_plot.addItem(self.sq_item)
         self.pdf_plot.addItem(self.pdf_item)
+
+    def create_signals(self):
+        self.spectrum_plot.connect_mouse_move_event()
+        self.sq_plot.connect_mouse_move_event()
+        self.pdf_plot.connect_mouse_move_event()
+        self.spectrum_plot.mouse_moved.connect(self.mouse_moved)
+        self.sq_plot.mouse_moved.connect(self.mouse_moved)
+        self.pdf_plot.mouse_moved.connect(self.mouse_moved)
+
+    def mouse_moved(self, x, y):
+        self.mouse_position_widget.x_value_lbl.setText("{:9.3f}".format(x))
+        self.mouse_position_widget.y_value_lbl.setText("{:9.3f}".format(y))
 
     def plot_spectrum(self, spec):
         x, y = spec.data
@@ -171,3 +187,38 @@ class ModifiedPlotItem(pg.PlotItem):
     def wheel_event(self, ev, axis=None, *args):
         pg.ViewBox.wheelEvent(self.vb, ev, axis)
         self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])
+
+
+class MousePositionWidget(QtGui.QWidget):
+    def __init__(self, *args, **kwargs):
+        super(MousePositionWidget, self).__init__()
+
+        self.horizontal_layout = QtGui.QHBoxLayout()
+        self.horizontal_layout.setContentsMargins(0, 0, 0, 5)
+        self.horizontal_layout.setSpacing(0)
+        self.x_unit_lbl = QtGui.QLabel('x:')
+        self.x_value_lbl = QtGui.QLabel('0.00')
+
+        self.y_unit_lbl = QtGui.QLabel('y:')
+        self.y_value_lbl = QtGui.QLabel('0.00')
+
+        self.x_unit_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.x_value_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.y_unit_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.y_value_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+
+        self.x_unit_lbl.setFixedWidth(30)
+        self.y_unit_lbl.setFixedWidth(30)
+
+        self.x_value_lbl.setFixedWidth(50)
+        self.y_value_lbl.setFixedWidth(50)
+
+        self.horizontal_layout.addWidget(self.x_unit_lbl)
+        self.horizontal_layout.addWidget(self.x_value_lbl)
+        self.horizontal_layout.addWidget(self.y_unit_lbl)
+        self.horizontal_layout.addWidget(self.y_value_lbl)
+        self.horizontal_layout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
+                                                               QtGui.QSizePolicy.Fixed))
+        self.setLayout(self.horizontal_layout)
+
+
