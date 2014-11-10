@@ -17,6 +17,7 @@ class ControlWidget(QtGui.QWidget):
         self.background_options_gb = BackgroundOptionsGroupBox()
         self.smooth_gb = SmoothGroupBox()
         self.composition_gb = CompositionGroupBox()
+        self.calculation_gb = CalculationGroupBox()
 
         self.vertical_layout.addWidget(self.file_widget)
         self.vertical_layout.addWidget(self.background_options_gb)
@@ -24,6 +25,7 @@ class ControlWidget(QtGui.QWidget):
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.Fixed))
         self.vertical_layout.addWidget(self.composition_gb)
+        self.vertical_layout.addWidget(self.calculation_gb)
 
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.Expanding))
@@ -58,6 +60,7 @@ class BackgroundOptionsGroupBox(QtGui.QGroupBox):
 
         self.grid_layout = QtGui.QGridLayout()
         self.grid_layout.setContentsMargins(3, 5, 5, 3)
+        self.grid_layout.setSpacing(5)
 
         self.scale_lbl = QtGui.QLabel("Scale:")
         self.offset_lbl = QtGui.QLabel("Offset:")
@@ -101,6 +104,7 @@ class SmoothGroupBox(QtGui.QGroupBox):
         super(SmoothGroupBox, self).__init__(*args)
         self.grid_layout = QtGui.QGridLayout()
         self.grid_layout.setContentsMargins(5, 5, 5, 5)
+        self.grid_layout.setSpacing(5)
 
         self.smooth_lbl = QtGui.QLabel("Smooth:")
         self.smooth_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
@@ -235,3 +239,51 @@ class TextDoubleDelegate(QtGui.QStyledItemDelegate):
 
     def updateEditorGeometry(self, editor, option, _):
         editor.setGeometry(option.rect)
+
+
+class CalculationGroupBox(QtGui.QGroupBox):
+    def __init__(self, *args):
+        super(CalculationGroupBox, self).__init__(*args)
+        self.q_min_lbl = QtGui.QLabel('Q min:')
+        self.q_min_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.q_max_lbl = QtGui.QLabel('Q max:')
+        self.q_max_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.r_cutoff_lbl = QtGui.QLabel('r cutoff:')
+        self.r_cutoff_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+        self.q_min_txt = QtGui.QLineEdit('0')
+        self.q_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.q_min_txt.setMaximumWidth(80)
+        self.q_min_txt.setValidator(QtGui.QDoubleValidator())
+        self.q_max_txt = QtGui.QLineEdit('10')
+        self.q_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.q_max_txt.setMaximumWidth(80)
+        self.q_max_txt.setValidator(QtGui.QDoubleValidator())
+        self.r_cutoff_txt = QtGui.QLineEdit('1')
+        self.r_cutoff_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.r_cutoff_txt.setMaximumWidth(80)
+        self.r_cutoff_txt.setValidator(QtGui.QDoubleValidator())
+
+        self.optimize_btn = QtGui.QPushButton("Optimize")
+        self.optimize_btn.setFlat(True)
+        self.optimize_r_cutoff_btn = QtGui.QPushButton("Optimize r cutoff")
+        self.optimize_r_cutoff_btn.setFlat(True)
+
+        self.grid_layout = QtGui.QGridLayout()
+        self.grid_layout.setSpacing(5)
+        self.grid_layout.addWidget(self.q_min_lbl, 0, 0)
+        self.grid_layout.addWidget(self.q_min_txt, 0, 1)
+        self.grid_layout.addWidget(self.q_max_lbl, 1, 0)
+        self.grid_layout.addWidget(self.q_max_txt, 1, 1)
+        self.grid_layout.addWidget(self.r_cutoff_lbl, 2, 0)
+        self.grid_layout.addWidget(self.r_cutoff_txt, 2, 1)
+
+        self.grid_layout.addWidget(self.optimize_btn, 3, 0, 1, 2)
+        self.grid_layout.addWidget(self.optimize_r_cutoff_btn, 4, 0, 1, 2)
+
+        self.setLayout(self.grid_layout)
+
+
+
+
+
