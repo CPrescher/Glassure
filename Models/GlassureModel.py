@@ -61,13 +61,19 @@ class GlassureModel(Observable):
     def calculate_spectra(self):
         if len(self.composition) != 0:
             self.sq_spectrum, _, self.pdf_spectrum = calc_transforms(
-                self.original_spectrum,
-                self.background_spectrum,
+                self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
+                self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
                 self.background_scaling,
                 self.composition,
                 self.density,
                 np.linspace(0, 10, 1000)
             )
         self.notify()
+
+    def limit_spectrum(self, spectrum, q_min, q_max):
+        q, intensity = spectrum.data
+        return Spectrum(q[np.where((q_min < q) & (q < q_max))],
+                        intensity[np.where((q_min < q) &(q < q_max))])
+
 
 

@@ -82,6 +82,7 @@ class BackgroundOptionsGroupBox(QtGui.QGroupBox):
 
         self.scale_sb.setValue(1.0)
         self.scale_sb.setSingleStep(0.01)
+        self.scale_sb.setDecimals(5)
 
         self.offset_sb.setSingleStep(10)
         self.offset_sb.setRange(-99999999, 9999999)
