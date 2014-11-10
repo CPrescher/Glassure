@@ -10,6 +10,8 @@ class ControlWidget(QtGui.QWidget):
     def __init__(self, *args, **kwargs):
         super(ControlWidget, self).__init__(*args, **kwargs)
         self.vertical_layout = QtGui.QVBoxLayout()
+        self.vertical_layout.setSpacing(0)
+        self.vertical_layout.setContentsMargins(5, 5, 5, 5)
 
         self.file_widget = FileWidget()
         self.background_options_gb = BackgroundOptionsGroupBox()
@@ -19,7 +21,7 @@ class ControlWidget(QtGui.QWidget):
         self.vertical_layout.addWidget(self.file_widget)
         self.vertical_layout.addWidget(self.background_options_gb)
         self.vertical_layout.addWidget(self.smooth_gb)
-        self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Fixed,
+        self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.Fixed))
         self.vertical_layout.addWidget(self.composition_gb)
 
@@ -33,6 +35,7 @@ class FileWidget(QtGui.QWidget):
         super(FileWidget, self).__init__(*args, **kwargs)
 
         self.vertical_layout = QtGui.QVBoxLayout()
+        self.vertical_layout.setContentsMargins(0, 0, 0, 0)
 
         self.load_data_btn = QtGui.QPushButton("Load Data")
         self.data_filename_lbl = QtGui.QLabel("None")
@@ -54,6 +57,7 @@ class BackgroundOptionsGroupBox(QtGui.QGroupBox):
         super(BackgroundOptionsGroupBox, self).__init__(*args)
 
         self.grid_layout = QtGui.QGridLayout()
+        self.grid_layout.setContentsMargins(3, 5, 5, 3)
 
         self.scale_lbl = QtGui.QLabel("Scale:")
         self.offset_lbl = QtGui.QLabel("Offset:")
@@ -96,6 +100,7 @@ class SmoothGroupBox(QtGui.QGroupBox):
     def __init__(self, *args):
         super(SmoothGroupBox, self).__init__(*args)
         self.grid_layout = QtGui.QGridLayout()
+        self.grid_layout.setContentsMargins(5, 5, 5, 5)
 
         self.smooth_lbl = QtGui.QLabel("Smooth:")
         self.smooth_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
@@ -125,8 +130,11 @@ class CompositionGroupBox(QtGui.QGroupBox):
 
     def create_widgets(self):
         self.main_layout = QtGui.QVBoxLayout()
+        self.main_layout.setContentsMargins(5, 5, 5, 5)
+        self.main_layout.setSpacing(5)
 
         self.button_layout = QtGui.QHBoxLayout()
+        self.button_layout.setSpacing(15)
         self.add_element_btn = QtGui.QPushButton("Add")
         self.delete_element_btn = QtGui.QPushButton("Delete")
         self.button_layout.addWidget(self.add_element_btn)
@@ -144,6 +152,7 @@ class CompositionGroupBox(QtGui.QGroupBox):
         self.density_layout.addWidget(self.density_txt)
 
         self.composition_tw = QtGui.QTableWidget()
+        self.composition_tw.setFixedHeight(100)
         self.composition_tw.setColumnCount(2)
         self.composition_tw.horizontalHeader().setVisible(False)
         self.composition_tw.verticalHeader().setVisible(False)
