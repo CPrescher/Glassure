@@ -14,6 +14,7 @@ class SpectrumWidget(QtGui.QWidget):
         super(SpectrumWidget, self).__init__(*args, **kwargs)
         self._layout = QtGui.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(8)
         self.create_plots()
         self.style_plots()
         self.create_items()

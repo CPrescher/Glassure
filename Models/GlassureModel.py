@@ -20,6 +20,7 @@ class GlassureModel(Observable):
 
         self.composition = {}
         self.density = 2.2
+        self.density_error = None
         self.q_min = 0.0
         self.q_max = 10.0
         self.r_cutoff = 1.0
@@ -74,7 +75,8 @@ class GlassureModel(Observable):
         self.notify()
 
     def optimize_parameter(self):
-        self.background_scaling, _, self.density, _ = optimize_background_scaling_and_density(
+        self.background_scaling, self.background_scaling_error, \
+        self.density, self.density_error = optimize_background_scaling_and_density(
             self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
             self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
             self.background_scaling,

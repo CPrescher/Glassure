@@ -111,7 +111,9 @@ class MainController(object):
     def optimize_btn_clicked(self):
         self.model.optimize_parameter()
         self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
-        self.main_widget.control_widget.composition_gb.density_txt.setText(str(self.model.density))
+        self.main_widget.control_widget.composition_gb.density_txt.setText("{:3.5f}".format(self.model.density))
+        self.main_widget.control_widget.composition_gb.density_error_lbl.setText(
+            "{:3.5f}".format(self.model.density_error))
 
     def raise_window(self):
         self.main_widget.show()
