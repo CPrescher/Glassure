@@ -45,11 +45,14 @@ class FileWidget(QtGui.QWidget):
         self.load_background_btn = QtGui.QPushButton("Load Bkg")
         self.background_filename_lbl = QtGui.QLabel("None")
         self.background_filename_lbl.setAlignment(QtCore.Qt.AlignRight)
+        self.plot_subtracted = QtGui.QCheckBox("Plot subtracted")
+        self.plot_subtracted.setChecked(True)
 
         self.vertical_layout.addWidget(self.load_data_btn)
         self.vertical_layout.addWidget(self.data_filename_lbl)
         self.vertical_layout.addWidget(self.load_background_btn)
         self.vertical_layout.addWidget(self.background_filename_lbl)
+        self.vertical_layout.addWidget(self.plot_subtracted)
 
         self.setLayout(self.vertical_layout)
 
