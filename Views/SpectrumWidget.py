@@ -3,21 +3,26 @@ __author__ = 'Clemens Prescher'
 
 import pyqtgraph as pg
 import numpy as np
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 
 # TODO refactoring of the 3 lists: overlays, overlay_names, overlay_show,
 # should probably a class, making it more readable
 
 
-class SpectrumWidget(object):
+class SpectrumWidget(QtGui.QWidget):
 
-    def __init__(self, pg_layout_widget):
-        self.pg_layout_widget = pg_layout_widget
+    def __init__(self, *args, **kwargs):
+        super(SpectrumWidget, self).__init__(*args, **kwargs)
+        self._layout = QtGui.QVBoxLayout()
+        self._layout.setContentsMargins(0, 0, 0, 0)
         self.create_plots()
         self.style_plots()
         self.create_items()
 
+        self.setLayout(self._layout)
+
     def create_plots(self):
+        self.pg_layout_widget = pg.GraphicsLayoutWidget()
         self.pg_layout = pg.GraphicsLayout()
         self.pg_layout.setContentsMargins(0, 0, 0, 0)
         self.pg_layout_widget.setContentsMargins(0, 0, 0, 0)
@@ -31,6 +36,8 @@ class SpectrumWidget(object):
         self.pg_layout.addItem(self.pdf_plot, 2, 0)
 
         self.pg_layout_widget.addItem(self.pg_layout)
+
+        self._layout.addWidget(self.pg_layout_widget)
 
     def style_plots(self):
         self.spectrum_plot.setLabel('bottom', text='Q (1/A)')
