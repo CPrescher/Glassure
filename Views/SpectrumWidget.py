@@ -196,7 +196,7 @@ class MousePositionWidget(QtGui.QWidget):
 
         self.horizontal_layout = QtGui.QHBoxLayout()
         self.horizontal_layout.setContentsMargins(0, 0, 0, 5)
-        self.horizontal_layout.setSpacing(0)
+        self.horizontal_layout.setSpacing(5)
         self.x_unit_lbl = QtGui.QLabel('x:')
         self.x_value_lbl = QtGui.QLabel('0.00')
 
@@ -214,12 +214,20 @@ class MousePositionWidget(QtGui.QWidget):
         self.x_value_lbl.setFixedWidth(50)
         self.y_value_lbl.setFixedWidth(50)
 
+        self.save_sq_btn = QtGui.QPushButton("Save S(Q)")
+        self.save_sq_btn.setFlat(True)
+        self.save_pdf_btn = QtGui.QPushButton("Save g(r)")
+        self.save_pdf_btn.setFlat(True)
+
         self.horizontal_layout.addWidget(self.x_unit_lbl)
         self.horizontal_layout.addWidget(self.x_value_lbl)
         self.horizontal_layout.addWidget(self.y_unit_lbl)
         self.horizontal_layout.addWidget(self.y_value_lbl)
         self.horizontal_layout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
                                                                QtGui.QSizePolicy.Fixed))
+
+        self.horizontal_layout.addWidget(self.save_sq_btn)
+        self.horizontal_layout.addWidget(self.save_pdf_btn)
         self.setLayout(self.horizontal_layout)
 
 

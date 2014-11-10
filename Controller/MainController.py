@@ -26,8 +26,10 @@ class MainController(object):
 
         self.model = GlassureModel()
         self.model.subscribe(self.model_changed)
+        self.working_directory = ''
+        self.saving_directory = ''
         self.create_signals()
-        self.raise_window()
+        self.main_widget.show()
 
     def create_signals(self):
         self.connect_click_function(self.main_widget.control_widget.file_widget.load_data_btn, self.load_data)
@@ -46,6 +48,14 @@ class MainController(object):
         self.main_widget.control_widget.calculation_gb.calculation_parameters_changed.connect(self.update_model)
 
         self.main_widget.control_widget.calculation_gb.optimize_btn.clicked.connect(self.optimize_btn_clicked)
+        self.main_widget.control_widget.calculation_gb.optimize_r_cutoff_btn.clicked.connect(
+            self.optimize_r_cutoff_btn_clicked
+        )
+
+        self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
+                                    self.save_sq_btn_clicked)
+        self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_pdf_btn,
+                                    self.save_pdf_btn_clicked)
 
     def connect_click_function(self, emitter, function):
         self.main_widget.connect(emitter, QtCore.SIGNAL('clicked()'), function)
@@ -53,18 +63,21 @@ class MainController(object):
     def load_data(self, filename=None):
         if filename is None:
             filename = str(QtGui.QFileDialog.getOpenFileName(
-                self.main_widget, caption="Load Spectrum", directory=''))
+                self.main_widget, caption="Load Spectrum", directory=self.working_directory))
 
         if filename is not '':
             self.model.load_data(filename)
+            self.working_directory = os.path.dirname(filename)
             self.main_widget.control_widget.file_widget.data_filename_lbl.setText(os.path.basename(filename))
 
     def load_bkg(self, filename=None):
         if filename is None:
-            filename = str(QtGui.QFileDialog.getOpenFileName(self.main_widget, "Load background data"))
+            filename = str(QtGui.QFileDialog.getOpenFileName(self.main_widget, "Load background data",
+                                                             directory=self.working_directory))
 
         if filename is not None and filename != '':
             self.model.load_bkg(filename)
+            self.working_directory = os.path.dirname(filename)
             self.main_widget.control_widget.file_widget.background_filename_lbl.setText(os.path.basename(filename))
 
     def model_changed(self):
@@ -115,9 +128,33 @@ class MainController(object):
         self.main_widget.control_widget.composition_gb.density_error_lbl.setText(
             "{:3.5f}".format(self.model.density_error))
 
-    def raise_window(self):
-        self.main_widget.show()
-        self.main_widget.setWindowState(
-            self.main_widget.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
-        self.main_widget.activateWindow()
-        self.main_widget.raise_()
+    def optimize_r_cutoff_btn_clicked(self):
+        self.model.optimize_r_cutoff()
+        self.model.optimize_parameter()
+
+        self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
+        self.main_widget.control_widget.composition_gb.density_txt.setText("{:3.5f}".format(self.model.density))
+        self.main_widget.control_widget.composition_gb.density_error_lbl.setText(
+            "{:3.5f}".format(self.model.density_error))
+
+        self.main_widget.control_widget.calculation_gb.r_cutoff_txt.setText(
+            "{:3.5f}".format(self.model.r_cutoff)
+        )
+
+    def save_sq_btn_clicked(self, filename=None):
+        if filename is None:
+            filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget, "Save S(Q) Data.",
+                                                             self.saving_directory,
+                                                             ('Data (*.txt)')))
+        if filename is not '':
+            self.model.sq_spectrum.save(filename)
+            self.saving_directory = os.path.dirname(filename)
+
+    def save_pdf_btn_clicked(self, filename=None):
+        if filename is None:
+            filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget, "Save g(r) Data.",
+                                                             self.saving_directory,
+                                                             ('Data (*.txt)')))
+        if filename is not '':
+            self.model.pdf_spectrum.save(filename)
+            self.saving_directory = os.path.dirname(filename)
