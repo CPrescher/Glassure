@@ -63,8 +63,7 @@ class MainController(object):
             self.model.load_bkg(filename)
 
     def model_changed(self):
-        x, y = self.model.original_spectrum.data
-        self.view.spectrum_widget.plot_data(x,y)
+        self.view.spectrum_widget.plot_spectrum(self.model.original_spectrum)
 
     def bkg_scale_changed(self, value):
         self.model.set_bkg_scale(value)
