@@ -12,7 +12,7 @@ class SpectrumTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_operators(self):
+    def test_plus_and_minus_operators(self):
         x = np.linspace(0, 10, 100)
         spectrum1 = Spectrum(x, np.sin(x))
         spectrum2 = Spectrum(x, np.sin(x))
@@ -36,3 +36,11 @@ class SpectrumTest(unittest.TestCase):
         self.assertTrue(np.array_equal(spectrum3._y, np.sin(x)*0))
         self.assertTrue(np.array_equal(spectrum1._y, np.sin(x)*1))
         self.assertTrue(np.array_equal(spectrum1._y, np.sin(x)*1))
+
+    def test_multiply_operator(self):
+        x = np.linspace(0, 10, 100)
+        spectrum1 = 2*Spectrum(x, np.sin(x))
+
+        spectrum2 = 2*Spectrum(x, np.sin(x))
+
+        self.assertTrue(np.array_equal(spectrum2._y, np.sin(x)*2))
