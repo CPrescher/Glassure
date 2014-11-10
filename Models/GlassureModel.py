@@ -5,7 +5,7 @@ import numpy as np
 
 from .Spectrum import Spectrum
 from .HelperModule import Observable
-from GlassCalculations import calc_transforms, optimize_background_scaling_and_density
+from GlassCalculations import calc_transforms, optimize_background_scaling_and_density, optimize_r_cutoff
 
 
 class GlassureModel(Observable):
@@ -86,6 +86,14 @@ class GlassureModel(Observable):
             None
         )
         self.calculate_spectra()
+
+    def optimize_r_cutoff(self):
+        self.r_cutoff = optimize_r_cutoff(self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
+                                          self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
+                                          self.background_scaling,
+                                          self.composition,
+                                          self.density,
+                                          self.r_cutoff)
 
 
     @staticmethod

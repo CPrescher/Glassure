@@ -14,21 +14,21 @@ def optimize_r_cutoff(data_spectrum, bkg_spectrum,
                       initial_background_scaling, elemental_abundances,
                       initial_density, r_cutoff,
                       callback_fcn=None):
+
     def optimization_fcn(pars):
         parvals = pars.valuesdict()
         r_cutoff = parvals['r_cutoff']
 
-        _, _, _, density_err = optimize_background_scaling_and_density(data_spectrum, bkg_spectrum,
+        _, _, density, density_err = optimize_background_scaling_and_density(data_spectrum, bkg_spectrum,
                                                                        initial_background_scaling, elemental_abundances,
                                                                        initial_density, r_cutoff)
 
-        return [abs(density_err)]
+        return np.array([abs(density_err/density)])
 
     pars = Parameters()
-    pars.add('r_cutoff', r_cutoff)
+    pars.add('r_cutoff', r_cutoff, min=0)
 
-    minimize(optimization_fcn, pars)
-
+    minimize(optimization_fcn, pars, method='slsqp')
     return pars['r_cutoff'].value
 
 
