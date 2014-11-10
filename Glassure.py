@@ -17,7 +17,9 @@ if __name__ == "__main__":
         # possible values:
         # "windows", "motif", "cde", "plastique", "windowsxp", or "macintosh"
     controller = MainController()
-    controller.load_data('Tests/TestData/Mg2SiO4_120.xy')
-    controller.load_bkg('Tests/TestData/Mg2SiO4_120_bkg.xy')
+    controller.load_data('Tests/TestData/Mg2SiO4_091.xy')
+    controller.load_bkg('Tests/TestData/Mg2SiO4_085.xy')
+    controller.main_widget.control_widget.smooth_gb.smooth_sb.setValue(10)
+    controller.main_widget.control_widget.background_options_gb.scale_sb.setValue(0.84)
     app.exec_()
     del app

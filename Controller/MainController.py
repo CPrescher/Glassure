@@ -42,30 +42,33 @@ class MainController(object):
         self.connect_click_function(self.main_widget.control_widget.composition_gb.delete_element_btn,
                                     self.delete_element_btn_clicked)
 
+        self.main_widget.control_widget.composition_gb.composition_changed.connect(self.update_model)
+        self.main_widget.control_widget.calculation_gb.calculation_parameters_changed.connect(self.update_model)
 
     def connect_click_function(self, emitter, function):
         self.main_widget.connect(emitter, QtCore.SIGNAL('clicked()'), function)
 
-    def load_data(self, filename = None):
+    def load_data(self, filename=None):
         if filename is None:
             filename = str(QtGui.QFileDialog.getOpenFileName(
-                self.main_widget, caption="Load Spectrum", directory = ''))
+                self.main_widget, caption="Load Spectrum", directory=''))
 
         if filename is not '':
             self.model.load_data(filename)
             self.main_widget.control_widget.file_widget.data_filename_lbl.setText(os.path.basename(filename))
 
-    def load_bkg(self, filename = None):
+    def load_bkg(self, filename=None):
         if filename is None:
-            filename = str(QtGui.QFileDialog.getOpenFileName(
-                        self.main_widget, "Load background data"))
+            filename = str(QtGui.QFileDialog.getOpenFileName(self.main_widget, "Load background data"))
 
         if filename is not None and filename != '':
             self.model.load_bkg(filename)
             self.main_widget.control_widget.file_widget.background_filename_lbl.setText(os.path.basename(filename))
 
     def model_changed(self):
-        self.main_widget.spectrum_widget.plot_spectrum(self.model.original_spectrum)
+        self.main_widget.spectrum_widget.plot_spectrum(self.model.subtracted_spectrum)
+        self.main_widget.spectrum_widget.plot_sq(self.model.sq_spectrum)
+        self.main_widget.spectrum_widget.plot_pdf(self.model.pdf_spectrum)
 
     def bkg_scale_changed(self, value):
         self.model.set_bkg_scale(value)
@@ -89,14 +92,22 @@ class MainController(object):
         self.main_widget.smooth_sb.setSingleStep(value)
 
     def add_element_btn_clicked(self):
-        self.main_widget.control_widget.composition_gb.add_element(element = "Si", value = 1.0)
+        self.main_widget.control_widget.composition_gb.add_element(element="Si", value=1.0)
 
     def delete_element_btn_clicked(self):
         cur_ind = self.main_widget.control_widget.composition_gb.composition_tw.currentRow()
         self.main_widget.control_widget.composition_gb.delete_element(cur_ind)
 
+    def update_model(self):
+        composition = self.main_widget.control_widget.composition_gb.get_composition()
+        density = self.main_widget.control_widget.composition_gb.get_density()
+
+        q_min, q_max, r_cutoff = self.main_widget.control_widget.calculation_gb.get_parameter()
+        self.model.update_parameter(composition, density, q_min, q_max, r_cutoff)
+
     def raise_window(self):
         self.main_widget.show()
-        self.main_widget.setWindowState(self.main_widget.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
+        self.main_widget.setWindowState(
+            self.main_widget.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
         self.main_widget.activateWindow()
         self.main_widget.raise_()

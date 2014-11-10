@@ -216,7 +216,6 @@ class CompositionGroupBox(QtGui.QGroupBox):
         return float(str(self.density_txt.text()))
 
     def emit_composition_changed_signal(self):
-        print self.get_composition()
         self.composition_changed.emit(self.get_composition(), self.get_density())
 
 
@@ -312,6 +311,13 @@ class CalculationGroupBox(QtGui.QGroupBox):
         q_max = float(str(self.q_max_txt.text()))
         r_cutoff = float(str(self.r_cutoff_txt.text()))
         self.calculation_parameters_changed.emit(q_min, q_max, r_cutoff)
+
+    def get_parameter(self):
+        q_min = float(str(self.q_min_txt.text()))
+        q_max = float(str(self.q_max_txt.text()))
+        r_cutoff = float(str(self.r_cutoff_txt.text()))
+        return q_min, q_max, r_cutoff
+
 
 
 
