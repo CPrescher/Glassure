@@ -89,10 +89,11 @@ class MainController(object):
         self.main_widget.smooth_sb.setSingleStep(value)
 
     def add_element_btn_clicked(self):
-        self.main_widget.add_element_to_composition_tw(element = "Si", value = 1.0)
+        self.main_widget.control_widget.composition_gb.add_element(element = "Si", value = 1.0)
 
     def delete_element_btn_clicked(self):
-        pass
+        cur_ind = self.main_widget.control_widget.composition_gb.composition_tw.currentRow()
+        self.main_widget.control_widget.composition_gb.delete_element(cur_ind)
 
     def raise_window(self):
         self.main_widget.show()
