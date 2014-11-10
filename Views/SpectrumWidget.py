@@ -1,169 +1,129 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 
-import time
 import pyqtgraph as pg
 import numpy as np
-from PyQt4 import QtCore, QtGui
-from pyqtgraph.exporters.ImageExporter import ImageExporter
-from pyqtgraph.exporters.SVGExporter import SVGExporter
+from PyQt4 import QtCore
 
 # TODO refactoring of the 3 lists: overlays, overlay_names, overlay_show,
 # should probably a class, making it more readable
 
 
-class SpectrumWidget(QtCore.QObject):
+class SpectrumWidget(object):
+
+    def __init__(self, pg_layout_widget):
+        self.pg_layout_widget = pg_layout_widget
+        self.create_plots()
+        self.create_items()
+
+    def create_plots(self):
+        self.pg_layout = pg.GraphicsLayout()
+        self.pg_layout.setContentsMargins(0, 0, 0, 0)
+        self.pg_layout_widget.setContentsMargins(0, 0, 0, 0)
+
+        self.spectrum_plot = ModifiedPlotItem()
+        self.sq_plot = ModifiedPlotItem()
+        self.pdf_plot = ModifiedPlotItem()
+
+        self.pg_layout.addItem(self.spectrum_plot, 0, 0)
+        self.pg_layout.addItem(self.sq_plot, 1, 0)
+        self.pg_layout.addItem(self.pdf_plot, 2, 0)
+
+        self.pg_layout_widget.addItem(self.pg_layout)
+
+    def create_items(self):
+        self.spectrum_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
+        self.bkg_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5, style=QtCore.Qt.DashLine))
+        self.sq_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
+        self.pdf_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
+
+        self.spectrum_plot.addItem(self.spectrum_item)
+        self.spectrum_plot.addItem(self.bkg_item)
+        self.sq_plot.addItem(self.sq_item)
+        self.pdf_plot.addItem(self.pdf_item)
+
+    def plot_spectrum(self, spec):
+        x, y = spec.data
+        self.spectrum_item.setData(x=x, y=y)
+
+    def plot_bkg(self, spectrum):
+        x, y = spectrum.data
+        self.bkg_item.setData(x=x, y=y)
+
+    def plot_sq(self, spectrum):
+        x, y = spectrum.data
+        self.sq_item.setData(x=x, y=y)
+
+    def plot_pdf(self, spectrum):
+        x, y = spectrum.data
+        self.pdf_item.setData(x=x, y=y)
+
+
+class ModifiedPlotItem(pg.PlotItem):
     mouse_moved = QtCore.pyqtSignal(float, float)
     mouse_left_clicked = QtCore.pyqtSignal(float, float)
     range_changed = QtCore.pyqtSignal(list)
 
-    def __init__(self, pg_layout, x_label = '', y_label = ''):
-        super(SpectrumWidget, self).__init__()
-        self.pg_layout = pg_layout
-        self.create_graphics()
-        self.create_main_plot()
-        self.create_pos_line()
+    def __init__(self, *args, **kwargs):
+        super(ModifiedPlotItem, self).__init__(*args, **kwargs)
+
         self.modify_mouse_behavior()
-        self._auto_range = True
-        self.set_labels(x_label, y_label)
-
-    def create_graphics(self):
-        self.spectrum_plot = self.pg_layout.addPlot()
-        self.view_box = self.spectrum_plot.vb
-
-    def set_labels(self, x_label='', y_label=''):
-        if x_label != 1:
-            self.spectrum_plot.showLabel('bottom', True)
-            self.spectrum_plot.setLabel('bottom', x_label)
-        else:
-            self.spectrum_plot.showLabel('bottom', False)
-
-        if y_label != 1:
-            self.spectrum_plot.showLabel('left', True)
-            self.spectrum_plot.setLabel('left', y_label)
-        else:
-            self.spectrum_plot.showLabel('left', False)
-
-    def create_main_plot(self):
-        self.plot_item = pg.PlotDataItem(np.linspace(0, 10), np.sin(np.linspace(10, 3)),
-                                         pen=pg.mkPen(color=(255, 255, 255), width=2))
-        self.spectrum_plot.addItem(self.plot_item)
-
-    def create_pos_line(self):
-        self.pos_line = pg.InfiniteLine(pen=pg.mkPen(color=(0, 255, 0), width=1.5, style=QtCore.Qt.DashLine))
-        self.spectrum_plot.addItem(self.pos_line)
-
-    def set_pos_line(self, x):
-        self.pos_line.setPos(x)
-
-    def get_pos_line(self):
-        return self.pos_line.value()
-
-    def plot_data(self, x, y):
-        self.plot_item.setData(x, y)
-        self.update_graph_limits()
-
-    def update_graph_limits(self):
-        x_range = list(self.plot_item.dataBounds(0))
-        self.view_box.setLimits(xMin=x_range[0], xMax=x_range[1],
-                                minXRange=x_range[0], maxXRange=x_range[1])\
-
-
-    def save_svg(self, filename):
-        self._invert_color()
-        previous_label = None
-        if self.spectrum_plot.getAxis('bottom').labelText == u'2θ':
-            previous_label = (u'2θ', '°')
-            self.spectrum_plot.setLabel('bottom', '2th_deg', '')
-        exporter = SVGExporter(self.spectrum_plot)
-        exporter.export(filename)
-        self._norm_color()
-        if previous_label is not None:
-            self.spectrum_plot.setLabel('bottom', previous_label[0], previous_label[1])
-
-    def _invert_color(self):
-        self.spectrum_plot.getAxis('bottom').setPen('k')
-        self.spectrum_plot.getAxis('left').setPen('k')
-        self.plot_item.setPen('k')
-        self.legend.legendItems[0][1].setAttr('color', '000')
-        self.legend.legendItems[0][1].setText(self.legend.legendItems[0][1].text)
-
-    def _norm_color(self):
-        self.spectrum_plot.getAxis('bottom').setPen('w')
-        self.spectrum_plot.getAxis('left').setPen('w')
-        self.plot_item.setPen('w')
-        self.legend.legendItems[0][1].setAttr('color', 'FFF')
-        self.legend.legendItems[0][1].setText(self.legend.legendItems[0][1].text)
-
-    def mouseMoved(self, pos):
-        pos = self.plot_item.mapFromScene(pos)
-        self.mouse_moved.emit(pos.x(), pos.y())
 
     def modify_mouse_behavior(self):
-        # different mouse handlers
-        self.view_box.setMouseMode(self.view_box.RectMode)
-
-        self.pg_layout.scene().sigMouseMoved.connect(self.mouseMoved)
-        self.view_box.mouseClickEvent = self.myMouseClickEvent
-        self.view_box.mouseDragEvent = self.myMouseDragEvent
-        self.view_box.mouseDoubleClickEvent = self.myMouseDoubleClickEvent
-        self.view_box.wheelEvent = self.myWheelEvent
-
-        # create sigranged changed timer for right click drag
-        # if not using the timer the signals are fired too often and
-        # the computer becomes slow...
+        self.vb.mouseClickEvent = self.mouse_click_event
+        self.vb.mouseDragEvent = self.mouse_drag_event
+        self.vb.mouseDoubleClickEvent = self.mouse_double_click_event
+        self.vb.wheelEvent = self.wheel_event
         self.range_changed_timer = QtCore.QTimer()
         self.range_changed_timer.timeout.connect(self.emit_sig_range_changed)
         self.range_changed_timer.setInterval(30)
-        self.last_view_range = np.array(self.view_box.viewRange())
+        self.last_view_range = np.array(self.vb.viewRange())
 
-    def myMouseClickEvent(self, ev):
+    def connect_mouse_move_event(self):
+        self.scene().sigMouseMoved.connect(self.mouse_move_event)
+
+    def mouse_move_event(self, pos):
+        if self.sceneBoundingRect().contains(pos):
+            pos = self.vb.mapSceneToView(pos)
+            self.mouse_moved.emit(pos.x(), pos.y())
+
+    def mouse_click_event(self, ev):
         if ev.button() == QtCore.Qt.RightButton or \
                 (ev.button() == QtCore.Qt.LeftButton and
-                 ev.modifiers() & QtCore.Qt.ControlModifier):
-            view_range = np.array(self.view_box.viewRange()) * 2
-            curve_data = self.plot_item.getData()
-            x_range = np.max(curve_data[0]) - np.min(curve_data[0])
-            if (view_range[0][1] - view_range[0][0]) > x_range:
-                self._auto_range = True
-                self.view_box.autoRange()
-                self.view_box.enableAutoRange()
-            else:
-                self._auto_range = False
-                self.view_box.scaleBy(2)
-            self.view_box.sigRangeChangedManually.emit(self.view_box.state['mouseEnabled'])
+                         ev.modifiers() & QtCore.Qt.ControlModifier):
+            self.vb.scaleBy(2)
+            self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])
         elif ev.button() == QtCore.Qt.LeftButton:
-            pos = self.view_box.mapFromScene(ev.pos())
-            pos = self.plot_item.mapFromScene(2 * ev.pos() - pos)
-            x = pos.x()
-            y = pos.y()
-            self.mouse_left_clicked.emit(x, y)
+            if self.sceneBoundingRect().contains(ev.pos()):
+                pos = self.vb.mapToView(ev.pos())
+                x = pos.x()
+                y = pos.y()
+                self.mouse_left_clicked.emit(x, y)
 
-    def myMouseDoubleClickEvent(self, ev):
+    def mouse_double_click_event(self, ev):
         if (ev.button() == QtCore.Qt.RightButton) or (ev.button() == QtCore.Qt.LeftButton and
-                                                      ev.modifiers() & QtCore.Qt.ControlModifier):
-            self.view_box.autoRange()
-            self.view_box.enableAutoRange()
+                                                              ev.modifiers() & QtCore.Qt.ControlModifier):
+            self.vb.autoRange()
+            self.vb.enableAutoRange()
             self._auto_range = True
-            self.view_box.sigRangeChangedManually.emit(self.view_box.state['mouseEnabled'])
+            self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])
 
-    def myMouseDragEvent(self, ev, axis=None):
+    def mouse_drag_event(self, ev, axis=None):
         # most of this code is copied behavior mouse drag from the original code
         ev.accept()
         pos = ev.pos()
-        lastPos = ev.lastPos()
-        dif = pos - lastPos
+        last_pos = ev.lastPos()
+        dif = pos - last_pos
         dif *= -1
 
         if ev.button() == QtCore.Qt.RightButton or \
-                (ev.button() == QtCore.Qt.LeftButton and
-                 ev.modifiers() & QtCore.Qt.ControlModifier):
+                (ev.button() == QtCore.Qt.LeftButton and ev.modifiers() & QtCore.Qt.ControlModifier):
             # determine the amount of translation
             tr = dif
-            tr = self.view_box.mapToView(tr) - self.view_box.mapToView(pg.Point(0, 0))
+            tr = self.vb.mapToView(tr) - self.vb.mapToView(pg.Point(0, 0))
             x = tr.x()
             y = tr.y()
-            self.view_box.translateBy(x=x, y=y)
+            self.vb.translateBy(x=x, y=y)
             if ev.start:
                 self.range_changed_timer.start()
             if ev.isFinish():
@@ -172,43 +132,24 @@ class SpectrumWidget(QtCore.QObject):
         else:
             if ev.isFinish():  # This is the final move in the drag; change the view scale now
                 self._auto_range = False
-                self.view_box.enableAutoRange(enable=False)
-                self.view_box.rbScaleBox.hide()
+                self.vb.enableAutoRange(enable=False)
+                self.vb.rbScaleBox.hide()
                 ax = QtCore.QRectF(pg.Point(ev.buttonDownPos(ev.button())), pg.Point(pos))
-                ax = self.view_box.childGroup.mapRectFromParent(ax)
-                self.view_box.showAxRect(ax)
-                self.view_box.axHistoryPointer += 1
-                self.view_box.axHistory = self.view_box.axHistory[:self.view_box.axHistoryPointer] + [ax]
-                self.view_box.sigRangeChangedManually.emit(self.view_box.state['mouseEnabled'])
+                ax = self.vb.childGroup.mapRectFromParent(ax)
+                self.vb.showAxRect(ax)
+                self.vb.axHistoryPointer += 1
+                self.vb.axHistory = self.vb.axHistory[:self.vb.axHistoryPointer] + [ax]
+                self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])
             else:
                 # update shape of scale box
-                self.view_box.updateScaleBox(ev.buttonDownPos(), ev.pos())
+                self.vb.updateScaleBox(ev.buttonDownPos(), ev.pos())
 
     def emit_sig_range_changed(self):
-        new_view_range = np.array(self.view_box.viewRange())
+        new_view_range = np.array(self.vb.viewRange())
         if not np.array_equal(self.last_view_range, new_view_range):
-            self.view_box.sigRangeChangedManually.emit(self.view_box.state['mouseEnabled'])
+            self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])
             self.last_view_range = new_view_range
 
-    def myWheelEvent(self, ev, axis=None, *args):
-        if ev.delta() > 0:
-            pg.ViewBox.wheelEvent(self.view_box, ev, axis)
-
-            self._auto_range = False
-            # axis_range = self.spectrum_plot.viewRange()
-            # self.range_changed.emit(axis_range)
-        else:
-            if self._auto_range is not True:
-                view_range = np.array(self.view_box.viewRange())
-                curve_data = self.plot_item.getData()
-                x_range = np.max(curve_data[0]) - np.min(curve_data[0])
-                y_range = np.max(curve_data[1]) - np.min(curve_data[1])
-                if (view_range[0][1] - view_range[0][0]) >= x_range and \
-                        (view_range[1][1] - view_range[1][0]) >= y_range:
-                    self.view_box.autoRange()
-                    self.view_box.enableAutoRange()
-                    self._auto_range = True
-                else:
-                    self._auto_range = False
-                    pg.ViewBox.wheelEvent(self.view_box, ev)
-        self.view_box.sigRangeChangedManually.emit(self.view_box.state['mouseEnabled'])
+    def wheel_event(self, ev, axis=None, *args):
+        pg.ViewBox.wheelEvent(self.vb, ev, axis)
+        self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])

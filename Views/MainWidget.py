@@ -4,9 +4,10 @@ __author__ = 'Clemens Prescher'
 from PyQt4 import QtGui, QtCore
 
 from UiFiles.MainUI import Ui_MainWidget
-
 from .SpectrumWidget import SpectrumWidget
+
 from ScatteringFactors import scattering_factor_param
+
 
 class MainWidget(QtGui.QWidget,Ui_MainWidget):
 
@@ -14,7 +15,7 @@ class MainWidget(QtGui.QWidget,Ui_MainWidget):
         super(MainWidget, self).__init__(None)
         self.setupUi(self)
         self.setWindowTitle(title)
-        self.spectrum_widget = SpectrumWidget(self.spectrum_pg_layout, 'Q(A<sup>-1</sup>)')
+        self.spectrum_widget = SpectrumWidget(self.spectrum_pg_layout)
         self.set_validators()
 
         self.element_cbs = []
@@ -38,6 +39,5 @@ class MainWidget(QtGui.QWidget,Ui_MainWidget):
         value_item = QtGui.QTableWidgetItem(str(value))
         value_item.setTextAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.composition_tw.setItem(current_rows, 1, value_item)
-
 
         self.composition_tw.blockSignals(False)
