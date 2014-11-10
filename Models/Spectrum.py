@@ -14,7 +14,7 @@ class Spectrum(object):
         else:
             self._x = x
         if y is None:
-            self._y = np.log(self._x ** 2)
+            self._y = np.log(self._x ** 2)-(self._x*0.2)**2
         else:
             self._y = y
         self.name = name

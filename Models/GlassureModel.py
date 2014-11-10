@@ -59,9 +59,8 @@ class GlassureModel(Observable):
         self.calculate_spectra()
 
     def calculate_spectra(self):
-        if len(self.composition)!=0:
-            print 'calculating'
-            self.sq_spectrum, _, self.gr_spectrum = calc_transforms(
+        if len(self.composition) != 0:
+            self.sq_spectrum, _, self.pdf_spectrum = calc_transforms(
                 self.original_spectrum,
                 self.background_spectrum,
                 self.background_scaling,
