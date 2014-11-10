@@ -14,6 +14,7 @@ class SpectrumWidget(object):
     def __init__(self, pg_layout_widget):
         self.pg_layout_widget = pg_layout_widget
         self.create_plots()
+        self.style_plots()
         self.create_items()
 
     def create_plots(self):
@@ -30,6 +31,16 @@ class SpectrumWidget(object):
         self.pg_layout.addItem(self.pdf_plot, 2, 0)
 
         self.pg_layout_widget.addItem(self.pg_layout)
+
+    def style_plots(self):
+        self.spectrum_plot.setLabel('bottom', text='Q (1/A)')
+        self.spectrum_plot.setLabel('left', text='Int (a.u.)')
+
+        self.sq_plot.setLabel('bottom', text='Q (1/A)')
+        self.sq_plot.setLabel('left', text='S(Q)')
+
+        self.pdf_plot.setLabel('bottom', text='r (A)')
+        self.pdf_plot.setLabel('left', text='g(r)')
 
     def create_items(self):
         self.spectrum_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
