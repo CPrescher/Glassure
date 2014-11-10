@@ -45,6 +45,8 @@ class MainController(object):
         self.main_widget.control_widget.composition_gb.composition_changed.connect(self.update_model)
         self.main_widget.control_widget.calculation_gb.calculation_parameters_changed.connect(self.update_model)
 
+        self.main_widget.control_widget.calculation_gb.optimize_btn.clicked.connect(self.optimize_btn_clicked)
+
     def connect_click_function(self, emitter, function):
         self.main_widget.connect(emitter, QtCore.SIGNAL('clicked()'), function)
 
@@ -66,7 +68,8 @@ class MainController(object):
             self.main_widget.control_widget.file_widget.background_filename_lbl.setText(os.path.basename(filename))
 
     def model_changed(self):
-        self.main_widget.spectrum_widget.plot_spectrum(self.model.subtracted_spectrum)
+        self.main_widget.spectrum_widget.plot_spectrum(self.model.original_spectrum)
+        self.main_widget.spectrum_widget.plot_bkg(self.model.get_background_spectrum())
         self.main_widget.spectrum_widget.plot_sq(self.model.sq_spectrum)
         self.main_widget.spectrum_widget.plot_pdf(self.model.pdf_spectrum)
 
@@ -104,6 +107,11 @@ class MainController(object):
 
         q_min, q_max, r_cutoff = self.main_widget.control_widget.calculation_gb.get_parameter()
         self.model.update_parameter(composition, density, q_min, q_max, r_cutoff)
+
+    def optimize_btn_clicked(self):
+        self.model.optimize_parameter()
+        self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
+        self.main_widget.control_widget.composition_gb.density_txt.setText(str(self.model.density))
 
     def raise_window(self):
         self.main_widget.show()

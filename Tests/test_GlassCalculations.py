@@ -127,7 +127,7 @@ class GlassCalculationsTest(unittest.TestCase):
         data_spectrum.set_smoothing(5)
 
         bkg_spectrum = Spectrum()
-        bkg_spectrum.load('TestData/Mg2SiO4_085.xy')
+        bkg_spectrum.load('TestData/Mg2SiO4_091_bkg.xy')
         bkg_spectrum.set_smoothing(5)
 
         q_max = 10
@@ -165,10 +165,10 @@ class GlassCalculationsTest(unittest.TestCase):
         r = np.linspace(0.3, 10, 1000)
 
         data_spectrum = Spectrum()
-        data_spectrum.load('TestData/Mg2SiO4_175.xy')
+        data_spectrum.load('TestData/Mg2SiO4_091.xy')
 
         bkg_spectrum = Spectrum()
-        bkg_spectrum.load('TestData/Mg2SiO4_085.xy')
+        bkg_spectrum.load('TestData/Mg2SiO4_091_bkg.xy')
 
         bkg_spectrum.set_smoothing(smoothing)
         data_spectrum.set_smoothing(smoothing)
@@ -176,7 +176,7 @@ class GlassCalculationsTest(unittest.TestCase):
         data_spectrum = self.limit_spectrum_q(data_spectrum, q_max)
         bkg_spectrum = self.limit_spectrum_q(bkg_spectrum, q_max)
 
-        density = 5
+        density = 1.5
         background_scaling = 0.83
         elemental_abundances = {
             'Mg': 2,

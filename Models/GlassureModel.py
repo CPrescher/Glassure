@@ -5,7 +5,7 @@ import numpy as np
 
 from .Spectrum import Spectrum
 from .HelperModule import Observable
-from GlassCalculations import calc_transforms
+from GlassCalculations import calc_transforms, optimize_background_scaling_and_density
 
 
 class GlassureModel(Observable):
@@ -14,7 +14,7 @@ class GlassureModel(Observable):
         self.original_spectrum = Spectrum()
         self.background_spectrum = Spectrum()
         self.background_scaling = 1.0
-        self.subtracted_spectrum = Spectrum()
+        self.background_offset = 0
         self.sq_spectrum = Spectrum()
         self.pdf_spectrum = Spectrum()
 
@@ -26,31 +26,30 @@ class GlassureModel(Observable):
 
     def load_data(self, filename):
         self.original_spectrum.load(filename)
-        self.subtracted_spectrum.load(filename)
         self.calculate_spectra()
 
     def load_bkg(self, filename):
         self.background_spectrum.load(filename)
-        self.subtracted_spectrum.set_background(self.background_spectrum)
         self.calculate_spectra()
 
     def set_bkg_scale(self, scaling):
-        self.background_spectrum.scaling = scaling
         self.background_scaling = scaling
         self.calculate_spectra()
 
+    def get_background_spectrum(self):
+        x, y = self.background_spectrum.data
+        return Spectrum(x, self.background_offset + self.background_scaling * y)
+
     def set_bkg_offset(self, offset):
-        self.background_spectrum.offset = offset
+        self.background_offset = offset
         self.calculate_spectra()
 
     def set_smooth(self, value):
         self.original_spectrum.set_smoothing(value)
-        self.subtracted_spectrum.set_smoothing(value)
         self.background_spectrum.set_smoothing(value)
         self.calculate_spectra()
 
     def update_parameter(self, composition, density, q_min, q_max, r_cutoff):
-        print density
         self.composition = composition
         self.density = density
         self.q_min = q_min
@@ -70,10 +69,24 @@ class GlassureModel(Observable):
             )
         self.notify()
 
-    def limit_spectrum(self, spectrum, q_min, q_max):
+    def optimize_parameter(self):
+        self.background_scaling, _, self.density, _ = optimize_background_scaling_and_density(
+            self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
+            self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
+            self.background_scaling,
+            self.composition,
+            self.density,
+            self.r_cutoff,
+            None
+        )
+        self.calculate_spectra()
+
+
+    @staticmethod
+    def limit_spectrum(spectrum, q_min, q_max):
         q, intensity = spectrum.data
         return Spectrum(q[np.where((q_min < q) & (q < q_max))],
-                        intensity[np.where((q_min < q) &(q < q_max))])
+                        intensity[np.where((q_min < q) & (q < q_max))])
 
 
 

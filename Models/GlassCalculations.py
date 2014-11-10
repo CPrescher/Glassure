@@ -65,8 +65,8 @@ def optimize_background_scaling_and_density(data_spectrum, bkg_spectrum,
         return chi2
 
     pars = Parameters()
-    pars.add('background_scaling', initial_background_scaling, min=0.5, max=1)
-    pars.add('density', initial_density, min=1.3)
+    pars.add('background_scaling', initial_background_scaling, min=0, max=10)
+    pars.add('density', initial_density, min=0)
 
     minimize(optimization_fcn, pars)
     print fit_report(pars)
@@ -81,7 +81,6 @@ def calc_transforms(data_spectrum, bkg_spectrum, background_scaling, elemental_a
     gr_spectrum = calc_gr_from_fr(fr_spectrum, elemental_abundances, density)
 
     return sq_spectrum, fr_spectrum, gr_spectrum
-
 
 def calc_gr_from_fr(fr_spectrum, elemental_abundances, density):
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density)
