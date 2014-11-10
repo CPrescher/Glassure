@@ -9,8 +9,8 @@ import time
 import matplotlib.pyplot as plt
 
 from GlassCalculations import normalize_elemental_abundances, calculate_f_mean_squared, \
-    calculate_f_squared_mean, calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom,\
-    calc_fr_from_sq, calc_fr_from_sq_matrix
+    calculate_f_squared_mean, calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom, \
+    calc_fr_from_sq, calc_fr_from_sq_matrix, calc_transforms, optimize_background_scaling_and_density, optimize_r_cutoff
 
 from Spectrum import Spectrum
 
@@ -34,7 +34,12 @@ class GlassCalculationsTest(unittest.TestCase):
 
     def plot_spectrum(self, spectrum):
         x, y = spectrum.data
-        plt.plot(x,y)
+        plt.plot(x, y)
+
+    def limit_spectrum_q(self, spectrum, q_max):
+        q, int = spectrum.data
+
+        return Spectrum(q[np.where(q < q_max)], int[np.where(q < q_max)])
 
     # @unittest.skip("blabla")
     def test_normalize_elemental_abundances(self):
@@ -98,22 +103,123 @@ class GlassCalculationsTest(unittest.TestCase):
         fr2_x, fr2_y = fr2.data
 
         self.assertEqual(fr1_y.shape, fr2_y.shape)
-        self.assertAlmostEqual(np.sum(np.abs(fr2_y-fr1_y)), 0)
+        self.assertAlmostEqual(np.sum(np.abs(fr2_y - fr1_y)), 0)
 
-        #benchmark
+        # benchmark
         n = 100
 
         t1 = time.time()
         for ind in range(n):
             calc_fr_from_sq(Spectrum(q, sq), r)
 
-        print("Normal iterative procedure takes: {}".format(time.time()-t1))
+        print("Normal iterative procedure takes: {}".format(time.time() - t1))
 
         t1 = time.time()
         for ind in range(n):
             calc_fr_from_sq_matrix(Spectrum(q, sq), r)
 
-        print("Matrix procedure takes: {}".format(time.time()-t1))
+        print("Matrix procedure takes: {}".format(time.time() - t1))
+
+    def test_calc_transforms(self):
+
+        data_spectrum = Spectrum()
+        data_spectrum.load('TestData/Mg2SiO4_091.xy')
+        data_spectrum.set_smoothing(5)
+
+        bkg_spectrum = Spectrum()
+        bkg_spectrum.load('TestData/Mg2SiO4_085.xy')
+        bkg_spectrum.set_smoothing(5)
+
+        q_max = 10
+
+        data_spectrum = self.limit_spectrum_q(data_spectrum, q_max)
+        bkg_spectrum = self.limit_spectrum_q(bkg_spectrum, q_max)
+
+        density = 1.7
+        background_scaling = 0.83133015
+        elemental_abundances = {
+            'Mg': 2,
+            'Si': 1,
+            'O': 4,
+        }
+        r = np.linspace(0, 10, 1000)
+        sq_spectrum, fr_spectrum, gr_spectrum = calc_transforms(data_spectrum, bkg_spectrum,
+                                                                background_scaling, elemental_abundances,
+                                                                density, r)
+
+        # self.plot_spectrum(data_spectrum)
+        # self.plot_spectrum(bkg_spectrum)
+        plt.figure()
+        plt.subplot(3, 1, 1)
+        self.plot_spectrum(data_spectrum - background_scaling * bkg_spectrum)
+        plt.subplot(3, 1, 2)
+        self.plot_spectrum(sq_spectrum)
+        plt.subplot(3, 1, 3)
+        self.plot_spectrum(gr_spectrum)
+        plt.tight_layout()
+        plt.show()
+
+    def test_optimization(self):
+        q_max = 10
+        smoothing = 30
+        r = np.linspace(0.3, 10, 1000)
+
+        data_spectrum = Spectrum()
+        data_spectrum.load('TestData/Mg2SiO4_175.xy')
+
+        bkg_spectrum = Spectrum()
+        bkg_spectrum.load('TestData/Mg2SiO4_085.xy')
+
+        bkg_spectrum.set_smoothing(smoothing)
+        data_spectrum.set_smoothing(smoothing)
+
+        data_spectrum = self.limit_spectrum_q(data_spectrum, q_max)
+        bkg_spectrum = self.limit_spectrum_q(bkg_spectrum, q_max)
+
+        density = 5
+        background_scaling = 0.83
+        elemental_abundances = {
+            'Mg': 2,
+            'Si': 1,
+            'O': 4,
+        }
+        r_cutoff = optimize_r_cutoff(data_spectrum,
+                    bkg_spectrum,
+                    background_scaling,
+                    elemental_abundances,
+                    density,
+                    0.3)
+
+        print r_cutoff
+
+
+        background_scaling, background_scaling_err, \
+        density, density_err = optimize_background_scaling_and_density(
+            data_spectrum,
+            bkg_spectrum,
+            background_scaling,
+            elemental_abundances,
+            density,
+            r_cutoff
+        )
+
+        sq_spectrum, fr_spectrum, gr_spectrum = calc_transforms(data_spectrum, bkg_spectrum,
+                                                                background_scaling, elemental_abundances,
+                                                                density, r)
+
+        # self.plot_spectrum(data_spectrum)
+        # self.plot_spectrum(bkg_spectrum)
+        plt.figure()
+        plt.subplot(3, 1, 1)
+        self.plot_spectrum(data_spectrum - background_scaling * bkg_spectrum)
+        plt.subplot(3, 1, 2)
+        self.plot_spectrum(sq_spectrum)
+        plt.subplot(3, 1, 3)
+        self.plot_spectrum(gr_spectrum)
+        plt.tight_layout()
+        plt.show()
+
+
 
 
 
