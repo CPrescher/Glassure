@@ -13,7 +13,7 @@ class MainWidgetTest(unittest.TestCase):
     def setUp(self):
         self.app = QtGui.QApplication(sys.argv)
         self.main_controller = MainController()
-        self.main_view = self.main_controller.view
+        self.main_view = self.main_controller.main_widget
 
     def tearDown(self):
         del self.app
