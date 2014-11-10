@@ -283,24 +283,30 @@ class CalculationGroupBox(QtGui.QGroupBox):
         self.create_signals()
 
     def create_widgets(self):
-        self.q_min_lbl = QtGui.QLabel('Q min:')
-        self.q_max_lbl = QtGui.QLabel('Q max:')
+        self.q_range_lbl = QtGui.QLabel('Q range:')
         self.r_cutoff_lbl = QtGui.QLabel('r cutoff:')
 
         self.q_min_txt = QtGui.QLineEdit('0')
         self.q_max_txt = QtGui.QLineEdit('10')
         self.r_cutoff_txt = QtGui.QLineEdit('1')
 
+        self.r_range_lbl = QtGui.QLabel('r range:')
+        self.r_min_txt = QtGui.QLineEdit('0.5')
+        self.r_max_txt = QtGui.QLineEdit('10')
+
         self.optimize_btn = QtGui.QPushButton("Optimize")
         self.optimize_r_cutoff_btn = QtGui.QPushButton("Optimize r cutoff")
 
     def style_widgets(self):
-        self.q_min_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.q_max_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.q_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.r_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.r_cutoff_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
         self.q_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.q_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+        self.r_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.r_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.r_cutoff_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
         self.q_min_txt.setMaximumWidth(80)
@@ -309,6 +315,10 @@ class CalculationGroupBox(QtGui.QGroupBox):
 
         self.q_min_txt.setValidator(QtGui.QDoubleValidator())
         self.q_max_txt.setValidator(QtGui.QDoubleValidator())
+
+        self.r_min_txt.setValidator(QtGui.QDoubleValidator())
+        self.r_max_txt.setValidator(QtGui.QDoubleValidator())
+
         self.r_cutoff_txt.setValidator(QtGui.QDoubleValidator())
 
         self.optimize_btn.setFlat(True)
@@ -317,15 +327,25 @@ class CalculationGroupBox(QtGui.QGroupBox):
     def create_layout(self):
         self.grid_layout = QtGui.QGridLayout()
         self.grid_layout.setSpacing(5)
-        self.grid_layout.addWidget(self.q_min_lbl, 0, 0)
-        self.grid_layout.addWidget(self.q_min_txt, 0, 1)
-        self.grid_layout.addWidget(self.q_max_lbl, 1, 0)
-        self.grid_layout.addWidget(self.q_max_txt, 1, 1)
-        self.grid_layout.addWidget(self.r_cutoff_lbl, 2, 0)
-        self.grid_layout.addWidget(self.r_cutoff_txt, 2, 1)
 
-        self.grid_layout.addWidget(self.optimize_btn, 3, 0, 1, 2)
-        self.grid_layout.addWidget(self.optimize_r_cutoff_btn, 4, 0, 1, 2)
+        self.grid_layout.addWidget(self.q_range_lbl, 0, 0)
+        self.grid_layout.addWidget(self.q_min_txt, 0, 1)
+        self.grid_layout.addWidget(QtGui.QLabel('-'), 0, 2)
+        self.grid_layout.addWidget(self.q_max_txt, 0, 3)
+        self.grid_layout.addWidget(QtGui.QLabel('A<sup>-1</sup>'), 0, 4)
+
+        self.grid_layout.addWidget(self.r_cutoff_lbl, 1, 0)
+        self.grid_layout.addWidget(self.r_cutoff_txt, 1, 1)
+        self.grid_layout.addWidget(QtGui.QLabel('A'), 1, 2)
+
+        self.grid_layout.addWidget(self.r_range_lbl, 2, 0)
+        self.grid_layout.addWidget(self.r_min_txt, 2, 1)
+        self.grid_layout.addWidget(QtGui.QLabel('-'), 2, 2)
+        self.grid_layout.addWidget(self.r_max_txt, 2, 3)
+        self.grid_layout.addWidget(QtGui.QLabel('A'), 2, 4)
+
+        self.grid_layout.addWidget(self.optimize_btn, 3, 0, 1, 5)
+        self.grid_layout.addWidget(self.optimize_r_cutoff_btn, 4, 0, 1, 5)
 
         self.setLayout(self.grid_layout)
 
@@ -333,6 +353,8 @@ class CalculationGroupBox(QtGui.QGroupBox):
         self.q_max_txt.editingFinished.connect(self.emit_calculation_changed_signal)
         self.q_min_txt.editingFinished.connect(self.emit_calculation_changed_signal)
         self.r_cutoff_txt.editingFinished.connect(self.emit_calculation_changed_signal)
+        self.r_min_txt.editingFinished.connect(self.emit_calculation_changed_signal)
+        self.r_max_txt.editingFinished.connect(self.emit_calculation_changed_signal)
 
     def emit_calculation_changed_signal(self):
         q_min = float(str(self.q_min_txt.text()))
@@ -344,7 +366,9 @@ class CalculationGroupBox(QtGui.QGroupBox):
         q_min = float(str(self.q_min_txt.text()))
         q_max = float(str(self.q_max_txt.text()))
         r_cutoff = float(str(self.r_cutoff_txt.text()))
-        return q_min, q_max, r_cutoff
+        r_min = float(str(self.r_min_txt.text()))
+        r_max = float(str(self.r_max_txt.text()))
+        return q_min, q_max, r_cutoff, r_min, r_max
 
 
 

@@ -105,8 +105,8 @@ class MainController(object):
         composition = self.main_widget.control_widget.composition_gb.get_composition()
         density = self.main_widget.control_widget.composition_gb.get_density()
 
-        q_min, q_max, r_cutoff = self.main_widget.control_widget.calculation_gb.get_parameter()
-        self.model.update_parameter(composition, density, q_min, q_max, r_cutoff)
+        q_min, q_max, r_cutoff, r_min, r_max = self.main_widget.control_widget.calculation_gb.get_parameter()
+        self.model.update_parameter(composition, density, q_min, q_max, r_cutoff, r_min, r_max)
 
     def optimize_btn_clicked(self):
         self.model.optimize_parameter()

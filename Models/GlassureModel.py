@@ -23,6 +23,8 @@ class GlassureModel(Observable):
         self.q_min = 0.0
         self.q_max = 10.0
         self.r_cutoff = 1.0
+        self.r_min = 0.5
+        self.r_max = 10
 
     def load_data(self, filename):
         self.original_spectrum.load(filename)
@@ -49,12 +51,14 @@ class GlassureModel(Observable):
         self.background_spectrum.set_smoothing(value)
         self.calculate_spectra()
 
-    def update_parameter(self, composition, density, q_min, q_max, r_cutoff):
+    def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min, r_max):
         self.composition = composition
         self.density = density
         self.q_min = q_min
         self.q_max = q_max
         self.r_cutoff = r_cutoff
+        self.r_min = r_min
+        self.r_max = r_max
         self.calculate_spectra()
 
     def calculate_spectra(self):
@@ -65,7 +69,7 @@ class GlassureModel(Observable):
                 self.background_scaling,
                 self.composition,
                 self.density,
-                np.linspace(0, 10, 1000)
+                np.linspace(self.r_min, self.r_max, 1000)
             )
         self.notify()
 

@@ -82,11 +82,12 @@ def calc_transforms(data_spectrum, bkg_spectrum, background_scaling, elemental_a
 
     return sq_spectrum, fr_spectrum, gr_spectrum
 
+
 def calc_gr_from_fr(fr_spectrum, elemental_abundances, density):
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density)
     r, f_r = fr_spectrum.data
     g_r = f_r / (4.0 * np.pi * r) + atomic_density
-    return Spectrum(r, g_r/atomic_density)
+    return Spectrum(r, g_r / atomic_density)
 
 
 def calc_fr_from_sq(sq_spectrum, r):
@@ -113,11 +114,11 @@ def calc_fr_from_sq_matrix(sq_spectrum, r):
     """
 
     q, intensity = sq_spectrum.data
-    q_begin = np.arange(0, np.min(q), q[1]-q[0])
-    intensity_begin = np.zeros(q_begin.shape)
-
-    q = np.concatenate((q_begin, q))
-    intensity = np.concatenate((intensity_begin, intensity))
+    # q_begin = np.arange(0, np.min(q), q[1] - q[0])
+    # intensity_begin = np.zeros(q_begin.shape)
+    #
+    # q = np.concatenate((q_begin, q))
+    # intensity = np.concatenate((intensity_begin, intensity))
 
     fr = 2.0 / np.pi * np.trapz(q * (intensity - 1) *
                                 np.array(np.sin(np.mat(q).T * np.mat(r))).T, q)

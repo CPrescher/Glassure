@@ -51,7 +51,7 @@ class SpectrumWidget(QtGui.QWidget):
 
     def create_items(self):
         self.spectrum_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
-        self.bkg_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5, style=QtCore.Qt.DashLine))
+        self.bkg_item = pg.PlotDataItem(pen=pg.mkPen('r', width=1.5, style=QtCore.Qt.DashLine))
         self.sq_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
         self.pdf_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
 
