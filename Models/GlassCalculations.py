@@ -9,26 +9,28 @@ import ScatteringFactors
 
 from Spectrum import Spectrum
 
+from GlassureUtility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
+    calculate_f_mean_squared, calculate_f_squared_mean
+
 
 def optimize_r_cutoff(data_spectrum, bkg_spectrum,
                       initial_background_scaling, elemental_abundances,
                       initial_density, r_cutoff,
                       callback_fcn=None):
-
     def optimization_fcn(pars):
         parvals = pars.valuesdict()
         r_cutoff = parvals['r_cutoff']
 
-        _, _, density, density_err = optimize_background_scaling_and_density(data_spectrum, bkg_spectrum,
+        _, _, _, density_err = optimize_background_scaling_and_density(data_spectrum, bkg_spectrum,
                                                                        initial_background_scaling, elemental_abundances,
                                                                        initial_density, r_cutoff)
 
-        return np.array([abs(density_err/density)])
+        return np.array(density_err)
 
     pars = Parameters()
     pars.add('r_cutoff', r_cutoff, min=0)
 
-    minimize(optimization_fcn, pars, method='slsqp')
+    minimize(optimization_fcn, pars)
     return pars['r_cutoff'].value
 
 
@@ -66,7 +68,7 @@ def optimize_background_scaling_and_density(data_spectrum, bkg_spectrum,
 
     pars = Parameters()
     pars.add('background_scaling', initial_background_scaling, min=0, max=10)
-    pars.add('density', initial_density, min=0)
+    pars.add('density', initial_density, min=0.9)
 
     minimize(optimization_fcn, pars)
     print fit_report(pars)
@@ -78,9 +80,34 @@ def optimize_background_scaling_and_density(data_spectrum, bkg_spectrum,
 def calc_transforms(data_spectrum, bkg_spectrum, background_scaling, elemental_abundances, density, r):
     sq_spectrum = calc_sq(data_spectrum, bkg_spectrum, background_scaling, elemental_abundances, density)
     fr_spectrum = calc_fr_from_sq_matrix(sq_spectrum, r)
-    gr_spectrum = calc_gr_from_fr(fr_spectrum, elemental_abundances, density)
+    # gr_spectrum = calc_gr_from_fr(fr_spectrum, elemental_abundances, density)
+    gr_spectrum = calc_gr_from_sq(sq_spectrum, r, elemental_abundances, density)
+    gr_spectrum_vitali = calc_gr_from_sq_vitali(sq_spectrum, r, elemental_abundances, density)
 
-    return sq_spectrum, fr_spectrum, gr_spectrum
+    return sq_spectrum, fr_spectrum, gr_spectrum_vitali
+
+
+def calc_gr_from_sq(sq_spectrum, r, elemental_abundances, density):
+    q, intensity = sq_spectrum.data
+    q_step = q[1] - q[0]
+    m = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+    atomic_density = convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density)
+    return Spectrum(r, 1 + 1 / (2.0 * np.pi ** 2 * atomic_density * r) * np.trapz(m * q * (intensity - 1) *
+                                                                                  np.array(np.sin(
+                                                                                      np.mat(q).T * np.mat(r))).T, q))
+
+def calc_gr_from_sq_vitali(sq_spectrum, r, elemental_abundances, density):
+    q, sa = sq_spectrum.data
+    fr = []
+    for r_value in r:
+        m = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+        sq = m * q * (sa - 1.) * np.sin(r_value * q)
+        fr.append((2. / np.pi) * np.trapz(sq, q))
+    fr = np.array(fr)
+    atomic_density = convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density)
+    gr = 1. + fr / (4. * np.pi * r * atomic_density)
+
+    return Spectrum(r, gr)
 
 
 def calc_gr_from_fr(fr_spectrum, elemental_abundances, density):
@@ -120,7 +147,9 @@ def calc_fr_from_sq_matrix(sq_spectrum, r):
     # q = np.concatenate((q_begin, q))
     # intensity = np.concatenate((intensity_begin, intensity))
 
-    fr = 2.0 / np.pi * np.trapz(q * (intensity - 1) *
+    m = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+
+    fr = 2.0 / np.pi * np.trapz(m * q * (intensity - 1) *
                                 np.array(np.sin(np.mat(q).T * np.mat(r))).T, q)
 
     return Spectrum(r, fr)
@@ -140,8 +169,16 @@ def calc_sq(data_spectrum, background_spectrum, background_scaling, elemental_ab
     sample_spectrum = data_spectrum - background_scaling * background_spectrum
     alpha = calculate_normalization_factor(elemental_abundances, density, sample_spectrum)
     q, int = sample_spectrum.data
+    # old version
     structure_factor = (alpha * int - calculate_incoherent_scattering(elemental_abundances, q)) / \
                        calculate_f_mean_squared(elemental_abundances, q)
+
+    # morard version
+
+    # f_mean_squared = calculate_f_mean_squared(elemental_abundances, q)
+    # f_squared_mean = calculate_f_squared_mean(elemental_abundances, q)
+    # structure_factor = ((alpha * int - calculate_incoherent_scattering(elemental_abundances, q)) -
+    #                    (f_squared_mean-f_mean_squared))/f_mean_squared
 
     return Spectrum(q, structure_factor)
 
@@ -162,8 +199,14 @@ def calculate_normalization_factor(elemental_abundances, density, spectrum):
     f_squared_mean = calculate_f_squared_mean(elemental_abundances, q)
 
     # calculate values for integrals
-    n1 = q ** 2 * ((f_squared_mean + incoherent_scattering) * np.exp(-0.01 * q ** 2)) / f_mean_squared
-    n2 = q ** 2 * intensity * np.exp(-0.01 * q ** 2) / f_mean_squared
+    # old version
+    n1 = q ** 2 * ((f_squared_mean + incoherent_scattering) * np.exp(-0.001 * q ** 2)) / f_mean_squared
+    n2 = q ** 2 * intensity * np.exp(-0.001 * q ** 2) / f_mean_squared
+
+    #morard et al. version
+
+    # n1 = (incoherent_scattering+f_squared_mean/f_mean_squared)*q**2
+    # n2 = q**2*intensity/f_mean_squared
 
     # recalculate density in atomic units
 
@@ -173,83 +216,3 @@ def calculate_normalization_factor(elemental_abundances, density, spectrum):
     n = ((-2 * np.pi ** 2 * density_au + np.trapz(q, n1)) / np.trapz(q, n2))
 
     return n
-
-
-def calculate_f_mean_squared(elemental_abundances, q):
-    """
-    calculates <f>^2 as defined in Waseda book
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
-    :return:
-    """
-    norm_elemental_abundances = normalize_elemental_abundances(elemental_abundances)
-
-    res = 0
-    for key, value in norm_elemental_abundances.iteritems():
-        res += value * calculate_coherent_scattering_factor(key, q)
-    return res ** 2
-
-
-def calculate_f_squared_mean(elemental_abundances, q):
-    """
-    calculates <f^2> as defined in Waseda book
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
-    :return:
-    """
-    norm_elemental_abundances = normalize_elemental_abundances(elemental_abundances)
-
-    res = 0
-    for key, value in norm_elemental_abundances.iteritems():
-        res += value * calculate_coherent_scattering_factor(key, q) ** 2
-    return res
-
-
-def calculate_incoherent_scattering(elemental_abundances, q):
-    """
-    Calculates compton/incoherent scattering for a compound
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
-    :param q: q_values in reverse Angstrom
-    :return: ndarray of compton scattering
-    """
-    norm_elemental_abundances = normalize_elemental_abundances(elemental_abundances)
-
-    res = 0
-    for key, value in norm_elemental_abundances.iteritems():
-        res += value * calculate_incoherent_scattered_intensity(key, q)
-    return res
-
-
-def normalize_elemental_abundances(elemental_abundances):
-    """
-    normalizes elemental abundances to 1
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
-    :return: normalized elemental abundances dictionary dictionary
-    """
-    sum = 0.0
-    for key, val in elemental_abundances.iteritems():
-        sum += val
-
-    result = copy(elemental_abundances)
-
-    for key in result:
-        result[key] /= sum
-
-    return result
-
-
-def convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density):
-    """
-    Converts densities in g/cm3 into atoms per A^3
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
-    :param density: density in g/cm^3
-    :return: density in atoms/A^3
-    """
-
-    # get_smallest abundance
-    norm_elemental_abundances = normalize_elemental_abundances(elemental_abundances)
-    mean_z = 0.0
-    for key, val in norm_elemental_abundances.iteritems():
-        mean_z += val * ScatteringFactors.atomic_weights['AW'][key]
-    return density / mean_z * .602214129
-
-
-

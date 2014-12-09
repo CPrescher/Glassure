@@ -84,7 +84,8 @@ class MainController(object):
         self.main_widget.spectrum_widget.plot_spectrum(self.model.original_spectrum)
         self.main_widget.spectrum_widget.plot_bkg(self.model.get_background_spectrum())
         self.main_widget.spectrum_widget.plot_sq(self.model.sq_spectrum)
-        self.main_widget.spectrum_widget.plot_pdf(self.model.pdf_spectrum)
+        self.main_widget.spectrum_widget.plot_pdf(self.model.gr_spectrum)
+
 
     def bkg_scale_changed(self, value):
         self.model.set_bkg_scale(value)
@@ -122,11 +123,18 @@ class MainController(object):
         self.model.update_parameter(composition, density, q_min, q_max, r_cutoff, r_min, r_max)
 
     def optimize_btn_clicked(self):
-        self.model.optimize_parameter()
-        self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
-        self.main_widget.control_widget.composition_gb.density_txt.setText("{:3.5f}".format(self.model.density))
-        self.main_widget.control_widget.composition_gb.density_error_lbl.setText(
-            "{:3.5f}".format(self.model.density_error))
+        self.main_widget.control_widget.setEnabled(False)
+        self.model.optimize_parameter(fcn_callback = self.plot_optimization_progress)
+        self.main_widget.control_widget.setEnabled(True)
+        # self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
+        # self.main_widget.control_widget.composition_gb.density_txt.setText("{:3.5f}".format(self.model.density))
+        # self.main_widget.control_widget.composition_gb.density_error_lbl.setText(
+        #     "{:3.5f}".format(self.model.density_error))
+
+    def plot_optimization_progress(self, sq_spectrum, gr_spectrum):
+        self.main_widget.spectrum_widget.plot_sq(sq_spectrum)
+        self.main_widget.spectrum_widget.plot_pdf(gr_spectrum)
+        QtGui.QApplication.processEvents()
 
     def optimize_r_cutoff_btn_clicked(self):
         self.model.optimize_r_cutoff()
@@ -156,5 +164,5 @@ class MainController(object):
                                                              self.saving_directory,
                                                              ('Data (*.txt)')))
         if filename is not '':
-            self.model.pdf_spectrum.save(filename)
+            self.model.gr_spectrum.save(filename)
             self.saving_directory = os.path.dirname(filename)

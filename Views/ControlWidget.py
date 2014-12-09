@@ -362,10 +362,18 @@ class CalculationGroupBox(QtGui.QGroupBox):
         self.r_max_txt.editingFinished.connect(self.emit_calculation_changed_signal)
 
     def emit_calculation_changed_signal(self):
-        q_min = float(str(self.q_min_txt.text()))
-        q_max = float(str(self.q_max_txt.text()))
-        r_cutoff = float(str(self.r_cutoff_txt.text()))
-        self.calculation_parameters_changed.emit(q_min, q_max, r_cutoff)
+        if self.q_max_txt.isModified() or self.q_min_txt.isModified() or self.r_cutoff_txt.isModified() or \
+            self.r_min_txt.isModified() or self.r_max_txt.isModified():
+            q_min = float(str(self.q_min_txt.text()))
+            q_max = float(str(self.q_max_txt.text()))
+            r_cutoff = float(str(self.r_cutoff_txt.text()))
+            self.calculation_parameters_changed.emit(q_min, q_max, r_cutoff)
+
+            self.q_max_txt.setModified(False)
+            self.q_min_txt.setModified(False)
+            self.r_cutoff_txt.setModified(False)
+            self.r_min_txt.setModified(False)
+            self.r_max_txt.setModified(False)
 
     def get_parameter(self):
         q_min = float(str(self.q_min_txt.text()))

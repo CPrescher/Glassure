@@ -5,7 +5,8 @@ import numpy as np
 
 from .Spectrum import Spectrum
 from .HelperModule import Observable
-from GlassCalculations import calc_transforms, optimize_background_scaling_and_density, optimize_r_cutoff
+from GlassCalculations import optimize_background_scaling_and_density, optimize_r_cutoff
+from GlassureCalculator import StandardCalculator
 
 
 class GlassureModel(Observable):
@@ -16,7 +17,7 @@ class GlassureModel(Observable):
         self.background_scaling = 1.0
         self.background_offset = 0
         self.sq_spectrum = Spectrum()
-        self.pdf_spectrum = Spectrum()
+        self.gr_spectrum = Spectrum()
 
         self.composition = {}
         self.density = 2.2
@@ -64,28 +65,28 @@ class GlassureModel(Observable):
 
     def calculate_spectra(self):
         if len(self.composition) != 0:
-            self.sq_spectrum, _, self.pdf_spectrum = calc_transforms(
-                self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
-                self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
-                self.background_scaling,
-                self.composition,
-                self.density,
-                np.linspace(self.r_min, self.r_max, 1000)
+            self.glassure_calculator = StandardCalculator(
+                original_spectrum=self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
+                background_spectrum=self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
+                background_scaling=self.background_scaling,
+                elemental_abundances=self.composition,
+                density=self.density,
+                r = np.linspace(self.r_min, self.r_max, 1000)
             )
+            self.sq_spectrum = self.glassure_calculator.sq_spectrum
+            self.fr_spectrum = self.glassure_calculator.fr_spectrum
+            self.gr_spectrum = self.glassure_calculator.gr_spectrum
         self.notify()
 
-    def optimize_parameter(self):
-        self.background_scaling, self.background_scaling_error, \
-        self.density, self.density_error = optimize_background_scaling_and_density(
-            self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
-            self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
-            self.background_scaling,
-            self.composition,
-            self.density,
-            self.r_cutoff,
-            None
-        )
-        self.calculate_spectra()
+    def optimize_parameter(self, fcn_callback=None):
+        self.glassure_calculator.optimize(np.linspace(0, self.r_cutoff), fcn_callback=fcn_callback)
+        self.glassure_calculator.fr_spectrum = self.glassure_calculator.calc_fr()
+        self.glassure_calculator.gr_spectrum = self.glassure_calculator.calc_gr()
+
+        self.sq_spectrum = self.glassure_calculator.sq_spectrum
+        self.fr_spectrum = self.glassure_calculator.fr_spectrum
+        self.gr_spectrum = self.glassure_calculator.gr_spectrum
+        self.notify()
 
     def optimize_r_cutoff(self):
         self.r_cutoff = optimize_r_cutoff(self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
