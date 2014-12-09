@@ -101,7 +101,7 @@ class StandardCalculator(GlassureCalculator):
             r, fr_int = self.calc_fr(r).data
             delta_fr = fr_int + 4 * np.pi * r * self.atomic_density
 
-            in_integral = np.array(np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr)
+            in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
             integral = np.trapz(in_integral, r)
             sq_optimized = sq_int * (1-1./q*integral)
 
@@ -114,4 +114,3 @@ class StandardCalculator(GlassureCalculator):
                 fcn_callback(self.sq_spectrum, self.gr_spectrum)
 
         print "Optimization took {}".format(time.time()-t1)
-
