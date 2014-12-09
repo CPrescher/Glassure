@@ -79,7 +79,7 @@ class GlassureModel(Observable):
         self.notify()
 
     def optimize_parameter(self, fcn_callback=None):
-        self.glassure_calculator.optimize(np.linspace(0, self.r_cutoff), fcn_callback=fcn_callback)
+        self.glassure_calculator.optimize(np.linspace(0, self.r_cutoff, np.round(self.r_cutoff*100)), fcn_callback=fcn_callback)
         self.glassure_calculator.fr_spectrum = self.glassure_calculator.calc_fr()
         self.glassure_calculator.gr_spectrum = self.glassure_calculator.calc_gr()
 

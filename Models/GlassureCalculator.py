@@ -9,7 +9,7 @@ from GlassureUtility import convert_density_to_atoms_per_cubic_angstrom, calcula
 
 class GlassureCalculator(object):
     def __init__(self, original_spectrum, background_spectrum, background_scaling, elemental_abundances, density,
-                 r=np.linspace(0,10, 1000)):
+                 r=np.linspace(0, 10, 1000)):
         self.original_spectrum = original_spectrum
         self.background_spectrum = background_spectrum
         self.background_scaling = background_scaling
@@ -46,7 +46,7 @@ class GlassureCalculator(object):
     def calc_sq(self):
         raise NotImplementedError
 
-    def calc_fr(self,r):
+    def calc_fr(self, r):
         raise NotImplementedError
 
     def calc_gr(self):
@@ -80,7 +80,7 @@ class StandardCalculator(GlassureCalculator):
 
     def calc_fr(self, r=None):
         if r is None:
-            r=self.r
+            r = self.r
         q, intensity = self.sq_spectrum.data
         modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
         fr = 2.0 / np.pi * np.trapz(modification * q * (intensity - 1) *
@@ -89,26 +89,29 @@ class StandardCalculator(GlassureCalculator):
 
     def calc_gr(self):
         r, f_r = self.fr_spectrum.data
-        g_r = 1+f_r / (4.0 * np.pi * r * self.atomic_density)
+        g_r = 1 + f_r / (4.0 * np.pi * r * self.atomic_density)
         return Spectrum(r, g_r)
 
-    def optimize(self, r, iterations=50, fcn_callback = None):
+    def optimize(self, r, iterations=50, fcn_callback=None, callback_period=5):
+        import time
 
-        for _ in range(iterations):
+        t1 = time.time()
+        for iteration in range(iterations):
             q, sq_int = self.sq_spectrum.data
             r, fr_int = self.calc_fr(r).data
-            delta_fr = fr_int+4*np.pi*r *self.atomic_density
-            sq_optimized = np.ones(sq_int.shape)
-            for ind, q_value in enumerate(q):
-                sq_optimized[ind] = sq_int[ind]*(1-1./q_value*np.trapz(delta_fr * np.sin(q_value*r), r))
+            delta_fr = fr_int + 4 * np.pi * r * self.atomic_density
+
+            in_integral = np.array(np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr)
+            integral = np.trapz(in_integral, r)
+            sq_optimized = sq_int * (1-1./q*integral)
 
             self.sq_spectrum = Spectrum(q, sq_optimized)
 
-            if fcn_callback is not None:
+            if fcn_callback is not None and iteration%5==0:
                 self.fr_spectrum = self.calc_fr()
                 self.gr_spectrum = self.calc_gr()
 
                 fcn_callback(self.sq_spectrum, self.gr_spectrum)
 
-
+        print "Optimization took {}".format(time.time()-t1)
 
