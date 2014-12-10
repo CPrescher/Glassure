@@ -5,8 +5,8 @@ import numpy as np
 
 from .Spectrum import Spectrum
 from .HelperModule import Observable
-from GlassCalculations import optimize_background_scaling_and_density, optimize_r_cutoff
 from GlassureCalculator import StandardCalculator
+from DensityOpimizitation import DensityOptimizer
 
 
 class GlassureModel(Observable):
@@ -78,7 +78,7 @@ class GlassureModel(Observable):
             self.gr_spectrum = self.glassure_calculator.gr_spectrum
         self.notify()
 
-    def optimize_parameter(self, fcn_callback=None):
+    def optimize_sq(self, fcn_callback=None):
         self.glassure_calculator.optimize(np.linspace(0, self.r_cutoff, np.round(self.r_cutoff*100)), fcn_callback=fcn_callback)
         self.glassure_calculator.fr_spectrum = self.glassure_calculator.calc_fr()
         self.glassure_calculator.gr_spectrum = self.glassure_calculator.calc_gr()
@@ -88,13 +88,20 @@ class GlassureModel(Observable):
         self.gr_spectrum = self.glassure_calculator.gr_spectrum
         self.notify()
 
-    def optimize_r_cutoff(self):
-        self.r_cutoff = optimize_r_cutoff(self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
-                                          self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
-                                          self.background_scaling,
-                                          self.composition,
-                                          self.density,
-                                          self.r_cutoff)
+    def optimize_density_and_scaling(self):
+        optimizer = DensityOptimizer(
+            original_spectrum=self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
+            background_spectrum=self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
+            initial_background_scaling=self.background_scaling,
+            elemental_abundances=self.composition,
+            initial_density=self.density,
+            r_cutoff=self.r_cutoff,
+            r = np.linspace(self.r_min, self.r_max, 1000)
+        )
+
+        optimizer.optimize()
+
+
 
 
     @staticmethod

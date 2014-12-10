@@ -120,11 +120,11 @@ class MainController(object):
         density = self.main_widget.control_widget.composition_gb.get_density()
 
         q_min, q_max, r_cutoff, r_min, r_max = self.main_widget.control_widget.calculation_gb.get_parameter()
-        self.model.update_parameter(composition, density, q_min, q_max, r_cutoff, r_min, r_max)
+        self.model.update_parameter(composition, deknsity, q_min, q_max, r_cutoff, r_min, r_max)
 
     def optimize_btn_clicked(self):
         self.main_widget.control_widget.setEnabled(False)
-        self.model.optimize_parameter(fcn_callback = self.plot_optimization_progress)
+        self.model.optimize_sq(fcn_callback = self.plot_optimization_progress)
         self.main_widget.control_widget.setEnabled(True)
         # self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
         # self.main_widget.control_widget.composition_gb.density_txt.setText("{:3.5f}".format(self.model.density))
@@ -137,17 +137,17 @@ class MainController(object):
         QtGui.QApplication.processEvents()
 
     def optimize_r_cutoff_btn_clicked(self):
-        self.model.optimize_r_cutoff()
-        self.model.optimize_parameter()
+        self.model.optimize_density_and_scaling()
+        self.model.optimize_sq()
 
-        self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
-        self.main_widget.control_widget.composition_gb.density_txt.setText("{:3.5f}".format(self.model.density))
-        self.main_widget.control_widget.composition_gb.density_error_lbl.setText(
-            "{:3.5f}".format(self.model.density_error))
-
-        self.main_widget.control_widget.calculation_gb.r_cutoff_txt.setText(
-            "{:3.5f}".format(self.model.r_cutoff)
-        )
+        #self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
+        #self.main_widget.control_widget.composition_gb.density_txt.setText("{:3.5f}".format(self.model.density))
+        #self.main_widget.control_widget.composition_gb.density_error_lbl.setText(
+        #    "{:3.5f}".format(self.model.density_error))
+#
+        #self.main_widget.control_widget.calculation_gb.r_cutoff_txt.setText(
+        #    "{:3.5f}".format(self.model.r_cutoff)
+        #)
 
     def save_sq_btn_clicked(self, filename=None):
         if filename is None:

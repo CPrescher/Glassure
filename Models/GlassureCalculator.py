@@ -1,6 +1,8 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 import numpy as np
+from lmfit import Parameters, minimize, report_fit
+
 from Spectrum import Spectrum
 
 from GlassureUtility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
@@ -59,16 +61,13 @@ class GlassureCalculator(object):
 class StandardCalculator(GlassureCalculator):
     def get_normalization_factor(self, attenuation_factor=0.001):
         q, intensity = self.sample_spectrum.data
-
         # calculate values for integrals
         # old version
         n1 = q ** 2 * ((self.f_squared_mean + self.incoherent_scattering) * np.exp(-attenuation_factor * q ** 2)) / \
              self.f_mean_squared
         n2 = q ** 2 * intensity * np.exp(-attenuation_factor * q ** 2) / self.f_mean_squared
-
         # calculate atomic scattering factor
         n = ((-2 * np.pi ** 2 * self.atomic_density + np.trapz(q, n1)) / np.trapz(q, n2))
-
         return n
 
     def calc_sq(self):
