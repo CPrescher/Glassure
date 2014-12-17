@@ -48,9 +48,6 @@ class MainController(object):
         self.main_widget.control_widget.calculation_gb.calculation_parameters_changed.connect(self.update_model)
 
         self.main_widget.control_widget.calculation_gb.optimize_btn.clicked.connect(self.optimize_btn_clicked)
-        self.main_widget.control_widget.calculation_gb.optimize_r_cutoff_btn.clicked.connect(
-            self.optimize_r_cutoff_btn_clicked
-        )
 
         self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
                                     self.save_sq_btn_clicked)
@@ -120,22 +117,22 @@ class MainController(object):
         density = self.main_widget.control_widget.composition_gb.get_density()
 
         q_min, q_max, r_cutoff, r_min, r_max = self.main_widget.control_widget.calculation_gb.get_parameter()
-        self.model.update_parameter(composition, deknsity, q_min, q_max, r_cutoff, r_min, r_max)
+        self.model.update_parameter(composition, density, q_min, q_max, r_cutoff, r_min, r_max)
 
     def optimize_btn_clicked(self):
         self.main_widget.control_widget.setEnabled(False)
-        self.model.optimize_sq(fcn_callback = self.plot_optimization_progress)
+        self.model.optimize_sq(
+            iterations=int(str(self.main_widget.control_widget.calculation_gb.optimize_iterations_txt.text())),
+            fcn_callback = self.plot_optimization_progress
+        )
         self.main_widget.control_widget.setEnabled(True)
-        # self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
-        # self.main_widget.control_widget.composition_gb.density_txt.setText("{:3.5f}".format(self.model.density))
-        # self.main_widget.control_widget.composition_gb.density_error_lbl.setText(
-        #     "{:3.5f}".format(self.model.density_error))
 
     def plot_optimization_progress(self, sq_spectrum, gr_spectrum):
         self.main_widget.spectrum_widget.plot_sq(sq_spectrum)
         self.main_widget.spectrum_widget.plot_pdf(gr_spectrum)
         QtGui.QApplication.processEvents()
 
+    #not used right now....
     def optimize_r_cutoff_btn_clicked(self):
         self.model.optimize_density_and_scaling()
         self.model.optimize_sq()

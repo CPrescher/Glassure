@@ -59,13 +59,19 @@ class GlassureCalculator(object):
 
 
 class StandardCalculator(GlassureCalculator):
-    def get_normalization_factor(self, attenuation_factor=0.001):
+    def __init__(self, original_spectrum, background_spectrum, background_scaling, elemental_abundances, density,
+                 r=np.linspace(0, 10, 1000),  normalization_attenuation_factor=0.001):
+        self.attenuation_factor = normalization_attenuation_factor
+        super(StandardCalculator, self).__init__(original_spectrum, background_spectrum, background_scaling,
+                                                 elemental_abundances, density, r)
+
+    def get_normalization_factor(self):
         q, intensity = self.sample_spectrum.data
         # calculate values for integrals
         # old version
-        n1 = q ** 2 * ((self.f_squared_mean + self.incoherent_scattering) * np.exp(-attenuation_factor * q ** 2)) / \
+        n1 = q ** 2 * ((self.f_squared_mean + self.incoherent_scattering) * np.exp(-self.attenuation_factor * q ** 2)) / \
              self.f_mean_squared
-        n2 = q ** 2 * intensity * np.exp(-attenuation_factor * q ** 2) / self.f_mean_squared
+        n2 = q ** 2 * intensity * np.exp(-self.attenuation_factor * q ** 2) / self.f_mean_squared
         # calculate atomic scattering factor
         n = ((-2 * np.pi ** 2 * self.atomic_density + np.trapz(q, n1)) / np.trapz(q, n2))
         return n
@@ -74,7 +80,7 @@ class StandardCalculator(GlassureCalculator):
         n = self.get_normalization_factor()
         q, intensity = self.sample_spectrum.data
         # old version
-        structure_factor = (n * intensity - self.incoherent_scattering) / self.f_mean_squared
+        structure_factor = (n * intensity - self.incoherent_scattering - self.f_squared_mean) / self.f_mean_squared + 1
         return Spectrum(q, structure_factor)
 
     def calc_fr(self, r=None):
@@ -113,3 +119,45 @@ class StandardCalculator(GlassureCalculator):
                 fcn_callback(self.sq_spectrum, self.gr_spectrum)
 
         print "Optimization took {}".format(time.time()-t1)
+
+
+class FitNormalizationCalculator(StandardCalculator):
+    def __init__(self, *args, **kwargs):
+        self.diamond_scattering = 0
+        super(FitNormalizationCalculator, self).__init__(*args, **kwargs)
+    
+    def get_normalization_factor(self):
+        q, intensity = self.sample_spectrum.data
+        ind = np.where(q>2)
+        q = q[ind]
+        intensity = intensity[ind]
+        compton_scattering = self.incoherent_scattering[ind]
+        self_scattering = self.f_squared_mean[ind]
+
+
+        diamond_compton_scattering = calculate_incoherent_scattering({'C':1}, q)
+
+        param = Parameters()
+        param.add("n", value=1)
+        param.add("diamond_scattering", value=10, min=0)
+
+
+        def fcn2opt(param):
+            n = param['n'].value
+            diamond_scattering = param['diamond_scattering'].value
+            return (intensity-diamond_compton_scattering*diamond_scattering)*n*q**2 - (compton_scattering+self_scattering)*q**2
+
+
+        minimize(fcn2opt, param)
+
+        report_fit(param)
+        self.diamond_scattering = param['diamond_scattering'].value
+        return param['n'].value
+
+    def calc_sq(self):
+        n = self.get_normalization_factor()
+        q, intensity = self.sample_spectrum.data
+        # old version
+        diamond_compton_scattering = calculate_incoherent_scattering({'C':1}, q)
+        structure_factor = (n * (intensity-diamond_compton_scattering*self.diamond_scattering) - self.incoherent_scattering - self.f_squared_mean) / self.f_mean_squared + 1
+        return Spectrum(q, structure_factor)

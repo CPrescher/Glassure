@@ -300,12 +300,14 @@ class CalculationGroupBox(QtGui.QGroupBox):
         self.r_max_txt = QtGui.QLineEdit('10')
 
         self.optimize_btn = QtGui.QPushButton("Optimize")
-        self.optimize_r_cutoff_btn = QtGui.QPushButton("Optimize r cutoff")
+        self.optimize_iterations_lbl = QtGui.QLabel("Iterations:")
+        self.optimize_iterations_txt = QtGui.QLineEdit('50')
 
     def style_widgets(self):
         self.q_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.r_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.r_cutoff_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.optimize_iterations_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
         self.q_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.q_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
@@ -313,21 +315,21 @@ class CalculationGroupBox(QtGui.QGroupBox):
         self.r_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.r_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.r_cutoff_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.optimize_iterations_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
         self.q_min_txt.setMaximumWidth(80)
         self.q_max_txt.setMaximumWidth(80)
         self.r_cutoff_txt.setMaximumWidth(80)
+        self.optimize_iterations_txt.setMaximumWidth(80)
 
         self.q_min_txt.setValidator(QtGui.QDoubleValidator())
         self.q_max_txt.setValidator(QtGui.QDoubleValidator())
-
         self.r_min_txt.setValidator(QtGui.QDoubleValidator())
         self.r_max_txt.setValidator(QtGui.QDoubleValidator())
-
         self.r_cutoff_txt.setValidator(QtGui.QDoubleValidator())
+        self.optimize_iterations_txt.setValidator(QtGui.QIntValidator())
 
         self.optimize_btn.setFlat(True)
-        self.optimize_r_cutoff_btn.setFlat(True)
 
     def create_layout(self):
         self.grid_layout = QtGui.QGridLayout()
@@ -349,8 +351,12 @@ class CalculationGroupBox(QtGui.QGroupBox):
         self.grid_layout.addWidget(self.r_max_txt, 2, 3)
         self.grid_layout.addWidget(QtGui.QLabel('A'), 2, 4)
 
-        self.grid_layout.addWidget(self.optimize_btn, 3, 0, 1, 5)
-        self.grid_layout.addWidget(self.optimize_r_cutoff_btn, 4, 0, 1, 5)
+
+        self.grid_layout.addWidget(horizontal_line(), 3,0, 1, 5)
+        self.grid_layout.addWidget(self.optimize_iterations_lbl, 4, 0)
+        self.grid_layout.addWidget(self.optimize_iterations_txt, 4, 1)
+        self.grid_layout.addWidget(self.optimize_btn, 5, 0, 1, 5)
+
 
         self.setLayout(self.grid_layout)
 
@@ -385,6 +391,9 @@ class CalculationGroupBox(QtGui.QGroupBox):
 
 
 
-
-
+def horizontal_line():
+    frame = QtGui.QFrame()
+    frame.setFrameShape(QtGui.QFrame.HLine)
+    frame.setFrameShadow(QtGui.QFrame.Sunken)
+    return frame
 
