@@ -48,6 +48,7 @@ class MainController(object):
         self.main_widget.control_widget.calculation_gb.calculation_parameters_changed.connect(self.update_model)
 
         self.main_widget.control_widget.calculation_gb.optimize_btn.clicked.connect(self.optimize_btn_clicked)
+        self.main_widget.control_widget.calculation_gb.optimize_density_btn.clicked.connect(self.optimize_density)
 
         self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
                                     self.save_sq_btn_clicked)
@@ -132,19 +133,8 @@ class MainController(object):
         self.main_widget.spectrum_widget.plot_pdf(gr_spectrum)
         QtGui.QApplication.processEvents()
 
-    #not used right now....
-    def optimize_r_cutoff_btn_clicked(self):
+    def optimize_density(self):
         self.model.optimize_density_and_scaling()
-        self.model.optimize_sq()
-
-        #self.main_widget.control_widget.background_options_gb.scale_sb.setValue(self.model.background_scaling)
-        #self.main_widget.control_widget.composition_gb.density_txt.setText("{:3.5f}".format(self.model.density))
-        #self.main_widget.control_widget.composition_gb.density_error_lbl.setText(
-        #    "{:3.5f}".format(self.model.density_error))
-#
-        #self.main_widget.control_widget.calculation_gb.r_cutoff_txt.setText(
-        #    "{:3.5f}".format(self.model.r_cutoff)
-        #)
 
     def save_sq_btn_clicked(self, filename=None):
         if filename is None:

@@ -300,6 +300,7 @@ class CalculationGroupBox(QtGui.QGroupBox):
         self.r_max_txt = QtGui.QLineEdit('10')
 
         self.optimize_btn = QtGui.QPushButton("Optimize")
+        self.optimize_density_btn = QtGui.QPushButton("Optimize Density")
         self.optimize_iterations_lbl = QtGui.QLabel("Iterations:")
         self.optimize_iterations_txt = QtGui.QLineEdit('50')
 
@@ -356,6 +357,7 @@ class CalculationGroupBox(QtGui.QGroupBox):
         self.grid_layout.addWidget(self.optimize_iterations_lbl, 4, 0)
         self.grid_layout.addWidget(self.optimize_iterations_txt, 4, 1)
         self.grid_layout.addWidget(self.optimize_btn, 5, 0, 1, 5)
+        self.grid_layout.addWidget(self.optimize_density_btn, 6, 0, 1,5)
 
 
         self.setLayout(self.grid_layout)

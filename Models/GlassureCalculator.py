@@ -81,7 +81,13 @@ class StandardCalculator(GlassureCalculator):
         q, intensity = self.sample_spectrum.data
         # old version
         structure_factor = (n * intensity - self.incoherent_scattering - self.f_squared_mean) / self.f_mean_squared + 1
-        return Spectrum(q, structure_factor)
+
+        #get q spacing and interpolate linearly to zero:
+        step=q[1]-q[0]
+        q_low = np.arange(step, min(q), step)
+        sq_low = structure_factor[0]/q[0] * q_low
+
+        return Spectrum(np.concatenate((q_low, q)), np.concatenate((sq_low, structure_factor)))
 
     def calc_fr(self, r=None):
         if r is None:
