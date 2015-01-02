@@ -13,51 +13,36 @@ class ControlWidget(QtGui.QWidget):
         self.vertical_layout.setSpacing(8)
         self.vertical_layout.setContentsMargins(5, 5, 5, 5)
 
+        self.data_widget = DataWidget()
+        self.composition_widget = CompositionWidget()
+        self.optimization_widget = OptimizationWidget()
+
+        self.vertical_layout.addWidget(ExpandableBox(self.data_widget, "Data"))
+        self.vertical_layout.addWidget(ExpandableBox(self.composition_widget, "Composition"))
+        self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization"))
+
+        self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
+                                                             QtGui.QSizePolicy.Expanding))
+
+        self.setLayout(self.vertical_layout)
+
+
+class DataWidget(QtGui.QWidget):
+    def __init__(self):
+        super(DataWidget, self).__init__()
+
         self.file_widget = FileWidget()
         self.background_options_gb = BackgroundOptionsGroupBox()
         self.smooth_gb = SmoothGroupBox()
 
-        self.data_widget = QtGui.QWidget()
-        self.data_widget_layout = QtGui.QVBoxLayout()
-        self.data_widget_layout.setContentsMargins(0,0,0,0)
-        self.data_widget_layout.addWidget(self.file_widget)
-        self.data_widget_layout.addWidget(self.background_options_gb)
-        self.data_widget_layout.addWidget(self.smooth_gb)
-        self.data_widget_layout.addSpacerItem(QtGui.QSpacerItem(5,5,
-                                                                QtGui.QSizePolicy.Minimum,
-                                                                QtGui.QSizePolicy.Expanding,
-                                                                ))
-        self.data_widget.setLayout(self.data_widget_layout)
-
-        self.calculation_widget = CompositionGroupBox()
-        self.optimization_widget = OptimizationWidget()
-
-
-        #
-        # self.tab_widget=QtGui.QTabWidget()
-        # self.tab_widget.setTabPosition(QtGui.QTabWidget.West)
-        # self.tab_widget.addTab(self.data_widget, "Data")
-        # self.tab_widget.addTab(self.calculation_widget, "Calculation")
-        # self.tab_widget.addTab(self.optimization_widget, "Optimization")
-
-        self.vertical_layout.addWidget(ExpandableBox(self.data_widget, "Data"))
-        self.vertical_layout.addWidget(ExpandableBox(self.calculation_widget, "Calculation"))
-        self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization"))
-
-
-        # self.vertical_layout.addWidget(self.file_widget)
-        # self.vertical_layout.addWidget(self.background_options_gb)
-        # self.vertical_layout.addWidget(self.smooth_gb)
-        # self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Fixed,
-        #                                                      QtGui.QSizePolicy.Fixed))
-        # self.vertical_layout.addWidget(self.composition_gb)
-        # self.vertical_layout.addWidget(self.calculation_gb)
-        #
-        self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Fixed,
-                                                             QtGui.QSizePolicy.Expanding))
-        #
-        # self.vertical_layout.addWidget(self.tab_widget)
-        self.setLayout(self.vertical_layout)
+        self._layout = QtGui.QVBoxLayout()
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
+        self._layout.addWidget(self.file_widget)
+        self._layout.addWidget(self.background_options_gb)
+        self._layout.addWidget(self.smooth_gb)
+        self._layout.addSpacing(5)
+        self.setLayout(self._layout)
 
 
 class FileWidget(QtGui.QWidget):
@@ -73,14 +58,11 @@ class FileWidget(QtGui.QWidget):
         self.load_background_btn = QtGui.QPushButton("Load Bkg")
         self.background_filename_lbl = QtGui.QLabel("None")
         self.background_filename_lbl.setAlignment(QtCore.Qt.AlignRight)
-        self.plot_subtracted = QtGui.QCheckBox("Plot subtracted")
-        self.plot_subtracted.setChecked(True)
 
         self.vertical_layout.addWidget(self.load_data_btn)
         self.vertical_layout.addWidget(self.data_filename_lbl)
         self.vertical_layout.addWidget(self.load_background_btn)
         self.vertical_layout.addWidget(self.background_filename_lbl)
-        self.vertical_layout.addWidget(self.plot_subtracted)
 
         self.setLayout(self.vertical_layout)
 
@@ -184,11 +166,11 @@ class SmoothGroupBox(QtGui.QGroupBox):
         self.smooth_sb.setSingleStep(float(str(self.smooth_step_txt.text())))
 
 
-class CompositionGroupBox(QtGui.QGroupBox):
+class CompositionWidget(QtGui.QWidget):
     composition_changed = QtCore.pyqtSignal(dict, float)
 
     def __init__(self, *args):
-        super(CompositionGroupBox, self).__init__("Composition", *args)
+        super(CompositionWidget, self).__init__(*args)
         self.create_widgets()
 
     def create_widgets(self):
@@ -216,11 +198,10 @@ class CompositionGroupBox(QtGui.QGroupBox):
         self.density_layout.addWidget(self.density_txt)
         self.density_layout.addWidget(QtGui.QLabel('+-'))
         self.density_layout.addWidget(self.density_error_lbl)
-        self.density_layout.addWidget(QtGui.QLabel('A'))
-
+        self.density_layout.addWidget(QtGui.QLabel('g/cm^3'))
 
         self.composition_tw = QtGui.QTableWidget()
-        self.composition_tw.setFixedHeight(100)
+        # self.composition_tw.setFixedHeight(100)
         self.composition_tw.setColumnCount(2)
         self.composition_tw.horizontalHeader().setVisible(False)
         self.composition_tw.verticalHeader().setVisible(False)
@@ -380,13 +361,11 @@ class OptimizationWidget(QtGui.QWidget):
         self.grid_layout.addWidget(self.r_max_txt, 2, 3)
         self.grid_layout.addWidget(QtGui.QLabel('A'), 2, 4)
 
-
-        self.grid_layout.addWidget(horizontal_line(), 3,0, 1, 5)
+        self.grid_layout.addWidget(horizontal_line(), 3, 0, 1, 5)
         self.grid_layout.addWidget(self.optimize_iterations_lbl, 4, 0)
         self.grid_layout.addWidget(self.optimize_iterations_txt, 4, 1)
         self.grid_layout.addWidget(self.optimize_btn, 5, 0, 1, 5)
-        self.grid_layout.addWidget(self.optimize_density_btn, 6, 0, 1,5)
-
+        self.grid_layout.addWidget(self.optimize_density_btn, 6, 0, 1, 5)
 
         self.setLayout(self.grid_layout)
 
@@ -399,7 +378,7 @@ class OptimizationWidget(QtGui.QWidget):
 
     def emit_calculation_changed_signal(self):
         if self.q_max_txt.isModified() or self.q_min_txt.isModified() or self.r_cutoff_txt.isModified() or \
-            self.r_min_txt.isModified() or self.r_max_txt.isModified():
+                self.r_min_txt.isModified() or self.r_max_txt.isModified():
             q_min = float(str(self.q_min_txt.text()))
             q_max = float(str(self.q_max_txt.text()))
             r_cutoff = float(str(self.r_cutoff_txt.text()))
@@ -420,7 +399,6 @@ class OptimizationWidget(QtGui.QWidget):
         return q_min, q_max, r_cutoff, r_min, r_max
 
 
-
 def horizontal_line():
     frame = QtGui.QFrame()
     frame.setFrameShape(QtGui.QFrame.HLine)
@@ -434,17 +412,19 @@ class ExpandableBox(QtGui.QWidget):
         super(ExpandableBox, self).__init__()
 
         self._vlayout = QtGui.QVBoxLayout()
-        self._vlayout.setContentsMargins(0,0,0,0)
+        self._vlayout.setContentsMargins(0, 0, 0, 0)
         self._vlayout.setSpacing(0)
         self._head_layout = QtGui.QHBoxLayout()
-        self._head_layout.setContentsMargins(0,0,0,0)
+        self._head_layout.setContentsMargins(0, 0, 0, 0)
         self._head_layout.setSpacing(0)
 
         self.title_lbl = QtGui.QLabel(title)
         self.title_lbl.setStyleSheet("font: italic 15px;")
         self._head_layout.addWidget(self.title_lbl)
-        self._head_layout.addSpacerItem(QtGui.QSpacerItem(5,5,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        self._head_layout.addSpacerItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.minimize_btn = QtGui.QPushButton("v")
+        self.minimize_btn.setFixedHeight(23)
+        self.minimize_btn.setFixedWidth(25)
 
         self._head_layout.addWidget(self.minimize_btn)
         self.minimized = False
@@ -462,9 +442,9 @@ class ExpandableBox(QtGui.QWidget):
     def change_state(self):
         if self.minimized:
             self.content_widget.show()
-            self.minimized=False
+            self.minimized = False
             self.minimize_btn.setText("v")
         else:
             self.content_widget.hide()
-            self.minimized=True
+            self.minimized = True
             self.minimize_btn.setText("<")

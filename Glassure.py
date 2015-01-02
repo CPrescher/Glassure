@@ -19,7 +19,5 @@ if __name__ == "__main__":
     controller = MainController()
     controller.load_data('Tests/TestData/Mg2SiO4_ambient.xy')
     controller.load_bkg('Tests/TestData/Mg2SiO4_ambient_bkg.xy')
-    controller.main_widget.control_widget.smooth_gb.smooth_sb.setValue(10)
-    controller.main_widget.control_widget.background_options_gb.scale_sb.setValue(0.84)
     app.exec_()
     del app
