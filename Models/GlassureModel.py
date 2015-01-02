@@ -5,7 +5,7 @@ import numpy as np
 
 from .Spectrum import Spectrum
 from .HelperModule import Observable
-from GlassureCalculator import StandardCalculator, FitNormalizationCalculator
+from GlassureCalculator import StandardCalculator
 from DensityOpimizitation import DensityOptimizer
 
 

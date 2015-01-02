@@ -10,25 +10,53 @@ class ControlWidget(QtGui.QWidget):
     def __init__(self, *args, **kwargs):
         super(ControlWidget, self).__init__(*args, **kwargs)
         self.vertical_layout = QtGui.QVBoxLayout()
-        self.vertical_layout.setSpacing(0)
+        self.vertical_layout.setSpacing(8)
         self.vertical_layout.setContentsMargins(5, 5, 5, 5)
 
         self.file_widget = FileWidget()
         self.background_options_gb = BackgroundOptionsGroupBox()
         self.smooth_gb = SmoothGroupBox()
-        self.composition_gb = CompositionGroupBox()
-        self.calculation_gb = CalculationGroupBox()
 
-        self.vertical_layout.addWidget(self.file_widget)
-        self.vertical_layout.addWidget(self.background_options_gb)
-        self.vertical_layout.addWidget(self.smooth_gb)
-        self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Fixed,
-                                                             QtGui.QSizePolicy.Fixed))
-        self.vertical_layout.addWidget(self.composition_gb)
-        self.vertical_layout.addWidget(self.calculation_gb)
+        self.data_widget = QtGui.QWidget()
+        self.data_widget_layout = QtGui.QVBoxLayout()
+        self.data_widget_layout.setContentsMargins(0,0,0,0)
+        self.data_widget_layout.addWidget(self.file_widget)
+        self.data_widget_layout.addWidget(self.background_options_gb)
+        self.data_widget_layout.addWidget(self.smooth_gb)
+        self.data_widget_layout.addSpacerItem(QtGui.QSpacerItem(5,5,
+                                                                QtGui.QSizePolicy.Minimum,
+                                                                QtGui.QSizePolicy.Expanding,
+                                                                ))
+        self.data_widget.setLayout(self.data_widget_layout)
 
+        self.calculation_widget = CompositionGroupBox()
+        self.optimization_widget = OptimizationWidget()
+
+
+        #
+        # self.tab_widget=QtGui.QTabWidget()
+        # self.tab_widget.setTabPosition(QtGui.QTabWidget.West)
+        # self.tab_widget.addTab(self.data_widget, "Data")
+        # self.tab_widget.addTab(self.calculation_widget, "Calculation")
+        # self.tab_widget.addTab(self.optimization_widget, "Optimization")
+
+        self.vertical_layout.addWidget(ExpandableBox(self.data_widget, "Data"))
+        self.vertical_layout.addWidget(ExpandableBox(self.calculation_widget, "Calculation"))
+        self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization"))
+
+
+        # self.vertical_layout.addWidget(self.file_widget)
+        # self.vertical_layout.addWidget(self.background_options_gb)
+        # self.vertical_layout.addWidget(self.smooth_gb)
+        # self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Fixed,
+        #                                                      QtGui.QSizePolicy.Fixed))
+        # self.vertical_layout.addWidget(self.composition_gb)
+        # self.vertical_layout.addWidget(self.calculation_gb)
+        #
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.Expanding))
+        #
+        # self.vertical_layout.addWidget(self.tab_widget)
         self.setLayout(self.vertical_layout)
 
 
@@ -276,11 +304,11 @@ class TextDoubleDelegate(QtGui.QStyledItemDelegate):
         editor.setGeometry(option.rect)
 
 
-class CalculationGroupBox(QtGui.QGroupBox):
+class OptimizationWidget(QtGui.QWidget):
     calculation_parameters_changed = QtCore.pyqtSignal(float, float, float)
 
     def __init__(self, *args):
-        super(CalculationGroupBox, self).__init__(*args)
+        super(OptimizationWidget, self).__init__(*args)
 
         self.create_widgets()
         self.style_widgets()
@@ -396,6 +424,47 @@ class CalculationGroupBox(QtGui.QGroupBox):
 def horizontal_line():
     frame = QtGui.QFrame()
     frame.setFrameShape(QtGui.QFrame.HLine)
+    frame.setStyleSheet("border: 2px solid #CCC;")
     frame.setFrameShadow(QtGui.QFrame.Sunken)
     return frame
 
+
+class ExpandableBox(QtGui.QWidget):
+    def __init__(self, content_widget, title=''):
+        super(ExpandableBox, self).__init__()
+
+        self._vlayout = QtGui.QVBoxLayout()
+        self._vlayout.setContentsMargins(0,0,0,0)
+        self._vlayout.setSpacing(0)
+        self._head_layout = QtGui.QHBoxLayout()
+        self._head_layout.setContentsMargins(0,0,0,0)
+        self._head_layout.setSpacing(0)
+
+        self.title_lbl = QtGui.QLabel(title)
+        self.title_lbl.setStyleSheet("font: italic 15px;")
+        self._head_layout.addWidget(self.title_lbl)
+        self._head_layout.addSpacerItem(QtGui.QSpacerItem(5,5,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        self.minimize_btn = QtGui.QPushButton("v")
+
+        self._head_layout.addWidget(self.minimize_btn)
+        self.minimized = False
+
+        self.content_widget = content_widget
+        self._vlayout.addLayout(self._head_layout)
+        self._vlayout.addWidget(horizontal_line())
+        self._vlayout.addSpacing(5)
+        self._vlayout.addWidget(self.content_widget)
+
+        self.setLayout(self._vlayout)
+
+        self.minimize_btn.clicked.connect(self.change_state)
+
+    def change_state(self):
+        if self.minimized:
+            self.content_widget.show()
+            self.minimized=False
+            self.minimize_btn.setText("v")
+        else:
+            self.content_widget.hide()
+            self.minimized=True
+            self.minimize_btn.setText("<")

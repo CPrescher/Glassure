@@ -39,16 +39,16 @@ class MainController(object):
         self.main_widget.control_widget.background_options_gb.offset_sb.valueChanged.connect(self.bkg_offset_changed)
         self.main_widget.control_widget.smooth_gb.smooth_sb.valueChanged.connect(self.smooth_changed)
 
-        self.connect_click_function(self.main_widget.control_widget.composition_gb.add_element_btn,
+        self.connect_click_function(self.main_widget.control_widget.calculation_widget.add_element_btn,
                                     self.add_element_btn_clicked)
-        self.connect_click_function(self.main_widget.control_widget.composition_gb.delete_element_btn,
+        self.connect_click_function(self.main_widget.control_widget.calculation_widget.delete_element_btn,
                                     self.delete_element_btn_clicked)
 
-        self.main_widget.control_widget.composition_gb.composition_changed.connect(self.update_model)
-        self.main_widget.control_widget.calculation_gb.calculation_parameters_changed.connect(self.update_model)
+        self.main_widget.control_widget.calculation_widget.composition_changed.connect(self.update_model)
+        self.main_widget.control_widget.optimization_widget.calculation_parameters_changed.connect(self.update_model)
 
-        self.main_widget.control_widget.calculation_gb.optimize_btn.clicked.connect(self.optimize_btn_clicked)
-        self.main_widget.control_widget.calculation_gb.optimize_density_btn.clicked.connect(self.optimize_density)
+        self.main_widget.control_widget.optimization_widget.optimize_btn.clicked.connect(self.optimize_btn_clicked)
+        self.main_widget.control_widget.optimization_widget.optimize_density_btn.clicked.connect(self.optimize_density)
 
         self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
                                     self.save_sq_btn_clicked)
