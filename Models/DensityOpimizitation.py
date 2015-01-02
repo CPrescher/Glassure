@@ -21,13 +21,13 @@ class DensityOptimizer(object):
     def optimize(self, optimization_iterations=10, fcn_callback=None):
 
         params = Parameters()
-        params.add("density", value=self.density, min=2.0, max=4)
-        params.add("background_scaling", value=self.background_scaling, min=1, vary=False)
+        params.add("density", value=self.density, min=1.0, max=10)
+        params.add("background_scaling", value=self.background_scaling, min=0, vary=True)
 
         print self.elemental_abundances
 
         def fcn_optimization(params):
-            density = parkams['density'].value
+            density = params['density'].value
             background_scaling = params['background_scaling'].value
 
             calculator = StandardCalculator(

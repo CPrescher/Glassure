@@ -89,7 +89,7 @@ class GlassureModel(Observable):
         self.gr_spectrum = self.glassure_calculator.gr_spectrum
         self.notify()
 
-    def optimize_density_and_scaling(self):
+    def optimize_density_and_scaling(self, iterations):
         optimizer = DensityOptimizer(
             original_spectrum=self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
             background_spectrum=self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
@@ -100,7 +100,7 @@ class GlassureModel(Observable):
             r = np.linspace(self.r_min, self.r_max, 1000)
         )
 
-        optimizer.optimize()
+        optimizer.optimize(iterations)
 
 
 

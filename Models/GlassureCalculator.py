@@ -60,8 +60,12 @@ class GlassureCalculator(object):
 
 class StandardCalculator(GlassureCalculator):
     def __init__(self, original_spectrum, background_spectrum, background_scaling, elemental_abundances, density,
-                 r=np.linspace(0, 10, 1000),  normalization_attenuation_factor=0.001):
+                 r=np.linspace(0, 10, 1000),  normalization_attenuation_factor=0.001, use_modification_fcn=True,
+                 use_linear_interpolation=True):
         self.attenuation_factor = normalization_attenuation_factor
+        self.use_modification_fcn = use_modification_fcn
+        self.use_linear_interpolation = use_linear_interpolation
+
         super(StandardCalculator, self).__init__(original_spectrum, background_spectrum, background_scaling,
                                                  elemental_abundances, density, r)
 
@@ -83,17 +87,23 @@ class StandardCalculator(GlassureCalculator):
         structure_factor = (n * intensity - self.incoherent_scattering - self.f_squared_mean) / self.f_mean_squared + 1
 
         #get q spacing and interpolate linearly to zero:
-        step=q[1]-q[0]
-        q_low = np.arange(step, min(q), step)
-        sq_low = structure_factor[0]/q[0] * q_low
+        if self.use_linear_interpolation:
+            step=q[1]-q[0]
+            q_low = np.arange(step, min(q), step)
+            sq_low = structure_factor[0]/q[0] * q_low
 
-        return Spectrum(np.concatenate((q_low, q)), np.concatenate((sq_low, structure_factor)))
+            return Spectrum(np.concatenate((q_low, q)), np.concatenate((sq_low, structure_factor)))
+        else:
+            return Spectrum(q, structure_factor)
 
     def calc_fr(self, r=None):
         if r is None:
             r = self.r
         q, intensity = self.sq_spectrum.data
-        modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+        if self.use_modification_fcn:
+            modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+        else:
+            modification=1
         fr = 2.0 / np.pi * np.trapz(modification * q * (intensity - 1) *
                                     np.array(np.sin(np.mat(q).T * np.mat(r))).T, q)
         return Spectrum(r, fr)
@@ -125,45 +135,3 @@ class StandardCalculator(GlassureCalculator):
                 fcn_callback(self.sq_spectrum, self.gr_spectrum)
 
         print "Optimization took {}".format(time.time()-t1)
-
-
-class FitNormalizationCalculator(StandardCalculator):
-    def __init__(self, *args, **kwargs):
-        self.diamond_scattering = 0
-        super(FitNormalizationCalculator, self).__init__(*args, **kwargs)
-    
-    def get_normalization_factor(self):
-        q, intensity = self.sample_spectrum.data
-        ind = np.where(q>2)
-        q = q[ind]
-        intensity = intensity[ind]
-        compton_scattering = self.incoherent_scattering[ind]
-        self_scattering = self.f_squared_mean[ind]
-
-
-        diamond_compton_scattering = calculate_incoherent_scattering({'C':1}, q)
-
-        param = Parameters()
-        param.add("n", value=1)
-        param.add("diamond_scattering", value=10, min=0)
-
-
-        def fcn2opt(param):
-            n = param['n'].value
-            diamond_scattering = param['diamond_scattering'].value
-            return (intensity-diamond_compton_scattering*diamond_scattering)*n*q**2 - (compton_scattering+self_scattering)*q**2
-
-
-        minimize(fcn2opt, param)
-
-        report_fit(param)
-        self.diamond_scattering = param['diamond_scattering'].value
-        return param['n'].value
-
-    def calc_sq(self):
-        n = self.get_normalization_factor()
-        q, intensity = self.sample_spectrum.data
-        # old version
-        diamond_compton_scattering = calculate_incoherent_scattering({'C':1}, q)
-        structure_factor = (n * (intensity-diamond_compton_scattering*self.diamond_scattering) - self.incoherent_scattering - self.f_squared_mean) / self.f_mean_squared + 1
-        return Spectrum(q, structure_factor)

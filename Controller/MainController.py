@@ -134,7 +134,8 @@ class MainController(object):
         QtGui.QApplication.processEvents()
 
     def optimize_density(self):
-        self.model.optimize_density_and_scaling()
+        self.model.optimize_density_and_scaling(
+            iterations=int(str(self.main_widget.control_widget.calculation_gb.optimize_iterations_txt.text())))
 
     def save_sq_btn_clicked(self, filename=None):
         if filename is None:
