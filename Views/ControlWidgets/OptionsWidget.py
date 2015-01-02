@@ -3,9 +3,10 @@ __author__ = 'Clemens Prescher'
 
 
 from PyQt4 import QtCore, QtGui
+from CustomWidgets import HorizontalLine
 
 class OptionsWidget(QtGui.QWidget):
-    options_parameters_changed = QtCore.pyqtSignal(float, float, float)
+    options_parameters_changed = QtCore.pyqtSignal()
 
     def __init__(self, *args):
         super(OptionsWidget, self).__init__(*args)
@@ -23,6 +24,9 @@ class OptionsWidget(QtGui.QWidget):
         self.r_range_lbl = QtGui.QLabel('r range:')
         self.r_min_txt = QtGui.QLineEdit('0.5')
         self.r_max_txt = QtGui.QLineEdit('10')
+
+        self.modification_fcn_cb = QtGui.QCheckBox("Use Modification Function")
+        self.linear_interpolation_cb = QtGui.QCheckBox("Linear Interpolation")
 
     def style_widgets(self):
         self.q_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
@@ -57,22 +61,28 @@ class OptionsWidget(QtGui.QWidget):
         self.grid_layout.addWidget(self.r_min_txt, 1, 1)
         self.grid_layout.addWidget(QtGui.QLabel('-'), 1, 2)
         self.grid_layout.addWidget(self.r_max_txt, 1, 3)
-        self.grid_layout.addWidget(QtGui.QLabel('A'), 2, 4)
+        self.grid_layout.addWidget(QtGui.QLabel('A'), 1, 4)
+
+        self.grid_layout.addWidget(HorizontalLine(), 2, 0, 1, 5)
+
+        self.grid_layout.addWidget(self.modification_fcn_cb, 3, 1, 1, 4)
+        self.grid_layout.addWidget(self.linear_interpolation_cb, 4, 1, 1, 4)
 
         self.setLayout(self.grid_layout)
 
     def create_signals(self):
-        self.q_max_txt.editingFinished.connect(self.emit_calculation_changed_signal)
-        self.q_min_txt.editingFinished.connect(self.emit_calculation_changed_signal)
-        self.r_min_txt.editingFinished.connect(self.emit_calculation_changed_signal)
-        self.r_max_txt.editingFinished.connect(self.emit_calculation_changed_signal)
+        self.q_max_txt.editingFinished.connect(self.txt_changed)
+        self.q_min_txt.editingFinished.connect(self.txt_changed)
+        self.r_min_txt.editingFinished.connect(self.txt_changed)
+        self.r_max_txt.editingFinished.connect(self.txt_changed)
 
-    def emit_calculation_changed_signal(self):
+        self.modification_fcn_cb.stateChanged.connect(self.options_parameters_changed.emit)
+        self.linear_interpolation_cb.stateChanged.connect(self.options_parameters_changed.emit)
+
+    def txt_changed(self):
         if self.q_max_txt.isModified() or self.q_min_txt.isModified() or \
                 self.r_min_txt.isModified() or self.r_max_txt.isModified():
-            q_min = float(str(self.q_min_txt.text()))
-            q_max = float(str(self.q_max_txt.text()))
-            self.options_parameters_changed.emit(q_min, q_max)
+            self.options_parameters_changed.emit()
 
             self.q_max_txt.setModified(False)
             self.q_min_txt.setModified(False)

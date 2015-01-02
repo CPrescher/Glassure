@@ -28,6 +28,9 @@ class GlassureModel(Observable):
         self.r_min = 0.5
         self.r_max = 10
 
+        self.use_modification_fcn = True
+        self.use_linear_interpolation = True
+
     def load_data(self, filename):
         self.original_spectrum.load(filename)
         self.calculate_spectra()
@@ -53,14 +56,20 @@ class GlassureModel(Observable):
         self.background_spectrum.set_smoothing(value)
         self.calculate_spectra()
 
-    def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min, r_max):
+    def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min, r_max, use_modification_fcn,
+                         use_linear_interpolation):
         self.composition = composition
         self.density = density
+
         self.q_min = q_min
         self.q_max = q_max
+
         self.r_cutoff = r_cutoff
         self.r_min = r_min
         self.r_max = r_max
+
+        self.use_modification_fcn = use_modification_fcn
+        self.use_linear_interpolation = use_linear_interpolation
         self.calculate_spectra()
 
     def calculate_spectra(self):
@@ -71,7 +80,9 @@ class GlassureModel(Observable):
                 background_scaling=self.background_scaling,
                 elemental_abundances=self.composition,
                 density=self.density,
-                r = np.linspace(self.r_min, self.r_max, 1000)
+                r = np.linspace(self.r_min, self.r_max, 1000),
+                use_modification_fcn=self.use_modification_fcn,
+                use_linear_interpolation=self.use_linear_interpolation
             )
             self.sq_spectrum = self.glassure_calculator.sq_spectrum
             self.fr_spectrum = self.glassure_calculator.fr_spectrum

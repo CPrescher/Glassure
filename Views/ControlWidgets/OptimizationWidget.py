@@ -5,7 +5,7 @@ from PyQt4 import QtCore, QtGui
 from CustomWidgets import HorizontalLine
 
 class OptimizationWidget(QtGui.QWidget):
-    calculation_parameters_changed = QtCore.pyqtSignal(float, float, float)
+    calculation_parameters_changed = QtCore.pyqtSignal(float)
 
     def __init__(self, *args):
         super(OptimizationWidget, self).__init__(*args)
@@ -61,18 +61,12 @@ class OptimizationWidget(QtGui.QWidget):
         self.r_cutoff_txt.editingFinished.connect(self.emit_calculation_changed_signal)
 
     def emit_calculation_changed_signal(self):
-        if self.q_max_txt.isModified() or self.q_min_txt.isModified() or self.r_cutoff_txt.isModified() or \
-                self.r_min_txt.isModified() or self.r_max_txt.isModified():
+        if self.r_cutoff_txt.isModified():
             r_cutoff = float(str(self.r_cutoff_txt.text()))
             self.calculation_parameters_changed.emit(r_cutoff)
-
-            self.q_max_txt.setModified(False)
-            self.q_min_txt.setModified(False)
             self.r_cutoff_txt.setModified(False)
-            self.r_min_txt.setModified(False)
-            self.r_max_txt.setModified(False)
 
     def get_parameter(self):
         r_cutoff = float(str(self.r_cutoff_txt.text()))
         iterations = int(str(self.optimize_iterations_txt.text()))
-        return r_cutoff, iterations 
+        return r_cutoff, iterations
