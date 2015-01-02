@@ -15,6 +15,7 @@ class MainWidget(QtGui.QWidget):
         super(MainWidget, self).__init__(*args, **kwargs)
         self.horizontal_layout = QtGui.QHBoxLayout(self)
         self.horizontal_layout.setContentsMargins(0, 0, 0, 0)
+        self.horizontal_layout.setSpacing(0)
 
         self.spectrum_widget = SpectrumWidget()
         self.control_widget = ControlWidget()
