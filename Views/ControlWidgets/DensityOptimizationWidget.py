@@ -25,7 +25,10 @@ class DensityOptimizationWidget(QtGui.QWidget):
 
         self.optimize_btn = QtGui.QPushButton("Optimize")
         self.optimize_iterations_lbl = QtGui.QLabel("Iterations:")
-        self.optimize_iterations_txt = QtGui.QLineEdit('50')
+        self.optimize_iterations_txt = QtGui.QLineEdit('5')
+
+        self.optimization_output_txt = QtGui.QTextEdit()
+        self.optimization_output_txt.setReadOnly(True)
 
     def style_widgets(self):
         self.density_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
@@ -70,6 +73,7 @@ class DensityOptimizationWidget(QtGui.QWidget):
         self.grid_layout.addWidget(self.optimize_iterations_txt, 2, 1)
 
         self.grid_layout.addWidget(self.optimize_btn, 3, 0, 1, 5)
+        self.grid_layout.addWidget(self.optimization_output_txt, 4, 0, 1, 5)
 
         self.setLayout(self.grid_layout)
 

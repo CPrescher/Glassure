@@ -20,7 +20,7 @@ class OptimizationWidget(QtGui.QWidget):
 
         self.optimize_btn = QtGui.QPushButton("Optimize")
         self.optimize_iterations_lbl = QtGui.QLabel("Iterations:")
-        self.optimize_iterations_txt = QtGui.QLineEdit('50')
+        self.optimize_iterations_txt = QtGui.QLineEdit('5')
 
     def style_widgets(self):
         self.r_cutoff_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)

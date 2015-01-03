@@ -32,28 +32,28 @@ class MainController(object):
         self.main_widget.show()
 
     def create_signals(self):
-        self.connect_click_function(self.main_widget.control_widget.data_widget.file_widget.load_data_btn,
+        self.connect_click_function(self.main_widget.left_control_widget.data_widget.file_widget.load_data_btn,
                                     self.load_data)
-        self.connect_click_function(self.main_widget.control_widget.data_widget.file_widget.load_background_btn,
+        self.connect_click_function(self.main_widget.left_control_widget.data_widget.file_widget.load_background_btn,
                                     self.load_bkg)
 
-        self.main_widget.control_widget.data_widget.background_options_gb.scale_sb.valueChanged.connect(
+        self.main_widget.left_control_widget.data_widget.background_options_gb.scale_sb.valueChanged.connect(
             self.bkg_scale_changed)
-        self.main_widget.control_widget.data_widget.background_options_gb.offset_sb.valueChanged.connect(
+        self.main_widget.left_control_widget.data_widget.background_options_gb.offset_sb.valueChanged.connect(
             self.bkg_offset_changed)
-        self.main_widget.control_widget.data_widget.smooth_gb.smooth_sb.valueChanged.connect(self.smooth_changed)
+        self.main_widget.left_control_widget.data_widget.smooth_gb.smooth_sb.valueChanged.connect(self.smooth_changed)
 
-        self.connect_click_function(self.main_widget.control_widget.composition_widget.add_element_btn,
+        self.connect_click_function(self.main_widget.left_control_widget.composition_widget.add_element_btn,
                                     self.add_element_btn_clicked)
-        self.connect_click_function(self.main_widget.control_widget.composition_widget.delete_element_btn,
+        self.connect_click_function(self.main_widget.left_control_widget.composition_widget.delete_element_btn,
                                     self.delete_element_btn_clicked)
 
-        self.main_widget.control_widget.composition_widget.composition_changed.connect(self.update_model)
-        self.main_widget.control_widget.options_widget.options_parameters_changed.connect(self.update_model)
-        self.main_widget.control_widget.optimization_widget.calculation_parameters_changed.connect(self.update_model)
+        self.main_widget.left_control_widget.composition_widget.composition_changed.connect(self.update_model)
+        self.main_widget.left_control_widget.options_widget.options_parameters_changed.connect(self.update_model)
+        self.main_widget.right_control_widget.optimization_widget.calculation_parameters_changed.connect(self.update_model)
 
-        self.main_widget.control_widget.optimization_widget.optimize_btn.clicked.connect(self.optimize_btn_clicked)
-        self.main_widget.control_widget.density_optimization_widget.optimize_btn.clicked.connect(self.optimize_density)
+        self.main_widget.right_control_widget.optimization_widget.optimize_btn.clicked.connect(self.optimize_btn_clicked)
+        self.main_widget.right_control_widget.density_optimization_widget.optimize_btn.clicked.connect(self.optimize_density)
 
         self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
                                     self.save_sq_btn_clicked)
@@ -71,7 +71,7 @@ class MainController(object):
         if filename is not '':
             self.model.load_data(filename)
             self.working_directory = os.path.dirname(filename)
-            self.main_widget.control_widget.data_widget.file_widget.data_filename_lbl.setText(
+            self.main_widget.left_control_widget.data_widget.file_widget.data_filename_lbl.setText(
                 os.path.basename(filename))
 
     def load_bkg(self, filename=None):
@@ -82,7 +82,7 @@ class MainController(object):
         if filename is not None and filename != '':
             self.model.load_bkg(filename)
             self.working_directory = os.path.dirname(filename)
-            self.main_widget.control_widget.data_widget.file_widget.background_filename_lbl.setText(
+            self.main_widget.left_control_widget.data_widget.file_widget.background_filename_lbl.setText(
                 os.path.basename(filename))
 
     def model_changed(self):
@@ -114,21 +114,21 @@ class MainController(object):
         self.main_widget.smooth_sb.setSingleStep(value)
 
     def add_element_btn_clicked(self):
-        self.main_widget.control_widget.composition_widget.add_element(element="Si", value=1.0)
+        self.main_widget.left_control_widget.composition_widget.add_element(element="Si", value=1.0)
 
     def delete_element_btn_clicked(self):
-        cur_ind = self.main_widget.control_widget.composition_widget.composition_tw.currentRow()
-        self.main_widget.control_widget.composition_widget.delete_element(cur_ind)
+        cur_ind = self.main_widget.left_control_widget.composition_widget.composition_tw.currentRow()
+        self.main_widget.left_control_widget.composition_widget.delete_element(cur_ind)
 
     def update_model(self):
-        composition = self.main_widget.control_widget.composition_widget.get_composition()
-        density = self.main_widget.control_widget.composition_widget.get_density()
+        composition = self.main_widget.left_control_widget.composition_widget.get_composition()
+        density = self.main_widget.left_control_widget.composition_widget.get_density()
 
-        q_min, q_max, r_min, r_max = self.main_widget.control_widget.options_widget.get_parameter()
-        r_cutoff, _ = self.main_widget.control_widget.optimization_widget.get_parameter()
+        q_min, q_max, r_min, r_max = self.main_widget.left_control_widget.options_widget.get_parameter()
+        r_cutoff, _ = self.main_widget.right_control_widget.optimization_widget.get_parameter()
 
-        use_modification_fcn = self.main_widget.control_widget.options_widget.modification_fcn_cb.isChecked()
-        use_linear_interpolation = self.main_widget.control_widget.options_widget.linear_interpolation_cb.isChecked()
+        use_modification_fcn = self.main_widget.left_control_widget.options_widget.modification_fcn_cb.isChecked()
+        use_linear_interpolation = self.main_widget.left_control_widget.options_widget.linear_interpolation_cb.isChecked()
 
         self.model.update_parameter(composition, density,
                                     q_min, q_max,
@@ -138,12 +138,12 @@ class MainController(object):
                                     use_linear_interpolation)
 
     def optimize_btn_clicked(self):
-        self.main_widget.control_widget.setEnabled(False)
+        self.main_widget.left_control_widget.setEnabled(False)
         self.model.optimize_sq(
-            iterations=int(str(self.main_widget.control_widget.optimization_widget.optimize_iterations_txt.text())),
+            iterations=int(str(self.main_widget.right_control_widget.optimization_widget.optimize_iterations_txt.text())),
             fcn_callback=self.plot_optimization_progress
         )
-        self.main_widget.control_widget.setEnabled(True)
+        self.main_widget.left_control_widget.setEnabled(True)
 
     def plot_optimization_progress(self, sq_spectrum, gr_spectrum):
         self.main_widget.spectrum_widget.plot_sq(sq_spectrum)
@@ -152,7 +152,7 @@ class MainController(object):
 
     def optimize_density(self):
         density_min, density_max, bkg_min, bkg_max, iterations = \
-            self.main_widget.control_widget.density_optimization_widget.get_parameter()
+            self.main_widget.left_control_widget.density_optimization_widget.get_parameter()
         self.model.optimize_density_and_scaling(density_min, density_max, bkg_min, bkg_max, iterations)
 
     def save_sq_btn_clicked(self, filename=None):

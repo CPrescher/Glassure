@@ -7,7 +7,7 @@ import os
 from PyQt4 import QtGui, QtCore
 
 from .SpectrumWidget import SpectrumWidget
-from .ControlWidget import ControlWidget
+from .ControlWidget import LeftControlWidget, RightControlWidget
 
 
 class MainWidget(QtGui.QWidget):
@@ -18,18 +18,28 @@ class MainWidget(QtGui.QWidget):
         self.horizontal_layout.setSpacing(0)
 
         self.spectrum_widget = SpectrumWidget()
-        self.control_widget = ControlWidget()
+        self.left_control_widget = LeftControlWidget()
+        self.right_control_widget = RightControlWidget()
 
-        self.control_scroll_area = QtGui.QScrollArea()
-        self.control_scroll_area.setWidget(self.control_widget)
-        self.control_scroll_area.setWidgetResizable(True)
+        self.left_control_scroll_area = QtGui.QScrollArea()
+        self.left_control_scroll_area.setWidget(self.left_control_widget)
+        self.left_control_scroll_area.setWidgetResizable(True)
 
-        self.control_scroll_area.setMaximumWidth(260)
-        self.control_scroll_area.setMinimumWidth(260)
-        self.control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.left_control_scroll_area.setMaximumWidth(240)
+        self.left_control_scroll_area.setMinimumWidth(240)
+        self.left_control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
+        self.right_control_scroll_area = QtGui.QScrollArea()
+        self.right_control_scroll_area.setWidget(self.right_control_widget)
+        self.right_control_scroll_area.setWidgetResizable(True)
+
+        self.right_control_scroll_area.setMaximumWidth(240)
+        self.right_control_scroll_area.setMinimumWidth(240)
+        self.right_control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+        self.horizontal_layout.addWidget(self.left_control_scroll_area)
         self.horizontal_layout.addWidget(self.spectrum_widget)
-        self.horizontal_layout.addWidget(self.control_scroll_area)
+        self.horizontal_layout.addWidget(self.right_control_scroll_area)
 
         self.horizontal_layout.setStretch(1, 0)
 
