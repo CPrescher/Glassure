@@ -107,12 +107,42 @@ class Spectrum(object):
     def __sub__(self, other):
         orig_x, orig_y = self.data
         other_x, other_y = other.data
-        return Spectrum(orig_x, orig_y - other_y)
+
+        if orig_x.shape != other_x.shape:
+            # the background will be interpolated
+            other_fcn = interp1d(other_x, other_x, kind='linear')
+
+            # find overlapping x and y values:
+            ind = np.where((orig_x <= np.max(other_x)) & (orig_x >= np.min(other_x)))
+            x = orig_x[ind]
+            y = orig_y[ind]
+
+            if len(x) == 0:
+                # if there is no overlapping between background and spectrum, raise an error
+                raise BkgNotInRangeError(self.name)
+            return Spectrum(x, y - other_fcn(x))
+        else:
+            return Spectrum(orig_x, orig_y - other_y)
 
     def __add__(self, other):
         orig_x, orig_y = self.data
         other_x, other_y = other.data
-        return Spectrum(orig_x, orig_y + other_y)
+
+        if orig_x.shape != other_x.shape:
+            # the background will be interpolated
+            other_fcn = interp1d(other_x, other_x, kind='linear')
+
+            # find overlapping x and y values:
+            ind = np.where((orig_x <= np.max(other_x)) & (orig_x >= np.min(other_x)))
+            x = orig_x[ind]
+            y = orig_y[ind]
+
+            if len(x) == 0:
+                # if there is no overlapping between background and spectrum, raise an error
+                raise BkgNotInRangeError(self.name)
+            return Spectrum(x, y + other_fcn(x))
+        else:
+            return Spectrum(orig_x, orig_y + other_y)
 
     def __rmul__(self, other):
         orig_x, orig_y = self.data

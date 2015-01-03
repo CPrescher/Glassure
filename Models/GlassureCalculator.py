@@ -15,12 +15,12 @@ class GlassureCalculator(object):
         self.original_spectrum = original_spectrum
         self.background_spectrum = background_spectrum
         self.background_scaling = background_scaling
-        self.sample_spectrum = self.original_spectrum - self.background_scaling * self.background_spectrum
+        self.sample_spectrum = self.original_spectrum - (self.background_scaling * self.background_spectrum)
         self.elemental_abundances = elemental_abundances
         self.density = density
         self.atomic_density = convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density)
 
-        q, _ = self.original_spectrum.data
+        q, _ = self.sample_spectrum.data
         self.incoherent_scattering = calculate_incoherent_scattering(elemental_abundances, q)
         self.f_mean_squared = calculate_f_mean_squared(elemental_abundances, q)
         self.f_squared_mean = calculate_f_squared_mean(elemental_abundances, q)
