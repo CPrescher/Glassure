@@ -39,8 +39,6 @@ class MainController(object):
 
         self.main_widget.left_control_widget.data_widget.background_options_gb.scale_sb.valueChanged.connect(
             self.bkg_scale_changed)
-        self.main_widget.left_control_widget.data_widget.background_options_gb.offset_sb.valueChanged.connect(
-            self.bkg_offset_changed)
         self.main_widget.left_control_widget.data_widget.smooth_gb.smooth_sb.valueChanged.connect(self.smooth_changed)
 
         self.connect_click_function(self.main_widget.left_control_widget.composition_widget.add_element_btn,
@@ -94,9 +92,6 @@ class MainController(object):
 
     def bkg_scale_changed(self, value):
         self.model.set_bkg_scale(value)
-
-    def bkg_offset_changed(self, value):
-        self.model.set_bkg_offset(value)
 
     def update_bkg_scale_step(self):
         value = np.float(self.main_widget.bkg_scale_step_txt.text())
