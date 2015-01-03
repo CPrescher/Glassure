@@ -49,7 +49,7 @@ class MainController(object):
         self.main_widget.control_widget.optimization_widget.calculation_parameters_changed.connect(self.update_model)
 
         self.main_widget.control_widget.optimization_widget.optimize_btn.clicked.connect(self.optimize_btn_clicked)
-        self.main_widget.control_widget.optimization_widget.optimize_density_btn.clicked.connect(self.optimize_density)
+        self.main_widget.control_widget.density_optimization_widget.optimize_btn.clicked.connect(self.optimize_density)
 
         self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
                                     self.save_sq_btn_clicked)

@@ -3,7 +3,7 @@ __author__ = 'Clemens Prescher'
 
 from PyQt4 import QtGui
 
-from ControlWidgets import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget
+from ControlWidgets import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget, DensityOptimizationWidget
 from CustomWidgets import ExpandableBox
 
 
@@ -18,11 +18,13 @@ class ControlWidget(QtGui.QWidget):
         self.composition_widget = CompositionWidget()
         self.options_widget = OptionsWidget()
         self.optimization_widget = OptimizationWidget()
+        self.density_optimization_widget = DensityOptimizationWidget()
 
         self.vertical_layout.addWidget(ExpandableBox(self.data_widget, "Data"))
         self.vertical_layout.addWidget(ExpandableBox(self.composition_widget, "Composition"))
         self.vertical_layout.addWidget(ExpandableBox(self.options_widget, "Options"))
-        self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization"))
+        self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization", True))
+        self.vertical_layout.addWidget(ExpandableBox(self.density_optimization_widget, "Density Optimization", True))
 
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.Expanding))

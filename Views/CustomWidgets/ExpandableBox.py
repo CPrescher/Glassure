@@ -4,7 +4,7 @@ __author__ = 'Clemens Prescher'
 from PyQt4 import QtGui
 
 class ExpandableBox(QtGui.QWidget):
-    def __init__(self, content_widget, title=''):
+    def __init__(self, content_widget, title='', hide=False):
         super(ExpandableBox, self).__init__()
 
         self._vlayout = QtGui.QVBoxLayout()
@@ -22,6 +22,9 @@ class ExpandableBox(QtGui.QWidget):
         self.minimize_btn.clicked.connect(self.change_visible_state)
 
         self.minimized = False
+
+        if hide:
+            self.change_visible_state()
 
     def create_head_widget(self, title):
         self._head_layout = QtGui.QHBoxLayout()

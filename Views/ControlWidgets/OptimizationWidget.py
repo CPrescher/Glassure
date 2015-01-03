@@ -2,7 +2,6 @@
 __author__ = 'Clemens Prescher'
 
 from PyQt4 import QtCore, QtGui
-from CustomWidgets import HorizontalLine
 
 class OptimizationWidget(QtGui.QWidget):
     calculation_parameters_changed = QtCore.pyqtSignal(float)
@@ -20,7 +19,6 @@ class OptimizationWidget(QtGui.QWidget):
         self.r_cutoff_txt = QtGui.QLineEdit('1')
 
         self.optimize_btn = QtGui.QPushButton("Optimize")
-        self.optimize_density_btn = QtGui.QPushButton("Optimize Density")
         self.optimize_iterations_lbl = QtGui.QLabel("Iterations:")
         self.optimize_iterations_txt = QtGui.QLineEdit('50')
 
@@ -38,7 +36,6 @@ class OptimizationWidget(QtGui.QWidget):
         self.optimize_iterations_txt.setValidator(QtGui.QIntValidator())
 
         self.optimize_btn.setFlat(True)
-        self.optimize_density_btn.setFlat(True)
 
     def create_layout(self):
         self.grid_layout = QtGui.QGridLayout()
@@ -49,11 +46,9 @@ class OptimizationWidget(QtGui.QWidget):
         self.grid_layout.addWidget(self.r_cutoff_txt, 1, 1)
         self.grid_layout.addWidget(QtGui.QLabel('A'), 1, 2)
 
-        self.grid_layout.addWidget(HorizontalLine(), 3, 0, 1, 5)
         self.grid_layout.addWidget(self.optimize_iterations_lbl, 4, 0)
         self.grid_layout.addWidget(self.optimize_iterations_txt, 4, 1)
         self.grid_layout.addWidget(self.optimize_btn, 5, 0, 1, 5)
-        self.grid_layout.addWidget(self.optimize_density_btn, 6, 0, 1, 5)
 
         self.setLayout(self.grid_layout)
 
