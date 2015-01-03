@@ -6,7 +6,7 @@ import numpy as np
 from .Spectrum import Spectrum
 from .HelperModule import Observable
 from GlassureCalculator import StandardCalculator
-from DensityOpimizitation import DensityOptimizer
+from DensityOptimization import DensityOptimizer
 
 
 class GlassureModel(Observable):
@@ -80,7 +80,7 @@ class GlassureModel(Observable):
                 background_scaling=self.background_scaling,
                 elemental_abundances=self.composition,
                 density=self.density,
-                r = np.linspace(self.r_min, self.r_max, 1000),
+                r=np.linspace(self.r_min, self.r_max, 1000),
                 use_modification_fcn=self.use_modification_fcn,
                 use_linear_interpolation=self.use_linear_interpolation
             )
@@ -90,7 +90,7 @@ class GlassureModel(Observable):
         self.notify()
 
     def optimize_sq(self, iterations=50, fcn_callback=None):
-        self.glassure_calculator.optimize(np.linspace(0, self.r_cutoff, np.round(self.r_cutoff*100)),
+        self.glassure_calculator.optimize(np.linspace(0, self.r_cutoff, np.round(self.r_cutoff * 100)),
                                           iterations=iterations, fcn_callback=fcn_callback)
         self.glassure_calculator.fr_spectrum = self.glassure_calculator.calc_fr()
         self.glassure_calculator.gr_spectrum = self.glassure_calculator.calc_gr()
@@ -100,7 +100,7 @@ class GlassureModel(Observable):
         self.gr_spectrum = self.glassure_calculator.gr_spectrum
         self.notify()
 
-    def optimize_density_and_scaling(self, iterations):
+    def optimize_density_and_scaling(self, density_min, density_max, bkg_min, bkg_max, iterations):
         optimizer = DensityOptimizer(
             original_spectrum=self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
             background_spectrum=self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
@@ -108,12 +108,16 @@ class GlassureModel(Observable):
             elemental_abundances=self.composition,
             initial_density=self.density,
             r_cutoff=self.r_cutoff,
-            r = np.linspace(self.r_min, self.r_max, 1000)
+            r=np.linspace(self.r_min, self.r_max, 1000),
+            density_min=density_min,
+            density_max=density_max,
+            bkg_min=bkg_min,
+            bkg_max=bkg_max,
+            use_modification_fcn=self.use_modification_fcn,
+            use_linear_interpolation=self.use_linear_interpolation
         )
 
         optimizer.optimize(iterations)
-
-
 
 
     @staticmethod

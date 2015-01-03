@@ -7,7 +7,8 @@ from Models.GlassureUtility import convert_density_to_atoms_per_cubic_angstrom
 class DensityOptimizer(object):
     def __init__(self, original_spectrum, background_spectrum, initial_background_scaling,
                  elemental_abundances, initial_density,
-                 r_cutoff, r=np.linspace(0, 10, 1000)):
+                 density_min, density_max, bkg_min, bkg_max,r_cutoff,
+                 use_modification_fcn=False, use_linear_interpolation=False, r=np.linspace(0, 10, 1000)):
 
         self.original_spectrum = original_spectrum
         self.background_spectrum = background_spectrum
@@ -18,11 +19,18 @@ class DensityOptimizer(object):
         self.minimization_r = np.linspace(0, r_cutoff, r_cutoff*100)
         self.r_cutoff = r_cutoff
 
+        self.bkg_min = bkg_min
+        self.bkg_max = bkg_max
+        self.density_min = density_min
+        self.density_max = density_max
+        self.use_modification_fcn = use_modification_fcn
+        self.use_linear_interpolation = use_linear_interpolation
+
     def optimize(self, optimization_iterations=10, fcn_callback=None):
 
         params = Parameters()
-        params.add("density", value=self.density, min=1.0, max=10)
-        params.add("background_scaling", value=self.background_scaling, min=0, vary=True)
+        params.add("density", value=self.density, min=self.density_min, max=self.density_max)
+        params.add("background_scaling", value=self.background_scaling, min=self.bkg_min, max=self.bkg_max)
 
         print self.elemental_abundances
 
@@ -36,7 +44,9 @@ class DensityOptimizer(object):
                 background_scaling=background_scaling,
                 elemental_abundances=self.elemental_abundances,
                 density=density,
-                r=self.r
+                r=self.r,
+                use_linear_interpolation=self.use_linear_interpolation,
+                use_modification_fcn=self.use_modification_fcn
             )
             calculator.optimize(
                 r=self.minimization_r,

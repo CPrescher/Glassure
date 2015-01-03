@@ -32,11 +32,15 @@ class MainController(object):
         self.main_widget.show()
 
     def create_signals(self):
-        self.connect_click_function(self.main_widget.control_widget.data_widget.file_widget.load_data_btn, self.load_data)
-        self.connect_click_function(self.main_widget.control_widget.data_widget.file_widget.load_background_btn, self.load_bkg)
+        self.connect_click_function(self.main_widget.control_widget.data_widget.file_widget.load_data_btn,
+                                    self.load_data)
+        self.connect_click_function(self.main_widget.control_widget.data_widget.file_widget.load_background_btn,
+                                    self.load_bkg)
 
-        self.main_widget.control_widget.data_widget.background_options_gb.scale_sb.valueChanged.connect(self.bkg_scale_changed)
-        self.main_widget.control_widget.data_widget.background_options_gb.offset_sb.valueChanged.connect(self.bkg_offset_changed)
+        self.main_widget.control_widget.data_widget.background_options_gb.scale_sb.valueChanged.connect(
+            self.bkg_scale_changed)
+        self.main_widget.control_widget.data_widget.background_options_gb.offset_sb.valueChanged.connect(
+            self.bkg_offset_changed)
         self.main_widget.control_widget.data_widget.smooth_gb.smooth_sb.valueChanged.connect(self.smooth_changed)
 
         self.connect_click_function(self.main_widget.control_widget.composition_widget.add_element_btn,
@@ -67,7 +71,8 @@ class MainController(object):
         if filename is not '':
             self.model.load_data(filename)
             self.working_directory = os.path.dirname(filename)
-            self.main_widget.control_widget.data_widget.file_widget.data_filename_lbl.setText(os.path.basename(filename))
+            self.main_widget.control_widget.data_widget.file_widget.data_filename_lbl.setText(
+                os.path.basename(filename))
 
     def load_bkg(self, filename=None):
         if filename is None:
@@ -77,7 +82,8 @@ class MainController(object):
         if filename is not None and filename != '':
             self.model.load_bkg(filename)
             self.working_directory = os.path.dirname(filename)
-            self.main_widget.control_widget.data_widget.file_widget.background_filename_lbl.setText(os.path.basename(filename))
+            self.main_widget.control_widget.data_widget.file_widget.background_filename_lbl.setText(
+                os.path.basename(filename))
 
     def model_changed(self):
         self.main_widget.spectrum_widget.plot_spectrum(self.model.original_spectrum)
@@ -135,7 +141,7 @@ class MainController(object):
         self.main_widget.control_widget.setEnabled(False)
         self.model.optimize_sq(
             iterations=int(str(self.main_widget.control_widget.optimization_widget.optimize_iterations_txt.text())),
-            fcn_callback = self.plot_optimization_progress
+            fcn_callback=self.plot_optimization_progress
         )
         self.main_widget.control_widget.setEnabled(True)
 
@@ -145,8 +151,9 @@ class MainController(object):
         QtGui.QApplication.processEvents()
 
     def optimize_density(self):
-        self.model.optimize_density_and_scaling(
-            iterations=int(str(self.main_widget.control_widget.optimization_widget.optimize_iterations_txt.text())))
+        density_min, density_max, bkg_min, bkg_max, iterations = \
+            self.main_widget.control_widget.density_optimization_widget.get_parameter()
+        self.model.optimize_density_and_scaling(density_min, density_max, bkg_min, bkg_max, iterations)
 
     def save_sq_btn_clicked(self, filename=None):
         if filename is None:
