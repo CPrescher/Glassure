@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 import numpy as np
-from lmfit import Parameters, minimize, report_fit
+from scipy import interpolate
 
 from Spectrum import Spectrum
 
@@ -90,9 +90,18 @@ class StandardCalculator(GlassureCalculator):
         if self.use_linear_interpolation:
             step=q[1]-q[0]
             q_low = np.arange(step, min(q), step)
-            sq_low = structure_factor[0]/q[0] * q_low
+            # sq_low = structure_factor[0]/q[0] * q_low
+            q_low_cutoff = np.arange(step, 0.5, step)
+            intensity_cutoff = np.zeros(q_low_cutoff.shape)
 
-            return Spectrum(np.concatenate((q_low, q)), np.concatenate((sq_low, structure_factor)))
+            q_spline = np.concatenate((q_low_cutoff, q))
+            int_spline = np.concatenate((intensity_cutoff, structure_factor))
+
+            tck = interpolate.splrep(q_spline, int_spline)
+
+
+            return Spectrum(np.concatenate((q_low, q)),
+                            np.concatenate((interpolate.splev(q_low, tck), structure_factor)))
         else:
             return Spectrum(q, structure_factor)
 

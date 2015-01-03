@@ -4,19 +4,21 @@ from lmfit import Parameters, minimize, report_fit
 from Models.GlassureCalculator import StandardCalculator
 from Models.GlassureUtility import convert_density_to_atoms_per_cubic_angstrom
 
-class DensityOptimizer(object):
-    def __init__(self, original_spectrum, background_spectrum, initial_background_scaling,
-                 elemental_abundances, initial_density,
-                 density_min, density_max, bkg_min, bkg_max,r_cutoff,
-                 use_modification_fcn=False, use_linear_interpolation=False, r=np.linspace(0, 10, 1000)):
 
+class DensityOptimizer(object):
+    def __init__(self,
+                 original_spectrum, background_spectrum, initial_background_scaling,
+                 elemental_abundances, initial_density,
+                 density_min, density_max, bkg_min, bkg_max, r_cutoff,
+                 use_modification_fcn=False, use_linear_interpolation=False, r=np.linspace(0, 10, 1000),
+                 output_txt=None):
         self.original_spectrum = original_spectrum
         self.background_spectrum = background_spectrum
         self.background_scaling = initial_background_scaling
         self.elemental_abundances = elemental_abundances
         self.density = initial_density
         self.r = r
-        self.minimization_r = np.linspace(0, r_cutoff, r_cutoff*100)
+        self.minimization_r = np.linspace(0, r_cutoff, r_cutoff * 100)
         self.r_cutoff = r_cutoff
 
         self.bkg_min = bkg_min
@@ -25,14 +27,14 @@ class DensityOptimizer(object):
         self.density_max = density_max
         self.use_modification_fcn = use_modification_fcn
         self.use_linear_interpolation = use_linear_interpolation
+        self.output_txt = output_txt
 
-    def optimize(self, optimization_iterations=10, fcn_callback=None):
-
+    def optimize(self, optimization_iterations=10,  fcn_callback=None):
         params = Parameters()
         params.add("density", value=self.density, min=self.density_min, max=self.density_max)
         params.add("background_scaling", value=self.background_scaling, min=self.bkg_min, max=self.bkg_max)
 
-        print self.elemental_abundances
+        self.write_output(self.elemental_abundances)
 
         def fcn_optimization(params):
             density = params['density'].value
@@ -52,23 +54,27 @@ class DensityOptimizer(object):
                 r=self.minimization_r,
                 iterations=optimization_iterations
             )
-            print density
+            self.write_output(density)
+
             if fcn_callback is not None:
                 fr_spectrum = calculator.calc_fr()
                 gr_spectrum = calculator.calc_gr()
                 fcn_callback(background_scaling, density, fr_spectrum, gr_spectrum)
+
             r, fr = calculator.calc_fr(self.minimization_r).data
 
-            test= (-fr-4*np.pi*convert_density_to_atoms_per_cubic_angstrom(self.elemental_abundances, density)*\
+            test = (-fr - 4 * np.pi * convert_density_to_atoms_per_cubic_angstrom(self.elemental_abundances, density) *
                     self.minimization_r)
-            return test**2
+            return test ** 2
 
 
         minimize(fcn_optimization, params)
         report_fit(params)
 
-
-
-
-
-
+    def write_output(self, msg):
+        if self.output_txt is None:
+            print msg
+        else:
+            previous_txt = str(self.output_txt.text())
+            new_txt = previous_txt + "\n" + msg
+            self.output_txt.setText(new_txt)
