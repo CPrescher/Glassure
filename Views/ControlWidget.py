@@ -3,7 +3,8 @@ __author__ = 'Clemens Prescher'
 
 from PyQt4 import QtGui
 
-from ControlWidgets import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget, DensityOptimizationWidget
+from ControlWidgets import CompositionWidget, DataWidget, OptimizationWidget, \
+    OptionsWidget, DensityOptimizationWidget, InterpolationWidget
 from CustomWidgets import ExpandableBox
 
 
@@ -19,10 +20,12 @@ class LeftControlWidget(QtGui.QWidget):
         self.options_widget = OptionsWidget()
         self.optimization_widget = OptimizationWidget()
         self.density_optimization_widget = DensityOptimizationWidget()
+        self.interpolation_widget = InterpolationWidget()
 
         self.vertical_layout.addWidget(ExpandableBox(self.data_widget, "Data"))
         self.vertical_layout.addWidget(ExpandableBox(self.composition_widget, "Composition"))
         self.vertical_layout.addWidget(ExpandableBox(self.options_widget, "Options"))
+        self.vertical_layout.addWidget(ExpandableBox(self.interpolation_widget, "Interpolation"))
 
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.Expanding))

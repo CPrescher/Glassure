@@ -26,7 +26,6 @@ class OptionsWidget(QtGui.QWidget):
         self.r_max_txt = QtGui.QLineEdit('10')
 
         self.modification_fcn_cb = QtGui.QCheckBox("Use Modification Function")
-        self.linear_interpolation_cb = QtGui.QCheckBox("Linear Interpolation")
 
     def style_widgets(self):
         self.q_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
@@ -64,9 +63,7 @@ class OptionsWidget(QtGui.QWidget):
         self.grid_layout.addWidget(QtGui.QLabel('A'), 1, 4)
 
         self.grid_layout.addWidget(HorizontalLine(), 2, 0, 1, 5)
-
         self.grid_layout.addWidget(self.modification_fcn_cb, 3, 1, 1, 4)
-        self.grid_layout.addWidget(self.linear_interpolation_cb, 4, 1, 1, 4)
 
         self.setLayout(self.grid_layout)
 
@@ -77,7 +74,6 @@ class OptionsWidget(QtGui.QWidget):
         self.r_max_txt.editingFinished.connect(self.txt_changed)
 
         self.modification_fcn_cb.stateChanged.connect(self.options_parameters_changed.emit)
-        self.linear_interpolation_cb.stateChanged.connect(self.options_parameters_changed.emit)
 
     def txt_changed(self):
         if self.q_max_txt.isModified() or self.q_min_txt.isModified() or \
