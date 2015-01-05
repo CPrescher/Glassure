@@ -38,6 +38,12 @@ class InterpolationWidget(QtGui.QWidget):
         self.spline_interpolation_q_max_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.spline_interpolation_q_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
+        self.spline_interpolation_cutoff_txt.setValidator(QtGui.QDoubleValidator())
+        self.spline_interpolation_q_max_txt.setValidator(QtGui.QDoubleValidator())
+
+        self.spline_interpolation_cutoff_txt.setMaximumWidth(50)
+        self.spline_interpolation_q_max_txt.setMaximumWidth(50)
+
     def create_layout(self):
         self.vertical_layout = QtGui.QVBoxLayout()
         self.vertical_layout.setContentsMargins(0,0,0,0)
@@ -71,7 +77,7 @@ class InterpolationWidget(QtGui.QWidget):
 
         self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_q_max_lbl, 1, 1)
         self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_q_max_txt, 1, 2)
-        self.spline_interpolation_parameter_layout.addWidget(QtGui.QLabel('Q'), 1, 3)
+        self.spline_interpolation_parameter_layout.addWidget(QtGui.QLabel('A'), 1, 3)
 
         self.spline_interpolation_widget.setLayout(self.spline_interpolation_parameter_layout)
         self.rb_ver_layout.addWidget(self.spline_interpolation_widget)
