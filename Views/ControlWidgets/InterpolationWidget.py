@@ -28,17 +28,15 @@ class InterpolationWidget(QtGui.QWidget):
         self.spline_interpolation_cutoff_lbl = QtGui.QLabel('Cutoff:')
         self.spline_interpolation_cutoff_txt = QtGui.QLineEdit('0.5')
 
-        self.spline_interpolation_fit_range_lbl = QtGui.QLabel('Fit range:')
-        self.spline_interpolation_fit_range_min_txt = QtGui.QLineEdit('1')
-        self.spline_interpolation_fit_range_max_txt = QtGui.QLineEdit('1.5')
+        self.spline_interpolation_q_max_lbl = QtGui.QLabel('Q Max:')
+        self.spline_interpolation_q_max_txt = QtGui.QLineEdit('1.5')
 
     def style_widgets(self):
         self.spline_interpolation_cutoff_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.spline_interpolation_cutoff_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
-        self.spline_interpolation_fit_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.spline_interpolation_fit_range_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.spline_interpolation_fit_range_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.spline_interpolation_q_max_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.spline_interpolation_q_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
     def create_layout(self):
         self.vertical_layout = QtGui.QVBoxLayout()
@@ -71,11 +69,9 @@ class InterpolationWidget(QtGui.QWidget):
         self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_cutoff_lbl, 0, 1)
         self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_cutoff_txt, 0, 2)
 
-        self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_fit_range_lbl, 1, 1)
-        self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_fit_range_min_txt, 1, 2)
-        self.spline_interpolation_parameter_layout.addWidget(QtGui.QLabel('-'), 1, 3)
-        self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_fit_range_max_txt, 1, 4)
-        self.spline_interpolation_parameter_layout.addWidget(QtGui.QLabel('Q'), 1, 5)
+        self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_q_max_lbl, 1, 1)
+        self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_q_max_txt, 1, 2)
+        self.spline_interpolation_parameter_layout.addWidget(QtGui.QLabel('Q'), 1, 3)
 
         self.spline_interpolation_widget.setLayout(self.spline_interpolation_parameter_layout)
         self.rb_ver_layout.addWidget(self.spline_interpolation_widget)
@@ -105,8 +101,7 @@ class InterpolationWidget(QtGui.QWidget):
         self.linear_interpolation_rb.toggled.connect(self.update_visibility)
 
         self.spline_interpolation_cutoff_txt.editingFinished.connect(self.txt_changed)
-        self.spline_interpolation_fit_range_max_txt.editingFinished.connect(self.txt_changed)
-        self.spline_interpolation_fit_range_min_txt.editingFinished.connect(self.txt_changed)
+        self.spline_interpolation_q_max_txt.editingFinished.connect(self.txt_changed)
 
     def update_visibility(self):
         if self.spline_interpolation_rb.isChecked():
@@ -115,15 +110,13 @@ class InterpolationWidget(QtGui.QWidget):
             self.disable_spline_widgets()
 
     def txt_changed(self):
-        if self.spline_interpolation_cutoff_txt.isModified() and \
-            self.spline_interpolation_fit_range_min_txt.isModified() and \
-            self.spline_interpolation_fit_range_max_txt.isModified():
+        if self.spline_interpolation_cutoff_txt.isModified() or \
+            self.spline_interpolation_q_max_txt.isModified():
 
             self.interpolation_parameters_changed.emit()
 
             self.spline_interpolation_cutoff_txt.setModified(False)
-            self.spline_interpolation_fit_range_max_txt.setModified(False)
-            self.spline_interpolation_fit_range_min_txt.setModified(False)
+            self.spline_interpolation_q_max_txt.setModified(False)
 
     def get_interpolation_method(self):
         if not self.activate_cb.isChecked():
@@ -132,3 +125,7 @@ class InterpolationWidget(QtGui.QWidget):
             return "linear"
         elif self.spline_interpolation_rb.isChecked():
             return "spline"
+
+    def get_interpolation_parameters(self):
+        return {'cutoff': float(str(self.spline_interpolation_cutoff_txt.text())),
+                'q_max': float(str(self.spline_interpolation_q_max_txt.text()))}

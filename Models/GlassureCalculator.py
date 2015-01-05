@@ -61,10 +61,11 @@ class GlassureCalculator(object):
 class StandardCalculator(GlassureCalculator):
     def __init__(self, original_spectrum, background_spectrum, background_scaling, elemental_abundances, density,
                  r=np.linspace(0, 10, 1000),  normalization_attenuation_factor=0.001, use_modification_fcn=True,
-                 use_linear_interpolation=True):
+                 interpolation_method=None, interpolation_parameter=None):
         self.attenuation_factor = normalization_attenuation_factor
         self.use_modification_fcn = use_modification_fcn
-        self.use_linear_interpolation = use_linear_interpolation
+        self.interpolation_method = interpolation_method
+        self.interpolation_parameter = interpolation_parameter
 
         super(StandardCalculator, self).__init__(original_spectrum, background_spectrum, background_scaling,
                                                  elemental_abundances, density, r)
@@ -87,23 +88,27 @@ class StandardCalculator(GlassureCalculator):
         structure_factor = (n * intensity - self.incoherent_scattering - self.f_squared_mean) / self.f_mean_squared + 1
 
         #get q spacing and interpolate linearly to zero:
-        if self.use_linear_interpolation:
+        if self.interpolation_method is None:
+            return Spectrum(q, structure_factor)
+        else:
             step=q[1]-q[0]
             q_low = np.arange(step, min(q), step)
-            # sq_low = structure_factor[0]/q[0] * q_low
-            q_low_cutoff = np.arange(step, 0.5, step)
-            intensity_cutoff = np.zeros(q_low_cutoff.shape)
+            if self.interpolation_method == 'linear':
+                sq_low = structure_factor[0]/q[0] * q_low
+            elif self.interpolation_method == 'spline':
+                q_low_cutoff = np.arange(step, self.interpolation_parameter['cutoff'], step)
+                intensity_low_cutoff = np.zeros(q_low_cutoff.shape)
 
-            q_spline = np.concatenate((q_low_cutoff, q))
-            int_spline = np.concatenate((intensity_cutoff, structure_factor))
+                ind_to_q_max = np.where(q<=self.interpolation_parameter['q_max'])
+                q_spline = np.concatenate((q_low_cutoff, q[ind_to_q_max]))
+                int_spline = np.concatenate((intensity_low_cutoff, structure_factor[ind_to_q_max]))
 
-            tck = interpolate.splrep(q_spline, int_spline)
+                tck = interpolate.splrep(q_spline, int_spline)
 
+                sq_low = interpolate.splev(q_low, tck)
 
             return Spectrum(np.concatenate((q_low, q)),
-                            np.concatenate((interpolate.splev(q_low, tck), structure_factor)))
-        else:
-            return Spectrum(q, structure_factor)
+                            np.concatenate((sq_low, structure_factor)))
 
     def calc_fr(self, r=None):
         if r is None:

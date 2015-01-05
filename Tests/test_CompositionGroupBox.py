@@ -14,7 +14,7 @@ class CompositionGroupBoxTest(unittest.TestCase):
         self.app = QtGui.QApplication(sys.argv)
         self.main_controller = MainController()
         self.main_widget = self.main_controller.main_widget
-        self.composition_gb = self.main_widget.left_control_widget.composition_gb
+        self.composition_gb = self.main_widget.left_control_widget.composition_widget
 
     def tearDown(self):
         del self.app

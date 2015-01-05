@@ -29,7 +29,8 @@ class GlassureModel(Observable):
         self.r_max = 10
 
         self.use_modification_fcn = True
-        self.use_linear_interpolation = True
+        self.interpolation_method = None
+        self.interpolation_parameters = None
 
     def load_data(self, filename):
         self.original_spectrum.load(filename)
@@ -56,8 +57,8 @@ class GlassureModel(Observable):
         self.background_spectrum.set_smoothing(value)
         self.calculate_spectra()
 
-    def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min, r_max, use_modification_fcn,
-                         use_linear_interpolation):
+    def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min, r_max, use_modification_fcn=False,
+                         interpolation_method=None, interpolation_parameters=None):
         self.composition = composition
         self.density = density
 
@@ -69,7 +70,9 @@ class GlassureModel(Observable):
         self.r_max = r_max
 
         self.use_modification_fcn = use_modification_fcn
-        self.use_linear_interpolation = use_linear_interpolation
+        self.interpolation_method = interpolation_method
+        self.interpolation_parameters = interpolation_parameters
+
         self.calculate_spectra()
 
     def calculate_spectra(self):
@@ -82,7 +85,8 @@ class GlassureModel(Observable):
                 density=self.density,
                 r=np.linspace(self.r_min, self.r_max, 1000),
                 use_modification_fcn=self.use_modification_fcn,
-                use_linear_interpolation=self.use_linear_interpolation
+                interpolation_method=self.interpolation_method,
+                interpolation_parameter=self.interpolation_parameters
             )
             self.sq_spectrum = self.glassure_calculator.sq_spectrum
             self.fr_spectrum = self.glassure_calculator.fr_spectrum
@@ -114,7 +118,7 @@ class GlassureModel(Observable):
             bkg_min=bkg_min,
             bkg_max=bkg_max,
             use_modification_fcn=self.use_modification_fcn,
-            use_linear_interpolation=self.use_linear_interpolation,
+            use_linear_interpolation=self.interpolation_method,
             output_txt=output_txt
 
         )

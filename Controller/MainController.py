@@ -48,6 +48,7 @@ class MainController(object):
 
         self.main_widget.left_control_widget.composition_widget.composition_changed.connect(self.update_model)
         self.main_widget.left_control_widget.options_widget.options_parameters_changed.connect(self.update_model)
+        self.main_widget.left_control_widget.interpolation_widget.interpolation_parameters_changed.connect(self.update_model)
         self.main_widget.right_control_widget.optimization_widget.calculation_parameters_changed.connect(self.update_model)
 
         self.main_widget.right_control_widget.optimization_widget.optimize_btn.clicked.connect(self.optimize_btn_clicked)
@@ -123,14 +124,16 @@ class MainController(object):
         r_cutoff, _ = self.main_widget.right_control_widget.optimization_widget.get_parameter()
 
         use_modification_fcn = self.main_widget.left_control_widget.options_widget.modification_fcn_cb.isChecked()
-        use_linear_interpolation = self.main_widget.left_control_widget.options_widget.linear_interpolation_cb.isChecked()
+        interpolation_method = self.main_widget.left_control_widget.interpolation_widget.get_interpolation_method()
+        interpolation_parameters= self.main_widget.left_control_widget.interpolation_widget.get_interpolation_parameters()
 
         self.model.update_parameter(composition, density,
                                     q_min, q_max,
                                     r_cutoff,
                                     r_min, r_max,
                                     use_modification_fcn,
-                                    use_linear_interpolation)
+                                    interpolation_method,
+                                    interpolation_parameters)
 
     def optimize_btn_clicked(self):
         self.main_widget.left_control_widget.setEnabled(False)
