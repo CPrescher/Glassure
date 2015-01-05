@@ -100,7 +100,7 @@ class GlassureModel(Observable):
         self.gr_spectrum = self.glassure_calculator.gr_spectrum
         self.notify()
 
-    def optimize_density_and_scaling(self, density_min, density_max, bkg_min, bkg_max, iterations):
+    def optimize_density_and_scaling(self, density_min, density_max, bkg_min, bkg_max, iterations, output_txt=None):
         optimizer = DensityOptimizer(
             original_spectrum=self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
             background_spectrum=self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
@@ -114,7 +114,9 @@ class GlassureModel(Observable):
             bkg_min=bkg_min,
             bkg_max=bkg_max,
             use_modification_fcn=self.use_modification_fcn,
-            use_linear_interpolation=self.use_linear_interpolation
+            use_linear_interpolation=self.use_linear_interpolation,
+            output_txt=output_txt
+
         )
 
         optimizer.optimize(iterations)

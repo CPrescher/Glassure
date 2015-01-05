@@ -134,11 +134,13 @@ class MainController(object):
 
     def optimize_btn_clicked(self):
         self.main_widget.left_control_widget.setEnabled(False)
+        self.main_widget.right_control_widget.setEnabled(False)
         self.model.optimize_sq(
             iterations=int(str(self.main_widget.right_control_widget.optimization_widget.optimize_iterations_txt.text())),
             fcn_callback=self.plot_optimization_progress
         )
         self.main_widget.left_control_widget.setEnabled(True)
+        self.main_widget.right_control_widget.setEnabled(True)
 
     def plot_optimization_progress(self, sq_spectrum, gr_spectrum):
         self.main_widget.spectrum_widget.plot_sq(sq_spectrum)
@@ -148,7 +150,9 @@ class MainController(object):
     def optimize_density(self):
         density_min, density_max, bkg_min, bkg_max, iterations = \
             self.main_widget.left_control_widget.density_optimization_widget.get_parameter()
-        self.model.optimize_density_and_scaling(density_min, density_max, bkg_min, bkg_max, iterations)
+        self.model.optimize_density_and_scaling(
+            density_min, density_max, bkg_min, bkg_max, iterations,
+            self.main_widget.right_control_widget.density_optimization_widget.optimization_output_txt)
 
     def save_sq_btn_clicked(self, filename=None):
         if filename is None:

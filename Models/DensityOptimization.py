@@ -1,6 +1,8 @@
+# -*- coding: utf8 -*-
 __author__ = 'clemens'
 import numpy as np
-from lmfit import Parameters, minimize, report_fit
+from PyQt4 import QtGui
+from lmfit import Parameters, minimize, report_fit, fit_report
 from Models.GlassureCalculator import StandardCalculator
 from Models.GlassureUtility import convert_density_to_atoms_per_cubic_angstrom
 
@@ -28,13 +30,12 @@ class DensityOptimizer(object):
         self.use_modification_fcn = use_modification_fcn
         self.use_linear_interpolation = use_linear_interpolation
         self.output_txt = output_txt
+        self.iteration = 1
 
     def optimize(self, optimization_iterations=10,  fcn_callback=None):
         params = Parameters()
         params.add("density", value=self.density, min=self.density_min, max=self.density_max)
         params.add("background_scaling", value=self.background_scaling, min=self.bkg_min, max=self.bkg_max)
-
-        self.write_output(self.elemental_abundances)
 
         def fcn_optimization(params):
             density = params['density'].value
@@ -54,7 +55,6 @@ class DensityOptimizer(object):
                 r=self.minimization_r,
                 iterations=optimization_iterations
             )
-            self.write_output(density)
 
             if fcn_callback is not None:
                 fr_spectrum = calculator.calc_fr()
@@ -63,18 +63,36 @@ class DensityOptimizer(object):
 
             r, fr = calculator.calc_fr(self.minimization_r).data
 
-            test = (-fr - 4 * np.pi * convert_density_to_atoms_per_cubic_angstrom(self.elemental_abundances, density) *
-                    self.minimization_r)
-            return test ** 2
+            output = (-fr - 4 * np.pi * convert_density_to_atoms_per_cubic_angstrom(self.elemental_abundances, density) *
+                    self.minimization_r) ** 2
 
 
+            self.write_output(u'{} X: {:.3f} Den: {:.3f}'.format(self.iteration, np.sum(output)/(r[1]-r[0]), density))
+            self.iteration+=1
+            return output
+
+        self.output_txt.setPlainText('')
         minimize(fcn_optimization, params)
+        self.write_fit_result(params)
         report_fit(params)
 
     def write_output(self, msg):
         if self.output_txt is None:
             print msg
         else:
-            previous_txt = str(self.output_txt.text())
-            new_txt = previous_txt + "\n" + msg
-            self.output_txt.setText(new_txt)
+            previous_txt = str(self.output_txt.toPlainText())
+            new_txt = previous_txt + "\n" + str(msg)
+            self.output_txt.setPlainText(new_txt)
+            # QtGui.QApplication.processEvents()
+            self.output_txt.verticalScrollBar().setValue(self.output_txt.verticalScrollBar().maximum())
+            QtGui.QApplication.processEvents()
+            self.output_txt.verticalScrollBar().setValue(self.output_txt.verticalScrollBar().maximum())
+            QtGui.QApplication.processEvents()
+
+    def write_fit_result(self, params):
+        output =  '\nFit Results:\n'
+        output += '-Background Scaling:\n  % .3g +/- %.3g\n' % (params['background_scaling'].value,
+                                                              params['background_scaling'].stderr)
+        output += '-Density:\n  % .3g +/- %.3g\n' % (params['density'].value,
+                                                   params['density'].stderr)
+        self.write_output(output)
