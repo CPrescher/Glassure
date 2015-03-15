@@ -3,7 +3,8 @@ __author__ = 'Clemens Prescher'
 
 
 from PyQt4 import QtCore, QtGui
-from CustomWidgets import HorizontalLine
+from ..CustomWidgets import HorizontalLine
+
 
 class InterpolationWidget(QtGui.QWidget):
     interpolation_parameters_changed = QtCore.pyqtSignal()
