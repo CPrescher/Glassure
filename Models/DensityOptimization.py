@@ -12,7 +12,7 @@ class DensityOptimizer(object):
                  original_spectrum, background_spectrum, initial_background_scaling,
                  elemental_abundances, initial_density,
                  density_min, density_max, bkg_min, bkg_max, r_cutoff,
-                 use_modification_fcn=False, use_linear_interpolation=False, r=np.linspace(0, 10, 1000),
+                 use_modification_fcn=False, interpolation_method=None,interpolation_parameters=None, r=np.linspace(0, 10, 1000),
                  output_txt=None):
         self.original_spectrum = original_spectrum
         self.background_spectrum = background_spectrum
@@ -28,7 +28,8 @@ class DensityOptimizer(object):
         self.density_min = density_min
         self.density_max = density_max
         self.use_modification_fcn = use_modification_fcn
-        self.use_linear_interpolation = use_linear_interpolation
+        self.interpolation_method = interpolation_method
+        self.interpolation_parameters = interpolation_parameters
         self.output_txt = output_txt
         self.iteration = 1
 
@@ -48,7 +49,8 @@ class DensityOptimizer(object):
                 elemental_abundances=self.elemental_abundances,
                 density=density,
                 r=self.r,
-                use_linear_interpolation=self.use_linear_interpolation,
+                interpolation_method=self.interpolation_method,
+                interpolation_parameters=self.interpolation_parameters,
                 use_modification_fcn=self.use_modification_fcn
             )
             calculator.optimize(

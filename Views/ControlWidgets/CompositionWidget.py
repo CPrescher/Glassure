@@ -40,7 +40,6 @@ class CompositionWidget(QtGui.QWidget):
         self.density_layout.addWidget(QtGui.QLabel('g/cm^3'))
 
         self.composition_tw = QtGui.QTableWidget()
-        # self.composition_tw.setFixedHeight(100)
         self.composition_tw.setColumnCount(2)
         self.composition_tw.horizontalHeader().setVisible(False)
         self.composition_tw.verticalHeader().setVisible(False)

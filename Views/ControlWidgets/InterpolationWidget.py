@@ -16,8 +16,8 @@ class InterpolationWidget(QtGui.QWidget):
         self.style_widgets()
         self.create_signals()
 
-        self.disable_rb_widgets()
         self.disable_spline_widgets()
+        self.rb_widget.setVisible(False)
 
     def create_widgets(self):
         self.activate_cb = QtGui.QCheckBox("activate")
@@ -100,7 +100,7 @@ class InterpolationWidget(QtGui.QWidget):
         self.spline_interpolation_widget.setEnabled(True)
 
     def create_signals(self):
-        self.activate_cb.stateChanged.connect(self.rb_widget.setEnabled)
+        self.activate_cb.stateChanged.connect(self.rb_widget.setVisible)
         self.activate_cb.stateChanged.connect(self.interpolation_parameters_changed.emit)
 
         self.linear_interpolation_rb.toggled.connect(self.interpolation_parameters_changed.emit)

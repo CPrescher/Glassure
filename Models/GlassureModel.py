@@ -86,7 +86,7 @@ class GlassureModel(Observable):
                 r=np.linspace(self.r_min, self.r_max, 1000),
                 use_modification_fcn=self.use_modification_fcn,
                 interpolation_method=self.interpolation_method,
-                interpolation_parameter=self.interpolation_parameters
+                interpolation_parameters=self.interpolation_parameters
             )
             self.sq_spectrum = self.glassure_calculator.sq_spectrum
             self.fr_spectrum = self.glassure_calculator.fr_spectrum
@@ -118,9 +118,9 @@ class GlassureModel(Observable):
             bkg_min=bkg_min,
             bkg_max=bkg_max,
             use_modification_fcn=self.use_modification_fcn,
-            use_linear_interpolation=self.interpolation_method,
+            interpolation_method=self.interpolation_method,
+            interpolation_parameters=self.interpolation_parameters,
             output_txt=output_txt
-
         )
 
         optimizer.optimize(iterations)

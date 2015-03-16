@@ -61,11 +61,11 @@ class GlassureCalculator(object):
 class StandardCalculator(GlassureCalculator):
     def __init__(self, original_spectrum, background_spectrum, background_scaling, elemental_abundances, density,
                  r=np.linspace(0, 10, 1000),  normalization_attenuation_factor=0.001, use_modification_fcn=True,
-                 interpolation_method=None, interpolation_parameter=None):
+                 interpolation_method=None, interpolation_parameters=None):
         self.attenuation_factor = normalization_attenuation_factor
         self.use_modification_fcn = use_modification_fcn
         self.interpolation_method = interpolation_method
-        self.interpolation_parameter = interpolation_parameter
+        self.interpolation_parameters = interpolation_parameters
 
         super(StandardCalculator, self).__init__(original_spectrum, background_spectrum, background_scaling,
                                                  elemental_abundances, density, r)
@@ -96,10 +96,10 @@ class StandardCalculator(GlassureCalculator):
             if self.interpolation_method == 'linear':
                 sq_low = structure_factor[0]/q[0] * q_low
             elif self.interpolation_method == 'spline':
-                q_low_cutoff = np.arange(step, self.interpolation_parameter['cutoff'], step)
+                q_low_cutoff = np.arange(step, self.interpolation_parameters['cutoff'], step)
                 intensity_low_cutoff = np.zeros(q_low_cutoff.shape)
 
-                ind_to_q_max = np.where(q<=self.interpolation_parameter['q_max'])
+                ind_to_q_max = np.where(q<=self.interpolation_parameters['q_max'])
                 q_spline = np.concatenate((q_low_cutoff, q[ind_to_q_max]))
                 int_spline = np.concatenate((intensity_low_cutoff, structure_factor[ind_to_q_max]))
 
