@@ -127,7 +127,7 @@ class StandardCalculator(GlassureCalculator):
         g_r = 1 + f_r / (4.0 * np.pi * r * self.atomic_density)
         return Spectrum(r, g_r)
 
-    def optimize(self, r, iterations=50, fcn_callback=None, callback_period=5):
+    def optimize(self, r, iterations=50, fcn_callback=None, callback_period=5, attenuation_factor=1):
         import time
 
         t1 = time.time()
@@ -137,7 +137,7 @@ class StandardCalculator(GlassureCalculator):
             delta_fr = fr_int + 4 * np.pi * r * self.atomic_density
 
             in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
-            integral = np.trapz(in_integral, r)
+            integral = np.trapz(in_integral, r) / attenuation_factor
             sq_optimized = sq_int * (1-1./q*integral)
 
             self.sq_spectrum = Spectrum(q, sq_optimized)

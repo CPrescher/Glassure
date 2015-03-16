@@ -140,6 +140,7 @@ class MainController(object):
         self.main_widget.right_control_widget.setEnabled(False)
         self.model.optimize_sq(
             iterations=int(str(self.main_widget.right_control_widget.optimization_widget.optimize_iterations_txt.text())),
+            attenuation_factor=int(self.main_widget.right_control_widget.optimization_widget.attenuation_factor_sb.value()),
             fcn_callback=self.plot_optimization_progress
         )
         self.main_widget.left_control_widget.setEnabled(True)

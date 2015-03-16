@@ -22,6 +22,9 @@ class OptimizationWidget(QtGui.QWidget):
         self.optimize_iterations_lbl = QtGui.QLabel("Iterations:")
         self.optimize_iterations_txt = QtGui.QLineEdit('5')
 
+        self.attenuation_factor_lbl = QtGui.QLabel("Attenuation:")
+        self.attenuation_factor_sb = QtGui.QSpinBox()
+
     def style_widgets(self):
         self.r_cutoff_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.optimize_iterations_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
@@ -34,6 +37,11 @@ class OptimizationWidget(QtGui.QWidget):
 
         self.r_cutoff_txt.setValidator(QtGui.QDoubleValidator())
         self.optimize_iterations_txt.setValidator(QtGui.QIntValidator())
+
+        self.attenuation_factor_sb.setRange(1, 1000)
+        self.attenuation_factor_sb.setSingleStep(1)
+        self.attenuation_factor_sb.setValue(1)
+        self.attenuation_factor_sb.setAlignment(QtCore.Qt.AlignRight)
 
         self.optimize_btn.setFlat(True)
 
@@ -48,7 +56,11 @@ class OptimizationWidget(QtGui.QWidget):
 
         self.grid_layout.addWidget(self.optimize_iterations_lbl, 4, 0)
         self.grid_layout.addWidget(self.optimize_iterations_txt, 4, 1)
-        self.grid_layout.addWidget(self.optimize_btn, 5, 0, 1, 5)
+
+        self.grid_layout.addWidget(self.attenuation_factor_lbl, 5, 0)
+        self.grid_layout.addWidget(self.attenuation_factor_sb, 5, 1)
+
+        self.grid_layout.addWidget(self.optimize_btn, 6, 0, 1, 5)
 
         self.setLayout(self.grid_layout)
 
