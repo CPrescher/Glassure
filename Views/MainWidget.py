@@ -25,8 +25,7 @@ class MainWidget(QtGui.QWidget):
         self.left_control_scroll_area.setWidget(self.left_control_widget)
         self.left_control_scroll_area.setWidgetResizable(True)
 
-        self.left_control_scroll_area.setMaximumWidth(250)
-        self.left_control_scroll_area.setMinimumWidth(250)
+        self.left_control_scroll_area.setMaximumWidth(300)
         self.left_control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.right_control_scroll_area = QtGui.QScrollArea()
@@ -34,14 +33,15 @@ class MainWidget(QtGui.QWidget):
         self.right_control_scroll_area.setWidgetResizable(True)
 
         self.right_control_scroll_area.setMaximumWidth(250)
-        self.right_control_scroll_area.setMinimumWidth(250)
         self.right_control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.horizontal_layout.addWidget(self.left_control_scroll_area)
         self.horizontal_layout.addWidget(self.spectrum_widget)
         self.horizontal_layout.addWidget(self.right_control_scroll_area)
 
-        self.horizontal_layout.setStretch(1, 0)
+        self.horizontal_layout.setStretch(0, 0)
+        self.horizontal_layout.setStretch(1, 100)
+        self.horizontal_layout.setStretch(2, 0)
 
         self.setLayout(self.horizontal_layout)
 
