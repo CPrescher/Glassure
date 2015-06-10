@@ -3,10 +3,7 @@ __author__ = 'doomgoroth'
 import os
 import numpy as np
 import pandas
-import matplotlib.pyplot as plt
-
 from Models import module_path
-
 scattering_factor_param = pandas.read_csv(os.path.join(module_path(), 'data/param_atomic_scattering_factors.csv'),
                                           index_col=0)
 
@@ -52,19 +49,3 @@ class ElementNotImplementedException(Exception):
 
     def __str__(self):
         return repr('Element ' + self.element + ' not known or available.')
-
-
-if __name__ == '__main__':
-    q_val = np.linspace(0, 30, 1600)
-    fs_coh = calculate_incoherent_scattered_intensity('He', q_val)
-    plt.plot(q_val, fs_coh, label='He')
-    fs_coh = calculate_incoherent_scattered_intensity('Ca', q_val)
-    plt.plot(q_val, fs_coh, label='Ca')
-    fs_coh = calculate_incoherent_scattered_intensity('Na', q_val)
-    plt.plot(q_val, fs_coh, label='Na')
-    fs_coh = calculate_incoherent_scattered_intensity('Mg', q_val)
-    plt.plot(q_val, fs_coh, label='Mg')
-    fs_coh = calculate_incoherent_scattered_intensity('Fe', q_val)
-    plt.plot(q_val, fs_coh, label='Fe')
-    plt.legend()
-    plt.show()
