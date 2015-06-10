@@ -64,6 +64,7 @@ class BackgroundOptionsGroupBox(QtGui.QGroupBox):
         self.scale_sb.setValue(1.0)
         self.scale_sb.setSingleStep(0.01)
         self.scale_sb.setDecimals(4)
+        self.scale_sb.setMinimumWidth(80)
 
         self.scale_step_txt.setMaximumWidth(60)
         self.scale_sb.setAlignment(QtCore.Qt.AlignRight)
@@ -101,6 +102,7 @@ class SmoothGroupBox(QtGui.QGroupBox):
         self.smooth_sb = QtGui.QDoubleSpinBox()
         self.smooth_sb.setAlignment(QtCore.Qt.AlignRight)
         self.smooth_sb.setSingleStep(1)
+        self.smooth_sb.setMinimumWidth(80)
 
         self.smooth_step_txt = QtGui.QLineEdit("1")
         self.smooth_step_txt.setAlignment(QtCore.Qt.AlignRight)
