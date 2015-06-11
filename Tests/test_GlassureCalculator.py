@@ -3,12 +3,14 @@ __author__ = 'Clemens Prescher'
 
 import unittest
 import numpy as np
+import os
+
 from Models.Spectrum import Spectrum
 from Models.GlassureCalculator import StandardCalculator
 
-from GlassCalculations import calculate_normalization_factor, calc_sq, calc_transforms
-
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'TestData')
+
+
 class GlassureCalculatorTest(unittest.TestCase):
     def setUp(self):
         self.bkg_scaling=0.83133015

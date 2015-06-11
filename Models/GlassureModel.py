@@ -82,8 +82,7 @@ class GlassureModel(Observable):
         if len(self.composition) != 0:
             self.glassure_calculator = StandardCalculator(
                 original_spectrum=self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
-                background_spectrum=self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
-                background_scaling=self.background_scaling,
+                background_spectrum=self.background_scaling * self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
                 elemental_abundances=self.composition,
                 density=self.density,
                 r=np.linspace(self.r_min, self.r_max, 1000),
