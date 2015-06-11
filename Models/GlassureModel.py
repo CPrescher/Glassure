@@ -15,8 +15,7 @@ class GlassureModel(Observable):
         # initialize all spectra
         self.original_spectrum = Spectrum()
         self.background_spectrum = Spectrum()
-        self.background_scaling = 1.0
-        self.background_offset = 0
+        self._background_scaling = 1.0
         self.sq_spectrum = Spectrum()
         self.gr_spectrum = Spectrum()
 
@@ -43,17 +42,18 @@ class GlassureModel(Observable):
         self.background_spectrum.load(filename)
         self.calculate_spectra()
 
-    def set_bkg_scale(self, scaling):
-        self.background_scaling = scaling
+    @property
+    def background_scaling(self):
+        return self._background_scaling
+
+    @background_scaling.setter
+    def background_scaling(self, value):
+        self._background_scaling = value
         self.calculate_spectra()
 
     def get_background_spectrum(self):
         x, y = self.background_spectrum.data
-        return Spectrum(x, self.background_offset + self.background_scaling * y)
-
-    def set_bkg_offset(self, offset):
-        self.background_offset = offset
-        self.calculate_spectra()
+        return Spectrum(x, self.background_scaling * y)
 
     def set_smooth(self, value):
         self.original_spectrum.set_smoothing(value)
@@ -135,6 +135,10 @@ class GlassureModel(Observable):
         q, intensity = spectrum.data
         return Spectrum(q[np.where((q_min < q) & (q < q_max))],
                         intensity[np.where((q_min < q) & (q < q_max))])
+
+    @property
+    def sample_spectrum(self):
+        return self.original_spectrum - self.get_background_spectrum()
 
 
 

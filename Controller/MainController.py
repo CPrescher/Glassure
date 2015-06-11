@@ -48,23 +48,29 @@ class MainController(object):
         self.connect_click_function(self.main_widget.left_control_widget.data_widget.file_widget.load_background_btn,
                                     self.load_bkg)
 
+
+        # connecting background scaling and smoothing of the original data
         self.main_widget.left_control_widget.data_widget.background_options_gb.scale_sb.valueChanged.connect(
             self.bkg_scale_changed)
         self.main_widget.left_control_widget.data_widget.smooth_gb.smooth_sb.valueChanged.connect(self.smooth_changed)
 
+        # updating the composition
         self.connect_click_function(self.main_widget.left_control_widget.composition_widget.add_element_btn,
                                     self.add_element_btn_clicked)
         self.connect_click_function(self.main_widget.left_control_widget.composition_widget.delete_element_btn,
                                     self.delete_element_btn_clicked)
-
         self.main_widget.left_control_widget.composition_widget.composition_changed.connect(self.update_model)
+
+        # updating the calculation parameters
         self.main_widget.left_control_widget.options_widget.options_parameters_changed.connect(self.update_model)
         self.main_widget.left_control_widget.interpolation_widget.interpolation_parameters_changed.connect(self.update_model)
         self.main_widget.right_control_widget.optimization_widget.calculation_parameters_changed.connect(self.update_model)
 
+        # optimization controls
         self.main_widget.right_control_widget.optimization_widget.optimize_btn.clicked.connect(self.optimize_btn_clicked)
         self.main_widget.right_control_widget.density_optimization_widget.optimize_btn.clicked.connect(self.optimize_density)
 
+        # Saving the resulting data
         self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
                                     self.save_sq_btn_clicked)
         self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_pdf_btn,
@@ -103,7 +109,7 @@ class MainController(object):
 
 
     def bkg_scale_changed(self, value):
-        self.model.set_bkg_scale(value)
+        self.model.background_scaling = value
 
     def update_bkg_scale_step(self):
         value = np.float(self.main_widget.bkg_scale_step_txt.text())
