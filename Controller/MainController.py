@@ -70,6 +70,9 @@ class MainController(object):
         self.main_widget.right_control_widget.optimization_widget.optimize_btn.clicked.connect(self.optimize_btn_clicked)
         self.main_widget.right_control_widget.density_optimization_widget.optimize_btn.clicked.connect(self.optimize_density)
 
+        # Diamond controls
+        self.main_widget.right_control_widget.diamond_widget.diamond_txt.editingFinished.connect(self.diamond_content_changed)
+
         # Saving the resulting data
         self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
                                     self.save_sq_btn_clicked)
@@ -174,6 +177,11 @@ class MainController(object):
         self.model.optimize_density_and_scaling(
             density_min, density_max, bkg_min, bkg_max, iterations,
             self.main_widget.right_control_widget.density_optimization_widget.optimization_output_txt)
+
+    def diamond_content_changed(self):
+        new_value = float(str(self.main_widget.right_control_widget.diamond_widget.diamond_txt.text()))
+        self.model.set_diamond_content(new_value)
+
 
     def save_sq_btn_clicked(self, filename=None):
         if filename is None:

@@ -6,3 +6,4 @@ from OptimizationWidget import OptimizationWidget
 from OptionsWidget import OptionsWidget
 from DensityOptimizationWidget import DensityOptimizationWidget
 from InterpolationWidget import InterpolationWidget
+from DiamondWidget import DiamondWidget
