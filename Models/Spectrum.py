@@ -148,6 +148,13 @@ class Spectrum(object):
         orig_x, orig_y = self.data
         return Spectrum(orig_x, orig_y*other)
 
+    def __eq__(self, other):
+        if not isinstance(other, Spectrum):
+            return False
+        if np.array_equal(self.data, other.data):
+            return True
+        return False
+
 
 
 class BkgNotInRangeError(Exception):

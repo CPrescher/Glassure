@@ -44,3 +44,11 @@ class SpectrumTest(unittest.TestCase):
         spectrum2 = 2*Spectrum(x, np.sin(x))
 
         self.assertTrue(np.array_equal(spectrum2._y, np.sin(x)*2))
+
+    def test_equality_operator(self):
+        x = np.linspace(0, 10, 100)
+        spectrum1 = Spectrum(x, np.sin(x))
+        spectrum2 = Spectrum(x, np.sin(2*x))
+
+        self.assertTrue(spectrum1 == spectrum1)
+        self.assertFalse(spectrum1 == spectrum2)
