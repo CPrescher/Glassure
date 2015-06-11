@@ -149,3 +149,6 @@ class StandardCalculator(GlassureCalculator):
                 fcn_callback(self.sq_spectrum, self.gr_spectrum)
 
         print "Optimization took {}".format(time.time()-t1)
+
+    def optimize_diamond_compton_content(self, r_cutoff, ):
+        pass

@@ -28,10 +28,21 @@ class MainController(object):
         self.model.subscribe(self.model_changed)
         self.working_directory = ''
         self.saving_directory = ''
-        self.create_signals()
-        self.main_widget.show()
+        self.connect_signals()
 
-    def create_signals(self):
+    def show_window(self):
+        """
+        Displays the main window on the screen and makes it active
+        """
+        self.main_widget.show()
+        self.main_widget.setWindowState(self.main_widget.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
+        self.main_widget.activateWindow()
+        self.main_widget.raise_()
+
+    def connect_signals(self):
+        """
+        Connects Gui signals with the model and model signals with the GUI.
+        """
         self.connect_click_function(self.main_widget.left_control_widget.data_widget.file_widget.load_data_btn,
                                     self.load_data)
         self.connect_click_function(self.main_widget.left_control_widget.data_widget.file_widget.load_background_btn,

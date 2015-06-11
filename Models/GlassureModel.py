@@ -12,6 +12,7 @@ from DensityOptimization import DensityOptimizer
 class GlassureModel(Observable):
     def __init__(self):
         super(GlassureModel, self).__init__()
+        # initialize all spectra
         self.original_spectrum = Spectrum()
         self.background_spectrum = Spectrum()
         self.background_scaling = 1.0
@@ -19,6 +20,7 @@ class GlassureModel(Observable):
         self.sq_spectrum = Spectrum()
         self.gr_spectrum = Spectrum()
 
+        # initialize all parameters
         self.composition = {}
         self.density = 2.2
         self.density_error = None
@@ -28,6 +30,7 @@ class GlassureModel(Observable):
         self.r_min = 0.5
         self.r_max = 10
 
+        # initialize all Flags
         self.use_modification_fcn = True
         self.interpolation_method = None
         self.interpolation_parameters = None

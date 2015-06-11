@@ -22,7 +22,6 @@ class InterpolationWidgetTest(unittest.TestCase):
         self.main_widget.left_control_widget.composition_widget.add_element('Mg', 2)
         self.main_widget.left_control_widget.composition_widget.add_element('Si', 1)
         self.main_widget.left_control_widget.composition_widget.add_element('O', 4)
-        QtGui.QApplication.processEvents()
 
     def tearDown(self):
         del self.app
