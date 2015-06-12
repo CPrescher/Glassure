@@ -16,12 +16,10 @@ class GlassureModel(Observable):
         # initialize all spectra
         self.original_spectrum = Spectrum()
         self._background_spectrum = Spectrum()
-        self._background_scaling = 1.0
         self.diamond_background_spectrum = None
 
         self.sq_spectrum = Spectrum()
         self.gr_spectrum = Spectrum()
-
 
         # initialize all parameters
         self.composition = {}
@@ -43,28 +41,27 @@ class GlassureModel(Observable):
         self.calculate_spectra()
 
     def load_bkg(self, filename):
-        self._background_spectrum.load(filename)
+        self.background_spectrum.load(filename)
         self.calculate_spectra()
-
-    @property
-    def background_scaling(self):
-        return self._background_scaling
-
-    @background_scaling.setter
-    def background_scaling(self, value):
-        self._background_scaling = value
-        self.calculate_spectra()
-
-    def get_background_spectrum(self):
-        x, y = self.background_spectrum.data
-        return Spectrum(x, self.background_scaling * y)
 
     @property
     def background_spectrum(self):
         if self.diamond_background_spectrum is None:
-            return self._background_scaling * self._background_spectrum
-        else:
-            return self._background_scaling * self._background_spectrum + self.diamond_background_spectrum
+            return self._background_spectrum
+        return self._background_spectrum+self.diamond_background_spectrum
+
+    def get_background_spectrum(self):
+        x, y = self.background_spectrum.data
+        return Spectrum(x, y)
+
+    @property
+    def background_scaling(self):
+        return self._background_spectrum.scaling
+
+    @background_scaling.setter
+    def background_scaling(self, new_value):
+        self._background_spectrum.scaling = new_value
+        self.calculate_spectra()
 
     def set_smooth(self, value):
         self.original_spectrum.set_smoothing(value)
@@ -94,8 +91,7 @@ class GlassureModel(Observable):
         if len(self.composition) != 0:
             self.glassure_calculator = StandardCalculator(
                 original_spectrum=self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
-                background_spectrum=self.limit_spectrum(self._background_spectrum, self.q_min, self.q_max),
-                background_scaling=self.background_scaling,
+                background_spectrum=self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
                 elemental_abundances=self.composition,
                 density=self.density,
                 r=np.linspace(self.r_min, self.r_max, 1000),
@@ -104,7 +100,6 @@ class GlassureModel(Observable):
                 interpolation_parameters=self.interpolation_parameters
             )
             self.sq_spectrum = self.glassure_calculator.sq_spectrum
-            print np.sum(self.sq_spectrum.data)
             self.fr_spectrum = self.glassure_calculator.fr_spectrum
             self.gr_spectrum = self.glassure_calculator.gr_spectrum
         self.notify()
@@ -155,7 +150,7 @@ class GlassureModel(Observable):
             self.calculate_spectra()
             return
 
-        q, _ = self._background_spectrum.data
+        q, _ = self.background_spectrum.data
         int = calculate_incoherent_scattering({'C':1}, q)*content_value
         self.diamond_background_spectrum = Spectrum(q, int)
         self.calculate_spectra()

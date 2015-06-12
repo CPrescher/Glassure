@@ -109,6 +109,7 @@ class Spectrum(object):
         other_x, other_y = other.data
 
         if orig_x.shape != other_x.shape:
+            #todo different shape subtraction of spectra seems the fail somehow...
             # the background will be interpolated
             other_fcn = interp1d(other_x, other_x, kind='linear')
 
@@ -146,7 +147,7 @@ class Spectrum(object):
 
     def __rmul__(self, other):
         orig_x, orig_y = self.data
-        return Spectrum(orig_x, orig_y*other)
+        return Spectrum(np.copy(orig_x), np.copy(orig_y)*other)
 
     def __eq__(self, other):
         if not isinstance(other, Spectrum):

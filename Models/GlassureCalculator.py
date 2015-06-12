@@ -10,12 +10,11 @@ from GlassureUtility import convert_density_to_atoms_per_cubic_angstrom, calcula
 
 
 class GlassureCalculator(object):
-    def __init__(self, original_spectrum, background_spectrum, background_scaling, elemental_abundances, density,
+    def __init__(self, original_spectrum, background_spectrum, elemental_abundances, density,
                  r=np.linspace(0, 10, 1000)):
         self.original_spectrum = original_spectrum
         self.background_spectrum = background_spectrum
-        self.background_scaling = background_scaling
-        self.sample_spectrum = self.original_spectrum - (self.background_scaling * self.background_spectrum)
+        self.sample_spectrum = self.original_spectrum - self.background_spectrum
         self.elemental_abundances = elemental_abundances
         self.density = density
         self.atomic_density = convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density)
@@ -59,7 +58,7 @@ class GlassureCalculator(object):
 
 
 class StandardCalculator(GlassureCalculator):
-    def __init__(self, original_spectrum, background_spectrum, background_scaling, elemental_abundances, density,
+    def __init__(self, original_spectrum, background_spectrum, elemental_abundances, density,
                  r=np.linspace(0, 10, 1000),  normalization_attenuation_factor=0.001, use_modification_fcn=True,
                  interpolation_method=None, interpolation_parameters=None):
         self.attenuation_factor = normalization_attenuation_factor
@@ -67,7 +66,7 @@ class StandardCalculator(GlassureCalculator):
         self.interpolation_method = interpolation_method
         self.interpolation_parameters = interpolation_parameters
 
-        super(StandardCalculator, self).__init__(original_spectrum, background_spectrum, background_scaling,
+        super(StandardCalculator, self).__init__(original_spectrum, background_spectrum,
                                                  elemental_abundances, density, r)
 
     def get_normalization_factor(self):
@@ -149,6 +148,3 @@ class StandardCalculator(GlassureCalculator):
                 fcn_callback(self.sq_spectrum, self.gr_spectrum)
 
         print "Optimization took {}".format(time.time()-t1)
-
-    def optimize_diamond_compton_content(self, r_cutoff, ):
-        pass
