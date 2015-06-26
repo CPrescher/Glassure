@@ -27,7 +27,8 @@ class MainController(object):
         self.model = GlassureModel()
         self.model.subscribe(self.model_changed)
         self.working_directory = ''
-        self.saving_directory = ''
+        self.sq_directory = ''
+        self.gr_directory = ''
         self.connect_signals()
 
     def show_window(self):
@@ -197,17 +198,19 @@ class MainController(object):
     def save_sq_btn_clicked(self, filename=None):
         if filename is None:
             filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget, "Save S(Q) Data.",
-                                                             self.saving_directory,
+                                                             os.path.join(self.sq_directory,
+                                                                          self.model.original_spectrum.name),
                                                              ('Data (*.txt)')))
         if filename is not '':
             self.model.sq_spectrum.save(filename)
-            self.saving_directory = os.path.dirname(filename)
+            self.sq_directory = os.path.dirname(filename)
 
     def save_pdf_btn_clicked(self, filename=None):
         if filename is None:
             filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget, "Save g(r) Data.",
-                                                             self.saving_directory,
+                                                             os.path.join(self.gr_directory,
+                                                                          self.model.original_spectrum.name),
                                                              ('Data (*.txt)')))
         if filename is not '':
             self.model.gr_spectrum.save(filename)
-            self.saving_directory = os.path.dirname(filename)
+            self.gr_directory = os.path.dirname(filename)
