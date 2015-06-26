@@ -48,7 +48,7 @@ class RightControlWidget(QtGui.QWidget):
 
         self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization"))
         self.vertical_layout.addWidget(ExpandableBox(self.density_optimization_widget, "Density Optimization"))
-        self.vertical_layout.addWidget(ExpandableBox(self.diamond_widget, "Diamond"))
+        self.vertical_layout.addWidget(ExpandableBox(self.diamond_widget, "Diamond Correction" ))
 
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.Expanding))

@@ -72,6 +72,9 @@ class MainController(object):
 
         # Diamond controls
         self.main_widget.right_control_widget.diamond_widget.diamond_txt.editingFinished.connect(self.diamond_content_changed)
+        self.main_widget.right_control_widget.diamond_widget.diamond_optimize_btn.clicked.connect(
+            self.optimize_diamond_btn_clicked
+        )
 
         # Saving the resulting data
         self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
@@ -175,12 +178,20 @@ class MainController(object):
         density_min, density_max, bkg_min, bkg_max, iterations = \
             self.main_widget.left_control_widget.density_optimization_widget.get_parameter()
         self.model.optimize_density_and_scaling(
-            density_min, density_max, bkg_min, bkg_max, iterations,
-            self.main_widget.right_control_widget.density_optimization_widget.optimization_output_txt)
+            density_min, density_max, bkg_min, bkg_max, iterations,output_txt=
+            self.main_widget.right_control_widget.density_optimization_widget.optimization_output_txt,
+            callback_fcn=self.plot_optimization_progress)
 
     def diamond_content_changed(self):
         new_value = float(str(self.main_widget.right_control_widget.diamond_widget.diamond_txt.text()))
         self.model.set_diamond_content(new_value)
+
+    def optimize_diamond_btn_clicked(self):
+        start_value = float(str(self.main_widget.right_control_widget.diamond_widget.diamond_txt.text()))
+        def callback_fcn(diamond_content):
+            self.main_widget.right_control_widget.diamond_widget.diamond_txt.setText('{:.2f}'.format(diamond_content))
+            QtGui.QApplication.processEvents()
+        self.model.optimize_diamond_content(diamond_content=start_value, callback_fcn=callback_fcn)
 
 
     def save_sq_btn_clicked(self, filename=None):

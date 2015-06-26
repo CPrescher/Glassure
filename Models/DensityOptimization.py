@@ -42,10 +42,10 @@ class DensityOptimizer(object):
             density = params['density'].value
             background_scaling = params['background_scaling'].value
 
+            self.background_spectrum.scaling = background_scaling
             calculator = StandardCalculator(
                 original_spectrum=self.original_spectrum,
                 background_spectrum=self.background_spectrum,
-                background_scaling=background_scaling,
                 elemental_abundances=self.elemental_abundances,
                 density=density,
                 r=self.r,
