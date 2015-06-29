@@ -199,7 +199,7 @@ class MainController(object):
         if filename is None:
             filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget, "Save S(Q) Data.",
                                                              os.path.join(self.sq_directory,
-                                                                          self.model.original_spectrum.name),
+                                                                          self.model.original_spectrum.name+".txt"),
                                                              ('Data (*.txt)')))
         if filename is not '':
             self.model.sq_spectrum.save(filename)
@@ -209,7 +209,7 @@ class MainController(object):
         if filename is None:
             filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget, "Save g(r) Data.",
                                                              os.path.join(self.gr_directory,
-                                                                          self.model.original_spectrum.name),
+                                                                          self.model.original_spectrum.name+".txt"),
                                                              ('Data (*.txt)')))
         if filename is not '':
             self.model.gr_spectrum.save(filename)
