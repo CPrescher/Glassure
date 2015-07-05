@@ -32,7 +32,7 @@ class MainWidget(QtGui.QWidget):
         self.right_control_scroll_area.setWidget(self.right_control_widget)
         self.right_control_scroll_area.setWidgetResizable(True)
 
-        self.right_control_scroll_area.setMaximumWidth(250)
+        self.right_control_scroll_area.setMaximumWidth(300)
         self.right_control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.horizontal_layout.addWidget(self.left_control_scroll_area)

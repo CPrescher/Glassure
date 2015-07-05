@@ -7,17 +7,17 @@ class ExpandableBox(QtGui.QWidget):
     def __init__(self, content_widget, title='', hide=False):
         super(ExpandableBox, self).__init__()
 
-        self._vlayout = QtGui.QVBoxLayout()
-        self._vlayout.setContentsMargins(0, 0, 0, 0)
-        self._vlayout.setSpacing(0)
+        self._vertical_layout = QtGui.QVBoxLayout()
+        self._vertical_layout.setContentsMargins(0, 0, 0, 0)
+        self._vertical_layout.setSpacing(0)
 
         self.create_head_widget(title)
         self.create_content_widget(content_widget)
         self.set_custom_stylesheet()
 
-        self._vlayout.addWidget(self.head_widget)
-        self._vlayout.addWidget(self.content_widget)
-        self.setLayout(self._vlayout)
+        self._vertical_layout.addWidget(self.head_widget)
+        self._vertical_layout.addWidget(self.content_widget)
+        self.setLayout(self._vertical_layout)
 
         self.minimize_btn.clicked.connect(self.change_visible_state)
 
@@ -28,7 +28,7 @@ class ExpandableBox(QtGui.QWidget):
 
     def create_head_widget(self, title):
         self._head_layout = QtGui.QHBoxLayout()
-        self._head_layout.setContentsMargins(10, 8, 15, 0)
+        self._head_layout.setContentsMargins(10, 8, 15, 3)
         self._head_layout.setSpacing(0)
 
         self.minimize_btn = QtGui.QPushButton("-")
