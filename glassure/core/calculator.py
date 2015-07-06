@@ -3,11 +3,11 @@ __author__ = 'Clemens Prescher'
 import numpy as np
 from scipy import interpolate
 
-from core.spectrum import Spectrum
-from core.utility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
+from .spectrum import Spectrum
+from .utility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
     calculate_f_mean_squared, calculate_f_squared_mean
 
-from core.calc import calculate_normalization_factor_raw, calculate_sq_raw, calculate_fr, calculate_gr_raw
+from .calc import calculate_normalization_factor_raw, calculate_sq_raw, calculate_fr, calculate_gr_raw
 
 
 class GlassureCalculator(object):
