@@ -7,7 +7,7 @@ from PyQt4 import QtGui
 
 from core.spectrum import Spectrum
 from gui.model.HelperModule import Observable
-from GlassureCalculator import StandardCalculator
+from core.calculator import StandardCalculator
 from DensityOptimization import DensityOptimizer
 from core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
 

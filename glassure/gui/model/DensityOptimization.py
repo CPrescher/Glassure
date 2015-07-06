@@ -4,7 +4,7 @@ import numpy as np
 from PyQt4 import QtGui
 from lmfit import Parameters, minimize, report_fit
 
-from gui.model.GlassureCalculator import StandardCalculator
+from core.calculator import StandardCalculator
 from core.utility import convert_density_to_atoms_per_cubic_angstrom
 
 
