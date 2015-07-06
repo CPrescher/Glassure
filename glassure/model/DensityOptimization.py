@@ -3,8 +3,8 @@ __author__ = 'clemens'
 import numpy as np
 from PyQt4 import QtGui
 from lmfit import Parameters, minimize, report_fit, fit_report
-from Models.GlassureCalculator import StandardCalculator
-from Models.GlassureUtility import convert_density_to_atoms_per_cubic_angstrom
+from model.GlassureCalculator import StandardCalculator
+from model.GlassureUtility import convert_density_to_atoms_per_cubic_angstrom
 
 
 class DensityOptimizer(object):

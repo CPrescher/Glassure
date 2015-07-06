@@ -3,7 +3,7 @@ __author__ = 'doomgoroth'
 import os
 import numpy as np
 import pandas
-from Models import module_path
+from model import module_path
 scattering_factor_param = pandas.read_csv(os.path.join(module_path(), 'data/param_atomic_scattering_factors.csv'),
                                           index_col=0)
 

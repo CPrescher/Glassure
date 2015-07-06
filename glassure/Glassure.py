@@ -5,7 +5,7 @@ __author__ = 'Clemens Prescher'
 import sys
 from PyQt4 import QtGui
 
-from Controller.MainController import MainController
+from controller.MainController import MainController
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
@@ -18,8 +18,6 @@ if __name__ == "__main__":
         # possible values:
         # "windows", "motif", "cde", "plastique", "windowsxp", or "macintosh"
     controller = MainController()
-    controller.load_data('Tests/TestData/Mg2SiO4_ambient.xy')
-    controller.load_bkg('Tests/TestData/Mg2SiO4_ambient_bkg.xy')
     controller.show_window()
     app.exec_()
     del app
