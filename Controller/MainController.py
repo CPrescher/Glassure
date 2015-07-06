@@ -115,6 +115,9 @@ class MainController(object):
         self.main_widget.spectrum_widget.plot_sq(self.model.sq_spectrum)
         self.main_widget.spectrum_widget.plot_pdf(self.model.gr_spectrum)
 
+        self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl.\
+            setText("{:.4f}".format(self.model.atomic_density))
+
 
     def bkg_scale_changed(self, value):
         self.model.background_scaling = value

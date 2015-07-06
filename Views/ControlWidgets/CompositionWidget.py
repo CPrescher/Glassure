@@ -10,49 +10,61 @@ class CompositionWidget(QtGui.QWidget):
 
     def __init__(self, *args):
         super(CompositionWidget, self).__init__(*args)
-        self.create_widgets()
 
-    def create_widgets(self):
+        self._create_widgets()
+        self._create_layout()
+        self._style_widgets()
+
+    def _create_widgets(self):
+        self.add_element_btn = QtGui.QPushButton("Add")
+        self.delete_element_btn = QtGui.QPushButton("Delete")
+
+        self.density_lbl = QtGui.QLabel("Density:")
+        self.density_txt = QtGui.QLineEdit("2.2")
+        self.density_atomic_units_lbl = QtGui.QLabel("")
+
+        self.composition_tw = QtGui.QTableWidget()
+        self.composition_tw.cellChanged.connect(self.emit_composition_changed_signal)
+
+    def _create_layout(self):
         self.main_layout = QtGui.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(5)
 
         self.button_layout = QtGui.QHBoxLayout()
         self.button_layout.setSpacing(15)
-        self.add_element_btn = QtGui.QPushButton("Add")
-        self.delete_element_btn = QtGui.QPushButton("Delete")
         self.button_layout.addWidget(self.add_element_btn)
         self.button_layout.addWidget(self.delete_element_btn)
 
-        self.density_layout = QtGui.QHBoxLayout()
-        self.density_lbl = QtGui.QLabel("Density:")
-        self.density_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
-        self.density_txt = QtGui.QLineEdit("2.2")
-        self.density_txt.setAlignment(QtCore.Qt.AlignRight)
-        self.density_txt.setValidator(QtGui.QDoubleValidator())
-        self.density_txt.editingFinished.connect(self.emit_composition_changed_signal)
-        self.density_txt.setMaximumWidth(100)
-        self.density_error_lbl = QtGui.QLabel("NaN")
-        self.density_layout.addWidget(self.density_lbl)
-        self.density_layout.addWidget(self.density_txt)
-        self.density_layout.addWidget(QtGui.QLabel('+-'))
-        self.density_layout.addWidget(self.density_error_lbl)
-        self.density_layout.addWidget(QtGui.QLabel('g/cm^3'))
-
-        self.composition_tw = QtGui.QTableWidget()
-        self.composition_tw.setColumnCount(2)
-        self.composition_tw.horizontalHeader().setVisible(False)
-        self.composition_tw.verticalHeader().setVisible(False)
-        self.composition_tw.setColumnWidth(0, 80)
-        self.composition_tw.setColumnWidth(1, 80)
-        self.composition_tw.setItemDelegate(TextDoubleDelegate(self))
-        self.composition_tw.cellChanged.connect(self.emit_composition_changed_signal)
+        self.density_layout = QtGui.QGridLayout()
+        self.density_layout.addWidget(self.density_lbl, 0, 0)
+        self.density_layout.addWidget(self.density_txt, 0, 1)
+        self.density_layout.addWidget(QtGui.QLabel('g/cm^3'), 0, 2)
+        self.density_layout.addWidget(self.density_atomic_units_lbl, 1, 1)
+        self.density_layout.addWidget(QtGui.QLabel('at/A^3'), 1, 2)
 
         self.main_layout.addLayout(self.button_layout)
         self.main_layout.addWidget(self.composition_tw)
         self.main_layout.addLayout(self.density_layout)
 
         self.setLayout(self.main_layout)
+
+
+    def _style_widgets(self):
+        self.density_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.density_atomic_units_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+
+        self.density_txt.setAlignment(QtCore.Qt.AlignRight)
+        self.density_txt.setValidator(QtGui.QDoubleValidator())
+        self.density_txt.editingFinished.connect(self.emit_composition_changed_signal)
+        self.density_txt.setMaximumWidth(100)
+
+        self.composition_tw.setColumnCount(2)
+        self.composition_tw.horizontalHeader().setVisible(False)
+        self.composition_tw.verticalHeader().setVisible(False)
+        self.composition_tw.setColumnWidth(0, 80)
+        self.composition_tw.setColumnWidth(1, 80)
+        self.composition_tw.setItemDelegate(TextDoubleDelegate(self))
 
     def add_element(self, element=None, value=None):
         current_rows = self.composition_tw.rowCount()

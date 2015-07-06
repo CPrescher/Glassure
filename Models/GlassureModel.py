@@ -48,6 +48,13 @@ class GlassureModel(Observable):
         self.calculate_spectra()
 
     @property
+    def atomic_density(self):
+        if len(self.composition):
+            return convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
+        return 0
+
+
+    @property
     def background_spectrum(self):
         if self.diamond_background_spectrum is None:
             return self._background_spectrum
@@ -73,7 +80,6 @@ class GlassureModel(Observable):
 
     def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min, r_max, use_modification_fcn=False,
                          interpolation_method=None, interpolation_parameters=None):
-        print "update"
         self.composition = composition
         self.density = density
 
