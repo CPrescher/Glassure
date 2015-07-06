@@ -36,6 +36,21 @@ class Spectrum(object):
             print('Wrong data format for spectrum file! - ' + filename)
             return -1
 
+    @staticmethod
+    def load(filename, skip_rows=0):
+        try:
+            if filename.endswith('.chi'):
+                skip_rows = 4
+            data = np.loadtxt(filename, skiprows=skip_rows)
+            x = data.T[0]
+            y = data.T[1]
+            name = os.path.basename(filename).split('.')[:-1][0]
+            return Spectrum(x, y, name)
+
+        except ValueError:
+            print('Wrong data format for spectrum file! - ' + filename)
+            return -1
+
     def save(self, filename, header=''):
         data = np.dstack((self._x, self._y))
         np.savetxt(filename, data[0], header=header)
