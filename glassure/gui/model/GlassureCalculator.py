@@ -3,9 +3,8 @@ __author__ = 'Clemens Prescher'
 import numpy as np
 from scipy import interpolate
 
-from Spectrum import Spectrum
-
-from GlassureUtility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
+from core.spectrum import Spectrum
+from core.utility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
     calculate_f_mean_squared, calculate_f_squared_mean
 
 

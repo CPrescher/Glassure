@@ -4,9 +4,10 @@ __version__ = '0.1'
 
 import sys
 import os
+
 from PyQt4 import QtGui, QtCore
 
-from .SpectrumWidget import SpectrumWidget
+from gui.widgets.SpectrumWidget import SpectrumWidget
 from .ControlWidget import LeftControlWidget, RightControlWidget
 
 

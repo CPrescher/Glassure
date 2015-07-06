@@ -2,13 +2,14 @@
 __author__ = 'Clemens Prescher'
 
 import unittest
-import numpy as np
 import os
 
-from Models.Spectrum import Spectrum
-from Models.GlassureCalculator import StandardCalculator
+import numpy as np
 
-unittest_data_path = os.path.join(os.path.dirname(__file__), 'TestData')
+from core import spectrum
+from gui.model import StandardCalculator
+
+unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 
 
 class GlassureCalculatorTest(unittest.TestCase):
@@ -19,12 +20,12 @@ class GlassureCalculatorTest(unittest.TestCase):
         self.r = np.linspace(0.1,10,1000)
 
 
-        self.data_spectrum = Spectrum()
-        self.data_spectrum.load('TestData/Mg2SiO4_091.xy')
+        self.data_spectrum = spectrum()
+        self.data_spectrum.load('data/Mg2SiO4_091.xy')
         self.data_spectrum.set_smoothing(5)
 
-        self.bkg_spectrum = Spectrum()
-        self.bkg_spectrum.load('TestData/Mg2SiO4_091_bkg.xy')
+        self.bkg_spectrum = spectrum()
+        self.bkg_spectrum.load('data/Mg2SiO4_091_bkg.xy')
         self.bkg_spectrum.set_smoothing(5)
 
         self.sample_spectrum = self.data_spectrum - self.bkg_scaling*self.bkg_spectrum

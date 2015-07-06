@@ -1,9 +1,9 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 
-
 from PyQt4 import QtCore, QtGui
-from ..CustomWidgets import HorizontalLine
+
+from gui.widgets.CustomWidgets import HorizontalLine
 
 
 class InterpolationWidget(QtGui.QWidget):

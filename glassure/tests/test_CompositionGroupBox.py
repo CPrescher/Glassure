@@ -2,19 +2,26 @@
 __author__ = 'Clemens Prescher'
 
 import unittest
-import sys
+import os
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtTest import QTest
 
-from Controller.MainController import MainController
+from gui.controller import MainController
+
+unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 
 
 class CompositionGroupBoxTest(unittest.TestCase):
     def setUp(self):
-        self.app = QtGui.QApplication(sys.argv)
-        self.main_controller = MainController()
-        self.main_widget = self.main_controller.main_widget
-        self.composition_gb = self.main_widget.left_control_widget.composition_widget
+        self.app = QtGui.QApplication([])
+        self.controller = MainController()
+        self.widget = self.controller.main_widget
+        self.composition_gb = self.widget.left_control_widget.composition_widget
+
+        self.controller.load_data(os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy'))
+        self.controller.load_data(os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy'))
+
 
     def tearDown(self):
         del self.app

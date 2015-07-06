@@ -3,7 +3,7 @@ __author__ = 'Clemens Prescher'
 
 from PyQt4 import QtGui
 
-from ControlWidgets import CompositionWidget, DataWidget, OptimizationWidget, \
+from gui.widgets.ControlWidgets import CompositionWidget, DataWidget, OptimizationWidget, \
     OptionsWidget, DensityOptimizationWidget, InterpolationWidget, DiamondWidget
 from CustomWidgets import ExpandableBox
 

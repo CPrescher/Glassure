@@ -9,6 +9,8 @@ import os
 from PyQt4 import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
+
+
 # # Switch to using white background and black foreground
 pg.setConfigOption('useOpenGL', False)
 pg.setConfigOption('leftButtonPan', False)
@@ -16,8 +18,8 @@ pg.setConfigOption('background', 'k')
 pg.setConfigOption('foreground', 'w')
 pg.setConfigOption('antialias', True)
 
-from widgets.MainWidget import MainWidget
-from model.GlassureModel import GlassureModel
+from gui.widgets.MainWidget import MainWidget
+from gui.model.GlassureModel import GlassureModel
 
 
 class MainController(object):

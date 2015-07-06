@@ -5,11 +5,11 @@ import numpy as np
 from lmfit import Parameters, minimize
 from PyQt4 import QtGui
 
-from .Spectrum import Spectrum
-from .HelperModule import Observable
+from core.spectrum import Spectrum
+from gui.model.HelperModule import Observable
 from GlassureCalculator import StandardCalculator
 from DensityOptimization import DensityOptimizer
-from .GlassureUtility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
+from core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
 
 
 class GlassureModel(Observable):
@@ -99,8 +99,8 @@ class GlassureModel(Observable):
     def calculate_spectra(self):
         if len(self.composition) != 0:
             self.glassure_calculator = StandardCalculator(
-                original_spectrum=self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
-                background_spectrum=self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
+                original_spectrum=self.original_spectrum.limit(self.q_min, self.q_max),
+                background_spectrum=self.background_spectrum.limit(self.q_min, self.q_max),
                 elemental_abundances=self.composition,
                 density=self.density,
                 r=np.linspace(self.r_min, self.r_max, 1000),
@@ -127,8 +127,8 @@ class GlassureModel(Observable):
 
     def optimize_density_and_scaling2(self, density_min, density_max, bkg_min, bkg_max, iterations, output_txt=None):
         optimizer = DensityOptimizer(
-            original_spectrum=self.limit_spectrum(self.original_spectrum, self.q_min, self.q_max),
-            background_spectrum=self.limit_spectrum(self.background_spectrum, self.q_min, self.q_max),
+            original_spectrum=self.original_spectrum.limit(self.q_min, self.q_max),
+            background_spectrum=self.background_spectrum.limit(self.q_min, self.q_max),
             initial_background_scaling=self.background_scaling,
             elemental_abundances=self.composition,
             initial_density=self.density,
@@ -162,7 +162,7 @@ class GlassureModel(Observable):
             self.calculate_spectra()
             self.optimize_sq(iterations,fcn_callback=callback_fcn)
 
-            r, fr = self.limit_spectrum(self.fr_spectrum, 0, self.r_cutoff).data
+            r, fr = self.fr_spectrum.limit(0, self.r_cutoff).data
 
             output = (-fr - 4 * np.pi * convert_density_to_atoms_per_cubic_angstrom(self.composition, density) *
                       r) ** 2
@@ -196,12 +196,6 @@ class GlassureModel(Observable):
                                                    params['density'].stderr)
         self.write_output(output)
 
-    @staticmethod
-    def limit_spectrum(spectrum, q_min, q_max):
-        q, intensity = spectrum.data
-        return Spectrum(q[np.where((q_min < q) & (q < q_max))],
-                        intensity[np.where((q_min < q) & (q < q_max))])
-
     def set_diamond_content(self, content_value):
         if content_value is 0:
             self.diamond_background_spectrum = None
@@ -222,7 +216,7 @@ class GlassureModel(Observable):
         def optimization_fcn(params):
             diamond_content = params['content'].value
             self.set_diamond_content(diamond_content)
-            low_r_spectrum = self.limit_spectrum(self.gr_spectrum, 0, self.r_cutoff)
+            low_r_spectrum = self.gr_spectrum.limit(0, self.r_cutoff)
             if callback_fcn is not None:
                 callback_fcn(diamond_content)
             return low_r_spectrum.data[1]

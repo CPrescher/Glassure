@@ -1,18 +1,21 @@
-__author__ = 'doomgoroth'
+__author__ = 'Clemens Prescher'
 
 import os
 import numpy as np
 import pandas
-from model import module_path
-scattering_factor_param = pandas.read_csv(os.path.join(module_path(), 'data/param_atomic_scattering_factors.csv'),
+from . import module_path
+
+module_data_path = os.path.join(module_path(), 'data')
+
+scattering_factor_param = pandas.read_csv(os.path.join(module_data_path, 'param_atomic_scattering_factors.csv'),
                                           index_col=0)
 
 scattering_intensity_param = pandas.read_csv(
-    os.path.join(module_path(), 'data/param_incoherent_scattering_intensities.csv'),
+    os.path.join(module_data_path, 'param_incoherent_scattering_intensities.csv'),
     index_col=0)
 
 atomic_weights = pandas.read_csv(os.path.join(
-    module_path(), 'data/atomic_weights.csv'),
+    module_data_path, 'atomic_weights.csv'),
                                  index_col=0)
 
 

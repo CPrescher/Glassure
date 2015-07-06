@@ -2,11 +2,13 @@
 __author__ = 'Clemens Prescher'
 
 import unittest
+
 import numpy as np
 import matplotlib.pyplot as plt
-from Models.Spectrum import Spectrum
-from Models.GlassureModel import GlassureModel
-from Models.GlassCalculations import calc_transforms
+
+from core import spectrum
+from gui.model import GlassureModel
+from gui.model import calc_transforms
 
 
 class GlassureModelTest(unittest.TestCase):
@@ -18,24 +20,21 @@ class GlassureModelTest(unittest.TestCase):
 
     def limit_spectrum_q(self, spectrum, q_max):
         q, int = spectrum.data
-        return Spectrum(q[np.where(q < q_max)], int[np.where(q < q_max)])
+        return spectrum(q[np.where(q < q_max)], int[np.where(q < q_max)])
 
     def plot_spectrum(self, spectrum):
         x, y = spectrum.data
         plt.plot(x, y)
 
     def test_calculate_transforms(self):
-        data_spectrum = Spectrum()
-        data_spectrum.load('TestData/Mg2SiO4_091.xy')
-        data_spectrum.set_smoothing(5)
+        data_spectrum = spectrum()
+        data_spectrum.load('data/Mg2SiO4_091.xy')
 
-        bkg_spectrum = Spectrum()
-        bkg_spectrum.load('TestData/Mg2SiO4_091_bkg.xy')
-        bkg_spectrum.set_smoothing(5)
+        bkg_spectrum = spectrum()
+        bkg_spectrum.load('data/Mg2SiO4_091_bkg.xy')
 
-        self.model.load_data('TestData/Mg2SiO4_091.xy')
-        self.model.load_bkg('TestData/Mg2SiO4_091_bkg.xy')
-        self.model.set_smooth(5)
+        self.model.load_data('data/Mg2SiO4_091.xy')
+        self.model.load_bkg('data/Mg2SiO4_091_bkg.xy')
 
         odata1_x, odata1_y = self.model.original_spectrum.data
         odata2_x, odata2_y = data_spectrum.data
@@ -60,18 +59,14 @@ class GlassureModelTest(unittest.TestCase):
         }
         r = np.linspace(0, 10, 1000)
 
-        self.model.set_bkg_scale(background_scaling)
+        self.model.background_scaling = background_scaling
         self.model.update_parameter(elemental_abundances, density, q_min, q_max, 1.0)
         sq_spectrum, fr_spectrum, gr_spectrum = calc_transforms(data_spectrum, bkg_spectrum,
                                                                 background_scaling, elemental_abundances,
                                                                 density, r)
-
         sq_spectrum1_x, sq_spectrum1_y = self.model.sq_spectrum.data
         sq_spectrum2_x, sq_spectrum2_y = sq_spectrum.data
 
-        # self.plot_spectrum(self.model.sq_spectrum)
-        # self.plot_spectrum(sq_spectrum)
-        plt.show()
 
         self.assertEqual(len(sq_spectrum1_x), len(sq_spectrum2_x))
 

@@ -3,11 +3,8 @@
 __author__ = 'Clemens Prescher'
 
 import unittest
-import os
-import numpy as np
-import matplotlib.pyplot as plt
 
-from ScatteringFactors import *
+from core.scattering_factors import *
 
 
 class ScatteringFactorsTest(unittest.TestCase):

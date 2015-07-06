@@ -2,7 +2,7 @@
 __author__ = 'Clemens Prescher'
 from PyQt4 import QtCore, QtGui
 
-from model.ScatteringFactors import scattering_factor_param
+from core.scattering_factors import scattering_factor_param
 
 
 class CompositionWidget(QtGui.QWidget):

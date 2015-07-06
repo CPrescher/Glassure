@@ -3,25 +3,26 @@ __author__ = 'Clemens Prescher'
 
 import unittest
 import sys
+
 import numpy as np
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtTest import QTest
 
-from Controller.MainController import MainController
+from gui.controller import MainController
 
 
 class InterpolationWidgetTest(unittest.TestCase):
     def setUp(self):
         self.app = QtGui.QApplication(sys.argv)
-        self.main_controller = MainController()
-        self.main_controller.load_data('TestData/Mg2SiO4_ambient.xy')
-        self.main_controller.load_bkg('TestData/Mg2SiO4_ambient_bkg.xy')
-        self.data = self.main_controller.model
-        self.main_widget = self.main_controller.main_widget
-        self.interpolation_widget = self.main_widget.left_control_widget.interpolation_widget
-        self.main_widget.left_control_widget.composition_widget.add_element('Mg', 2)
-        self.main_widget.left_control_widget.composition_widget.add_element('Si', 1)
-        self.main_widget.left_control_widget.composition_widget.add_element('O', 4)
+        self.controller = MainController()
+        self.controller.load_data('data/Mg2SiO4_ambient.xy')
+        self.controller.load_bkg('data/Mg2SiO4_ambient_bkg.xy')
+        self.data = self.controller.model
+        self.widget = self.controller.main_widget
+        self.interpolation_widget = self.widget.left_control_widget.interpolation_widget
+        self.widget.left_control_widget.composition_widget.add_element('Mg', 2)
+        self.widget.left_control_widget.composition_widget.add_element('Si', 1)
+        self.widget.left_control_widget.composition_widget.add_element('O', 4)
 
     def tearDown(self):
         del self.app

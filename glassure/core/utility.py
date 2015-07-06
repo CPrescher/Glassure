@@ -2,8 +2,8 @@
 __author__ = 'Clemens Prescher'
 
 
-from ScatteringFactors import calculate_coherent_scattering_factor, calculate_incoherent_scattered_intensity
-import ScatteringFactors
+from scattering_factors import calculate_coherent_scattering_factor, calculate_incoherent_scattered_intensity
+import scattering_factors
 
 from copy import copy
 
@@ -80,6 +80,6 @@ def convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density):
     norm_elemental_abundances = normalize_elemental_abundances(elemental_abundances)
     mean_z = 0.0
     for key, val in norm_elemental_abundances.iteritems():
-        mean_z += val * ScatteringFactors.atomic_weights['AW'][key]
+        mean_z += val * scattering_factors.atomic_weights['AW'][key]
     return density / mean_z * .602214129
 
