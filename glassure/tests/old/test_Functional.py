@@ -2,19 +2,18 @@
 __author__ = 'Clemens Prescher'
 
 import unittest
-import sys
 import os
 
 import numpy as np
 from PyQt4 import QtGui
 
-from gui.controller import MainController
+from gui.controller.MainController import MainController
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 
 class GlassureFunctionalTest(unittest.TestCase):
     def setUp(self):
-        self.app = QtGui.QApplication(sys.argv)
+        self.app = QtGui.QApplication([])
         self.main_controller = MainController()
         self.main_view = self.main_controller.main_widget
         self.model = self.main_controller.model

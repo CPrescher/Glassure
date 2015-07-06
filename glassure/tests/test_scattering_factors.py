@@ -7,7 +7,7 @@ import unittest
 from core.scattering_factors import *
 
 
-class ScatteringFactorsTest(unittest.TestCase):
+class ScatteringFactorTest(unittest.TestCase):
     def setUp(self):
         self.q = np.linspace(1, 12, 1000)
         self.form_factor_vitali = {
@@ -31,9 +31,6 @@ class ScatteringFactorsTest(unittest.TestCase):
                 -8.2781 * (self.q / 4 / np.pi) ** 2) + 1.0215 * np.exp(
                 -39.7076 * (self.q / 4 / np.pi) ** 2) + 2.2186 * np.exp(
                 -100.4239 * (self.q / 4 / np.pi) ** 2)}
-
-    def tearDown(self):
-        pass
 
     def test_consistency_of_form_factor(self):
         # values from vitali's glass program

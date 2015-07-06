@@ -3,6 +3,7 @@ __author__ = 'Clemens Prescher'
 import sys
 import os
 
+from spectrum import Spectrum
 
 def we_are_frozen():
     # All of the modules are built-in to the interpreter, e.g., by py2exe
