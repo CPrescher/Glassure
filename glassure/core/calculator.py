@@ -5,7 +5,7 @@ from scipy import interpolate
 
 from .spectrum import Spectrum
 from .utility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
-    calculate_f_mean_squared, calculate_f_squared_mean
+    calculate_f_mean_squared, calculate_f_squared_mean, extrapolate_to_zero_linear
 
 from .calc import calculate_normalization_factor_raw, calculate_sq_raw, calculate_fr, calculate_gr_raw
 
@@ -92,7 +92,7 @@ class StandardCalculator(GlassureCalculator):
             step = q[1] - q[0]
             q_low = np.arange(step, min(q), step)
             if self.interpolation_method == 'linear':
-                sq_low = structure_factor[0] / q[0] * q_low
+                return extrapolate_to_zero_linear(Spectrum(q, structure_factor))
             elif self.interpolation_method == 'spline':
                 q_low_cutoff = np.arange(step, self.interpolation_parameters['cutoff'], step)
                 intensity_low_cutoff = np.zeros(q_low_cutoff.shape)

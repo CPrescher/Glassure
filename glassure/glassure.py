@@ -18,6 +18,8 @@ if __name__ == "__main__":
         # possible values:
         # "windows", "motif", "cde", "plastique", "windowsxp", or "macintosh"
     controller = MainController()
+    controller.load_data('tests/data/Mg2SiO4_ambient.xy')
+    controller.load_bkg('tests/data/Mg2SiO4_ambient_bkg.xy')
     controller.show_window()
     app.exec_()
     del app

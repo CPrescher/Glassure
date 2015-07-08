@@ -4,7 +4,9 @@ import unittest
 import numpy as np
 
 from core.utility import normalize_elemental_abundances, convert_density_to_atoms_per_cubic_angstrom, \
-    calculate_f_mean_squared, calculate_f_squared_mean, calculate_incoherent_scattering
+    calculate_f_mean_squared, calculate_f_squared_mean, calculate_incoherent_scattering,\
+    extrapolate_to_zero_linear, extrapolate_to_zero_poly, extrapolate_to_zero_spline
+from core import Spectrum
 
 class UtilityTest(unittest.TestCase):
     def test_normalize_elemental_abundances(self):
@@ -58,3 +60,72 @@ class UtilityTest(unittest.TestCase):
         incoherent_scattering = calculate_incoherent_scattering({'Si':1, 'O':2}, q)
 
         self.assertEqual(len(q), len(incoherent_scattering))
+
+    def test_linear_extrapolation(self):
+        x = np.arange(1, 5.05, 0.05)
+        y = np.ones(len(x))
+        spectrum = Spectrum(x,y)
+
+        extrapolated_spectrum = extrapolate_to_zero_linear(spectrum)
+
+        x1, y1 = extrapolated_spectrum.data
+
+        self.assertLess(x1[0],x[0])
+        self.assertLess(y1[1],y[1])
+
+        x_linear = x1[x1<1]
+        y_linear = y1[x1<1]
+        self.assertAlmostEqual(np.sum(y_linear - x_linear), 0)
+
+    def test_extrapolate_to_zero_spline(self):
+
+        x = np.arange(1, 5.05, 0.05)
+        y = -2+x*0.2
+
+        spectrum = Spectrum(x,y)
+
+        extrapolated_spectrum = extrapolate_to_zero_spline(spectrum, 2)
+
+
+    def test_extrapolate_to_zero_poly(self):
+
+        a = 0.3
+        b = 0.1
+        c = 0.1
+        x_max = 3
+
+        x = np.arange(1, 5.05, 0.05)
+        y = a*(x-c) + b*(x-c)**2
+        spectrum = Spectrum(x,y)
+
+        extrapolated_spectrum = extrapolate_to_zero_poly(spectrum, x_max)
+        x1, y1 = extrapolated_spectrum.data
+
+        x_extrapolate = x1[x1<1]
+        y_extrapolate = y1[x1<1]
+
+        y_expected = a*(x_extrapolate-c)+b*(x_extrapolate-c)**2
+        y_expected[x_extrapolate<c]=0
+
+        self.assertAlmostEqual(np.sum(y_extrapolate-y_expected), 0)
+
+        extrapolated_spectrum = extrapolate_to_zero_poly(spectrum, x_max, replace=True)
+        x1, y1 = extrapolated_spectrum.data
+
+        x_extrapolate = x1[x1<1]
+        y_extrapolate = y1[x1<1]
+
+        y_expected = a*(x_extrapolate-c)+b*(x_extrapolate-c)**2
+        y_expected[x_extrapolate<c]=0
+
+        self.assertAlmostEqual(np.sum(y_extrapolate-y_expected), 0)
+
+
+
+
+
+
+
+
+
+

@@ -37,7 +37,7 @@ class Spectrum(object):
             return -1
 
     @staticmethod
-    def load(filename, skip_rows=0):
+    def from_file(filename, skip_rows=0):
         try:
             if filename.endswith('.chi'):
                 skip_rows = 4
