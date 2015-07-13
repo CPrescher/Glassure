@@ -7,7 +7,8 @@ import os
 import numpy as np
 
 from core import Spectrum
-from core.calc import calculate_normalization_factor, calculate_sq, calculate_fr, calculate_gr
+from core.calc import calculate_normalization_factor, calculate_sq, calculate_fr, calculate_gr, optimize_sq,\
+                        calculate_sq_from_gr
 from core.calculator import StandardCalculator
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
@@ -79,6 +80,40 @@ class GlassureCalculatorTest(unittest.TestCase):
 
         self.assertTrue(np.array_equal(y_core, y_calc))
 
+    def test_optimize_sq(self):
+        sq_spectrum = calculate_sq(self.sample_spectrum, self.density, self.composition)
+        sq_spectrum = sq_spectrum.limit(0, 24)
+        sq_spectrum_optimized_core = optimize_sq(sq_spectrum, 1.4, 5, self.calculator.atomic_density)
 
+        self.calculator = StandardCalculator(
+            original_spectrum=self.data_spectrum.limit(0, 24),
+            background_spectrum=self.bkg_spectrum.limit(0, 24),
+            elemental_abundances=self.composition,
+            density =self.density,
+            r = self.r
+        )
+        r= np.arange(0, 1.4, 0.02)
+        self.calculator.optimize(r, 5)
+        sq_spectrum_optimized_calc = self.calculator.sq_spectrum
 
+        _, y_core = sq_spectrum_optimized_core.data
+        _, y_calc = sq_spectrum_optimized_calc.data
+
+        print len(y_core)
+        print len(y_calc)
+
+        print y_core
+        print y_calc
+
+        self.assertTrue(np.array_equal(y_core, y_calc))
+
+    def test_calculate_sq_from_gr(self):
+        sq_spectrum = calculate_sq(self.sample_spectrum, self.density, self.composition)
+        sq_spectrum = sq_spectrum.limit(0, 24)
+        fr_spectrum = calculate_fr(sq_spectrum)
+        gr_spectrum = calculate_gr(fr_spectrum, self.density, self.composition)
+
+        q, sq = sq_spectrum.data
+
+        sq_spectrum_inv = calculate_sq_from_gr(gr_spectrum, q, self.density, self.composition)
 

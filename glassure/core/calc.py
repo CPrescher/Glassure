@@ -1,5 +1,8 @@
 __author__ = 'Clemens Prescher'
 
+import time
+from copy import deepcopy
+
 import numpy as np
 
 from . import Spectrum
@@ -108,6 +111,26 @@ def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001
                              incoherent_scattering,
                              normalization_factor)
 
+def calculate_sq_from_gr(gr_spectrum, q, density, composition, use_modification_fcn=False):
+    atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
+    r, gr = gr_spectrum.data
+    if use_modification_fcn:
+        modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+    else:
+        modification = 1
+
+    integral = 0
+    dr = r[2]-r[1]
+    for ind, r_val in enumerate(r):
+        integral+=r_val * (gr[ind]-1)*np.sin(q*r_val)/q
+
+    integral = integral*modification*dr
+    intensity = 4*np.pi*atomic_density*integral
+
+    return Spectrum(q, intensity)
+
+
+
 def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False):
     """
     Calculates F(r) from a given S(Q) spectrum for r values. If r is none a range from 0 to 10 with step 0.01 is used.
@@ -158,3 +181,35 @@ def calculate_gr(fr_spectrum, density, composition):
     :return: g(r) spectrum
     """
     return calculate_gr_raw(fr_spectrum, convert_density_to_atoms_per_cubic_angstrom(composition, density))
+
+
+def optimize_sq(sq_spectrum, r_max, iterations, atomic_density, use_modification_fcn=False,
+             attenuation_factor=1, fcn_callback=None, callback_period=2):
+
+    t1 = time.time()
+    r=np.arange(0, r_max, 0.02)
+
+    sq_spectrum = deepcopy(sq_spectrum)
+
+    for iteration in range(iterations):
+        fr_spectrum = calculate_fr(sq_spectrum, r, use_modification_fcn)
+        q, sq_int = sq_spectrum.data
+        r, fr_int = fr_spectrum.data
+
+        delta_fr = fr_int + 4 * np.pi * r * atomic_density
+
+        in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+        integral = np.trapz(in_integral, r) / attenuation_factor
+        sq_optimized = sq_int * (1 - 1. / q * integral)
+
+        sq_spectrum = Spectrum(q, sq_optimized)
+
+        if fcn_callback is not None and iteration % 5 == 0:
+            # fr_spectrum = self.calc_fr()
+            # gr_spectrum = self.calc_gr()
+            # fcn_callback(sq_spectrum, gr_spectrum)
+            pass
+
+    print "Optimization took {}".format(time.time() - t1)
+    return sq_spectrum
+
