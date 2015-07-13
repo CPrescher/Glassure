@@ -186,11 +186,8 @@ def calculate_gr(fr_spectrum, density, composition):
 def optimize_sq(sq_spectrum, r_max, iterations, atomic_density, use_modification_fcn=False,
              attenuation_factor=1, fcn_callback=None, callback_period=2):
 
-    t1 = time.time()
     r=np.arange(0, r_max, 0.02)
-
     sq_spectrum = deepcopy(sq_spectrum)
-
     for iteration in range(iterations):
         fr_spectrum = calculate_fr(sq_spectrum, r, use_modification_fcn)
         q, sq_int = sq_spectrum.data
@@ -209,7 +206,5 @@ def optimize_sq(sq_spectrum, r_max, iterations, atomic_density, use_modification
             # gr_spectrum = self.calc_gr()
             # fcn_callback(sq_spectrum, gr_spectrum)
             pass
-
-    print "Optimization took {}".format(time.time() - t1)
     return sq_spectrum
 
