@@ -8,7 +8,7 @@ import numpy as np
 
 from core import Spectrum
 from core.calc import calculate_normalization_factor, calculate_sq, calculate_fr, calculate_gr, optimize_sq,\
-                        calculate_sq_from_gr
+                        calculate_sq_from_gr, optimize_incoherent_container_scattering
 from core.calculator import StandardCalculator
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
@@ -116,4 +116,13 @@ class GlassureCalculatorTest(unittest.TestCase):
         q, sq = sq_spectrum.data
 
         sq_spectrum_inv = calculate_sq_from_gr(gr_spectrum, q, self.density, self.composition)
+
+    def test_optimize_container_background(self):
+        res = optimize_incoherent_container_scattering(self.sample_spectrum,
+                                                       sample_density=self.density,
+                                                       sample_composition=self.composition,
+                                                       container_composition={'C':1},
+                                                       r_cutoff=1.5)
+        print res
+
 

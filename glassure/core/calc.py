@@ -4,17 +4,18 @@ import time
 from copy import deepcopy
 
 import numpy as np
+import lmfit
 
 from . import Spectrum
 
 from utility import calculate_incoherent_scattering, calculate_f_squared_mean, calculate_f_mean_squared, \
-    convert_density_to_atoms_per_cubic_angstrom
-
+    convert_density_to_atoms_per_cubic_angstrom, extrapolate_to_zero_poly
 
 __all__ = ['calculate_normalization_factor_raw', 'calculate_normalization_factor',
            'calculate_sq', 'calculate_sq_raw', 'calculate_sq_from_gr',
            'calculate_fr', 'calculate_gr_raw', 'calculate_gr',
            'optimize_sq']
+
 
 def calculate_normalization_factor_raw(sample_spectrum, atomic_density, f_squared_mean, f_mean_squared,
                                        incoherent_scattering, attenuation_factor=0.001):
@@ -62,6 +63,7 @@ def calculate_normalization_factor(sample_spectrum, density, composition, attenu
     return calculate_normalization_factor_raw(sample_spectrum, atomic_density, f_squared_mean, f_mean_squared,
                                               incoherent_scattering, attenuation_factor)
 
+
 def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent_scattering, normalization_factor,
                      extra_correction=0):
     """
@@ -79,7 +81,7 @@ def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent
     :return: S(Q) spectrum
     """
     q, intensity = sample_spectrum.data
-    sq = (normalization_factor*intensity-incoherent_scattering-f_squared_mean)/ f_mean_squared + 1
+    sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean) / f_mean_squared + 1
     return Spectrum(q, sq)
 
 
@@ -111,10 +113,11 @@ def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001
                                                               incoherent_scattering,
                                                               attenuation_factor)
     return calculate_sq_raw(sample_spectrum,
-                             f_squared_mean,
-                             f_mean_squared,
-                             incoherent_scattering,
-                             normalization_factor)
+                            f_squared_mean,
+                            f_mean_squared,
+                            incoherent_scattering,
+                            normalization_factor)
+
 
 def calculate_sq_from_gr(gr_spectrum, q, density, composition, use_modification_fcn=False):
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
@@ -125,15 +128,14 @@ def calculate_sq_from_gr(gr_spectrum, q, density, composition, use_modification_
         modification = 1
 
     integral = 0
-    dr = r[2]-r[1]
+    dr = r[2] - r[1]
     for ind, r_val in enumerate(r):
-        integral+=r_val * (gr[ind]-1)*np.sin(q*r_val)/q
+        integral += r_val * (gr[ind] - 1) * np.sin(q * r_val) / q
 
-    integral = integral*modification*dr
-    intensity = 4*np.pi*atomic_density*integral
+    integral = integral * modification * dr
+    intensity = 4 * np.pi * atomic_density * integral
 
     return Spectrum(q, intensity)
-
 
 
 def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False):
@@ -176,6 +178,7 @@ def calculate_gr_raw(fr_spectrum, atomic_density):
     g_r = 1 + f_r / (4.0 * np.pi * r * atomic_density)
     return Spectrum(r, g_r)
 
+
 def calculate_gr(fr_spectrum, density, composition):
     """
     Calculates a g(r) spectrum from a given F(r) spectrum, the material density and composition.
@@ -189,9 +192,8 @@ def calculate_gr(fr_spectrum, density, composition):
 
 
 def optimize_sq(sq_spectrum, r_max, iterations, atomic_density, use_modification_fcn=False,
-             attenuation_factor=1, fcn_callback=None, callback_period=2):
-
-    r=np.arange(0, r_max, 0.02)
+                attenuation_factor=1, fcn_callback=None, callback_period=2):
+    r = np.arange(0, r_max, 0.02)
     sq_spectrum = deepcopy(sq_spectrum)
     for iteration in range(iterations):
         fr_spectrum = calculate_fr(sq_spectrum, r, use_modification_fcn)
@@ -213,3 +215,89 @@ def optimize_sq(sq_spectrum, r_max, iterations, atomic_density, use_modification
             pass
     return sq_spectrum
 
+
+def optimize_incoherent_container_scattering(sample_spectrum, sample_density, sample_composition, container_composition,
+                                              r_cutoff, initial_content=10, use_extrapolation=True,
+                                              extrapolation_q_max=None, callback_fcn = None):
+    """
+    This function tries to find the amount of extra scattering from a sample container which was not included in the
+    background measurement. A typical use-case are diamond anvil cell experiments were the background is usually
+    collected for an empty cell with a gasket of a specific thickness. However, during compression the gasket will
+    shrink in thickness and additional diamond compton (incoherent) scattering will be in the resulting data.
+
+    The function tries to achieve this by varying the amount of incoherent scattering from the container and minimizing
+    on the intensities of g(r) below a chosen r_cutoff. The r_cutoff parameter should be chosen to be below the first
+    peak in g(r) -- usually somewhere between 1 and 1.5 for e.g. silicates and depending on you q_max for the data
+    collection.
+
+    :param sample_spectrum: Background subtracted data spectrum
+    :param sample_density: density of the sample in g/cm^3
+    :param sample_composition: composition of the sample as a dictionary with elements as keys and abundances as values
+    :param container_composition: composition of the container_as a dictionary with the elements as keys and the
+    abundances as values
+    :param r_cutoff: an r cutoff for the g(r) in Angstrom for the area used for optimization. Should be below the first
+    peak (basically defines the region where g(r) should be zero for ideal data)
+    :param initial_content: starting content for the optimization
+    :param use_extrapolation: whether to use extrapolation (polynomial) to zero for S(Q) or not prior to transforming it to F(r)
+    :param extrapolation_q_max: defines the q range for which the extrapolation to zero will be fitted. Default value
+    (None) which takes the q_min of the sample spectrum and adds 0.2 and uses that as a range.
+    :param callback_fcn: function which will be called during each iteration of the optimization. The function should
+    have an interface for the following parameters:
+      - background_content - dimensionless number describing the amount of incoherent scattering  optimized
+      - scaled_incoherent_background - calculated scaled incoherent background
+      - sq - S(Q) calculated using the scaled incoherent background
+      - fr - F(r) calculated using the scaled incoherent background
+      - gr - g(r) calculated using the scaled incoherent background
+    :return: a tuple with background_content as dimensionless number as first element and the scaled incoherent
+    background spectrum as second
+    """
+    q, _ = sample_spectrum.data
+
+    incoherent_background_spectrum = Spectrum(q, calculate_incoherent_scattering(container_composition, q))
+    params = lmfit.Parameters()
+    params.add("content", value=initial_content, min=0)
+
+    if extrapolation_q_max is None:
+        extrapolation_q_max = np.min(q) + 0.2
+
+    sample_atomic_density = convert_density_to_atoms_per_cubic_angstrom(sample_composition, sample_density)
+    sample_incoherent_scattering = calculate_incoherent_scattering(sample_composition, q)
+    sample_f_mean_squared = calculate_f_mean_squared(sample_composition, q)
+    sample_f_squared_mean = calculate_f_squared_mean(sample_composition, q)
+
+    def optimization_fcn(params):
+        background_content = params['content'].value
+
+        incoherent_background_spectrum.scaling = background_content
+        subtracted_sample_spectrum = sample_spectrum - incoherent_background_spectrum
+        sample_normalization_factor = calculate_normalization_factor_raw(
+            subtracted_sample_spectrum,
+            atomic_density=sample_atomic_density,
+            f_squared_mean=sample_f_squared_mean,
+            f_mean_squared=sample_f_mean_squared,
+            incoherent_scattering=sample_incoherent_scattering
+        )
+
+        sq = calculate_sq_raw(
+            subtracted_sample_spectrum,
+            f_squared_mean=sample_f_squared_mean,
+            f_mean_squared=sample_f_mean_squared,
+            incoherent_scattering=sample_incoherent_scattering,
+            normalization_factor=sample_normalization_factor
+        )
+
+        sq = extrapolate_to_zero_poly(sq, extrapolation_q_max)
+
+        fr = calculate_fr(sq)
+        gr = calculate_gr_raw(fr, atomic_density=sample_atomic_density)
+
+        low_r_gr = gr.limit(0, r_cutoff)
+        if callback_fcn is not None:
+            callback_fcn(background_content, incoherent_background_spectrum, sq, fr, gr)
+
+        return low_r_gr.data[1]
+
+    lmfit.minimize(optimization_fcn, params)
+    incoherent_background_spectrum.scaling=params['content'].value
+
+    return params['content'].value, incoherent_background_spectrum
