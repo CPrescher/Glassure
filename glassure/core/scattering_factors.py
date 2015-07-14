@@ -3,9 +3,9 @@ __author__ = 'Clemens Prescher'
 import os
 import numpy as np
 import pandas
-from . import module_path
+from . import _module_path
 
-module_data_path = os.path.join(module_path(), 'data')
+module_data_path = os.path.join(_module_path(), 'data')
 
 scattering_factor_param = pandas.read_csv(os.path.join(module_data_path, 'param_atomic_scattering_factors.csv'),
                                           index_col=0)

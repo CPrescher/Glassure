@@ -12,13 +12,17 @@ import scattering_factors
 
 from copy import copy
 
-def calculate_f_mean_squared(elemental_abundances, q):
+__all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_incoherent_scattering',
+           'extrapolate_to_zero_linear', 'extrapolate_to_zero_poly', 'extrapolate_to_zero_spline',
+           'convert_density_to_atoms_per_cubic_angstrom']
+
+def calculate_f_mean_squared(composition, q):
     """
     calculates <f>^2 as defined in Waseda book
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
+    :param composition: dictionary with elements as key and abundances as relative numbers
     :return:
     """
-    norm_elemental_abundances = normalize_elemental_abundances(elemental_abundances)
+    norm_elemental_abundances = normalize_composition(composition)
 
     res = 0
     for key, value in norm_elemental_abundances.iteritems():
@@ -26,13 +30,13 @@ def calculate_f_mean_squared(elemental_abundances, q):
     return res ** 2
 
 
-def calculate_f_squared_mean(elemental_abundances, q):
+def calculate_f_squared_mean(composition, q):
     """
     calculates <f^2> as defined in Waseda book
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
+    :param composition: dictionary with elements as key and abundances as relative numbers
     :return:
     """
-    norm_elemental_abundances = normalize_elemental_abundances(elemental_abundances)
+    norm_elemental_abundances = normalize_composition(composition)
 
     res = 0
     for key, value in norm_elemental_abundances.iteritems():
@@ -40,14 +44,14 @@ def calculate_f_squared_mean(elemental_abundances, q):
     return res
 
 
-def calculate_incoherent_scattering(elemental_abundances, q):
+def calculate_incoherent_scattering(composition, q):
     """
     Calculates compton/incoherent scattering for a compound
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
+    :param composition: dictionary with elements as key and abundances as relative numbers
     :param q: q_values in reverse Angstrom
     :return: ndarray of compton scattering
     """
-    norm_elemental_abundances = normalize_elemental_abundances(elemental_abundances)
+    norm_elemental_abundances = normalize_composition(composition)
 
     res = 0
     for key, value in norm_elemental_abundances.iteritems():
@@ -55,17 +59,17 @@ def calculate_incoherent_scattering(elemental_abundances, q):
     return res
 
 
-def normalize_elemental_abundances(elemental_abundances):
+def normalize_composition(composition):
     """
     normalizes elemental abundances to 1
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
+    :param composition: dictionary with elements as key and abundances as relative numbers
     :return: normalized elemental abundances dictionary dictionary
     """
     sum = 0.0
-    for key, val in elemental_abundances.iteritems():
+    for key, val in composition.iteritems():
         sum += val
 
-    result = copy(elemental_abundances)
+    result = copy(composition)
 
     for key in result:
         result[key] /= sum
@@ -73,16 +77,16 @@ def normalize_elemental_abundances(elemental_abundances):
     return result
 
 
-def convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density):
+def convert_density_to_atoms_per_cubic_angstrom(composition, density):
     """
     Converts densities in g/cm3 into atoms per A^3
-    :param elemental_abundances: dictionary with elements as key and abundances as relative numbers
+    :param composition: dictionary with elements as key and abundances as relative numbers
     :param density: density in g/cm^3
     :return: density in atoms/A^3
     """
 
     # get_smallest abundance
-    norm_elemental_abundances = normalize_elemental_abundances(elemental_abundances)
+    norm_elemental_abundances = normalize_composition(composition)
     mean_z = 0.0
     for key, val in norm_elemental_abundances.iteritems():
         mean_z += val * scattering_factors.atomic_weights['AW'][key]

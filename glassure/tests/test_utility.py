@@ -3,7 +3,7 @@ __author__ = 'Clemens Prescher'
 import unittest
 import numpy as np
 
-from core.utility import normalize_elemental_abundances, convert_density_to_atoms_per_cubic_angstrom, \
+from core.utility import normalize_composition, convert_density_to_atoms_per_cubic_angstrom, \
     calculate_f_mean_squared, calculate_f_squared_mean, calculate_incoherent_scattering,\
     extrapolate_to_zero_linear, extrapolate_to_zero_poly, extrapolate_to_zero_spline
 from core import Spectrum
@@ -11,11 +11,11 @@ from core import Spectrum
 class UtilityTest(unittest.TestCase):
     def test_normalize_elemental_abundances(self):
         composition = {'Si': 1, 'O':2}
-        norm_composition = normalize_elemental_abundances(composition)
+        norm_composition = normalize_composition(composition)
         self.assertEqual(norm_composition, {'Si': 1/3., 'O': 2/3.})
 
         composition = {'Na': 2, 'Si': 2, 'O':5}
-        norm_composition = normalize_elemental_abundances(composition)
+        norm_composition = normalize_composition(composition)
         self.assertEqual(norm_composition, {'Na': 2./9, 'Si': 2/9., 'O': 5/9.})
 
     def test_convert_density_to_atoms_per_cubic_angstrom(self):
