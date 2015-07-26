@@ -1,13 +1,11 @@
 __author__ = 'Clemens Prescher'
 
-import time
 from copy import deepcopy
 
 import numpy as np
 import lmfit
 
 from . import Spectrum
-
 from utility import calculate_incoherent_scattering, calculate_f_squared_mean, calculate_f_mean_squared, \
     convert_density_to_atoms_per_cubic_angstrom, extrapolate_to_zero_poly
 
@@ -191,9 +189,9 @@ def calculate_gr(fr_spectrum, density, composition):
     return calculate_gr_raw(fr_spectrum, convert_density_to_atoms_per_cubic_angstrom(composition, density))
 
 
-def optimize_sq(sq_spectrum, r_max, iterations, atomic_density, use_modification_fcn=False,
+def optimize_sq(sq_spectrum, r_cutoff, iterations, atomic_density, use_modification_fcn=False,
                 attenuation_factor=1, fcn_callback=None, callback_period=2):
-    r = np.arange(0, r_max, 0.02)
+    r = np.arange(0, r_cutoff, 0.02)
     sq_spectrum = deepcopy(sq_spectrum)
     for iteration in range(iterations):
         fr_spectrum = calculate_fr(sq_spectrum, r, use_modification_fcn)
@@ -216,9 +214,51 @@ def optimize_sq(sq_spectrum, r_max, iterations, atomic_density, use_modification
     return sq_spectrum
 
 
+def optimize_density(data_spectrum, background_spectrum, initial_background_scaling, composition,
+                     initial_density, background_min, background_max, density_min, density_max,
+                     iterations, r_cutoff,
+                     use_modification_fcn=False, extrapolation_max=None, r=np.linspace(0, 10, 1000)):
+    params = lmfit.Parameters()
+    params.add("density", value=initial_density, min=density_min, max=density_max)
+    params.add("background_scaling", value=initial_background_scaling, min=background_min, max=background_max)
+
+    r_step = r[1] - r[0]
+
+    def optimization_fcn(params, extrapolation_max, r, r_cutoff, use_modification_fcn):
+        density = params['density'].value
+        atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
+        background_spectrum.scaling = params['background_scaling'].value
+
+        sq = calculate_sq(data_spectrum - background_spectrum, density, composition)
+        extrapolation_max = extrapolation_max or np.min(sq._x[0]) + 0.2
+        sq = extrapolate_to_zero_poly(sq, extrapolation_max)
+        sq_optimized = optimize_sq(sq, r_cutoff, iterations, atomic_density, use_modification_fcn)
+        fr = calculate_fr(sq_optimized, r=r, use_modification_fcn=use_modification_fcn)
+
+        min_r, min_fr = fr.limit(0, r_cutoff).data
+
+        output = (min_fr + 4 * np.pi * atomic_density * min_r) ** 2 * r_step
+
+        print('{:003d}: {:.4f}, {:.3f}, {:.3f}'.format(optimization_fcn.iteration,
+                                                       np.sum(output),
+                                                       density,
+                                                       params['background_scaling'].value))
+        optimization_fcn.iteration += 1
+
+        return output
+
+    optimization_fcn.iteration = 1
+
+    lmfit.minimize(optimization_fcn, params, args=(extrapolation_max, r, r_cutoff, use_modification_fcn))
+    lmfit.report_fit(params)
+
+    return params['density'].value, params['density'].stderr, \
+           params['background_scaling'].value, params['background_scaling'].stderr
+
+
 def optimize_incoherent_container_scattering(sample_spectrum, sample_density, sample_composition, container_composition,
-                                              r_cutoff, initial_content=10, use_extrapolation=True,
-                                              extrapolation_q_max=None, callback_fcn = None):
+                                             r_cutoff, initial_content=10, use_extrapolation=True,
+                                             extrapolation_q_max=None, callback_fcn=None):
     """
     This function tries to find the amount of extra scattering from a sample container which was not included in the
     background measurement. A typical use-case are diamond anvil cell experiments were the background is usually
@@ -298,6 +338,6 @@ def optimize_incoherent_container_scattering(sample_spectrum, sample_density, sa
         return low_r_gr.data[1]
 
     lmfit.minimize(optimization_fcn, params)
-    incoherent_background_spectrum.scaling=params['content'].value
+    incoherent_background_spectrum.scaling = params['content'].value
 
     return params['content'].value, incoherent_background_spectrum
