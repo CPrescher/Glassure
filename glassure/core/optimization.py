@@ -7,7 +7,6 @@ import numpy as np
 import lmfit
 
 from . import Spectrum
-
 from .calc import calculate_fr, calculate_gr_raw, calculate_sq, calculate_sq_raw, calculate_normalization_factor_raw
 from .utility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
     calculate_f_mean_squared, calculate_f_squared_mean
@@ -24,21 +23,24 @@ def optimize_sq(sq_spectrum, r_cutoff, iterations, atomic_density, use_modificat
     :param sq_spectrum:
         original S(Q)
     :param r_cutoff:
-        cutoff value below which there is no signal expected (below the first peak in g(r)
+        cutoff value below which there is no signal expected (below the first peak in g(r))
     :param iterations:
         number of back and forward transforms
     :param atomic_density:
         density in atoms/A^3
     :param use_modification_fcn:
-        whether or not to use the Lorch modification function during the Fourier transform.
-        Warning: When using the Lorch modification function usually more iterations are needed to get to the wanted result.
+        Whether or not to use the Lorch modification function during the Fourier transform.
+        Warning: When using the Lorch modification function usually more iterations are needed to get to the
+        wanted result.
     :param attenuation_factor:
         Sometimes the initial change during back and forward transformations results in a run
         away, by setting the attenuation factor to higher than one can help for this situation, it basically reduces
         the amount of change during each iteration.
     :param fcn_callback:
         Function which will be called at an iteration period defined by the callback_period parameter.
-        The function should take 3 arguments: sq_spectrum, fr_spectrum and gr_spectrum
+        The function should take 3 arguments: sq_spectrum, fr_spectrum and gr_spectrum. Additionally the function
+        should return a boolean value, where True continues the optimization and False will stop the optimization
+        procedure
     :param callback_period:
         determines how frequently the fcn_callback will be called.
 
@@ -69,8 +71,40 @@ def optimize_sq(sq_spectrum, r_cutoff, iterations, atomic_density, use_modificat
 
 def optimize_density(data_spectrum, background_spectrum, initial_background_scaling, composition,
                      initial_density, background_min, background_max, density_min, density_max,
-                     iterations, r_cutoff,
-                     use_modification_fcn=False, extrapolation_max=None, r=np.linspace(0, 10, 1000)):
+                     iterations, r_cutoff, use_modification_fcn=False, extrapolation_cutoff=None,
+                     r_step=0.01, fcn_callback=None):
+    """
+    Performs an optimization of the background scaling and density using a figure of merit function defined by the low
+    r region in F(r) as described in Eggert et al. (2002) PRB, 65, 174105.
+
+    :param data_spectrum:       raw data spectrum in Q space (A^-1)
+    :param background_spectrum: raw background spectrum in Q space (A^-1)
+    :param initial_background_scaling:
+                                start value for the background scaling optimization
+    :param composition:         composition of the sample as a dictionary with elements as keys and abundances as values
+    :param initial_density:     start value for the density optimization in g/cm^3
+    :param background_min:      minimum value for the background scaling
+    :param background_max:      maximum value for the background scaling
+    :param density_min:         minimum value for the density
+    :param density_max:         maximum value for the density
+    :param iterations:          number of iterations of S(Q) (see optimize_sq(...) prior to calculating chi2
+    :param r_cutoff:            cutoff value below which there is no signal expected (below the first peak in g(r))
+    :param use_modification_fcn:
+                                Whether or not to use the Lorch modification function during the Fourier transform.
+                                Warning: When using the Lorch modification function usually more iterations are needed
+                                to get to the wanted result. Default is False.
+    :param extrapolation_cutoff:
+                                Determines up to which q value the S(Q) will be extrapolated to zero. The default
+                                (None), will use the minimum q value plus 0.2 A^-1
+    :param r_step:              Step size for the r-space for calculating f(r) during each iteration. Defaults to
+                                0.01.
+    :param fcn_callback:        Function which will be called after each iteration. The function should take 4
+                                arguments: iteration number, chi2, density, and background scaling. Additionally the
+                                function should return a boolean value, where True continues the optimization and False
+                                will stop the optimization procedure
+
+    :return: (tuple) - density, density standard error, background scaling, background scaling standard error
+    """
     params = lmfit.Parameters()
     params.add("density", value=initial_density, min=density_min, max=density_max)
     params.add("background_scaling", value=initial_background_scaling, min=background_min, max=background_max)
@@ -92,17 +126,18 @@ def optimize_density(data_spectrum, background_spectrum, initial_background_scal
 
         output = (min_fr + 4 * np.pi * atomic_density * min_r) ** 2 * r_step
 
-        print('{:003d}: {:.4f}, {:.3f}, {:.3f}'.format(optimization_fcn.iteration,
-                                                       np.sum(output),
-                                                       density,
-                                                       params['background_scaling'].value))
+        if fcn_callback is not None:
+            if not fcn_callback(optimization_fcn.iteration,
+                                np.sum(output),
+                                density,
+                                params['background_scaling'].value):
+                return None
         optimization_fcn.iteration += 1
-
         return output
 
     optimization_fcn.iteration = 1
 
-    lmfit.minimize(optimization_fcn, params, args=(extrapolation_max, r, r_cutoff, use_modification_fcn))
+    lmfit.minimize(optimization_fcn, params, args=(extrapolation_cutoff, r, r_cutoff, use_modification_fcn))
     lmfit.report_fit(params)
 
     return params['density'].value, params['density'].stderr, \
@@ -113,7 +148,7 @@ def optimize_incoherent_container_scattering(sample_spectrum, sample_density, sa
                                              r_cutoff, initial_content=10, use_extrapolation=True,
                                              extrapolation_q_max=None, callback_fcn=None):
     """
-    This function tries to find the amount of extra scattering from a sample container which was not included in the
+    Finds the amount of extra scattering from a sample container which was not included in the
     background measurement. A typical use-case are diamond anvil cell experiments were the background is usually
     collected for an empty cell with a gasket of a specific thickness. However, during compression the gasket will
     shrink in thickness and additional diamond compton (incoherent) scattering will be in the resulting data.
@@ -123,26 +158,29 @@ def optimize_incoherent_container_scattering(sample_spectrum, sample_density, sa
     peak in g(r) -- usually somewhere between 1 and 1.5 for e.g. silicates and depending on you q_max for the data
     collection.
 
-    :param sample_spectrum: Background subtracted data spectrum
-    :param sample_density: density of the sample in g/cm^3
-    :param sample_composition: composition of the sample as a dictionary with elements as keys and abundances as values
-    :param container_composition: composition of the container_as a dictionary with the elements as keys and the
-    abundances as values
-    :param r_cutoff: an r cutoff for the g(r) in Angstrom for the area used for optimization. Should be below the first
-    peak (basically defines the region where g(r) should be zero for ideal data)
-    :param initial_content: starting content for the optimization
-    :param use_extrapolation: whether to use extrapolation (polynomial) to zero for S(Q) or not prior to transforming it to F(r)
+    :param sample_spectrum:     Background subtracted data spectrum
+    :param sample_density:      density of the sample in g/cm^3
+    :param sample_composition:  composition of the sample as a dictionary with elements as keys and abundances as values
+    :param container_composition:
+                                composition of the container_as a dictionary with the elements as keys and the
+                                abundances as values
+    :param r_cutoff:            an r cutoff for the g(r) in Angstrom for the area used for optimization. Should be
+                                below the first peak (basically defines the region where g(r) should be zero for ideal data)
+    :param initial_content:     starting content for the optimization
+    :param use_extrapolation:   whether to use extrapolation (polynomial) to zero for S(Q) or not prior to transforming it to F(r)
     :param extrapolation_q_max: defines the q range for which the extrapolation to zero will be fitted. Default value
-    (None) which takes the q_min of the sample spectrum and adds 0.2 and uses that as a range.
-    :param callback_fcn: function which will be called during each iteration of the optimization. The function should
-    have an interface for the following parameters:
-      - background_content - dimensionless number describing the amount of incoherent scattering  optimized
-      - scaled_incoherent_background - calculated scaled incoherent background
-      - sq - S(Q) calculated using the scaled incoherent background
-      - fr - F(r) calculated using the scaled incoherent background
-      - gr - g(r) calculated using the scaled incoherent background
-    :return: a tuple with background_content as dimensionless number as first element and the scaled incoherent
-    background spectrum as second
+                                (None) which takes the q_min of the sample spectrum and adds 0.2 and uses that as a
+                                range.
+    :param callback_fcn:        function which will be called during each iteration of the optimization. The function s
+                                should have an interface for the following parameters:
+                                      - background_content - dimensionless number describing the amount of
+                                                            incoherent scattering  optimized
+                                      - scaled_incoherent_background - calculated scaled incoherent background
+                                      - sq - S(Q) calculated using the scaled incoherent background
+                                      - fr - F(r) calculated using the scaled incoherent background
+                                      - gr - g(r) calculated using the scaled incoherent background
+
+    :return: (tuple) background_content as dimensionless number, scaled incoherent background spectrum
     """
     q, _ = sample_spectrum.data
 
