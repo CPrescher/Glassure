@@ -191,6 +191,35 @@ def calculate_gr(fr_spectrum, density, composition):
 
 def optimize_sq(sq_spectrum, r_cutoff, iterations, atomic_density, use_modification_fcn=False,
                 attenuation_factor=1, fcn_callback=None, callback_period=2):
+    """
+    Performs an optimization of the structure factor based on an r_cutoff value as described in Eggert et al. 2002 PRB,
+    65, 174105. This basically does back and forward transforms between S(Q) and f(r) until the region below the
+    r_cutoff value is a flat line without any oscillations.
+
+    :param sq_spectrum:
+        original S(Q)
+    :param r_cutoff:
+        cutoff value below which there is no signal expected (below the first peak in g(r)
+    :param iterations:
+        number of back and forward transforms
+    :param atomic_density:
+        density in atoms/A^3
+    :param use_modification_fcn:
+        whether or not to use the Lorch modification function during the Fourier transform.
+        Warning: When using the Lorch modification function usually more iterations are needed to get to the wanted result.
+    :param attenuation_factor:
+        Sometimes the initial change during back and forward transformations results in a run
+        away, by setting the attenuation factor to higher than one can help for this situation, it basically reduces
+        the amount of change during each iteration.
+    :param fcn_callback:
+        Function which will be called at an iteration period defined by the callback_period parameter.
+        The function should take 3 arguments: sq_spectrum, fr_spectrum and gr_spectrum
+    :param callback_period:
+        determines how frequently the fcn_callback will be called.
+
+    :return:
+        optimized S(Q) spectrum
+    """
     r = np.arange(0, r_cutoff, 0.02)
     sq_spectrum = deepcopy(sq_spectrum)
     for iteration in range(iterations):
@@ -206,11 +235,10 @@ def optimize_sq(sq_spectrum, r_cutoff, iterations, atomic_density, use_modificat
 
         sq_spectrum = Spectrum(q, sq_optimized)
 
-        if fcn_callback is not None and iteration % 5 == 0:
-            # fr_spectrum = self.calc_fr()
-            # gr_spectrum = self.calc_gr()
-            # fcn_callback(sq_spectrum, gr_spectrum)
-            pass
+        if fcn_callback is not None and iteration % callback_period == 0:
+            fr_spectrum = calculate_fr(sq_spectrum, use_modification_fcn=use_modification_fcn)
+            gr_spectrum = calculate_gr_raw(fr_spectrum, atomic_density)
+            fcn_callback(sq_spectrum, fr_spectrum, gr_spectrum)
     return sq_spectrum
 
 
