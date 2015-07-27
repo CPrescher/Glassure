@@ -1,20 +1,20 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 
+from copy import copy
+
 import numpy as np
 from scipy import interpolate
-
 import lmfit
 
 from .scattering_factors import calculate_coherent_scattering_factor, calculate_incoherent_scattered_intensity
 from . import Spectrum
 import scattering_factors
 
-from copy import copy
-
 __all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_incoherent_scattering',
            'extrapolate_to_zero_linear', 'extrapolate_to_zero_poly', 'extrapolate_to_zero_spline',
            'convert_density_to_atoms_per_cubic_angstrom']
+
 
 def calculate_f_mean_squared(composition, q):
     """
@@ -101,12 +101,12 @@ def extrapolate_to_zero_linear(spectrum):
     x, y = spectrum.data
     step = x[1] - x[0]
     low_x = np.sort(np.arange(min(x), 0, -step))
-    low_y = y[0]/x[0]*low_x
+    low_y = y[0] / x[0] * low_x
     return Spectrum(np.concatenate((low_x, x)),
                     np.concatenate((low_y, y)))
 
 
-def extrapolate_to_zero_spline(spectrum, x_max, smooth_factor = None, replace=False):
+def extrapolate_to_zero_spline(spectrum, x_max, smooth_factor=None, replace=False):
     """
     Extrapolates a spectrum to (0, 0) using a spline function.
     If the spline hits zero on the y-axis at an x value higher than 0 all values below this intersection
@@ -122,11 +122,11 @@ def extrapolate_to_zero_spline(spectrum, x_max, smooth_factor = None, replace=Fa
     """
 
     x, y = spectrum.data
-    x_step = x[1]-x[0]
+    x_step = x[1] - x[0]
     x_low = np.sort(np.arange(min(x), 0, -x_step))
 
-    x_inter = np.concatenate(([0], x[x<x_max]))
-    y_inter = np.concatenate(([0], y[x<x_max]))
+    x_inter = np.concatenate(([0], x[x < x_max]))
+    y_inter = np.concatenate(([0], y[x < x_max]))
 
     if replace:
         x_low = np.concatenate((x_low, x_inter[1:]))
@@ -137,15 +137,16 @@ def extrapolate_to_zero_spline(spectrum, x_max, smooth_factor = None, replace=Fa
     spl = interpolate.UnivariateSpline(x_inter, y_inter, s=smooth_factor)
     y_low = spl(x_low)
 
-    ind_below_zero = np.where(y_low<0)[0]
+    ind_below_zero = np.where(y_low < 0)[0]
 
-    if len(ind_below_zero)>0:
+    if len(ind_below_zero) > 0:
         y_low[:ind_below_zero[-1]] = 0
 
     return Spectrum(np.concatenate((x_low, x)),
                     np.concatenate((y_low, y)))
 
-def extrapolate_to_zero_poly(spectrum, x_max, replace = False):
+
+def extrapolate_to_zero_poly(spectrum, x_max, replace=False):
     """
     Extrapolates a spectrum to (0, 0) using a 2nd order polynomial:
 
@@ -158,10 +159,10 @@ def extrapolate_to_zero_poly(spectrum, x_max, replace = False):
     """
 
     x, y = spectrum.data
-    x_step = x[1]-x[0]
+    x_step = x[1] - x[0]
 
-    x_fit = x[x<x_max]
-    y_fit = y[x<x_max]
+    x_fit = x[x < x_max]
+    y_fit = y[x < x_max]
 
     params = lmfit.Parameters()
     params.add("a", value=1, min=0)
@@ -173,7 +174,7 @@ def extrapolate_to_zero_poly(spectrum, x_max, replace = False):
         b = params['b'].value
         c = params['c'].value
 
-        return (y_fit - (x_fit-c)*a - (x_fit-c)**2*b)
+        return (y_fit - (x_fit - c) * a - (x_fit - c) ** 2 * b)
 
     result = lmfit.minimize(optimization_fcn, params)
     a = params['a'].value
@@ -186,18 +187,24 @@ def extrapolate_to_zero_poly(spectrum, x_max, replace = False):
         ind = x > x_max
         x = x[ind]
         y = y[ind]
-    y_low = a*(x_low-c) + b*(x_low-c)**2
-    y_low[x_low<c] = 0
+    y_low = a * (x_low - c) + b * (x_low - c) ** 2
+    y_low[x_low < c] = 0
 
     return Spectrum(np.concatenate((x_low, x)),
                     np.concatenate((y_low, y)))
 
 
+def convert_two_theta_to_q_space_raw(two_theta, wavelength):
+    """
+    Converts two theta values into q space
+    """
+    return 4*np.pi*np.sin(two_theta/360.0 * np.pi)/wavelength
 
 
-
-
-
-
-
-
+def convert_two_theta_to_q_space(spectrum, wavelength):
+    """
+    Returns a new spectrum with the x-axis converted from two theta into q space
+    """
+    q_spectrum = copy(spectrum)
+    q_spectrum._x = convert_two_theta_to_q_space(spectrum.x, wavelength)
+    return q_spectrum

@@ -5,7 +5,8 @@ import numpy as np
 
 from core.utility import normalize_composition, convert_density_to_atoms_per_cubic_angstrom, \
     calculate_f_mean_squared, calculate_f_squared_mean, calculate_incoherent_scattering,\
-    extrapolate_to_zero_linear, extrapolate_to_zero_poly, extrapolate_to_zero_spline
+    extrapolate_to_zero_linear, extrapolate_to_zero_poly, extrapolate_to_zero_spline,\
+    convert_two_theta_to_q_space, convert_two_theta_to_q_space_raw
 from core import Spectrum
 
 class UtilityTest(unittest.TestCase):
@@ -88,7 +89,6 @@ class UtilityTest(unittest.TestCase):
 
 
     def test_extrapolate_to_zero_poly(self):
-
         a = 0.3
         b = 0.1
         c = 0.1
@@ -120,12 +120,16 @@ class UtilityTest(unittest.TestCase):
 
         self.assertAlmostEqual(np.sum(y_extrapolate-y_expected), 0)
 
+    def test_convert_two_theta_to_q_space(self):
+        data_theta = np.linspace(0, 25)
+        wavelength = 0.31
+        data_q = convert_two_theta_to_q_space_raw(data_theta, wavelength)
 
+        self.assertLess(np.max(data_q), 10)
+        self.assertAlmostEqual(np.max(data_q), 4*np.pi*np.sin(25./360*np.pi)/wavelength)
 
+        spectrum_theta = Spectrum(data_theta, np.ones(data_theta.shape))
+        spectrum_q = convert_two_theta_to_q_space(spectrum_theta, wavelength)
 
-
-
-
-
-
-
+        self.assertLess(np.max(spectrum_q.x), 10)
+        self.assertAlmostEqual(np.max(spectrum_q.x), 4*np.pi*np.sin(25./360*np.pi)/wavelength)
