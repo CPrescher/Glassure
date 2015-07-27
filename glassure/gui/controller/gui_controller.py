@@ -27,7 +27,6 @@ class MainController(object):
         self.main_widget = MainWidget()
 
         self.model = GlassureModel()
-        self.model.subscribe(self.model_changed)
         self.working_directory = ''
         self.sq_directory = ''
         self.gr_directory = ''
@@ -47,6 +46,11 @@ class MainController(object):
         """
         Connects Gui signals with the model and model signals with the GUI.
         """
+
+        #model
+
+        self.model.data_changed.connect(self.model_changed)
+
         self.connect_click_function(self.main_widget.left_control_widget.data_widget.file_widget.load_data_btn,
                                     self.load_data)
         self.connect_click_function(self.main_widget.left_control_widget.data_widget.file_widget.load_background_btn,

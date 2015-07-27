@@ -3,16 +3,18 @@ __author__ = 'Clemens Prescher'
 
 import numpy as np
 from lmfit import Parameters, minimize
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 from core.spectrum import Spectrum
-from gui.model.helper import Observable
 from core.calculator import StandardCalculator
 from density_optimization import DensityOptimizer
 from core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
 
 
-class GlassureModel(Observable):
+class GlassureModel(QtCore.QObject):
+    
+    data_changed = QtCore.pyqtSignal()
+
     def __init__(self):
         super(GlassureModel, self).__init__()
         # initialize all spectra
@@ -22,6 +24,7 @@ class GlassureModel(Observable):
         self.diamond_background_spectrum = None
 
         self.sq_spectrum = Spectrum()
+        self.fr_spectrum = Spectrum()
         self.gr_spectrum = Spectrum()
 
         # initialize all parameters
@@ -110,7 +113,7 @@ class GlassureModel(Observable):
             self.sq_spectrum = self.glassure_calculator.sq_spectrum
             self.fr_spectrum = self.glassure_calculator.fr_spectrum
             self.gr_spectrum = self.glassure_calculator.gr_spectrum
-        self.notify()
+        self.data_changed.emit()
 
     def optimize_sq(self, iterations=50, fcn_callback=None, attenuation_factor=1):
         self.glassure_calculator.optimize_sq(self.r_cutoff, iterations=iterations, fcn_callback=fcn_callback,
@@ -121,7 +124,7 @@ class GlassureModel(Observable):
         self.sq_spectrum = self.glassure_calculator.sq_spectrum
         self.fr_spectrum = self.glassure_calculator.fr_spectrum
         self.gr_spectrum = self.glassure_calculator.gr_spectrum
-        self.notify()
+        self.data_changed.emit()
 
     def optimize_density_and_scaling2(self, density_min, density_max, bkg_min, bkg_max, iterations, output_txt=None):
         optimizer = DensityOptimizer(
