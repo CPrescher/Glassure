@@ -7,8 +7,8 @@ import os
 import numpy as np
 
 from core import Spectrum
-from core.calc import calculate_normalization_factor, calculate_sq, calculate_fr, calculate_gr, optimize_sq,\
-                        calculate_sq_from_gr, optimize_incoherent_container_scattering
+from core.calc import calculate_normalization_factor, calculate_sq, calculate_fr, calculate_gr, calculate_sq_from_gr
+from core.optimization import optimize_incoherent_container_scattering, optimize_sq
 from core.calculator import StandardCalculator
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')

@@ -116,10 +116,14 @@ class MainController(object):
                 os.path.basename(filename))
 
     def model_changed(self):
-        self.main_widget.spectrum_widget.plot_spectrum(self.model.original_spectrum)
-        self.main_widget.spectrum_widget.plot_bkg(self.model.get_background_spectrum())
-        self.main_widget.spectrum_widget.plot_sq(self.model.sq_spectrum)
-        self.main_widget.spectrum_widget.plot_pdf(self.model.gr_spectrum)
+        if self.model.original_spectrum is not None:
+            self.main_widget.spectrum_widget.plot_spectrum(self.model.original_spectrum)
+        if self.model.background_spectrum is not None:
+            self.main_widget.spectrum_widget.plot_bkg(self.model.get_background_spectrum())
+        if self.model.sq_spectrum is not None:
+            self.main_widget.spectrum_widget.plot_sq(self.model.sq_spectrum)
+        if self.model.gr_spectrum is not None:
+            self.main_widget.spectrum_widget.plot_pdf(self.model.gr_spectrum)
 
         self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl.\
             setText("{:.4f}".format(self.model.atomic_density))
