@@ -108,6 +108,14 @@ class Spectrum(object):
         return self._x, self._y * self._scaling + self.offset
 
     @property
+    def x(self):
+        return self._x
+
+    @property
+    def y(self):
+        return self._y
+
+    @property
     def scaling(self):
         return self._scaling
 
