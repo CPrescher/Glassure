@@ -7,8 +7,8 @@ import os
 
 from PyQt4 import QtGui, QtCore
 
-from gui.widgets.SpectrumWidget import SpectrumWidget
-from .ControlWidget import LeftControlWidget, RightControlWidget
+from gui.widgets.custom_widgets import SpectrumWidget
+from .control_widget import LeftControlWidget, RightControlWidget
 
 
 class MainWidget(QtGui.QWidget):

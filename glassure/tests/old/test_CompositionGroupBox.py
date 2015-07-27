@@ -7,7 +7,7 @@ import os
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtTest import QTest
 
-from gui.controller import MainController
+from gui.controller import gui_controller
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -15,7 +15,7 @@ unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 class CompositionGroupBoxTest(unittest.TestCase):
     def setUp(self):
         self.app = QtGui.QApplication([])
-        self.controller = MainController()
+        self.controller = gui_controller()
         self.widget = self.controller.main_widget
         self.composition_gb = self.widget.left_control_widget.composition_widget
 

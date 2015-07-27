@@ -7,13 +7,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from core import spectrum
-from gui.model import GlassureModel
+from gui.model import glassure_model
 from gui.model import calc_transforms
 
 
 class GlassureModelTest(unittest.TestCase):
     def setUp(self):
-        self.model = GlassureModel()
+        self.model = glassure_model()
 
     def tearDown(self):
         pass

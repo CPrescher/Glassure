@@ -8,13 +8,13 @@ import numpy as np
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtTest import QTest
 
-from gui.controller import MainController
+from gui.controller import gui_controller
 
 
 class InterpolationWidgetTest(unittest.TestCase):
     def setUp(self):
         self.app = QtGui.QApplication(sys.argv)
-        self.controller = MainController()
+        self.controller = gui_controller()
         self.controller.load_data('data/Mg2SiO4_ambient.xy')
         self.controller.load_bkg('data/Mg2SiO4_ambient_bkg.xy')
         self.data = self.controller.model

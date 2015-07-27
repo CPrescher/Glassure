@@ -18,8 +18,8 @@ pg.setConfigOption('background', 'k')
 pg.setConfigOption('foreground', 'w')
 pg.setConfigOption('antialias', True)
 
-from gui.widgets.MainWidget import MainWidget
-from gui.model.GlassureModel import GlassureModel
+from gui.widgets.main_widget import MainWidget
+from gui.model.glassure_model import GlassureModel
 
 
 class MainController(object):

@@ -3,7 +3,7 @@ __author__ = 'Clemens Prescher'
 
 from PyQt4 import QtCore, QtGui
 
-from gui.widgets.CustomWidgets import HorizontalLine
+from ..custom_widgets import HorizontalLine
 
 
 class OptionsWidget(QtGui.QWidget):

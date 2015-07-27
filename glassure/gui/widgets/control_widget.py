@@ -3,9 +3,9 @@ __author__ = 'Clemens Prescher'
 
 from PyQt4 import QtGui
 
-from gui.widgets.ControlWidgets import CompositionWidget, DataWidget, OptimizationWidget, \
-    OptionsWidget, DensityOptimizationWidget, InterpolationWidget, DiamondWidget
-from CustomWidgets import ExpandableBox
+from .control_widgets import CompositionWidget, DataWidget, OptimizationWidget, \
+                    OptionsWidget, DensityOptimizationWidget, InterpolationWidget, DiamondWidget
+from .custom_widgets import ExpandableBox
 
 
 class LeftControlWidget(QtGui.QWidget):

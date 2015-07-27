@@ -5,7 +5,7 @@ __author__ = 'Clemens Prescher'
 import sys
 from PyQt4 import QtGui
 
-from gui.controller.MainController import MainController
+from gui.controller.gui_controller import MainController
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)

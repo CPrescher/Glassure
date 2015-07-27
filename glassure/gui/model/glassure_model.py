@@ -6,9 +6,9 @@ from lmfit import Parameters, minimize
 from PyQt4 import QtGui
 
 from core.spectrum import Spectrum
-from gui.model.HelperModule import Observable
+from gui.model.helper import Observable
 from core.calculator import StandardCalculator
-from DensityOptimization import DensityOptimizer
+from density_optimization import DensityOptimizer
 from core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
 
 
