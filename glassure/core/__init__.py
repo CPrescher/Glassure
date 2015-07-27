@@ -20,4 +20,5 @@ def _module_path():
 
 from calc import *
 from utility import *
+from optimization import *
 from spectrum import Spectrum

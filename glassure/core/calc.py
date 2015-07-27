@@ -4,12 +4,11 @@ import numpy as np
 
 from . import Spectrum
 from utility import calculate_incoherent_scattering, calculate_f_squared_mean, calculate_f_mean_squared, \
-    convert_density_to_atoms_per_cubic_angstrom, extrapolate_to_zero_poly
+    convert_density_to_atoms_per_cubic_angstrom
 
 __all__ = ['calculate_normalization_factor_raw', 'calculate_normalization_factor',
            'calculate_sq', 'calculate_sq_raw', 'calculate_sq_from_gr',
-           'calculate_fr', 'calculate_gr_raw', 'calculate_gr',
-           'optimize_sq', 'optimize_density', 'optimize_incoherent_container_scattering']
+           'calculate_fr', 'calculate_gr_raw', 'calculate_gr']
 
 
 def calculate_normalization_factor_raw(sample_spectrum, atomic_density, f_squared_mean, f_mean_squared,

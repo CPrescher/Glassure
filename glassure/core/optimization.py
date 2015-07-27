@@ -12,6 +12,7 @@ from .utility import convert_density_to_atoms_per_cubic_angstrom, calculate_inco
     calculate_f_mean_squared, calculate_f_squared_mean
 from .utility import extrapolate_to_zero_poly
 
+__all__ = ['optimize_sq', 'optimize_density', 'optimize_incoherent_container_scattering']
 
 def optimize_sq(sq_spectrum, r_cutoff, iterations, atomic_density, use_modification_fcn=False,
                 attenuation_factor=1, fcn_callback=None, callback_period=2):
