@@ -13,7 +13,8 @@ import scattering_factors
 
 __all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_incoherent_scattering',
            'extrapolate_to_zero_linear', 'extrapolate_to_zero_poly', 'extrapolate_to_zero_spline',
-           'convert_density_to_atoms_per_cubic_angstrom']
+           'convert_density_to_atoms_per_cubic_angstrom',
+           'convert_two_theta_to_q_space', 'convert_two_theta_to_q_space_raw']
 
 
 def calculate_f_mean_squared(composition, q):
