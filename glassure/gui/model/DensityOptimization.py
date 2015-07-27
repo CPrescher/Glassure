@@ -54,8 +54,8 @@ class DensityOptimizer(object):
                 interpolation_parameters=self.interpolation_parameters,
                 use_modification_fcn=self.use_modification_fcn
             )
-            calculator.optimize(
-                r=self.minimization_r,
+            calculator.optimize_sq(
+                r_cutoff=self.minimization_r,
                 iterations=optimization_iterations
             )
 

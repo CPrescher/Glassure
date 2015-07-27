@@ -93,7 +93,7 @@ class GlassureCalculatorTest(unittest.TestCase):
             r = self.r
         )
         r= np.arange(0, 1.4, 0.02)
-        self.calculator.optimize(r, 5)
+        self.calculator.optimize_sq(r, 5)
         sq_spectrum_optimized_calc = self.calculator.sq_spectrum
 
         _, y_core = sq_spectrum_optimized_core.data

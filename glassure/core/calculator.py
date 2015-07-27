@@ -9,6 +9,8 @@ from .utility import convert_density_to_atoms_per_cubic_angstrom, calculate_inco
 
 from .calc import calculate_normalization_factor_raw, calculate_sq_raw, calculate_fr, calculate_gr_raw
 
+from .optimization import optimize_sq
+
 
 class GlassureCalculator(object):
     def __init__(self, original_spectrum, background_spectrum, elemental_abundances, density,
@@ -54,7 +56,7 @@ class GlassureCalculator(object):
     def calc_gr(self):
         raise NotImplementedError
 
-    def optimize(self, r):
+    def optimize_sq(self, r):
         raise NotImplementedError
 
 
@@ -116,25 +118,13 @@ class StandardCalculator(GlassureCalculator):
     def calc_gr(self):
         return calculate_gr_raw(self.fr_spectrum, self.atomic_density)
 
-    def optimize(self, r, iterations=50, fcn_callback=None, callback_period=5, attenuation_factor=1):
-        import time
+    def optimize_sq(self, r_cutoff, iterations=10, fcn_callback=None, callback_period=2, attenuation_factor=1):
+        self.sq_spectrum = optimize_sq(self.sq_spectrum,
+                                       r_cutoff=r_cutoff,
+                                       iterations=iterations,
+                                       atomic_density=self.atomic_density,
+                                       use_modification_fcn=self.use_modification_fcn,
+                                       attenuation_factor=attenuation_factor,
+                                       fcn_callback=fcn_callback,
+                                       callback_period=callback_period)
 
-        t1 = time.time()
-        for iteration in range(iterations):
-            q, sq_int = self.sq_spectrum.data
-            r, fr_int = self.calc_fr(r).data
-            delta_fr = fr_int + 4 * np.pi * r * self.atomic_density
-
-            in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
-            integral = np.trapz(in_integral, r) / attenuation_factor
-            sq_optimized = sq_int * (1 - 1. / q * integral)
-
-            self.sq_spectrum = Spectrum(q, sq_optimized)
-
-            if fcn_callback is not None and iteration % 5 == 0:
-                self.fr_spectrum = self.calc_fr()
-                self.gr_spectrum = self.calc_gr()
-
-                fcn_callback(self.sq_spectrum, self.gr_spectrum)
-
-        print "Optimization took {}".format(time.time() - t1)

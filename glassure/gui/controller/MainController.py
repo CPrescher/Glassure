@@ -176,7 +176,7 @@ class MainController(object):
         self.main_widget.left_control_widget.setEnabled(True)
         self.main_widget.right_control_widget.setEnabled(True)
 
-    def plot_optimization_progress(self, sq_spectrum, gr_spectrum):
+    def plot_optimization_progress(self, sq_spectrum, fr_spectrum, gr_spectrum):
         self.main_widget.spectrum_widget.plot_sq(sq_spectrum)
         self.main_widget.spectrum_widget.plot_pdf(gr_spectrum)
         QtGui.QApplication.processEvents()
