@@ -21,13 +21,14 @@ def calculate_normalization_factor_raw(sample_spectrum, atomic_density, f_square
     already calculated please consider using calculate_normalization_factor, which has an easier interface since it
     just requires density and composition as parameters.
 
-    :param sample_spectrum: background subtracted sample spectrum
-    :param atomic_density: density in atoms per cubic Angstrom
-    :param f_squared_mean: <f^2>
-    :param f_mean_squared: <f>^2
-    :param incoherent_scattering:
-    :param attenuation_factor: attenuation factor used in the exponential, in order to correct for the q cutoff
-    :return: normalization factor
+    :param sample_spectrum:     background subtracted sample spectrum
+    :param atomic_density:      density in atoms per cubic Angstrom
+    :param f_squared_mean:      <f^2>
+    :param f_mean_squared:      <f>^2
+    :param incoherent_scattering: compton scattering from sample
+    :param attenuation_factor:  attenuation factor used in the exponential, in order to correct for the q cutoff
+
+    :return:                    normalization factor
     """
     q, intensity = sample_spectrum.data
     # calculate values for integrals
@@ -44,10 +45,11 @@ def calculate_normalization_factor(sample_spectrum, density, composition, attenu
     """
     Calculates the normalization factor for a background subtracted sample spectrum based on density and composition.
 
-    :param sample_spectrum: background subtracted sample spectrum with A-1 as x unit
-    :param density: density in g/cm^3
-    :param composition: composition as a dictionary with the elements as keys and the abundances as values
-    :param attenuation_factor: attenuation factor used in the exponential, in order to correct for the q cutoff
+    :param sample_spectrum:     background subtracted sample spectrum with A-1 as x unit
+    :param density:             density in g/cm^3
+    :param composition:         composition as a dictionary with the elements as keys and the abundances as values
+    :param attenuation_factor:  attenuation factor used in the exponential, in order to correct for the q cutoff
+
     :return: normalization factor
     """
     q, intensity = sample_spectrum.data
@@ -70,11 +72,12 @@ def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent
 
     where n is the normalization factor and f are the scattering factors.
 
-    :param sample_spectrum: background subtracted sample spectrum with A^-1 as x unit
-    :param f_squared_mean: <f^2>
-    :param f_mean_squared: <f>^2
+    :param sample_spectrum:       background subtracted sample spectrum with A^-1 as x unit
+    :param f_squared_mean:        <f^2>
+    :param f_mean_squared:        <f>^2
     :param incoherent_scattering: compton scattering from sample
-    :param normalization_factor: previously calculated normalization factor
+    :param normalization_factor:  previously calculated normalization factor
+
     :return: S(Q) spectrum
     """
     q, intensity = sample_spectrum.data
@@ -91,11 +94,12 @@ def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001
     where n is the normalization factor and f are the scattering factors. All parameters from the equation are
     calculated from the density, composition and the sample spectrum
 
-    :param sample_spectrum: background subtracted sample spectrum with A^-1 as x unit
-    :param density: density of the sample in g/cm^3
-    :param composition: composition as a dictionary with the elements as keys and the abundances as values
-    :param attenuation_factor: attenuation factor used in the exponential for the calculation of the normalization
+    :param sample_spectrum:     background subtracted sample spectrum with A^-1 as x unit
+    :param density:             density of the sample in g/cm^3
+    :param composition:         composition as a dictionary with the elements as keys and the abundances as values
+    :param attenuation_factor:  attenuation factor used in the exponential for the calculation of the normalization
     factor
+
     :return: S(Q) spectrum
     """
     q, intensity = sample_spectrum.data
@@ -117,6 +121,18 @@ def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001
 
 
 def calculate_sq_from_gr(gr_spectrum, q, density, composition, use_modification_fcn=False):
+    """
+    Performs a back Fourier transform from the pair distribution function g(r)
+
+    :param gr_spectrum:     g(r) spectrum
+    :param q:               numpy array of q values for which S(Q) should be calculated
+    :param density:         density of the sample in g/cm^3
+    :param composition:     composition as a dictionary with the elements as keys and the abundances as values
+    :param use_modification_fcn:
+        boolean flag whether to use the Lorch modification function
+
+    :return: S(Q) spectrum
+    """
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
     r, gr = gr_spectrum.data
     if use_modification_fcn:
@@ -144,10 +160,11 @@ def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False):
 
     can be used to address issues with a low q_max. This will broaden the sharp peaks in g(r)
 
-    :param sq_spectrum: Structure factor S(Q) with lim_inf S(Q) = 1 and unit(q)=A^-1
-    :param r: a numpy array giving the r-values for which F(r) will be calculated, default is 0 to 10 with 0.01 as a
-    step. units should be in Angstrom.
-    :param use_modification_fcn: boolean flag whether to use the Lorch modification function
+    :param sq_spectrum:             Structure factor S(Q) with lim_inf S(Q) = 1 and unit(q)=A^-1
+    :param r:                       numpy array giving the r-values for which F(r) will be calculated,
+                                    default is 0 to 10 with 0.01 as a step. units should be in Angstrom.
+    :param use_modification_fcn:    boolean flag whether to use the Lorch modification function
+
     :return: F(r) spectrum
     """
     if r is None:
@@ -167,8 +184,9 @@ def calculate_gr_raw(fr_spectrum, atomic_density):
     """
     Calculates a g(r) spectrum from a given F(r) spectrum and the atomic density
 
-    :param fr_spectrum: F(r) spectrum
-    :param atomic_density: atomic density in atoms/A^3
+    :param fr_spectrum:     F(r) spectrum
+    :param atomic_density:  atomic density in atoms/A^3
+
     :return: g(r) spectrum
     """
     r, f_r = fr_spectrum.data
@@ -180,9 +198,10 @@ def calculate_gr(fr_spectrum, density, composition):
     """
     Calculates a g(r) spectrum from a given F(r) spectrum, the material density and composition.
 
-    :param fr_spectrum: F(r) spectrum
-    :param density: density in g/cm^3
-    :param composition: composition as a dictionary with the elements as keys and the abundances as values
+    :param fr_spectrum:     F(r) spectrum
+    :param density:         density in g/cm^3
+    :param composition:     composition as a dictionary with the elements as keys and the abundances as values
+
     :return: g(r) spectrum
     """
     return calculate_gr_raw(fr_spectrum, convert_density_to_atoms_per_cubic_angstrom(composition, density))
