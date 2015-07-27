@@ -207,5 +207,5 @@ def convert_two_theta_to_q_space(spectrum, wavelength):
     Returns a new spectrum with the x-axis converted from two theta into q space
     """
     q_spectrum = copy(spectrum)
-    q_spectrum._x = convert_two_theta_to_q_space(spectrum.x, wavelength)
+    q_spectrum._x = convert_two_theta_to_q_space_raw(q_spectrum.x, wavelength)
     return q_spectrum
