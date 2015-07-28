@@ -3,7 +3,6 @@ __author__ = 'Clemens Prescher'
 import sys
 import os
 
-from spectrum import Spectrum
 
 def _we_are_frozen():
     # All of the modules are built-in to the interpreter, e.g., by py2exe
@@ -18,7 +17,12 @@ def _module_path():
 
 
 
-from calc import *
-from utility import *
-from optimization import *
-from spectrum import Spectrum
+from .spectrum import Spectrum
+
+from .calc import *
+from .utility import *
+from .optimization import *
+
+
+
+

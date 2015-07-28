@@ -1,9 +1,10 @@
 __author__ = 'Clemens Prescher'
 
 import numpy as np
+import lmfit
 
 from . import Spectrum
-from utility import calculate_incoherent_scattering, calculate_f_squared_mean, calculate_f_mean_squared, \
+from .utility import calculate_incoherent_scattering, calculate_f_squared_mean, calculate_f_mean_squared, \
     convert_density_to_atoms_per_cubic_angstrom
 
 __all__ = ['calculate_normalization_factor_raw', 'calculate_normalization_factor',
@@ -58,6 +59,37 @@ def calculate_normalization_factor(sample_spectrum, density, composition, attenu
 
     return calculate_normalization_factor_raw(sample_spectrum, atomic_density, f_squared_mean, f_mean_squared,
                                               incoherent_scattering, attenuation_factor)
+
+def fit_normalization_factor(sample_spectrum, composition):
+    """
+    Estimates the normalization factor n for calculating S(Q) by fitting
+
+        (Intensity*n-Multiple Scattering) * Q^2
+    to
+        (Incoherent Scattering + Self Scattering) * Q^2
+
+    where n and Multiple Scattering are free parameters
+
+    :param sample_spectrum: background subtracted sample spectrum with A^-1 as x unit
+    :param composition:     composition as a dictionary with the elements as keys and the abundances as values
+
+    :return: normalization factor
+    """
+    q, intensity = sample_spectrum.data
+    theory = (calculate_incoherent_scattering(composition, q)+calculate_f_mean_squared(composition, q))*q**2
+
+    params = lmfit.Parameters()
+    params.add("n", value=1, min=0)
+    params.add("multiple", value=1, min=0)
+
+    def optimization_fcn(params, q, sample_intensity, theory_intensity):
+        n = params['n'].value
+        multiple = params['multiple'].value
+        return ((sample_intensity*n-multiple)*q**2-theory_intensity)**2
+
+    lmfit.minimize(optimization_fcn, params, args=(q, intensity, theory))
+    return params['n'].value
+
 
 
 def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent_scattering, normalization_factor,

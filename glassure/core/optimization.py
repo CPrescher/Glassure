@@ -110,7 +110,7 @@ def optimize_density(data_spectrum, background_spectrum, initial_background_scal
     params.add("density", value=initial_density, min=density_min, max=density_max)
     params.add("background_scaling", value=initial_background_scaling, min=background_min, max=background_max)
 
-    r_step = r[1] - r[0]
+    r = np.arange(0, r_cutoff+r_step/2., r_step)
 
     def optimization_fcn(params, extrapolation_max, r, r_cutoff, use_modification_fcn):
         density = params['density'].value
@@ -123,7 +123,7 @@ def optimize_density(data_spectrum, background_spectrum, initial_background_scal
         sq_optimized = optimize_sq(sq, r_cutoff, iterations, atomic_density, use_modification_fcn)
         fr = calculate_fr(sq_optimized, r=r, use_modification_fcn=use_modification_fcn)
 
-        min_r, min_fr = fr.limit(0, r_cutoff).data
+        min_r, min_fr = fr.data
 
         output = (min_fr + 4 * np.pi * atomic_density * min_r) ** 2 * r_step
 
