@@ -60,7 +60,7 @@ def calculate_normalization_factor(sample_spectrum, density, composition, attenu
     return calculate_normalization_factor_raw(sample_spectrum, atomic_density, f_squared_mean, f_mean_squared,
                                               incoherent_scattering, attenuation_factor)
 
-def fit_normalization_factor(sample_spectrum, composition):
+def fit_normalization_factor(sample_spectrum, composition, q_cutoff=3):
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
 
@@ -72,11 +72,12 @@ def fit_normalization_factor(sample_spectrum, composition):
 
     :param sample_spectrum: background subtracted sample spectrum with A^-1 as x unit
     :param composition:     composition as a dictionary with the elements as keys and the abundances as values
+    :param q_cutoff:        q value above which the fitting will be performed, default = 3
 
     :return: normalization factor
     """
-    q, intensity = sample_spectrum.data
-    theory = (calculate_incoherent_scattering(composition, q)+calculate_f_mean_squared(composition, q))*q**2
+    q, intensity = sample_spectrum.limit(q_cutoff, 100000).data
+    theory = (calculate_incoherent_scattering(composition, q)+calculate_f_squared_mean(composition, q))*q**2
 
     params = lmfit.Parameters()
     params.add("n", value=1, min=0)
