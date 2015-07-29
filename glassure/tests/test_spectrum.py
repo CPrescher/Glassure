@@ -47,3 +47,21 @@ class SpectrumTest(unittest.TestCase):
 
         self.assertTrue(spectrum1 == spectrum1)
         self.assertFalse(spectrum1 == spectrum2)
+
+    def test_binning(self):
+        x = np.linspace(2.8, 10.8, 100)
+
+        spectrum = Spectrum(x, np.sin(x))
+
+        binned_spectrum = spectrum.rebin(1)
+
+        self.assertTrue(np.sum(binned_spectrum.y), np.sum(spectrum.y))
+        # self.assertLessEqual(np.min(binned_spectrum.x), np.min(x))
+        # self.assertEqual(np.min(np.min(binned_)))
+        print binned_spectrum.x
+        print binned_spectrum.y
+
+
+
+
+

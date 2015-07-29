@@ -64,6 +64,20 @@ class Spectrum(object):
     def set_smoothing(self, amount):
         self.smoothing = amount
 
+    def rebin(self, bin_size):
+        """
+        Returns a new spectrum which is a rebinned version of the current one.
+        """
+        x, y = self.data
+        x_min = np.round(np.min(x)/bin_size)*bin_size
+        x_max = np.round(np.max(x)/bin_size)*bin_size
+        new_x = np.arange(x_min, x_max+0.1*bin_size, bin_size)
+
+        bins = np.hstack((x_min-bin_size*0.5, new_x+bin_size*0.5))
+        new_y = (np.histogram(x, bins, weights=y)[0] / np.histogram(x, bins)[0])
+
+        return Spectrum(new_x, new_y)
+
     @property
     def data(self):
         if self.bkg_spectrum is not None:
