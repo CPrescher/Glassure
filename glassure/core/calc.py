@@ -60,7 +60,7 @@ def calculate_normalization_factor(sample_spectrum, density, composition, attenu
     return calculate_normalization_factor_raw(sample_spectrum, atomic_density, f_squared_mean, f_mean_squared,
                                               incoherent_scattering, attenuation_factor)
 
-def fit_normalization_factor(sample_spectrum, composition, q_cutoff=3):
+def fit_normalization_factor(sample_spectrum, composition, q_cutoff=3, method = "squared"):
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
 
@@ -73,11 +73,20 @@ def fit_normalization_factor(sample_spectrum, composition, q_cutoff=3):
     :param sample_spectrum: background subtracted sample spectrum with A^-1 as x unit
     :param composition:     composition as a dictionary with the elements as keys and the abundances as values
     :param q_cutoff:        q value above which the fitting will be performed, default = 3
+    :param method:          specifies whether q^2 ("squared") or q (linear) should be used
 
     :return: normalization factor
     """
     q, intensity = sample_spectrum.limit(q_cutoff, 100000).data
-    theory = (calculate_incoherent_scattering(composition, q)+calculate_f_squared_mean(composition, q))*q**2
+
+    if method=="squared":
+        x = q**2
+    elif method=="linear":
+        x = q
+    else:
+        raise NotImplementedError("{} is not an allowed method for fit_normalization_factor".format(method))
+
+    theory = (calculate_incoherent_scattering(composition, q)+calculate_f_squared_mean(composition, q))*x
 
     params = lmfit.Parameters()
     params.add("n", value=1, min=0)
@@ -86,7 +95,7 @@ def fit_normalization_factor(sample_spectrum, composition, q_cutoff=3):
     def optimization_fcn(params, q, sample_intensity, theory_intensity):
         n = params['n'].value
         multiple = params['multiple'].value
-        return ((sample_intensity*n-multiple)*q**2-theory_intensity)**2
+        return ((sample_intensity*n-multiple)*x-theory_intensity)**2
 
     lmfit.minimize(optimization_fcn, params, args=(q, intensity, theory))
     return params['n'].value
