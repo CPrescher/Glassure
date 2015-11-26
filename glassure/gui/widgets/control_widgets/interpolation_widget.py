@@ -22,17 +22,30 @@ class InterpolationWidget(QtGui.QWidget):
 
     def create_widgets(self):
         self.activate_cb = QtGui.QCheckBox("activate")
+
         self.linear_interpolation_rb = QtGui.QRadioButton("Linear")
         self.linear_interpolation_rb.setChecked(True)
-        self.spline_interpolation_rb = QtGui.QRadioButton("Spline")
+        self.linear_intercept_lbl = QtGui.QLabel("Intercept:")
+        self.linear_intercept_txt = QtGui.QLineEdit("1")
 
+        self.poly_interpolation_rb = QtGui.QRadioButton("Polynomial")
+        self.poly_interpolation_q_max_lbl = QtGui.QLabel("Q Max:")
+        self.poly_interpolation_q_max_txt = QtGui.QLineEdit("2")
+        self.poly_interpolation_replace_cb = QtGui.QCheckBox("replace")
+
+        self.spline_interpolation_rb = QtGui.QRadioButton("Spline")
         self.spline_interpolation_cutoff_lbl = QtGui.QLabel('Cutoff:')
         self.spline_interpolation_cutoff_txt = QtGui.QLineEdit('0.5')
-
         self.spline_interpolation_q_max_lbl = QtGui.QLabel('Q Max:')
         self.spline_interpolation_q_max_txt = QtGui.QLineEdit('1.5')
 
     def style_widgets(self):
+
+        self.poly_interpolation_q_max_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.poly_interpolation_q_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+        self.poly_interpolation_q_max_txt.setMaximumWidth(50)
+
         self.spline_interpolation_cutoff_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.spline_interpolation_cutoff_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
@@ -65,6 +78,22 @@ class InterpolationWidget(QtGui.QWidget):
         self.rb_ver_layout.setSpacing(5)
 
         self.rb_ver_layout.addWidget(self.linear_interpolation_rb)
+
+        self.rb_ver_layout.addWidget(self.poly_interpolation_rb)
+        self.poly_interpolation_widget = QtGui.QWidget(self)
+        self.poly_interpolation_layout = QtGui.QGridLayout()
+        self.poly_interpolation_layout.setContentsMargins(0,0,0,0)
+        self.poly_interpolation_layout.setSpacing(5)
+
+        self.poly_interpolation_layout.addItem(QtGui.QSpacerItem(10,10), 0,0)
+        self.poly_interpolation_layout.addWidget(self.poly_interpolation_q_max_lbl, 0, 1)
+        self.poly_interpolation_layout.addWidget(self.poly_interpolation_q_max_txt, 0, 2)
+        self.poly_interpolation_layout.addWidget(self.poly_interpolation_replace_cb, 1, 2)
+        self.poly_interpolation_layout.addWidget(QtGui.QLabel('A-1'), 0, 3)
+
+        self.poly_interpolation_widget.setLayout(self.poly_interpolation_layout)
+
+        self.rb_ver_layout.addWidget(self.poly_interpolation_widget)
         self.rb_ver_layout.addWidget(self.spline_interpolation_rb)
 
         self.spline_interpolation_widget = QtGui.QWidget(self)
@@ -81,6 +110,7 @@ class InterpolationWidget(QtGui.QWidget):
         self.spline_interpolation_parameter_layout.addWidget(QtGui.QLabel('A'), 1, 3)
 
         self.spline_interpolation_widget.setLayout(self.spline_interpolation_parameter_layout)
+
         self.rb_ver_layout.addWidget(self.spline_interpolation_widget)
         self.rb_horizontal_layout.addLayout(self.rb_ver_layout)
 
