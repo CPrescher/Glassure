@@ -22,6 +22,7 @@ from .spectrum import Spectrum
 from .calc import *
 from .utility import *
 from .optimization import *
+from .soller_correction import *
 
 
 
