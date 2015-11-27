@@ -36,8 +36,10 @@ class SollerCorrection(object):
 
     def calculate_dispersion_angle_map(self):
         """
-        Creates a lookup table of
-        :return:
+        Creates a lookup table of dispersion angles for each two theta value and distance from the center of the
+        soller slit rotation center
+        :return: a map of the dispersion anges, out.X = two theta array, out.Y = distance array, out.data = dispersion
+        angle
         """
         p_x = np.linspace(-self._max_thickness * 0.5, self._max_thickness * 0.5, 400)
         p_y = np.zeros(p_x.shape)
