@@ -14,6 +14,7 @@ from .utility import extrapolate_to_zero_poly
 
 __all__ = ['optimize_sq', 'optimize_density', 'optimize_incoherent_container_scattering']
 
+
 def optimize_sq(sq_spectrum, r_cutoff, iterations, atomic_density, use_modification_fcn=False,
                 attenuation_factor=1, fcn_callback=None, callback_period=2):
     """
@@ -110,7 +111,7 @@ def optimize_density(data_spectrum, background_spectrum, initial_background_scal
     params.add("density", value=initial_density, min=density_min, max=density_max)
     params.add("background_scaling", value=initial_background_scaling, min=background_min, max=background_max)
 
-    r = np.arange(0, r_cutoff+r_step/2., r_step)
+    r = np.arange(0, r_cutoff + r_step / 2., r_step)
 
     def optimization_fcn(params, extrapolation_max, r, r_cutoff, use_modification_fcn):
         density = params['density'].value

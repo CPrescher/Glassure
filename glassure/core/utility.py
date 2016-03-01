@@ -92,6 +92,19 @@ def convert_density_to_atoms_per_cubic_angstrom(composition, density):
         mean_z += val * scattering_factors.atomic_weights['AW'][key]
     return density / mean_z * .602214129
 
+def extrapolate_to_zero_step(spectrum):
+    """
+    Extrapolates a spectrum to (0, 0) by setting everything below the q_min of the spectrum to zero
+    :param spectrum: input Spectrum
+    :return: extrapolated Spectrum
+    """
+    x, y = spectrum.data
+    step = x[1] - x[0]
+    low_x = np.sort(np.arange(min(x), 0, -step))
+    low_y = np.zeros(low_x.shape)
+    return Spectrum(np.concatenate((low_x, x)),
+                    np.concatenate((low_y, y)))
+
 
 def extrapolate_to_zero_linear(spectrum):
     """
