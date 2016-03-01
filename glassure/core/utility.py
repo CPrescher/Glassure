@@ -102,6 +102,7 @@ def extrapolate_to_zero_step(spectrum):
     step = x[1] - x[0]
     low_x = np.sort(np.arange(min(x), 0, -step))
     low_y = np.zeros(low_x.shape)
+
     return Spectrum(np.concatenate((low_x, x)),
                     np.concatenate((low_y, y)))
 

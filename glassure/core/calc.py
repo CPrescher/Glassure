@@ -103,7 +103,7 @@ def fit_normalization_factor(sample_spectrum, composition, q_cutoff=3, method="s
 
 
 def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent_scattering, normalization_factor,
-                     extra_correction=0):
+                     method='AL'):
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
 
@@ -116,15 +116,24 @@ def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent
     :param f_mean_squared:        <f>^2
     :param incoherent_scattering: compton scattering from sample
     :param normalization_factor:  previously calculated normalization factor
+    :param method:                describing the method to calculate the structure factor, possible values are
+                                    - 'AL' - Ashcroft-Langreth
+                                    - 'FZ' - Faber-Ziman
 
     :return: S(Q) spectrum
     """
     q, intensity = sample_spectrum.data
-    sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean) / f_mean_squared + 1
+    if method == 'AL':
+        sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean + f_mean_squared) / \
+             f_mean_squared
+    elif method == 'AL':
+        sq = (normalization_factor * intensity - incoherent_scattering)/f_squared_mean
+    else:
+        raise NotImplementedError('{} method is not implemented'.format(method))
     return Spectrum(q, sq)
 
 
-def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001):
+def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001, method='AL'):
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
 
@@ -137,7 +146,10 @@ def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001
     :param density:             density of the sample in g/cm^3
     :param composition:         composition as a dictionary with the elements as keys and the abundances as values
     :param attenuation_factor:  attenuation factor used in the exponential for the calculation of the normalization
-    factor
+                                factor
+    :param method:              describing the method to calculate the structure factor, possible values are
+                                    - 'AL' - Ashcroft-Langreth
+                                    - 'FZ' - Faber-Ziman
 
     :return: S(Q) spectrum
     """
@@ -156,7 +168,8 @@ def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001
                             f_squared_mean,
                             f_mean_squared,
                             incoherent_scattering,
-                            normalization_factor)
+                            normalization_factor,
+                            method)
 
 
 def calculate_sq_from_gr(gr_spectrum, q, density, composition, use_modification_fcn=False):
