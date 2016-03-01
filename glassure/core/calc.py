@@ -126,7 +126,7 @@ def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent
     if method == 'AL':
         sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean + f_mean_squared) / \
              f_mean_squared
-    elif method == 'AL':
+    elif method == 'FZ':
         sq = (normalization_factor * intensity - incoherent_scattering)/f_squared_mean
     else:
         raise NotImplementedError('{} method is not implemented'.format(method))
