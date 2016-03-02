@@ -1,36 +1,44 @@
 import os
 import unittest
 import numpy as np
+import matplotlib.pyplot as plt
 
 from core import Spectrum
-from core.calc_eggert import calculate_effective_form_factors, calc_atomic_number_sum, calculate_incoherent_scattering, \
-    calculate_j, calculate_s_inf
+from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
+    calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha
+from core import convert_density_to_atoms_per_cubic_angstrom
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
-sample_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy')
-bkg_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy')
+sample_path = os.path.join(unittest_data_path, 'Argon_1GPa.chi')
+bkg_path = os.path.join(unittest_data_path, 'Argon_1GPa_bkg.chi')
 
 
 class CalcEggertTest(unittest.TestCase):
     def setUp(self):
-        self.density = 2.9
-        self.composition = {'Mg': 2, 'Si': 1, 'O': 4}
+        self.density = 1.9
+        self.composition = {'Ar': 1}
         self.r = np.linspace(0.1, 10, 1000)
 
-        self.data_spectrum = Spectrum()
-        self.data_spectrum.load(sample_path)
+        data_spectrum = Spectrum.from_file(sample_path)
+        bkg_spectrum = Spectrum.from_file(bkg_path)
+        self.data_spectrum = Spectrum(data_spectrum.x / 10., data_spectrum.y)
+        self.bkg_spectrum = Spectrum(bkg_spectrum.x / 10., bkg_spectrum.y)
 
-        self.bkg_spectrum = Spectrum()
-        self.bkg_spectrum.load(bkg_path)
+        bkg_scaling = 0.57
 
-        self.sample_spectrum = self.data_spectrum - self.bkg_spectrum
+        self.q_min = 0.3
+        self.q_max = 9.0
+
+        self.sample_spectrum = self.data_spectrum - bkg_scaling * self.bkg_spectrum
+        self.sample_spectrum = self.sample_spectrum.limit(self.q_min, self.q_max)
+
 
     def test_calculate_atomic_number_sum(self):
-        z_tot = calc_atomic_number_sum({'O': 1})
+        z_tot = calculate_atomic_number_sum({'O': 1})
         self.assertEqual(z_tot, 8)
-        z_tot = calc_atomic_number_sum({'Si': 1})
+        z_tot = calculate_atomic_number_sum({'Si': 1})
         self.assertEqual(z_tot, 14)
-        self.assertEqual(calc_atomic_number_sum({'Si': 1, 'O': 2}), 30)
+        self.assertEqual(calculate_atomic_number_sum({'Si': 1, 'O': 2}), 30)
 
     def test_calculate_effective_form_factor(self):
         composition = {'Si': 1, 'O': 2}
@@ -52,7 +60,7 @@ class CalcEggertTest(unittest.TestCase):
         q = np.linspace(0, 10, 1000)
         inc = calculate_incoherent_scattering(composition, q)
         f_eff = calculate_effective_form_factors(composition, q)
-        z_tot = calc_atomic_number_sum(composition)
+        z_tot = calculate_atomic_number_sum(composition)
 
         j = calculate_j(inc, z_tot, f_eff)
 
@@ -63,8 +71,24 @@ class CalcEggertTest(unittest.TestCase):
         composition = {'Si': 1, 'O': 2}
         q = np.linspace(0, 10, 1000)
         f_eff = calculate_effective_form_factors(composition, q)
-        z_tot = calc_atomic_number_sum(composition)
+        z_tot = calculate_atomic_number_sum(composition)
 
         s_inf = calculate_s_inf(composition, z_tot, f_eff, q)
 
         self.assertAlmostEqual(s_inf, 0.387305767285)
+
+    def test_calculate_alpha(self):
+        q = self.sample_spectrum.x
+
+
+        inc = calculate_incoherent_scattering(self.composition, q)
+        f_eff = calculate_effective_form_factors(self.composition, q)
+        z_tot = calculate_atomic_number_sum(self.composition)
+        s_inf = calculate_s_inf(self.composition, z_tot, f_eff, q)
+        j = calculate_j(inc, z_tot, f_eff)
+
+
+        atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
+        alpha = calculate_alpha(self.sample_spectrum,z_tot, f_eff, s_inf, j, atomic_density)
+
+        self.assertAlmostEqual(alpha, 0.150743212607, places=4)

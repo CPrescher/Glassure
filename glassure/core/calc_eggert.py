@@ -1,11 +1,12 @@
 # -*- coding: utf8 -*-
 import numpy as np
+from scipy.integrate import simps
 
 from .scattering_factors import scattering_factor_param, calculate_coherent_scattering_factor, \
     calculate_incoherent_scattered_intensity
 
 
-def calc_atomic_number_sum(composition):
+def calculate_atomic_number_sum(composition):
     """
     Calculates the sum of the atomic number of all elements in the composition
 
@@ -26,7 +27,7 @@ def calculate_effective_form_factors(composition, q):
     :param q: Q value or numpy array with a unit of A^-1
     :return: effective form factors numpy array
     """
-    z_tot = calc_atomic_number_sum(composition)
+    z_tot = calculate_atomic_number_sum(composition)
 
     f_effective = 0
     for element, n in composition.items():
@@ -84,10 +85,33 @@ def calculate_s_inf(composition, z_tot, f_effective, q):
     :param z_tot: sum of atomic numbers for the material
     :param f_effective: Q dependent effective form factor
     :param q: q numpy array with units of A^-1
-    :return: S_inv value
+    :return: S_inf value
     """
     sum_kp_squared = 0
     for element, n in composition.items():
         sum_kp_squared += n * calculate_kp(element, f_effective, q) ** 2
 
-    return sum_kp_squared/z_tot**2
+    return sum_kp_squared / z_tot ** 2
+
+
+def calculate_alpha(sample_spectrum, z_tot, f_effective, s_inf, j, atomic_density):
+    """
+    Calculates the normalization factor alpha after equation (34) from Eggert et al. 2002.
+
+    :param sample_spectrum: Background subtracted sample spectrum
+    :param z_tot: sum opf atomic numbers for the material
+    :param f_effective: Q dependent effective form factor
+    :param s_inf: S_inf value (equ. (19) from Eggert et al. 2002)
+    :param j: j value (equ. (35) from Eggert et al. 2002)
+    :param atomic_density: number density in atoms/Angstrom^3
+    :return: normalization factor alpha
+    """
+
+    q, intensity = sample_spectrum.data
+
+    integral_1 = simps((j + s_inf) * q ** 2, q)
+    integral_2 = simps((intensity / f_effective ** 2) * q ** 2, q)
+
+    alpha = z_tot ** 2 * (-2 * np.pi ** 2 * atomic_density + integral_1) / integral_2
+
+    return alpha
