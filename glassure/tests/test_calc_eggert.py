@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 
 from core import Spectrum
 from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
-    calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha
+    calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha, \
+    calculate_coherent_scattering
 from core import convert_density_to_atoms_per_cubic_angstrom
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
@@ -15,6 +16,7 @@ bkg_path = os.path.join(unittest_data_path, 'Argon_1GPa_bkg.chi')
 
 class CalcEggertTest(unittest.TestCase):
     def setUp(self):
+        self.N = 1
         self.density = 1.9
         self.composition = {'Ar': 1}
         self.r = np.linspace(0.1, 10, 1000)
@@ -31,7 +33,6 @@ class CalcEggertTest(unittest.TestCase):
 
         self.sample_spectrum = self.data_spectrum - bkg_scaling * self.bkg_spectrum
         self.sample_spectrum = self.sample_spectrum.limit(self.q_min, self.q_max)
-
 
     def test_calculate_atomic_number_sum(self):
         z_tot = calculate_atomic_number_sum({'O': 1})
@@ -80,6 +81,19 @@ class CalcEggertTest(unittest.TestCase):
     def test_calculate_alpha(self):
         q = self.sample_spectrum.x
 
+        inc = calculate_incoherent_scattering(self.composition, q)
+        f_eff = calculate_effective_form_factors(self.composition, q)
+        z_tot = calculate_atomic_number_sum(self.composition)
+        s_inf = calculate_s_inf(self.composition, z_tot, f_eff, q)
+        j = calculate_j(inc, z_tot, f_eff)
+
+        atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
+        alpha = calculate_alpha(self.sample_spectrum, z_tot, f_eff, s_inf, j, atomic_density)
+
+        self.assertAlmostEqual(alpha, 0.150743212607, places=4)
+
+    def test_calculate_coherent_scattering(self):
+        q = self.sample_spectrum.x
 
         inc = calculate_incoherent_scattering(self.composition, q)
         f_eff = calculate_effective_form_factors(self.composition, q)
@@ -87,8 +101,10 @@ class CalcEggertTest(unittest.TestCase):
         s_inf = calculate_s_inf(self.composition, z_tot, f_eff, q)
         j = calculate_j(inc, z_tot, f_eff)
 
-
         atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
-        alpha = calculate_alpha(self.sample_spectrum,z_tot, f_eff, s_inf, j, atomic_density)
+        alpha = calculate_alpha(self.sample_spectrum, z_tot, f_eff, s_inf, j, atomic_density)
 
-        self.assertAlmostEqual(alpha, 0.150743212607, places=4)
+        coherent_pattern = calculate_coherent_scattering(self.sample_spectrum, alpha, self.N,
+                                                         inc)
+
+        self.assertAlmostEqual(coherent_pattern.y[-1], 36.521, places=3)

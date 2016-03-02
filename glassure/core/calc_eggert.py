@@ -4,6 +4,7 @@ from scipy.integrate import simps
 
 from .scattering_factors import scattering_factor_param, calculate_coherent_scattering_factor, \
     calculate_incoherent_scattered_intensity
+from .spectrum import Spectrum
 
 
 def calculate_atomic_number_sum(composition):
@@ -115,3 +116,20 @@ def calculate_alpha(sample_spectrum, z_tot, f_effective, s_inf, j, atomic_densit
     alpha = z_tot ** 2 * (-2 * np.pi ** 2 * atomic_density + integral_1) / integral_2
 
     return alpha
+
+
+def calculate_coherent_scattering(sample_spectrum, alpha, N, incoherent_scattering):
+    """
+    Calculates the coherent Scattering Intensity Spectrum
+
+    :param sample_spectrum:  Background subtracted sample spectrum
+    :param alpha: normalization factor alpha (after equ. (34) from Eggert et al. 2002)
+    :param N: Number of atoms
+    :param incoherent_scattering: incoherent scattering intensity
+    :return: Coherent Scattering Spectrum
+    :rtype: Spectrum
+    """
+
+    q, intensity = sample_spectrum.data
+    coherent_intensity = N * (alpha * intensity - incoherent_scattering)
+    return Spectrum(q, coherent_intensity)
