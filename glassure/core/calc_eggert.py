@@ -143,8 +143,42 @@ def calculate_sq(coherent_pattern, N, z_tot, f_effective):
     :param z_tot: sum opf atomic numbers for the material
     :param f_effective: Q dependent effective form factor
     :return: S(q) spectrum
+    :rtype: Spectrum
     """
     q, coherent_intensity = coherent_pattern.data
     sq_intensity = coherent_intensity / (N * z_tot ** 2 * f_effective ** 2)
 
     return Spectrum(q, sq_intensity)
+
+
+def calculate_fr(iq_spectrum, r=None, use_modification_fcn=False):
+    """
+    Calculates F(r) from a given interference function i(Q) for r values.
+    If r is none a range from 0 to 10 with step 0.01 is used.    A Lorch modification function of the form:
+
+        m = sin(q*pi/q_max)/(q*pi/q_max)
+
+    can be used to address issues with a low q_max. This will broaden the sharp peaks in f(r)
+
+    :param iq_spectrum:             interference function i(q) = S(Q)-S_inf with lim_inf i(Q)=0 and unit(q)=A^-1
+    :type iq_spectrum: Spectrum
+    :param r:                       numpy array giving the r-values for which F(r) will be calculated,
+                                    default is 0 to 10 with 0.01 as a step. units should be in Angstrom.
+    :param use_modification_fcn:    boolean flag whether to use the Lorch modification function
+
+    :return: F(r) spectrum
+    :rtype: Spectrum
+    """
+    if r is None:
+        r = np.arange(0, 10, 0.01)
+
+    q, iq = iq_spectrum.data
+    if use_modification_fcn:
+        modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+    else:
+        modification = 1
+
+    fr = 2.0 / np.pi * simps(modification * q * (iq) * \
+                             np.array(np.sin(np.mat(q).T * np.mat(r))).T, q)
+
+    return Spectrum(r, fr)
