@@ -1,22 +1,20 @@
-__author__ = 'Clemens Prescher'
-
 import os
 import unittest
 import numpy as np
+
+from core import Spectrum
+from core.calc import calculate_normalization_factor, fit_normalization_factor
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 sample_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy')
 bkg_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy')
 
-from core import Spectrum
-from core.calc import calculate_normalization_factor, fit_normalization_factor
 
 class CalcTest(unittest.TestCase):
     def setUp(self):
         self.density = 2.9
-        self.composition = {'Mg':2, 'Si':1, 'O':4}
-        self.r = np.linspace(0.1,10,1000)
-
+        self.composition = {'Mg': 2, 'Si': 1, 'O': 4}
+        self.r = np.linspace(0.1, 10, 1000)
 
         self.data_spectrum = Spectrum()
         self.data_spectrum.load(sample_path)
@@ -28,9 +26,9 @@ class CalcTest(unittest.TestCase):
 
     def test_fit_normalization_factor(self):
         n_integral = calculate_normalization_factor(self.sample_spectrum.limit(0, 20),
-                                               self.density,
-                                               self.composition)
+                                                    self.density,
+                                                    self.composition)
 
-        n_fit = fit_normalization_factor(self.sample_spectrum.limit(0,20), self.composition)
+        n_fit = fit_normalization_factor(self.sample_spectrum.limit(0, 20), self.composition)
 
         self.assertAlmostEqual(n_integral, n_fit, places=2)

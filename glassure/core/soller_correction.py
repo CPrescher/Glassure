@@ -129,14 +129,16 @@ class SollerCorrection(object):
         transfer_function = transfer_function / np.min(transfer_function)
         return transfer_function
 
-    def transfer_function_sample(self, sample_thickness):
+    def transfer_function_sample(self, sample_thickness, shift=0):
         """
         Calculates the transfer function for a specific sample thickness, assuming the sample is centered, to the
         rotation center of the soller slit
         :param sample_thickness: sample thickness in mm
+        :param shift: shift of the sample relative to rotation center of the soller slit in beam direction (x)
         :return: transfer function with same dimensions as two_theta
         """
-        return self.transfer_function_from_region(-sample_thickness * 0.5, +sample_thickness * 0.5)
+        return self.transfer_function_from_region(-sample_thickness * 0.5 + shift,
+                                                  +sample_thickness * 0.5 + shift)
 
     def transfer_function_dac(self, sample_thickness, initial_thickness):
         """
