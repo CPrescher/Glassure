@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from core import Spectrum
 from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
     calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha, \
-    calculate_coherent_scattering
+    calculate_coherent_scattering, calculate_sq
 from core import convert_density_to_atoms_per_cubic_angstrom
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
@@ -108,3 +108,22 @@ class CalcEggertTest(unittest.TestCase):
                                                          inc)
 
         self.assertAlmostEqual(coherent_pattern.y[-1], 36.521, places=3)
+
+    def test_calculate_sq(self):
+        q = self.sample_spectrum.x
+
+        inc = calculate_incoherent_scattering(self.composition, q)
+        f_eff = calculate_effective_form_factors(self.composition, q)
+        z_tot = calculate_atomic_number_sum(self.composition)
+        s_inf = calculate_s_inf(self.composition, z_tot, f_eff, q)
+        j = calculate_j(inc, z_tot, f_eff)
+
+        atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
+        alpha = calculate_alpha(self.sample_spectrum, z_tot, f_eff, s_inf, j, atomic_density)
+
+        coherent_pattern = calculate_coherent_scattering(self.sample_spectrum, alpha, self.N,
+                                                         inc)
+
+        sq_pattern = calculate_sq(coherent_pattern, self.N, z_tot, f_eff)
+
+        self.assertAlmostEqual(sq_pattern.y[-1], 0.97, places=2)

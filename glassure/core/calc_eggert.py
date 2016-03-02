@@ -133,3 +133,18 @@ def calculate_coherent_scattering(sample_spectrum, alpha, N, incoherent_scatteri
     q, intensity = sample_spectrum.data
     coherent_intensity = N * (alpha * intensity - incoherent_scattering)
     return Spectrum(q, coherent_intensity)
+
+
+def calculate_sq(coherent_pattern, N, z_tot, f_effective):
+    """
+    Calculates the Structure Factor based on equation (18) in Eggert et al. 2002
+    :param coherent_pattern: coherent spectrum
+    :param N: number of atoms for structural unit, e.g. 3 for SiO2
+    :param z_tot: sum opf atomic numbers for the material
+    :param f_effective: Q dependent effective form factor
+    :return: S(q) spectrum
+    """
+    q, coherent_intensity = coherent_pattern.data
+    sq_intensity = coherent_intensity / (N * z_tot ** 2 * f_effective ** 2)
+
+    return Spectrum(q, sq_intensity)
