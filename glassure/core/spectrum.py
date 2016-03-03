@@ -14,7 +14,7 @@ class Spectrum(object):
         else:
             self._x = x
         if y is None:
-            self._y = np.log(self._x ** 2)-(self._x*0.2)**2
+            self._y = np.log(self._x ** 2) - (self._x * 0.2) ** 2
         else:
             self._y = y
         self.name = name
@@ -69,11 +69,11 @@ class Spectrum(object):
         Returns a new spectrum which is a rebinned version of the current one.
         """
         x, y = self.data
-        x_min = np.round(np.min(x)/bin_size)*bin_size
-        x_max = np.round(np.max(x)/bin_size)*bin_size
-        new_x = np.arange(x_min, x_max+0.1*bin_size, bin_size)
+        x_min = np.round(np.min(x) / bin_size) * bin_size
+        x_max = np.round(np.max(x) / bin_size) * bin_size
+        new_x = np.arange(x_min, x_max + 0.1 * bin_size, bin_size)
 
-        bins = np.hstack((x_min-bin_size*0.5, new_x+bin_size*0.5))
+        bins = np.hstack((x_min - bin_size * 0.5, new_x + bin_size * 0.5))
         new_y = (np.histogram(x, bins, weights=y)[0] / np.histogram(x, bins)[0])
 
         return Spectrum(new_x, new_y)
@@ -107,7 +107,6 @@ class Spectrum(object):
         if self.smoothing > 0:
             y = gaussian_filter1d(y, self.smoothing)
         return x, y
-
 
     @data.setter
     def data(self, data):
@@ -145,13 +144,50 @@ class Spectrum(object):
         return Spectrum(x[np.where((x_min < x) & (x < x_max))],
                         y[np.where((x_min < x) & (x < x_max))])
 
+    def extend_to(self, x_value, y_value):
+        """
+        Extends the current spectrum to a specific x_value by filling it with the y_value. Does not modify inplace but
+        returns a new filled Spectrum
+        :param x_value: Point to which extend the spectrum should be smaller than the lowest x-value in the spectrum or
+                        vice versa
+        :param y_value: number to fill the spectrum with
+        :return: extended Spectrum
+        """
+        x_step = np.mean(np.diff(self.x))
+        x_min = np.min(self.x)
+        x_max = np.max(self.x)
+        if x_value < x_min:
+            x_fill = np.arange(x_min - x_step, x_value-x_step*0.5, -x_step)[::-1]
+            y_fill = np.zeros(x_fill.shape)
+            y_fill.fill(y_value)
+
+            new_x = np.concatenate((x_fill, self.x))
+            new_y = np.concatenate((y_fill, self.y))
+        elif x_value > x_max:
+            x_fill = np.arange(x_max + x_step, x_value+x_step*0.5, x_step)
+            y_fill = np.zeros(x_fill.shape)
+            y_fill.fill(y_value)
+
+            new_x = np.concatenate((self.x, x_fill))
+            new_y = np.concatenate((self.y, y_fill))
+        else:
+            return self
+
+        return Spectrum(new_x, new_y)
+
+    def plot(self, show=False, *args, **kwargs):
+        import matplotlib.pyplot as plt
+        plt.plot(self.x, self.y, *args, **kwargs)
+        if show:
+            plt.show()
+
     # Operators:
     def __sub__(self, other):
         orig_x, orig_y = self.data
         other_x, other_y = other.data
 
         if orig_x.shape != other_x.shape:
-            #todo different shape subtraction of spectra seems the fail somehow...
+            # todo different shape subtraction of spectra seems the fail somehow...
             # the background will be interpolated
             other_fcn = interp1d(other_x, other_x, kind='linear')
 
@@ -189,7 +225,7 @@ class Spectrum(object):
 
     def __rmul__(self, other):
         orig_x, orig_y = self.data
-        return Spectrum(np.copy(orig_x), np.copy(orig_y)*other)
+        return Spectrum(np.copy(orig_x), np.copy(orig_y) * other)
 
     def __eq__(self, other):
         if not isinstance(other, Spectrum):
@@ -197,8 +233,6 @@ class Spectrum(object):
         if np.array_equal(self.data, other.data):
             return True
         return False
-
-
 
 
 class BkgNotInRangeError(Exception):

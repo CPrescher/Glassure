@@ -61,6 +61,19 @@ class SpectrumTest(unittest.TestCase):
         print binned_spectrum.x
         print binned_spectrum.y
 
+    def test_extend_to(self):
+        x = np.arange(2.8, 10, 0.2)
+
+        spectrum = Spectrum(x, x-2)
+        extended_spectrum = spectrum.extend_to(0, 0)
+
+        self.assertEqual(np.sum(extended_spectrum.limit(0, 2.7).y),0)
+        self.assertAlmostEqual(extended_spectrum.x[0], 0)
+
+        pos_extended_spectrum = spectrum.extend_to(20, 5)
+
+        self.assertEqual(np.mean(pos_extended_spectrum.limit(10.1, 21).y), 5)
+        self.assertAlmostEqual(pos_extended_spectrum.x[-1], 20)
 
 
 
