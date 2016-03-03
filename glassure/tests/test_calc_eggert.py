@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 from core import Spectrum
 from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
     calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha, \
-    calculate_coherent_scattering, calculate_sq, calculate_fr, optimize_iq
+    calculate_coherent_scattering, calculate_sq, calculate_fr, optimize_iq, \
+    calculate_chi2_map, optimize_density_and_bkg_scaling
+
 from core import convert_density_to_atoms_per_cubic_angstrom
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
@@ -169,3 +171,32 @@ class CalcEggertTest(unittest.TestCase):
         iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
         iq_pattern_optimized = optimize_iq(iq_pattern, 2.4, 10, 0.026, j, s_inf)
         self.assertLess(np.abs(np.mean(iq_pattern_optimized.limit(5, 20).y)), 0.1)
+
+    def test_calculate_chi2_map(self):
+        densities = np.arange(0.02, 0.031, 0.002)
+        bkg_scalings = np.arange(0.5, 0.6, 0.02)
+
+        chi2_map = calculate_chi2_map(self.data_spectrum.limit(0.3, 9),
+                                      self.bkg_spectrum.limit(0.3, 9),
+                                      self.composition,
+                                      densities=densities,
+                                      bkg_scalings=bkg_scalings,
+                                      r_cutoff=2.4)
+
+        min_index = np.argmin(chi2_map)
+        density_index, bkg_scaling_index = np.unravel_index(min_index, chi2_map.shape)
+
+        self.assertAlmostEqual(densities[density_index], 0.026)
+        self.assertAlmostEqual(bkg_scalings[bkg_scaling_index], 0.54)
+
+
+    def test_optimize_density_and_bkg_scaling(self):
+        density, _, bkg_scaling, _ = optimize_density_and_bkg_scaling(self.data_spectrum.limit(0.3, 9),
+                                                                self.bkg_spectrum.limit(0.3, 9),
+                                                                self.composition,
+                                                                initial_density=0.03,
+                                                                initial_bkg_scaling=0.3,
+                                                                r_cutoff=2.28,
+                                                                iterations=1)
+        self.assertAlmostEqual(density, 0.025, places=3)
+        self.assertAlmostEqual(bkg_scaling, 0.55, places=2)
