@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from core import Spectrum
 from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
     calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha, \
-    calculate_coherent_scattering, calculate_sq, calculate_fr
+    calculate_coherent_scattering, calculate_sq, calculate_fr, optimize_iq
 from core import convert_density_to_atoms_per_cubic_angstrom
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
@@ -32,7 +32,7 @@ class CalcEggertTest(unittest.TestCase):
         self.q_max = 9.0
 
         self.sample_spectrum = self.data_spectrum - bkg_scaling * self.bkg_spectrum
-        self.sample_spectrum = self.sample_spectrum.limit(self.q_min, self.q_max)
+        self.sample_spectrum = self.sample_spectrum.limit(self.q_min, self.q_max).extend_to(0, 0)
 
     def test_calculate_atomic_number_sum(self):
         z_tot = calculate_atomic_number_sum({'O': 1})
@@ -149,3 +149,23 @@ class CalcEggertTest(unittest.TestCase):
         fr_pattern = calculate_fr(iq_pattern, r=np.arange(0, 14, 0.02))
 
         self.assertLess(np.mean(fr_pattern.limit(5, 20).y), 0.2)
+
+    def test_optimize_iq(self):
+        q = self.sample_spectrum.x
+
+        inc = calculate_incoherent_scattering(self.composition, q)
+        f_eff = calculate_effective_form_factors(self.composition, q)
+        z_tot = calculate_atomic_number_sum(self.composition)
+        s_inf = calculate_s_inf(self.composition, z_tot, f_eff, q)
+        j = calculate_j(inc, z_tot, f_eff)
+
+        atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
+        alpha = calculate_alpha(self.sample_spectrum, z_tot, f_eff, s_inf, j, atomic_density)
+
+        coherent_pattern = calculate_coherent_scattering(self.sample_spectrum, alpha, self.N,
+                                                         inc)
+
+        sq_pattern = calculate_sq(coherent_pattern, self.N, z_tot, f_eff)
+        iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
+        iq_pattern_optimized = optimize_iq(iq_pattern, 2.4, 10, 0.026, j, s_inf)
+        self.assertLess(np.abs(np.mean(iq_pattern_optimized.limit(5, 20).y)), 0.1)

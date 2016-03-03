@@ -1,4 +1,6 @@
 # -*- coding: utf8 -*-
+from copy import deepcopy
+
 import numpy as np
 from scipy.integrate import simps
 
@@ -103,7 +105,7 @@ def calculate_alpha(sample_spectrum, z_tot, f_effective, s_inf, j, atomic_densit
     :param z_tot: sum opf atomic numbers for the material
     :param f_effective: Q dependent effective form factor
     :param s_inf: S_inf value (equ. (19) from Eggert et al. 2002)
-    :param j: j value (equ. (35) from Eggert et al. 2002)
+    :param j: J value (equ. (35) from Eggert et al. 2002)
     :param atomic_density: number density in atoms/Angstrom^3
     :return: normalization factor alpha
     """
@@ -182,3 +184,63 @@ def calculate_fr(iq_spectrum, r=None, use_modification_fcn=False):
                              np.array(np.sin(np.mat(q).T * np.mat(r))).T, q)
 
     return Spectrum(r, fr)
+
+
+def optimize_iq(iq_spectrum, r_cutoff, iterations, atomic_density, j, s_inf=1, use_modification_fcn=False,
+                attenuation_factor=1, fcn_callback=None, callback_period=2):
+    """
+    Performs an optimization of the structure factor based on an r_cutoff value as described in Eggert et al. 2002 PRB,
+    65, 174105. This basically does back and forward transforms between S(Q) and f(r) until the region below the
+    r_cutoff value is a flat line without any oscillations.
+
+    :param iq_spectrum:
+        original i(Q) spectrum = S(Q)-S_inf
+    :param r_cutoff:
+        cutoff value below which there is no signal expected (below the first peak in g(r))
+    :param iterations:
+        number of back and forward transforms
+    :param atomic_density:
+        density in atoms/A^3
+    :param j:
+        J value (equ. (35) from Eggert et al. 2002)
+    :param s_inf:
+        S_inf value (equ. (19) from Eggert et al. 2002, defaults to 1, which is the value for mon-atomic substances
+    :param use_modification_fcn:
+        Whether or not to use the Lorch modification function during the Fourier transform.
+        Warning: When using the Lorch modification function usually more iterations are needed to get to the
+        wanted result.
+    :param attenuation_factor:
+        Sometimes the initial change during back and forward transformations results in a run
+        away, by setting the attenuation factor to higher than one can help for this situation, it basically reduces
+        the amount of change during each iteration.
+    :param fcn_callback:
+        Function which will be called at an iteration period defined by the callback_period parameter.
+        The function should take 3 arguments: sq_spectrum, fr_spectrum and gr_spectrum. Additionally the function
+        should return a boolean value, where True continues the optimization and False will stop the optimization
+        procedure
+    :param callback_period:
+        determines how frequently the fcn_callback will be called.
+
+    :return:
+        optimized S(Q) spectrum
+    """
+    r = np.arange(0, r_cutoff, 0.02)
+    iq_spectrum = deepcopy(iq_spectrum)
+    for iteration in range(iterations):
+        fr_spectrum = calculate_fr(iq_spectrum, r, use_modification_fcn)
+        q, iq_int = iq_spectrum.data
+        r, fr_int = fr_spectrum.data
+
+        delta_fr = fr_int + 4 * np.pi * r * atomic_density
+
+        in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+        integral = np.trapz(in_integral, r) / attenuation_factor
+        iq_optimized = iq_int - 1./q*(iq_int/(s_inf+j)+1)  * integral
+
+        iq_spectrum = Spectrum(q, iq_optimized)
+
+        if fcn_callback is not None and iteration % callback_period == 0:
+            fr_spectrum = calculate_fr(iq_spectrum, use_modification_fcn=use_modification_fcn)
+            gr_spectrum = calculate_gr_raw(fr_spectrum, atomic_density)
+            fcn_callback(iq_spectrum, fr_spectrum, gr_spectrum)
+    return iq_spectrum
