@@ -6,6 +6,7 @@ from scipy.integrate import simps
 
 from .scattering_factors import scattering_factor_param, calculate_coherent_scattering_factor, \
     calculate_incoherent_scattered_intensity
+from soller_correction import SollerCorrection
 from .spectrum import Spectrum
 
 
@@ -378,3 +379,97 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
 
     return result.params['density'].value, result.params['density'].stderr, \
            result.params['bkg_scaling'].value, result.params['density'].stderr
+
+
+def optimize_soller_slit_and_diamond_content(data_spectrum, bkg_spectrum, composition, density, bkg_scaling,
+                                             initial_thickness, sample_thickness, wavelength,
+                                             initial_carbon_content=0, r_cutoff=2.28, iterations=1):
+    """
+
+    :param data_spectrum:
+    :param bkg_spectrum:
+    :param composition:
+    :param density:
+    :param bkg_scaling:
+    :param initial_thickness:
+    :param sample_thickness:
+    :param initial_carbon_content:
+    :param r_cutoff:
+    :param iterations:
+    :return:
+    """
+    N = sum([composition[x] for x in composition])
+    q = data_spectrum.extend_to(0, 0).x
+
+    inc = calculate_incoherent_scattering(composition, q)
+    f_eff = calculate_effective_form_factors(composition, q)
+    z_tot = calculate_atomic_number_sum(composition)
+    s_inf = calculate_s_inf(composition, z_tot, f_eff, q)
+    j = calculate_j(inc, z_tot, f_eff)
+
+    tth =  2 * np.arcsin(data_spectrum.x * wavelength / (4 * np.pi)) /np.pi * 180
+    soller = SollerCorrection(tth, initial_thickness)
+
+    def optimization_fcn(params):
+        sample_thickness = params['sample_thickness'].value
+        diamond_content = params['diamond_content'].value
+
+        q, data_int = data_spectrum.data
+        _, bkg_int = bkg_spectrum.data
+
+        sample_transfer, diamond_transfer = soller.transfer_function_dac(sample_thickness, initial_thickness)
+        import matplotlib.pyplot as plt
+        plt.plot(q, diamond_transfer)
+        plt.show()
+
+        diamond_background = diamond_content * Spectrum(q,
+                                                        calculate_incoherent_scattering({'C': 1}, q) / diamond_transfer)
+
+        sample_spectrum = data_spectrum - bkg_scaling * bkg_spectrum
+        sample_spectrum = sample_spectrum - diamond_background
+        sample_spectrum = Spectrum(q, sample_spectrum.y * sample_transfer)
+        sample_spectrum = sample_spectrum.extend_to(0, 0)
+
+        alpha = calculate_alpha(sample_spectrum, z_tot, f_eff, s_inf, j, density)
+
+        coherent_pattern = calculate_coherent_scattering(sample_spectrum, alpha, N, inc)
+        sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
+        iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
+
+        r = np.arange(0, r_cutoff, 0.02)
+        fr_pattern = calculate_fr(iq_pattern, r)
+
+        q, iq_int = iq_pattern.data
+        r, fr_int = fr_pattern.data
+
+        delta_fr = fr_int + 4 * np.pi * r * density
+
+        for iteration in range(iterations):
+            in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+            integral = np.trapz(in_integral, r)
+            iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
+
+            iq_pattern = Spectrum(q, iq_optimized)
+            fr_pattern = calculate_fr(iq_pattern, r)
+
+            q, iq_int = iq_pattern.data
+            r, fr_int = fr_pattern.data
+
+            delta_fr = fr_int + 4 * np.pi * r * density
+
+        # iq_pattern.plot(True)
+
+        return delta_fr
+
+    from lmfit import Parameters, minimize, report_fit
+
+    params = Parameters()
+    params.add('sample_thickness', value=sample_thickness, min=0, max=initial_thickness - 0.0005)
+    params.add('diamond_content', value=initial_carbon_content, min=0)
+
+    result = minimize(optimization_fcn, params)
+
+    report_fit(result)
+
+    return result.params['sample_thickness'].value, result.params['sample_thickness'].stderr, \
+           result.params['diamond_content'].value, result.params['diamond_content'].stderr

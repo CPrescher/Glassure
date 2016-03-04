@@ -7,7 +7,7 @@ from core import Spectrum
 from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
     calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha, \
     calculate_coherent_scattering, calculate_sq, calculate_fr, optimize_iq, \
-    calculate_chi2_map, optimize_density_and_bkg_scaling
+    calculate_chi2_map, optimize_density_and_bkg_scaling, optimize_soller_slit_and_diamond_content
 
 from core import convert_density_to_atoms_per_cubic_angstrom
 
@@ -189,14 +189,35 @@ class CalcEggertTest(unittest.TestCase):
         self.assertAlmostEqual(densities[density_index], 0.026)
         self.assertAlmostEqual(bkg_scalings[bkg_scaling_index], 0.54)
 
-
     def test_optimize_density_and_bkg_scaling(self):
         density, _, bkg_scaling, _ = optimize_density_and_bkg_scaling(self.data_spectrum.limit(0.3, 9),
-                                                                self.bkg_spectrum.limit(0.3, 9),
-                                                                self.composition,
-                                                                initial_density=0.03,
-                                                                initial_bkg_scaling=0.3,
-                                                                r_cutoff=2.28,
-                                                                iterations=1)
+                                                                      self.bkg_spectrum.limit(0.3, 9),
+                                                                      self.composition,
+                                                                      initial_density=0.03,
+                                                                      initial_bkg_scaling=0.3,
+                                                                      r_cutoff=2.28,
+                                                                      iterations=1)
         self.assertAlmostEqual(density, 0.025, places=3)
         self.assertAlmostEqual(bkg_scaling, 0.55, places=2)
+
+    def test_optimize_soller_slit_and_carbon_content(self):
+        initial_thickness = 0.1
+        current_thickness = 0.03
+        diamond_content = 2.5
+
+        sample_thickness, sample_thickness_err, carbon_content, carbon_content_err = \
+            optimize_soller_slit_and_diamond_content(
+                self.data_spectrum.limit(0.3, 9),
+                self.bkg_spectrum.limit(0.3, 9),
+                self.composition,
+                wavelength=0.37,
+                density=0.025,
+                bkg_scaling=0.55,
+                initial_thickness=initial_thickness,
+                sample_thickness=current_thickness,
+                initial_carbon_content=diamond_content,
+                r_cutoff=2.28,
+                iterations=1
+            )
+
+        print sample_thickness
