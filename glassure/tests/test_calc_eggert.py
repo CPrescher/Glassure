@@ -7,7 +7,7 @@ from core import Spectrum
 from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
     calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha, \
     calculate_coherent_scattering, calculate_sq, calculate_fr, optimize_iq, \
-    calculate_chi2_map, optimize_density_and_bkg_scaling, optimize_soller_slit_and_diamond_content
+    calculate_chi2_map, optimize_density_and_bkg_scaling, optimize_soller_dac
 
 from core import convert_density_to_atoms_per_cubic_angstrom
 
@@ -200,24 +200,25 @@ class CalcEggertTest(unittest.TestCase):
         self.assertAlmostEqual(density, 0.025, places=3)
         self.assertAlmostEqual(bkg_scaling, 0.55, places=2)
 
-    def test_optimize_soller_slit_and_carbon_content(self):
+    def test_optimize_soller_slit_dac(self):
         initial_thickness = 0.1
-        current_thickness = 0.03
+        current_thickness = np.arange(0.04, 0.096, 0.005)
         diamond_content = 2.5
 
-        sample_thickness, sample_thickness_err, carbon_content, carbon_content_err = \
-            optimize_soller_slit_and_diamond_content(
-                self.data_spectrum.limit(0.3, 9),
-                self.bkg_spectrum.limit(0.3, 9),
-                self.composition,
-                wavelength=0.37,
-                density=0.025,
-                bkg_scaling=0.55,
-                initial_thickness=initial_thickness,
-                sample_thickness=current_thickness,
-                initial_carbon_content=diamond_content,
-                r_cutoff=2.28,
-                iterations=1
-            )
+        chi2, params = optimize_soller_dac(
+            self.data_spectrum.limit(0.3, 9),
+            self.bkg_spectrum.limit(0.3, 9),
+            self.composition,
+            wavelength=0.37,
+            initial_density=0.025,
+            initial_bkg_scaling=0.55,
+            initial_thickness=initial_thickness,
+            sample_thicknesses=current_thickness,
+            initial_carbon_content=diamond_content,
+            r_cutoff=2.28,
+            iterations=1,
+            use_modification_fcn=True
+        )
 
-        print sample_thickness
+        plt.plot(current_thickness, chi2)
+        plt.show()

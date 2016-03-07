@@ -41,7 +41,7 @@ class SollerCorrection(object):
         :return: a map of the dispersion anges, out.X = two theta array, out.Y = distance array, out.data = dispersion
         angle
         """
-        p_x = np.arange(-self._max_thickness * 0.5, self._max_thickness * 0.5, 0.00001)
+        p_x = np.arange(-self._max_thickness * 0.5, self._max_thickness * 0.5, 0.001)
         p_y = np.zeros(p_x.shape)
         p = np.array([p_x, p_y])
         phi_array = []

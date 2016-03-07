@@ -309,7 +309,8 @@ def calculate_chi2_map(data_spectrum, bkg_spectrum, composition,
 
 
 def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
-                                     initial_density, initial_bkg_scaling, r_cutoff, iterations=2):
+                                     initial_density, initial_bkg_scaling, r_cutoff, iterations=2,
+                                     use_modification_fcn=False):
     """
     This function tries to find the optimum density in background scaling with the given parameters. The equations
     behind the optimization are presented equ (47-50) in the Eggert et al. 2002 paper.
@@ -347,7 +348,7 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
         sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
         iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
 
-        fr_pattern = calculate_fr(iq_pattern, r)
+        fr_pattern = calculate_fr(iq_pattern, r, use_modification_fcn=use_modification_fcn)
 
         q, iq_int = iq_pattern.data
         r, fr_int = fr_pattern.data
@@ -381,16 +382,17 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
            result.params['bkg_scaling'].value, result.params['density'].stderr
 
 
-def optimize_soller_slit_and_diamond_content(data_spectrum, bkg_spectrum, composition, density, bkg_scaling,
-                                             initial_thickness, sample_thickness, wavelength,
-                                             initial_carbon_content=0, r_cutoff=2.28, iterations=1):
+def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_density, initial_bkg_scaling,
+                        initial_thickness, sample_thicknesses, wavelength,
+                        initial_carbon_content=1, r_cutoff=2.28, iterations=1,
+                        use_modification_fcn=False):
     """
 
     :param data_spectrum:
     :param bkg_spectrum:
     :param composition:
-    :param density:
-    :param bkg_scaling:
+    :param initial_density:
+    :param initial_bkg_scaling:
     :param initial_thickness:
     :param sample_thickness:
     :param initial_carbon_content:
@@ -407,69 +409,98 @@ def optimize_soller_slit_and_diamond_content(data_spectrum, bkg_spectrum, compos
     s_inf = calculate_s_inf(composition, z_tot, f_eff, q)
     j = calculate_j(inc, z_tot, f_eff)
 
-    tth =  2 * np.arcsin(data_spectrum.x * wavelength / (4 * np.pi)) /np.pi * 180
+    tth = 2 * np.arcsin(data_spectrum.x * wavelength / (4 * np.pi)) / np.pi * 180
     soller = SollerCorrection(tth, initial_thickness)
 
-    def optimization_fcn(params):
-        sample_thickness = params['sample_thickness'].value
-        diamond_content = params['diamond_content'].value
+    result_params = []
+    result_chi2 = []
 
-        q, data_int = data_spectrum.data
-        _, bkg_int = bkg_spectrum.data
+    for sample_thickness in sample_thicknesses:
+        def optimization_fcn(params):
+            diamond_content = params['diamond_content'].value
+            bkg_scaling = params['bkg_scaling'].value
+            density = params['density'].value
 
-        sample_transfer, diamond_transfer = soller.transfer_function_dac(sample_thickness, initial_thickness)
-        import matplotlib.pyplot as plt
-        plt.plot(q, diamond_transfer)
-        plt.show()
+            q, data_int = data_spectrum.data
+            _, bkg_int = bkg_spectrum.data
 
-        diamond_background = diamond_content * Spectrum(q,
-                                                        calculate_incoherent_scattering({'C': 1}, q) / diamond_transfer)
+            sample_transfer, diamond_transfer = soller.transfer_function_dac(sample_thickness, initial_thickness)
 
-        sample_spectrum = data_spectrum - bkg_scaling * bkg_spectrum
-        sample_spectrum = sample_spectrum - diamond_background
-        sample_spectrum = Spectrum(q, sample_spectrum.y * sample_transfer)
-        sample_spectrum = sample_spectrum.extend_to(0, 0)
+            diamond_background = diamond_content * Spectrum(q,
+                                                            calculate_incoherent_scattering({'C': 1},
+                                                                                            q) / diamond_transfer)
 
-        alpha = calculate_alpha(sample_spectrum, z_tot, f_eff, s_inf, j, density)
+            sample_spectrum = data_spectrum - bkg_scaling * bkg_spectrum
+            sample_spectrum = sample_spectrum - diamond_background
+            sample_spectrum = Spectrum(q, sample_spectrum.y * sample_transfer)
+            sample_spectrum = sample_spectrum.extend_to(0, 0)
 
-        coherent_pattern = calculate_coherent_scattering(sample_spectrum, alpha, N, inc)
-        sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
-        iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
+            alpha = calculate_alpha(sample_spectrum, z_tot, f_eff, s_inf, j, density)
 
-        r = np.arange(0, r_cutoff, 0.02)
-        fr_pattern = calculate_fr(iq_pattern, r)
+            coherent_pattern = calculate_coherent_scattering(sample_spectrum, alpha, N, inc)
+            sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
+            iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
 
-        q, iq_int = iq_pattern.data
-        r, fr_int = fr_pattern.data
-
-        delta_fr = fr_int + 4 * np.pi * r * density
-
-        for iteration in range(iterations):
-            in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
-            integral = np.trapz(in_integral, r)
-            iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
-
-            iq_pattern = Spectrum(q, iq_optimized)
-            fr_pattern = calculate_fr(iq_pattern, r)
+            r = np.arange(0, r_cutoff, 0.02)
+            fr_pattern = calculate_fr(iq_pattern, r, use_modification_fcn=use_modification_fcn)
 
             q, iq_int = iq_pattern.data
             r, fr_int = fr_pattern.data
 
             delta_fr = fr_int + 4 * np.pi * r * density
 
-        # iq_pattern.plot(True)
+            for iteration in range(iterations):
+                in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+                integral = np.trapz(in_integral, r)
+                iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 
-        return delta_fr
+                iq_pattern = Spectrum(q, iq_optimized)
+                fr_pattern = calculate_fr(iq_pattern, r)
 
-    from lmfit import Parameters, minimize, report_fit
+                q, iq_int = iq_pattern.data
+                r, fr_int = fr_pattern.data
 
-    params = Parameters()
-    params.add('sample_thickness', value=sample_thickness, min=0, max=initial_thickness - 0.0005)
-    params.add('diamond_content', value=initial_carbon_content, min=0)
+                delta_fr = fr_int + 4 * np.pi * r * density
 
-    result = minimize(optimization_fcn, params)
+            # iq_pattern.plot(True)
 
-    report_fit(result)
+            return delta_fr
 
-    return result.params['sample_thickness'].value, result.params['sample_thickness'].stderr, \
-           result.params['diamond_content'].value, result.params['diamond_content'].stderr
+        from lmfit import Parameters, minimize, report_fit
+
+        params = Parameters()
+        params.add('diamond_content', value=initial_carbon_content, min=0)
+        params.add('bkg_scaling', value=initial_bkg_scaling)
+        params.add('density', value=initial_density, min=0)
+
+        result = minimize(optimization_fcn, params)
+
+        report_fit(result)
+
+        result_params.append(result.params)
+        result_chi2.append(result.chisqr)
+
+    bkg_scalings = []
+    bkg_scalings_err = []
+    densities = []
+    densities_err = []
+    diamond_contents = []
+    diamond_contents_err = []
+
+    for param in result_params:
+        bkg_scalings.append(param['bkg_scaling'].value)
+        bkg_scalings_err.append(param['bkg_scaling'].stderr)
+        densities.append(param['density'].value)
+        densities_err.append(param['density'].stderr)
+        diamond_contents.append(param['diamond_content'].value)
+        diamond_contents_err.append(param['diamond_content'].stderr)
+
+    bkg_scalings = np.array(bkg_scalings)
+    bkg_scalings_err = np.array(bkg_scalings_err)
+    densities = np.array(densities)
+    densities_err = np.array(densities_err)
+    diamond_contents = np.array(diamond_contents)
+    diamond_contents_err = np.array(diamond_contents_err)
+
+
+    return result_chi2, bkg_scalings, bkg_scalings_err, densities, densities_err, diamond_contents, diamond_contents_err
