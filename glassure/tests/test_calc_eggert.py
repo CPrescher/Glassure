@@ -202,10 +202,11 @@ class CalcEggertTest(unittest.TestCase):
 
     def test_optimize_soller_slit_dac(self):
         initial_thickness = 0.1
-        current_thickness = np.arange(0.04, 0.096, 0.005)
+        current_thickness = 0.05
         diamond_content = 2.5
 
-        chi2, params = optimize_soller_dac(
+        chi2, bkg_scaling, bkg_scaling_err, density, density_err, diamond_content, diamond_content_err = \
+            optimize_soller_dac(
             self.data_spectrum.limit(0.3, 9),
             self.bkg_spectrum.limit(0.3, 9),
             self.composition,
@@ -213,12 +214,13 @@ class CalcEggertTest(unittest.TestCase):
             initial_density=0.025,
             initial_bkg_scaling=0.55,
             initial_thickness=initial_thickness,
-            sample_thicknesses=current_thickness,
+            sample_thickness=current_thickness,
             initial_carbon_content=diamond_content,
             r_cutoff=2.28,
             iterations=1,
             use_modification_fcn=True
         )
 
-        plt.plot(current_thickness, chi2)
-        plt.show()
+        self.assertAlmostEqual(diamond_content, 0, places=5)
+        self.assertAlmostEqual(bkg_scaling, 0.56, places=2)
+        self.assertAlmostEqual(density, 0.026, places=3)
