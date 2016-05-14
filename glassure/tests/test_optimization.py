@@ -1,4 +1,4 @@
-__author__ = 'Clemens Prescher'
+# -*- coding: utf8 -*-
 
 import os
 import unittest

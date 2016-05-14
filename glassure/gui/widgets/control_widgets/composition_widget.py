@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
+
 from PySide import QtCore, QtGui
 
 from core.scattering_factors import scattering_factor_param

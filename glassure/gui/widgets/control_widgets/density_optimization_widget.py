@@ -1,8 +1,7 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
-
 
 from PySide import QtCore, QtGui
+
 
 class DensityOptimizationWidget(QtGui.QWidget):
     calculation_parameters_changed = QtCore.Signal(float)
@@ -14,7 +13,6 @@ class DensityOptimizationWidget(QtGui.QWidget):
         self.create_layout()
 
     def create_widgets(self):
-
         self.density_range_lbl = QtGui.QLabel('Density range:')
         self.density_min_txt = QtGui.QLineEdit('1')
         self.density_max_txt = QtGui.QLineEdit('10')
@@ -55,14 +53,14 @@ class DensityOptimizationWidget(QtGui.QWidget):
 
     def create_layout(self):
         self.grid_layout = QtGui.QGridLayout()
-        self.grid_layout.setContentsMargins(0,0,0,0)
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(5)
 
         self.grid_layout.addWidget(self.density_range_lbl, 0, 0)
         self.grid_layout.addWidget(self.density_min_txt, 0, 1)
         self.grid_layout.addWidget(QtGui.QLabel('-'), 0, 2)
         self.grid_layout.addWidget(self.density_max_txt, 0, 3)
-        self.grid_layout.addWidget(QtGui.QLabel("g/cm^3"), 0,4)
+        self.grid_layout.addWidget(QtGui.QLabel("g/cm^3"), 0, 4)
 
         self.grid_layout.addWidget(self.bkg_range_lbl, 1, 0)
         self.grid_layout.addWidget(self.bkg_min_txt, 1, 1)

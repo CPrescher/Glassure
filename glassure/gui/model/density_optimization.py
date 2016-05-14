@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-__author__ = 'clemens'
+
 import numpy as np
 from PySide import QtGui
 from lmfit import Parameters, minimize, report_fit

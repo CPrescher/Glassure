@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 from PySide import QtCore, QtGui
+
 
 class OptimizationWidget(QtGui.QWidget):
     calculation_parameters_changed = QtCore.Signal(float)
@@ -47,7 +47,7 @@ class OptimizationWidget(QtGui.QWidget):
 
     def create_layout(self):
         self.grid_layout = QtGui.QGridLayout()
-        self.grid_layout.setContentsMargins(0,0,0,0)
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(5)
 
         self.grid_layout.addWidget(self.r_cutoff_lbl, 1, 0)

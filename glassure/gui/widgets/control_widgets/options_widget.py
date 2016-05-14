@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 from PySide import QtCore, QtGui
 
@@ -48,7 +47,7 @@ class OptionsWidget(QtGui.QWidget):
 
     def create_layout(self):
         self.grid_layout = QtGui.QGridLayout()
-        self.grid_layout.setContentsMargins(0,0,0,0)
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(5)
 
         self.grid_layout.addWidget(self.q_range_lbl, 0, 0)

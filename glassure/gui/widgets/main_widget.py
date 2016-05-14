@@ -1,6 +1,4 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
-__version__ = '0.1'
 
 import sys
 import os

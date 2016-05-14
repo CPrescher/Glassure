@@ -1,4 +1,4 @@
-__author__ = 'Clemens Prescher'
+# -*- coding: utf8 -*-
 
 import numpy as np
 import lmfit

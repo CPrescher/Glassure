@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
+
 from .composition_widget import CompositionWidget
 from .data_widget import DataWidget
 from .optimization_widget import OptimizationWidget

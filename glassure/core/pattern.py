@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 import numpy as np
 from scipy.interpolate import interp1d

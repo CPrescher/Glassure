@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 from PySide import QtGui
+
 
 def HorizontalLine():
     frame = QtGui.QFrame()

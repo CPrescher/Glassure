@@ -1,11 +1,9 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
-
 
 from PySide import QtCore, QtGui
 
-class DiamondWidget(QtGui.QWidget):
 
+class DiamondWidget(QtGui.QWidget):
     def __init__(self, *args):
         super(DiamondWidget, self).__init__(*args)
 

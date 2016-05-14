@@ -1,5 +1,3 @@
-__author__ = 'Clemens Prescher'
-
 import sys
 import os
 

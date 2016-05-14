@@ -1,7 +1,5 @@
 # -*- coding: utf8 -*-
 
-__author__ = 'Clemens Prescher'
-
 import unittest
 
 from core.scattering_factors import *
@@ -64,13 +62,7 @@ class ScatteringFactorTest(unittest.TestCase):
         incoherent_mg = calculate_incoherent_scattered_intensity('Mg', self.q)
         incoherent_fe = calculate_incoherent_scattered_intensity('Fe', self.q)
 
-        self.assertLess(np.abs(np.sum(incoherent_si-incoherent_vitali_si)), 1e-12)
-        self.assertLess(np.abs(np.sum(incoherent_o-incoherent_vitali_o)), 1e-12)
-        self.assertLess(np.abs(np.sum(incoherent_mg-incoherent_vitali_mg)), 1e-12)
-        self.assertLess(np.abs(np.sum(incoherent_fe-incoherent_vitali_fe)), 1e-12)
-
-
-
-
-
-
+        self.assertLess(np.abs(np.sum(incoherent_si - incoherent_vitali_si)), 1e-12)
+        self.assertLess(np.abs(np.sum(incoherent_o - incoherent_vitali_o)), 1e-12)
+        self.assertLess(np.abs(np.sum(incoherent_mg - incoherent_vitali_mg)), 1e-12)
+        self.assertLess(np.abs(np.sum(incoherent_fe - incoherent_vitali_fe)), 1e-12)

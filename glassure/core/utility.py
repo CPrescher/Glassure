@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 from copy import copy
 
@@ -91,6 +90,7 @@ def convert_density_to_atoms_per_cubic_angstrom(composition, density):
     for key, val in norm_elemental_abundances.iteritems():
         mean_z += val * scattering_factors.atomic_weights['AW'][key]
     return density / mean_z * .602214129
+
 
 def extrapolate_to_zero_step(spectrum):
     """
@@ -213,7 +213,7 @@ def convert_two_theta_to_q_space_raw(two_theta, wavelength):
     """
     Converts two theta values into q space
     """
-    return 4*np.pi*np.sin(two_theta/360.0 * np.pi)/wavelength
+    return 4 * np.pi * np.sin(two_theta / 360.0 * np.pi) / wavelength
 
 
 def convert_two_theta_to_q_space(spectrum, wavelength):

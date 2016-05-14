@@ -1,9 +1,9 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 import pyqtgraph as pg
 import numpy as np
 from PySide import QtCore, QtGui
+
 
 # TODO refactoring of the 3 lists: overlays, overlay_names, overlay_show,
 # should probably a class, making it more readable
@@ -229,5 +229,3 @@ class MousePositionWidget(QtGui.QWidget):
         self.horizontal_layout.addWidget(self.save_sq_btn)
         self.horizontal_layout.addWidget(self.save_pdf_btn)
         self.setLayout(self.horizontal_layout)
-
-

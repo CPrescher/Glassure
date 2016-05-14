@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 from PySide import QtCore, QtGui
 
@@ -60,21 +59,21 @@ class InterpolationWidget(QtGui.QWidget):
 
     def create_layout(self):
         self.vertical_layout = QtGui.QVBoxLayout()
-        self.vertical_layout.setContentsMargins(0,0,0,0)
+        self.vertical_layout.setContentsMargins(0, 0, 0, 0)
         self.vertical_layout.setSpacing(5)
 
         self.vertical_layout.addWidget(self.activate_cb)
         self.vertical_layout.addWidget(HorizontalLine())
 
         self.rb_horizontal_layout = QtGui.QHBoxLayout()
-        self.rb_horizontal_layout.setContentsMargins(0,0,0,0)
+        self.rb_horizontal_layout.setContentsMargins(0, 0, 0, 0)
         self.rb_horizontal_layout.setSpacing(5)
         self.rb_horizontal_layout.addSpacing(10)
 
         self.rb_widget = QtGui.QWidget(self)
 
         self.rb_ver_layout = QtGui.QVBoxLayout()
-        self.rb_ver_layout.setContentsMargins(0,0,0,0)
+        self.rb_ver_layout.setContentsMargins(0, 0, 0, 0)
         self.rb_ver_layout.setSpacing(5)
 
         self.rb_ver_layout.addWidget(self.linear_interpolation_rb)
@@ -82,10 +81,10 @@ class InterpolationWidget(QtGui.QWidget):
         self.rb_ver_layout.addWidget(self.poly_interpolation_rb)
         self.poly_interpolation_widget = QtGui.QWidget(self)
         self.poly_interpolation_layout = QtGui.QGridLayout()
-        self.poly_interpolation_layout.setContentsMargins(0,0,0,0)
+        self.poly_interpolation_layout.setContentsMargins(0, 0, 0, 0)
         self.poly_interpolation_layout.setSpacing(5)
 
-        self.poly_interpolation_layout.addItem(QtGui.QSpacerItem(10,10), 0,0)
+        self.poly_interpolation_layout.addItem(QtGui.QSpacerItem(10, 10), 0, 0)
         self.poly_interpolation_layout.addWidget(self.poly_interpolation_q_max_lbl, 0, 1)
         self.poly_interpolation_layout.addWidget(self.poly_interpolation_q_max_txt, 0, 2)
         self.poly_interpolation_layout.addWidget(self.poly_interpolation_replace_cb, 1, 2)
@@ -98,10 +97,10 @@ class InterpolationWidget(QtGui.QWidget):
 
         self.spline_interpolation_widget = QtGui.QWidget(self)
         self.spline_interpolation_parameter_layout = QtGui.QGridLayout()
-        self.spline_interpolation_parameter_layout.setContentsMargins(0,0,0,0)
+        self.spline_interpolation_parameter_layout.setContentsMargins(0, 0, 0, 0)
         self.spline_interpolation_parameter_layout.setSpacing(5)
 
-        self.spline_interpolation_parameter_layout.addItem(QtGui.QSpacerItem(10,10), 0, 0)
+        self.spline_interpolation_parameter_layout.addItem(QtGui.QSpacerItem(10, 10), 0, 0)
         self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_cutoff_lbl, 0, 1)
         self.spline_interpolation_parameter_layout.addWidget(self.spline_interpolation_cutoff_txt, 0, 2)
 
@@ -148,8 +147,7 @@ class InterpolationWidget(QtGui.QWidget):
 
     def txt_changed(self):
         if self.spline_interpolation_cutoff_txt.isModified() or \
-            self.spline_interpolation_q_max_txt.isModified():
-
+                self.spline_interpolation_q_max_txt.isModified():
             self.interpolation_parameters_changed.emit()
 
             self.spline_interpolation_cutoff_txt.setModified(False)

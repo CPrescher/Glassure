@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
+
 from __future__ import absolute_import
-__author__ = 'Clemens Prescher'
 
 import sys
 from PySide import QtGui
