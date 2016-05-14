@@ -5,7 +5,7 @@ from lmfit import Parameters, minimize
 from ..qt import QtGui, QtCore, Signal
 
 from core.pattern import Pattern
-from density_optimization import DensityOptimizer
+from .density_optimization import DensityOptimizer
 from core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
 from core import calculate_sq, calculate_gr, calculate_fr
 from core.optimization import optimize_sq
@@ -285,7 +285,7 @@ class GlassureModel(QtCore.QObject):
 
     def write_output(self, msg, output_txt=None):
         if output_txt is None:
-            print msg
+            print(msg)
         else:
             previous_txt = str(output_txt.toPlainText())
             new_txt = previous_txt + "\n" + str(msg)
@@ -330,4 +330,4 @@ class GlassureModel(QtCore.QObject):
             return low_r_spectrum.data[1]
 
         result = minimize(optimization_fcn, params)
-        print result
+        print(result)

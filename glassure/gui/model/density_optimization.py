@@ -81,7 +81,7 @@ class DensityOptimizer(object):
 
     def write_output(self, msg):
         if self.output_txt is None:
-            print msg
+            print(msg)
         else:
             previous_txt = str(self.output_txt.toPlainText())
             new_txt = previous_txt + "\n" + str(msg)

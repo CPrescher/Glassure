@@ -8,7 +8,7 @@ import lmfit
 
 from .scattering_factors import calculate_coherent_scattering_factor, calculate_incoherent_scattered_intensity
 from . import Pattern
-import scattering_factors
+from . import scattering_factors
 
 __all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_incoherent_scattering',
            'extrapolate_to_zero_linear', 'extrapolate_to_zero_poly', 'extrapolate_to_zero_spline',
@@ -25,7 +25,7 @@ def calculate_f_mean_squared(composition, q):
     norm_elemental_abundances = normalize_composition(composition)
 
     res = 0
-    for key, value in norm_elemental_abundances.iteritems():
+    for key, value in norm_elemental_abundances.items():
         res += value * calculate_coherent_scattering_factor(key, q)
     return res ** 2
 
@@ -39,7 +39,7 @@ def calculate_f_squared_mean(composition, q):
     norm_elemental_abundances = normalize_composition(composition)
 
     res = 0
-    for key, value in norm_elemental_abundances.iteritems():
+    for key, value in norm_elemental_abundances.items():
         res += value * calculate_coherent_scattering_factor(key, q) ** 2
     return res
 
@@ -53,7 +53,7 @@ def calculate_incoherent_scattering(composition, q):
     norm_elemental_abundances = normalize_composition(composition)
 
     res = 0
-    for key, value in norm_elemental_abundances.iteritems():
+    for key, value in norm_elemental_abundances.items():
         res += value * calculate_incoherent_scattered_intensity(key, q)
     return res
 
@@ -65,7 +65,7 @@ def normalize_composition(composition):
     :return: normalized elemental abundances dictionary dictionary
     """
     sum = 0.0
-    for key, val in composition.iteritems():
+    for key, val in composition.items():
         sum += val
 
     result = copy(composition)
@@ -87,7 +87,7 @@ def convert_density_to_atoms_per_cubic_angstrom(composition, density):
     # get_smallest abundance
     norm_elemental_abundances = normalize_composition(composition)
     mean_z = 0.0
-    for key, val in norm_elemental_abundances.iteritems():
+    for key, val in norm_elemental_abundances.items():
         mean_z += val * scattering_factors.atomic_weights['AW'][key]
     return density / mean_z * .602214129
 

@@ -123,8 +123,13 @@ class TextDoubleDelegate(QtGui.QStyledItemDelegate):
 
     def setEditorData(self, parent, index):
         value = index.model().data(index, QtCore.Qt.EditRole)
-        if value.toString() != '':
-            self.editor.setText("{:g}".format(float(str(value.toString()))))
+        try:
+            value = value.toString()
+        except AttributeError:
+            value = value
+
+        if value != '':
+            self.editor.setText("{:g}".format(float(value)))
 
     def setModelData(self, parent, model, index):
         value = self.editor.text()

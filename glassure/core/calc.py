@@ -220,7 +220,7 @@ def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False):
     :return: F(r) spectrum
     """
     if r is None:
-        r = np.linspace(0, 10, 1000)
+        r = np.linspace(0, 10, 1001)
 
     q, sq = sq_spectrum.data
     if use_modification_fcn:

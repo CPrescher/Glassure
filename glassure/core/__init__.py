@@ -8,10 +8,7 @@ def _we_are_frozen():
 
 
 def _module_path():
-    encoding = sys.getfilesystemencoding()
-    if _we_are_frozen():
-        return os.path.dirname(unicode(sys.executable, encoding))
-    return os.path.dirname(unicode(__file__, encoding))
+    return os.path.dirname(__file__)
 
 
 
