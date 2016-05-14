@@ -11,12 +11,9 @@ if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     from sys import platform as _platform
 
-    if _platform == "linux" or _platform == "linux2":
+    if _platform != "Darwin":
         app.setStyle('plastique')
-    elif _platform == "win32" or _platform == 'cygwin':
-        app.setStyle('plastique')
-        # possible values:
-        # "windows", "motif", "cde", "plastique", "windowsxp", or "macintosh"
+        # other possible values: "windows", "motif", "cde", "plastique", "windowsxp", or "macintosh"
     controller = MainController()
     controller.load_data('tests/data/Mg2SiO4_ambient.xy')
     controller.load_bkg('tests/data/Mg2SiO4_ambient_bkg.xy')
