@@ -3,7 +3,7 @@ __author__ = 'Clemens Prescher'
 import numpy as np
 import lmfit
 
-from . import Spectrum
+from . import Pattern
 from .utility import calculate_incoherent_scattering, calculate_f_squared_mean, calculate_f_mean_squared, \
     convert_density_to_atoms_per_cubic_angstrom
 
@@ -130,7 +130,7 @@ def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent
         sq = (normalization_factor * intensity - incoherent_scattering)/f_squared_mean
     else:
         raise NotImplementedError('{} method is not implemented'.format(method))
-    return Spectrum(q, sq)
+    return Pattern(q, sq)
 
 
 def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001, method='AL'):
@@ -200,7 +200,7 @@ def calculate_sq_from_gr(gr_spectrum, q, density, composition, use_modification_
     integral = integral * modification * dr
     intensity = 4 * np.pi * atomic_density * integral
 
-    return Spectrum(q, intensity)
+    return Pattern(q, intensity)
 
 
 def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False):
@@ -229,7 +229,7 @@ def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False):
         modification = 1
     fr = 2.0 / np.pi * np.trapz(modification * q * (sq - 1) * \
                                 np.array(np.sin(np.mat(q).T * np.mat(r))).T, q)
-    return Spectrum(r, fr)
+    return Pattern(r, fr)
 
 
 def calculate_gr_raw(fr_spectrum, atomic_density):
@@ -243,7 +243,7 @@ def calculate_gr_raw(fr_spectrum, atomic_density):
     """
     r, f_r = fr_spectrum.data
     g_r = 1 + f_r / (4.0 * np.pi * r * atomic_density)
-    return Spectrum(r, g_r)
+    return Pattern(r, g_r)
 
 
 def calculate_gr(fr_spectrum, density, composition):

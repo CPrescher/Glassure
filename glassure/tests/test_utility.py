@@ -7,7 +7,7 @@ from core.utility import normalize_composition, convert_density_to_atoms_per_cub
     calculate_f_mean_squared, calculate_f_squared_mean, calculate_incoherent_scattering,\
     extrapolate_to_zero_linear, extrapolate_to_zero_poly, extrapolate_to_zero_spline,\
     convert_two_theta_to_q_space, convert_two_theta_to_q_space_raw
-from core import Spectrum
+from core import Pattern
 
 class UtilityTest(unittest.TestCase):
     def test_normalize_elemental_abundances(self):
@@ -65,7 +65,7 @@ class UtilityTest(unittest.TestCase):
     def test_linear_extrapolation(self):
         x = np.arange(1, 5.05, 0.05)
         y = np.ones(len(x))
-        spectrum = Spectrum(x,y)
+        spectrum = Pattern(x, y)
 
         extrapolated_spectrum = extrapolate_to_zero_linear(spectrum)
 
@@ -83,7 +83,7 @@ class UtilityTest(unittest.TestCase):
         x = np.arange(1, 5.05, 0.05)
         y = -2+x*0.2
 
-        spectrum = Spectrum(x,y)
+        spectrum = Pattern(x, y)
 
         extrapolated_spectrum = extrapolate_to_zero_spline(spectrum, 2)
 
@@ -96,7 +96,7 @@ class UtilityTest(unittest.TestCase):
 
         x = np.arange(1, 5.05, 0.05)
         y = a*(x-c) + b*(x-c)**2
-        spectrum = Spectrum(x,y)
+        spectrum = Pattern(x, y)
 
         extrapolated_spectrum = extrapolate_to_zero_poly(spectrum, x_max)
         x1, y1 = extrapolated_spectrum.data
@@ -128,7 +128,7 @@ class UtilityTest(unittest.TestCase):
         self.assertLess(np.max(data_q), 10)
         self.assertAlmostEqual(np.max(data_q), 4*np.pi*np.sin(25./360*np.pi)/wavelength)
 
-        spectrum_theta = Spectrum(data_theta, np.ones(data_theta.shape))
+        spectrum_theta = Pattern(data_theta, np.ones(data_theta.shape))
         spectrum_q = convert_two_theta_to_q_space(spectrum_theta, wavelength)
 
         self.assertLess(np.max(spectrum_q.x), 10)

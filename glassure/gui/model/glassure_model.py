@@ -5,7 +5,7 @@ import numpy as np
 from lmfit import Parameters, minimize
 from PyQt4 import QtGui, QtCore
 
-from core.spectrum import Spectrum
+from core.pattern import Pattern
 from density_optimization import DensityOptimizer
 from core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
 from core import calculate_sq, calculate_gr, calculate_fr
@@ -14,15 +14,15 @@ from core.optimization import optimize_sq
 
 class GlassureModel(QtCore.QObject):
     data_changed = QtCore.pyqtSignal()
-    sq_changed = QtCore.pyqtSignal(Spectrum)
-    fr_changed = QtCore.pyqtSignal(Spectrum)
-    gr_changed = QtCore.pyqtSignal(Spectrum)
+    sq_changed = QtCore.pyqtSignal(Pattern)
+    fr_changed = QtCore.pyqtSignal(Pattern)
+    gr_changed = QtCore.pyqtSignal(Pattern)
 
     def __init__(self):
         super(GlassureModel, self).__init__()
         # initialize all spectra
-        self.original_spectrum = Spectrum()
-        self._background_spectrum = Spectrum()
+        self.original_spectrum = Pattern()
+        self._background_spectrum = Pattern()
 
         self.diamond_background_spectrum = None
 
@@ -73,7 +73,7 @@ class GlassureModel(QtCore.QObject):
 
     def get_background_spectrum(self):
         x, y = self.background_spectrum.data
-        return Spectrum(x, y)
+        return Pattern(x, y)
 
     @property
     def background_scaling(self):
@@ -313,7 +313,7 @@ class GlassureModel(QtCore.QObject):
 
         q, _ = self.background_spectrum.data
         int = calculate_incoherent_scattering({'C': 1}, q) * content_value
-        self.diamond_background_spectrum = Spectrum(q, int)
+        self.diamond_background_spectrum = Pattern(q, int)
         self.calculate_spectra()
 
     def optimize_diamond_content(self, diamond_content=0, callback_fcn=None):

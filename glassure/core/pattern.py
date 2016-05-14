@@ -7,7 +7,7 @@ from scipy.ndimage import gaussian_filter1d
 import os
 
 
-class Spectrum(object):
+class Pattern(object):
     def __init__(self, x=None, y=None, name=''):
         if x is None:
             self._x = np.linspace(0.1, 15, 100)
@@ -45,7 +45,7 @@ class Spectrum(object):
             x = data.T[0]
             y = data.T[1]
             name = os.path.basename(filename).split('.')[:-1][0]
-            return Spectrum(x, y, name)
+            return Pattern(x, y, name)
 
         except ValueError:
             print('Wrong data format for spectrum file! - ' + filename)
@@ -76,7 +76,7 @@ class Spectrum(object):
         bins = np.hstack((x_min - bin_size * 0.5, new_x + bin_size * 0.5))
         new_y = (np.histogram(x, bins, weights=y)[0] / np.histogram(x, bins)[0])
 
-        return Spectrum(new_x, new_y)
+        return Pattern(new_x, new_y)
 
     @property
     def data(self):
@@ -141,8 +141,8 @@ class Spectrum(object):
 
     def limit(self, x_min, x_max):
         x, y = self.data
-        return Spectrum(x[np.where((x_min < x) & (x < x_max))],
-                        y[np.where((x_min < x) & (x < x_max))])
+        return Pattern(x[np.where((x_min < x) & (x < x_max))],
+                       y[np.where((x_min < x) & (x < x_max))])
 
     def extend_to(self, x_value, y_value):
         """
@@ -173,7 +173,7 @@ class Spectrum(object):
         else:
             return self
 
-        return Spectrum(new_x, new_y)
+        return Pattern(new_x, new_y)
 
     def plot(self, show=False, *args, **kwargs):
         import matplotlib.pyplot as plt
@@ -199,9 +199,9 @@ class Spectrum(object):
             if len(x) == 0:
                 # if there is no overlapping between background and spectrum, raise an error
                 raise BkgNotInRangeError(self.name)
-            return Spectrum(x, y - other_fcn(x))
+            return Pattern(x, y - other_fcn(x))
         else:
-            return Spectrum(orig_x, orig_y - other_y)
+            return Pattern(orig_x, orig_y - other_y)
 
     def __add__(self, other):
         orig_x, orig_y = self.data
@@ -219,16 +219,16 @@ class Spectrum(object):
             if len(x) == 0:
                 # if there is no overlapping between background and spectrum, raise an error
                 raise BkgNotInRangeError(self.name)
-            return Spectrum(x, y + other_fcn(x))
+            return Pattern(x, y + other_fcn(x))
         else:
-            return Spectrum(orig_x, orig_y + other_y)
+            return Pattern(orig_x, orig_y + other_y)
 
     def __rmul__(self, other):
         orig_x, orig_y = self.data
-        return Spectrum(np.copy(orig_x), np.copy(orig_y) * other)
+        return Pattern(np.copy(orig_x), np.copy(orig_y) * other)
 
     def __eq__(self, other):
-        if not isinstance(other, Spectrum):
+        if not isinstance(other, Pattern):
             return False
         if np.array_equal(self.data, other.data):
             return True

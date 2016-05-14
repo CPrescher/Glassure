@@ -3,7 +3,7 @@ __author__ = 'Clemens Prescher'
 import numpy as np
 from scipy import interpolate
 
-from .spectrum import Spectrum
+from .pattern import Pattern
 from .utility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
     calculate_f_mean_squared, calculate_f_squared_mean, extrapolate_to_zero_linear
 
@@ -89,12 +89,12 @@ class StandardCalculator(GlassureCalculator):
                                                 n).data
         # get q spacing and interpolate linearly to zero:
         if self.interpolation_method is None:
-            return Spectrum(q, structure_factor)
+            return Pattern(q, structure_factor)
         else:
             step = q[1] - q[0]
             q_low = np.arange(step, min(q), step)
             if self.interpolation_method == 'linear':
-                return extrapolate_to_zero_linear(Spectrum(q, structure_factor))
+                return extrapolate_to_zero_linear(Pattern(q, structure_factor))
             elif self.interpolation_method == 'spline':
                 q_low_cutoff = np.arange(step, self.interpolation_parameters['cutoff'], step)
                 intensity_low_cutoff = np.zeros(q_low_cutoff.shape)
@@ -107,8 +107,8 @@ class StandardCalculator(GlassureCalculator):
 
                 sq_low = interpolate.splev(q_low, tck)
 
-            return Spectrum(np.concatenate((q_low, q)),
-                            np.concatenate((sq_low, structure_factor)))
+            return Pattern(np.concatenate((q_low, q)),
+                           np.concatenate((sq_low, structure_factor)))
 
     def calc_fr(self, r=None):
         if r is None:

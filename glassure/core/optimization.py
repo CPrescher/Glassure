@@ -6,7 +6,7 @@ from copy import deepcopy
 import numpy as np
 import lmfit
 
-from . import Spectrum
+from . import Pattern
 from .calc import calculate_fr, calculate_gr_raw, calculate_sq, calculate_sq_raw, calculate_normalization_factor_raw
 from .utility import convert_density_to_atoms_per_cubic_angstrom, calculate_incoherent_scattering, \
     calculate_f_mean_squared, calculate_f_squared_mean
@@ -62,7 +62,7 @@ def optimize_sq(sq_spectrum, r_cutoff, iterations, atomic_density, use_modificat
         integral = np.trapz(in_integral, r) / attenuation_factor
         sq_optimized = sq_int * (1 - 1. / q * integral)
 
-        sq_spectrum = Spectrum(q, sq_optimized)
+        sq_spectrum = Pattern(q, sq_optimized)
 
         if fcn_callback is not None and iteration % callback_period == 0:
             fr_spectrum = calculate_fr(sq_spectrum, use_modification_fcn=use_modification_fcn)
@@ -186,7 +186,7 @@ def optimize_incoherent_container_scattering(sample_spectrum, sample_density, sa
     """
     q, _ = sample_spectrum.data
 
-    incoherent_background_spectrum = Spectrum(q, calculate_incoherent_scattering(container_composition, q))
+    incoherent_background_spectrum = Pattern(q, calculate_incoherent_scattering(container_composition, q))
     params = lmfit.Parameters()
     params.add("content", value=initial_content, min=0)
 

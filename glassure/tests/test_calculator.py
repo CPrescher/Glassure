@@ -6,7 +6,7 @@ import os
 
 import numpy as np
 
-from core import Spectrum
+from core import Pattern
 from core.calc import calculate_normalization_factor, calculate_sq, calculate_fr, calculate_gr, calculate_sq_from_gr
 from core.optimization import optimize_incoherent_container_scattering, optimize_sq
 from core.calculator import StandardCalculator
@@ -23,10 +23,10 @@ class GlassureCalculatorTest(unittest.TestCase):
         self.r = np.linspace(0.1,10,1000)
 
 
-        self.data_spectrum = Spectrum()
+        self.data_spectrum = Pattern()
         self.data_spectrum.load(sample_path)
 
-        self.bkg_spectrum = Spectrum()
+        self.bkg_spectrum = Pattern()
         self.bkg_spectrum.load(bkg_path)
 
         self.sample_spectrum = self.data_spectrum - self.bkg_spectrum

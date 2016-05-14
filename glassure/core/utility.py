@@ -8,7 +8,7 @@ from scipy import interpolate
 import lmfit
 
 from .scattering_factors import calculate_coherent_scattering_factor, calculate_incoherent_scattered_intensity
-from . import Spectrum
+from . import Pattern
 import scattering_factors
 
 __all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_incoherent_scattering',
@@ -103,8 +103,8 @@ def extrapolate_to_zero_step(spectrum):
     low_x = np.sort(np.arange(min(x), 0, -step))
     low_y = np.zeros(low_x.shape)
 
-    return Spectrum(np.concatenate((low_x, x)),
-                    np.concatenate((low_y, y)))
+    return Pattern(np.concatenate((low_x, x)),
+                   np.concatenate((low_y, y)))
 
 
 def extrapolate_to_zero_linear(spectrum):
@@ -117,8 +117,8 @@ def extrapolate_to_zero_linear(spectrum):
     step = x[1] - x[0]
     low_x = np.sort(np.arange(min(x), 0, -step))
     low_y = y[0] / x[0] * low_x
-    return Spectrum(np.concatenate((low_x, x)),
-                    np.concatenate((low_y, y)))
+    return Pattern(np.concatenate((low_x, x)),
+                   np.concatenate((low_y, y)))
 
 
 def extrapolate_to_zero_spline(spectrum, x_max, smooth_factor=None, replace=False):
@@ -157,8 +157,8 @@ def extrapolate_to_zero_spline(spectrum, x_max, smooth_factor=None, replace=Fals
     if len(ind_below_zero) > 0:
         y_low[:ind_below_zero[-1]] = 0
 
-    return Spectrum(np.concatenate((x_low, x)),
-                    np.concatenate((y_low, y)))
+    return Pattern(np.concatenate((x_low, x)),
+                   np.concatenate((y_low, y)))
 
 
 def extrapolate_to_zero_poly(spectrum, x_max, replace=False):
@@ -205,8 +205,8 @@ def extrapolate_to_zero_poly(spectrum, x_max, replace=False):
     y_low = a * (x_low - c) + b * (x_low - c) ** 2
     y_low[x_low < c] = 0
 
-    return Spectrum(np.concatenate((x_low, x)),
-                    np.concatenate((y_low, y)))
+    return Pattern(np.concatenate((x_low, x)),
+                   np.concatenate((y_low, y)))
 
 
 def convert_two_theta_to_q_space_raw(two_theta, wavelength):

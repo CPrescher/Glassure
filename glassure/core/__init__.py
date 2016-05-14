@@ -17,7 +17,7 @@ def _module_path():
 
 
 
-from .spectrum import Spectrum
+from .pattern import Pattern
 
 from .calc import *
 from .utility import *

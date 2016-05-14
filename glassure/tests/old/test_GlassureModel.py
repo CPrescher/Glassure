@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from core import spectrum
+from core import pattern
 from gui.model import glassure_model
 from gui.model import calc_transforms
 
@@ -27,10 +27,10 @@ class GlassureModelTest(unittest.TestCase):
         plt.plot(x, y)
 
     def test_calculate_transforms(self):
-        data_spectrum = spectrum()
+        data_spectrum = pattern()
         data_spectrum.load('data/Mg2SiO4_091.xy')
 
-        bkg_spectrum = spectrum()
+        bkg_spectrum = pattern()
         bkg_spectrum.load('data/Mg2SiO4_091_bkg.xy')
 
         self.model.load_data('data/Mg2SiO4_091.xy')
