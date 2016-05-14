@@ -7,9 +7,13 @@ import sys
 from gui.qt import QtGui
 from gui.controller.gui_controller import MainController
 
+from core import __version__ as version
+
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     from sys import platform as _platform
+
+    print("Glassure {}".format(version))
 
     if _platform != "Darwin":
         app.setStyle('plastique')
