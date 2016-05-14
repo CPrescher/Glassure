@@ -52,9 +52,10 @@ class MainWidget(QtGui.QWidget):
 
     def show(self):
         QtGui.QWidget.show(self)
-        self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
-        self.activateWindow()
-        self.raise_()
+        if sys.platform == "darwin":
+            self.main_widget.setWindowState(self.main_widget.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
+            self.main_widget.activateWindow()
+            self.main_widget.raise_()
 
     def load_stylesheet(self):
         stylesheet_file = open(os.path.join(module_path(), "DioptasStyle.qss"), 'r')
