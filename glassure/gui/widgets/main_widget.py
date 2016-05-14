@@ -3,7 +3,7 @@
 import sys
 import os
 
-__version__=0.1
+from core import __version__
 
 from ..qt import QtGui, QtCore
 
