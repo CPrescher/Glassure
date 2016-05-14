@@ -1,10 +1,10 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui
+from ...qt import QtCore, QtGui, Signal
 
 
 class OptimizationWidget(QtGui.QWidget):
-    calculation_parameters_changed = QtCore.Signal(float)
+    calculation_parameters_changed = Signal(float)
 
     def __init__(self, *args):
         super(OptimizationWidget, self).__init__(*args)

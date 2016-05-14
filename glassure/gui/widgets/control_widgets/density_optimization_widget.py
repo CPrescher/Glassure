@@ -1,10 +1,10 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui
+from ...qt import QtCore, QtGui, Signal
 
 
 class DensityOptimizationWidget(QtGui.QWidget):
-    calculation_parameters_changed = QtCore.Signal(float)
+    calculation_parameters_changed = Signal(float)
 
     def __init__(self, *args):
         super(DensityOptimizationWidget, self).__init__(*args)

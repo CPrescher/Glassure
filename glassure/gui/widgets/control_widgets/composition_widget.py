@@ -1,11 +1,11 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui
+from ...qt import QtCore, QtGui, Signal
 from core.scattering_factors import scattering_factor_param
 
 
 class CompositionWidget(QtGui.QWidget):
-    composition_changed = QtCore.Signal(dict, float)
+    composition_changed = Signal(dict, float)
 
     def __init__(self, *args):
         super(CompositionWidget, self).__init__(*args)

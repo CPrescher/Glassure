@@ -1,12 +1,12 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui
+from ...qt import QtCore, QtGui, Signal
 
 from ..custom_widgets import HorizontalLine
 
 
 class InterpolationWidget(QtGui.QWidget):
-    interpolation_parameters_changed = QtCore.Signal()
+    interpolation_parameters_changed = Signal()
 
     def __init__(self, *args):
         super(InterpolationWidget, self).__init__(*args)
