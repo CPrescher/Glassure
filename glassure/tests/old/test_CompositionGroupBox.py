@@ -4,9 +4,7 @@ __author__ = 'Clemens Prescher'
 import unittest
 import os
 
-from PySide import QtCore, QtGui
-from PySide.QtTest import QTest
-
+from gui.qt import QtCore, QtGui, QTest
 from gui.controller import gui_controller
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')

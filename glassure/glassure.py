@@ -3,8 +3,8 @@
 from __future__ import absolute_import
 
 import sys
-from PySide import QtGui
 
+from gui.qt import QtGui
 from gui.controller.gui_controller import MainController
 
 if __name__ == "__main__":

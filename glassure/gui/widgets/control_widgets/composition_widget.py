@@ -1,7 +1,6 @@
 # -*- coding: utf8 -*-
 
-from PySide import QtCore, QtGui
-
+from ...qt import QtCore, QtGui
 from core.scattering_factors import scattering_factor_param
 
 

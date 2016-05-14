@@ -2,7 +2,7 @@
 
 import pyqtgraph as pg
 import numpy as np
-from PySide import QtCore, QtGui
+from ...qt import QtCore, QtGui
 
 
 # TODO refactoring of the 3 lists: overlays, overlay_names, overlay_show,

@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from PySide import QtGui
+from ..qt import QtGui
 
 from .control_widgets import CompositionWidget, DataWidget, OptimizationWidget, \
     OptionsWidget, DensityOptimizationWidget, InterpolationWidget, DiamondWidget

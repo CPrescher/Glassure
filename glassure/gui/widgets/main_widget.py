@@ -3,7 +3,9 @@
 import sys
 import os
 
-from PySide import QtGui, QtCore
+__version__=0.1
+
+from ..qt import QtGui, QtCore
 
 from gui.widgets.custom_widgets import SpectrumWidget
 from .control_widget import LeftControlWidget, RightControlWidget

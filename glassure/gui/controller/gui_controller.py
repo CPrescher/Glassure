@@ -3,7 +3,7 @@
 import sys
 import os
 
-from PySide import QtGui, QtCore
+from ..qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
 

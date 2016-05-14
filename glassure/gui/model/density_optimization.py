@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import numpy as np
-from PySide import QtGui
+from ..qt import QtGui
 from lmfit import Parameters, minimize, report_fit
 
 from core.calculator import StandardCalculator

@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from PySide import QtGui
+from ...qt import QtGui
 
 
 class ExpandableBox(QtGui.QWidget):

@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from PySide import QtCore, QtGui
+from ...qt import QtCore, QtGui
 
 from ..custom_widgets import HorizontalLine
 
