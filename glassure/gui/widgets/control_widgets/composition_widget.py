@@ -1,12 +1,12 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
-from PyQt4 import QtCore, QtGui
+from PySide import QtCore, QtGui
 
 from core.scattering_factors import scattering_factor_param
 
 
 class CompositionWidget(QtGui.QWidget):
-    composition_changed = QtCore.pyqtSignal(dict, float)
+    composition_changed = QtCore.Signal(dict, float)
 
     def __init__(self, *args):
         super(CompositionWidget, self).__init__(*args)

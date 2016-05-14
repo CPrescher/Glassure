@@ -1,13 +1,13 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 
-from PyQt4 import QtCore, QtGui
+from PySide import QtCore, QtGui
 
 from ..custom_widgets import HorizontalLine
 
 
 class OptionsWidget(QtGui.QWidget):
-    options_parameters_changed = QtCore.pyqtSignal()
+    options_parameters_changed = QtCore.Signal()
 
     def __init__(self, *args):
         super(OptionsWidget, self).__init__(*args)

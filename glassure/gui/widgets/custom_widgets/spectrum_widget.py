@@ -3,7 +3,7 @@ __author__ = 'Clemens Prescher'
 
 import pyqtgraph as pg
 import numpy as np
-from PyQt4 import QtCore, QtGui
+from PySide import QtCore, QtGui
 
 # TODO refactoring of the 3 lists: overlays, overlay_names, overlay_show,
 # should probably a class, making it more readable
@@ -95,9 +95,9 @@ class SpectrumWidget(QtGui.QWidget):
 
 
 class ModifiedPlotItem(pg.PlotItem):
-    mouse_moved = QtCore.pyqtSignal(float, float)
-    mouse_left_clicked = QtCore.pyqtSignal(float, float)
-    range_changed = QtCore.pyqtSignal(list)
+    mouse_moved = QtCore.Signal(float, float)
+    mouse_left_clicked = QtCore.Signal(float, float)
+    range_changed = QtCore.Signal(list)
 
     def __init__(self, *args, **kwargs):
         super(ModifiedPlotItem, self).__init__(*args, **kwargs)

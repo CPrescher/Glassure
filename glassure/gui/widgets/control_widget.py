@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 
-from PyQt4 import QtGui
+from PySide import QtGui
 
 from .control_widgets import CompositionWidget, DataWidget, OptimizationWidget, \
                     OptionsWidget, DensityOptimizationWidget, InterpolationWidget, DiamondWidget

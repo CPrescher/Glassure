@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 
-from PyQt4 import QtGui
+from PySide import QtGui
 
 class ExpandableBox(QtGui.QWidget):
     def __init__(self, content_widget, title='', hide=False):

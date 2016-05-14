@@ -4,8 +4,8 @@ __author__ = 'Clemens Prescher'
 import unittest
 import os
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtTest import QTest
+from PySide import QtCore, QtGui
+from PySide.QtTest import QTest
 
 from gui.controller import gui_controller
 

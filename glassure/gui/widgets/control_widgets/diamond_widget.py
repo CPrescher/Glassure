@@ -2,7 +2,7 @@
 __author__ = 'Clemens Prescher'
 
 
-from PyQt4 import QtCore, QtGui
+from PySide import QtCore, QtGui
 
 class DiamondWidget(QtGui.QWidget):
 

@@ -3,7 +3,7 @@ from __future__ import absolute_import
 __author__ = 'Clemens Prescher'
 
 import sys
-from PyQt4 import QtGui
+from PySide import QtGui
 
 from gui.controller.gui_controller import MainController
 

@@ -1,10 +1,10 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 
-from PyQt4 import QtCore, QtGui
+from PySide import QtCore, QtGui
 
 class OptimizationWidget(QtGui.QWidget):
-    calculation_parameters_changed = QtCore.pyqtSignal(float)
+    calculation_parameters_changed = QtCore.Signal(float)
 
     def __init__(self, *args):
         super(OptimizationWidget, self).__init__(*args)

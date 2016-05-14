@@ -1,12 +1,10 @@
 # -*- coding: utf8 -*-
 __author__ = 'Clemens Prescher'
 
-__version__ = 0.1
-
 import sys
 import os
 
-from PyQt4 import QtGui, QtCore
+from PySide import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
 

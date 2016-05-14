@@ -2,7 +2,7 @@
 __author__ = 'Clemens Prescher'
 
 
-from PyQt4 import QtCore, QtGui
+from PySide import QtCore, QtGui
 
 class DataWidget(QtGui.QWidget):
     def __init__(self):

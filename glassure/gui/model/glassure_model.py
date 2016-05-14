@@ -3,7 +3,7 @@ __author__ = 'Clemens Prescher'
 
 import numpy as np
 from lmfit import Parameters, minimize
-from PyQt4 import QtGui, QtCore
+from PySide import QtGui, QtCore
 
 from core.pattern import Pattern
 from density_optimization import DensityOptimizer
@@ -13,10 +13,10 @@ from core.optimization import optimize_sq
 
 
 class GlassureModel(QtCore.QObject):
-    data_changed = QtCore.pyqtSignal()
-    sq_changed = QtCore.pyqtSignal(Pattern)
-    fr_changed = QtCore.pyqtSignal(Pattern)
-    gr_changed = QtCore.pyqtSignal(Pattern)
+    data_changed = QtCore.Signal()
+    sq_changed = QtCore.Signal(Pattern)
+    fr_changed = QtCore.Signal(Pattern)
+    gr_changed = QtCore.Signal(Pattern)
 
     def __init__(self):
         super(GlassureModel, self).__init__()
