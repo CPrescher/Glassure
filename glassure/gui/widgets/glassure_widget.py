@@ -48,11 +48,12 @@ class GlassureWidget(QtGui.QWidget):
 
         self.load_stylesheet()
 
-        self.create_shortcuts()
+        self.create_widget_shortcuts()
+        self.create_function_shortcuts()
 
         self.setWindowTitle("Glassure v{}".format(__version__))
 
-    def create_shortcuts(self):
+    def create_widget_shortcuts(self):
         self.load_data_btn = self.left_control_widget.data_widget.file_widget.load_data_btn
         self.load_bkg_btn = self.left_control_widget.data_widget.file_widget.load_background_btn
 
@@ -74,12 +75,22 @@ class GlassureWidget(QtGui.QWidget):
         self.activate_interpolation_cb = self.left_control_widget.interpolation_widget.activate_cb
 
         self.save_sq_btn = self.spectrum_widget.mouse_position_widget.save_sq_btn
-        self.save_gr_btn = self.spectrum_widget.mouse_position_widget.save_pdf_btn
+        self.save_gr_btn = self.spectrum_widget.mouse_position_widget.save_gr_btn
+
+    def create_function_shortcuts(self):
+        self.get_composition = self.left_control_widget.composition_widget.get_composition
+        self.get_density = self.left_control_widget.composition_widget.get_density
+
+        self.get_parameter = self.left_control_widget.options_widget.get_parameter
+        self.get_interpolation_method = self.left_control_widget.interpolation_widget.get_interpolation_method
+        self.get_interpolation_parameters = self.left_control_widget.interpolation_widget.get_interpolation_parameters
+        self.get_optimization_parameter = self.right_control_widget.optimization_widget.get_parameter
 
     def show(self):
         QtGui.QWidget.show(self)
         if sys.platform == "darwin":
-            self.main_widget.setWindowState(self.main_widget.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
+            self.main_widget.setWindowState(
+                self.main_widget.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
             self.main_widget.activateWindow()
             self.main_widget.raise_()
 

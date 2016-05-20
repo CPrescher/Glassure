@@ -141,15 +141,15 @@ class GlassureController(object):
         self.main_widget.left_control_widget.composition_widget.delete_element(cur_ind)
 
     def update_model(self):
-        composition = self.main_widget.left_control_widget.composition_widget.get_composition()
+        composition = self.main_widget.get_composition()
         density = self.main_widget.left_control_widget.composition_widget.get_density()
 
-        q_min, q_max, r_min, r_max = self.main_widget.left_control_widget.options_widget.get_parameter()
-        r_cutoff, _ = self.main_widget.right_control_widget.optimization_widget.get_parameter()
+        q_min, q_max, r_min, r_max = self.main_widget.get_parameter()
+        r_cutoff, _ = self.main_widget.get_optimization_parameter()
 
-        use_modification_fcn = self.main_widget.left_control_widget.options_widget.modification_fcn_cb.isChecked()
-        interpolation_method = self.main_widget.left_control_widget.interpolation_widget.get_interpolation_method()
-        interpolation_parameters= self.main_widget.left_control_widget.interpolation_widget.get_interpolation_parameters()
+        use_modification_fcn = self.main_widget.use_modification_cb.isChecked()
+        interpolation_method = self.main_widget.get_interpolation_method()
+        interpolation_parameters= self.main_widget.get_interpolation_parameters()
 
         self.model.update_parameter(composition, density,
                                     q_min, q_max,
