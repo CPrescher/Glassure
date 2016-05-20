@@ -12,9 +12,9 @@ cache:
 before_install:
   # install anaconda
   - if [ ! -d "/home/travis/miniconda2" ]; then
-      wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-      chmod +x miniconda.sh
-      ./miniconda.sh -b
+      wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+      chmod +x miniconda.sh;
+      ./miniconda.sh -b;
     fi
   - export PATH=/home/travis/miniconda2/bin:$PATH
   - conda update --yes conda
