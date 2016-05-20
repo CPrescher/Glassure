@@ -7,7 +7,7 @@ from scipy.integrate import simps
 
 from .scattering_factors import scattering_factor_param, calculate_coherent_scattering_factor, \
     calculate_incoherent_scattered_intensity
-from soller_correction import SollerCorrection
+from .soller_correction import SollerCorrection
 from .pattern import Pattern
 
 

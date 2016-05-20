@@ -6,7 +6,7 @@ import numpy as np
 from core import Pattern
 
 
-class SpectrumTest(unittest.TestCase):
+class PatternTest(unittest.TestCase):
     def test_plus_and_minus_operators(self):
         x = np.linspace(0, 10, 100)
         spectrum1 = Pattern(x, np.sin(x))
@@ -56,8 +56,8 @@ class SpectrumTest(unittest.TestCase):
         self.assertTrue(np.sum(binned_spectrum.y), np.sum(spectrum.y))
         # self.assertLessEqual(np.min(binned_spectrum.x), np.min(x))
         # self.assertEqual(np.min(np.min(binned_)))
-        print binned_spectrum.x
-        print binned_spectrum.y
+        print(binned_spectrum.x)
+        print(binned_spectrum.y)
 
     def test_extend_to(self):
         x = np.arange(2.8, 10, 0.2)

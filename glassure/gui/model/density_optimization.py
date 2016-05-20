@@ -47,7 +47,7 @@ class DensityOptimizer(object):
             calculator = StandardCalculator(
                 original_spectrum=self.original_spectrum,
                 background_spectrum=self.background_spectrum,
-                elemental_abundances=self.elemental_abundances,
+                composition=self.elemental_abundances,
                 density=density,
                 r=self.r,
                 interpolation_method=self.interpolation_method,

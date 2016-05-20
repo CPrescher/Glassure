@@ -19,6 +19,7 @@ class GlassureModel(QtCore.QObject):
 
     def __init__(self):
         super(GlassureModel, self).__init__()
+
         # initialize all spectra
         self.original_spectrum = Pattern()
         self._background_spectrum = Pattern()
@@ -42,7 +43,7 @@ class GlassureModel(QtCore.QObject):
         self._r_max = 10
         self.r_step = 0.01
 
-        self.r_cutoff = 1.0
+        self.r_cutoff = 1.4
 
         # initialize all Flags
         self._use_modification_fcn = False

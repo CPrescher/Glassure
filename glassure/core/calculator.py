@@ -13,19 +13,19 @@ from .optimization import optimize_sq
 
 
 class GlassureCalculator(object):
-    def __init__(self, original_spectrum, background_spectrum, elemental_abundances, density,
+    def __init__(self, original_spectrum, background_spectrum, composition, density,
                  r=np.linspace(0, 10, 1000)):
         self.original_spectrum = original_spectrum
         self.background_spectrum = background_spectrum
         self.sample_spectrum = self.original_spectrum - self.background_spectrum
-        self.elemental_abundances = elemental_abundances
+        self.elemental_abundances = composition
         self.density = density
-        self.atomic_density = convert_density_to_atoms_per_cubic_angstrom(elemental_abundances, density)
+        self.atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
 
         q, _ = self.sample_spectrum.data
-        self.incoherent_scattering = calculate_incoherent_scattering(elemental_abundances, q)
-        self.f_mean_squared = calculate_f_mean_squared(elemental_abundances, q)
-        self.f_squared_mean = calculate_f_squared_mean(elemental_abundances, q)
+        self.incoherent_scattering = calculate_incoherent_scattering(composition, q)
+        self.f_mean_squared = calculate_f_mean_squared(composition, q)
+        self.f_squared_mean = calculate_f_squared_mean(composition, q)
 
         self.sq_spectrum = None
         self.fr_spectrum = None
@@ -61,7 +61,7 @@ class GlassureCalculator(object):
 
 
 class StandardCalculator(GlassureCalculator):
-    def __init__(self, original_spectrum, background_spectrum, elemental_abundances, density,
+    def __init__(self, original_spectrum, background_spectrum, composition, density,
                  r=np.linspace(0, 10, 1000), normalization_attenuation_factor=0.001, use_modification_fcn=False,
                  interpolation_method=None, interpolation_parameters=None):
         self.attenuation_factor = normalization_attenuation_factor
@@ -70,7 +70,7 @@ class StandardCalculator(GlassureCalculator):
         self.interpolation_parameters = interpolation_parameters
 
         super(StandardCalculator, self).__init__(original_spectrum, background_spectrum,
-                                                 elemental_abundances, density, r)
+                                                 composition, density, r)
 
     def get_normalization_factor(self):
         return calculate_normalization_factor_raw(self.sample_spectrum,
@@ -87,7 +87,7 @@ class StandardCalculator(GlassureCalculator):
                                                 self.f_mean_squared,
                                                 self.incoherent_scattering,
                                                 n).data
-        # get q spacing and interpolate linearly to zero:
+
         if self.interpolation_method is None:
             return Pattern(q, structure_factor)
         else:

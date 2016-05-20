@@ -24,7 +24,7 @@ class SollerCorrectionTest(unittest.TestCase):
         self.assertEqual(np.max(soller.dispersion_angle_map.X), 40)
 
         self.assertEqual(np.min(soller.dispersion_angle_map.Y), -0.15)
-        self.assertEqual(np.max(soller.dispersion_angle_map.Y), 0.15)
+        self.assertAlmostEqual(np.max(soller.dispersion_angle_map.Y), 0.15, places=2)
 
     def test_calculate_function_for_region(self):
         two_theta = np.linspace(1, 40, 200)

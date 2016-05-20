@@ -3,6 +3,8 @@
 import unittest
 import os
 
+import matplotlib.pyplot as plt
+
 import numpy as np
 
 from core import Pattern
@@ -32,7 +34,7 @@ class GlassureCalculatorTest(unittest.TestCase):
         self.calculator = StandardCalculator(
             original_spectrum=self.data_spectrum,
             background_spectrum=self.bkg_spectrum,
-            elemental_abundances=self.composition,
+            composition=self.composition,
             density=self.density,
             r=self.r
         )
@@ -40,7 +42,6 @@ class GlassureCalculatorTest(unittest.TestCase):
     def compare_spectra(self, spectrum1, spectrum2):
         _, y1 = spectrum1.data
         _, y2 = spectrum2.data
-        print np.sum(np.abs(y1 - y2))
         return np.array_equal(y1, y2)
 
     def test_normalization_factor_calculation(self):
@@ -79,29 +80,25 @@ class GlassureCalculatorTest(unittest.TestCase):
         self.assertTrue(np.array_equal(y_core, y_calc))
 
     def test_optimize_sq(self):
-        sq_spectrum = calculate_sq(self.sample_spectrum, self.density, self.composition)
-        sq_spectrum = sq_spectrum.limit(0, 24)
-        sq_spectrum_optimized_core = optimize_sq(sq_spectrum, 1.4, 5, self.calculator.atomic_density)
+        sq_spectrum = calculate_sq(self.sample_spectrum.limit(0, 24), self.density, self.composition)
+        sq_spectrum_optimized_core = optimize_sq(sq_spectrum=sq_spectrum,
+                                                 r_cutoff=1.4,
+                                                 iterations=5,
+                                                 atomic_density=self.calculator.atomic_density)
 
         self.calculator = StandardCalculator(
             original_spectrum=self.data_spectrum.limit(0, 24),
             background_spectrum=self.bkg_spectrum.limit(0, 24),
-            elemental_abundances=self.composition,
+            composition=self.composition,
             density=self.density,
             r=self.r
         )
-        r = np.arange(0, 1.4, 0.02)
-        self.calculator.optimize_sq(r, 5)
+
+        self.calculator.optimize_sq(1.4, 5)
         sq_spectrum_optimized_calc = self.calculator.sq_spectrum
 
         _, y_core = sq_spectrum_optimized_core.data
         _, y_calc = sq_spectrum_optimized_calc.data
-
-        print len(y_core)
-        print len(y_calc)
-
-        print y_core
-        print y_calc
 
         self.assertTrue(np.array_equal(y_core, y_calc))
 

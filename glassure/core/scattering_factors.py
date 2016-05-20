@@ -24,7 +24,7 @@ def calculate_coherent_scattering_factor(element, q):
         raise ElementNotImplementedException(element)
     fs_coh = 0
     s = q / (4 * np.pi)
-    for ind in xrange(1, 5):
+    for ind in range(1, 5):
         A = scattering_factor_param['A' + str(ind)][element]
         B = scattering_factor_param['B' + str(ind)][element]
         fs_coh += A * np.exp(-B * s ** 2)

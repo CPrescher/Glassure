@@ -3,7 +3,6 @@
 import os
 import unittest
 import numpy as np
-import matplotlib.pyplot as plt
 
 from core import Pattern
 from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
@@ -111,7 +110,7 @@ class CalcEggertTest(unittest.TestCase):
         coherent_pattern = calculate_coherent_scattering(self.sample_spectrum, alpha, self.N,
                                                          inc)
 
-        self.assertAlmostEqual(coherent_pattern.y[-1], 36.521, places=3)
+        self.assertAlmostEqual(coherent_pattern.y[-1], 36.521, places=2)
 
     def test_calculate_sq(self):
         q = self.sample_spectrum.x
@@ -207,7 +206,7 @@ class CalcEggertTest(unittest.TestCase):
         current_thickness = 0.05
         diamond_content = 2.5
 
-        chi2, bkg_scaling, bkg_scaling_err, density, density_err, diamond_content, diamond_content_err = \
+        chi2, density, density_err, bkg_scaling, bkg_scaling_err, diamond_content, diamond_content_err = \
             optimize_soller_dac(
             self.data_spectrum.limit(0.3, 9),
             self.bkg_spectrum.limit(0.3, 9),
