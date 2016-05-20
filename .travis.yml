@@ -28,11 +28,12 @@ before_install:
       fi
     fi
     
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+  - if [ "$TRAVIS_PYTHON_VERSION" == "2.7" ]; then
       export PATH=/home/travis/miniconda2/bin:$PATH;
     else
       export PATH=/home/travis/miniconda3/bin:$PATH;
     fi
+  - li 
     
   - conda update --yes conda
   - export PYTHONPATH=$PWD/glassure:$PYTHONPATH
