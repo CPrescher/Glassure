@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 import unittest
 import os
@@ -18,6 +17,7 @@ class CompositionGroupBoxTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.app.quit()
+        cls.app.deleteLater()
 
     def setUp(self):
         self.controller = GlassureController()

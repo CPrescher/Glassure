@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 import unittest
 import os
@@ -20,6 +19,7 @@ class GlassureFunctionalTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.app.quit()
+        cls.app.deleteLater()
 
     def setUp(self):
         self.main_controller = GlassureController()
