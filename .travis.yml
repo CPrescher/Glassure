@@ -9,15 +9,30 @@ cache:
   pip: true
   directories:
     -$HOME/miniconda2
+    -$HOME/miniconda3
   
 before_install:
   # install anaconda
-  - if [ ! -d "/home/travis/miniconda2" ]; then
-      wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-      chmod +x miniconda.sh;
-      ./miniconda.sh -b;
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      if [ ! -d "/home/travis/miniconda2" ]; then
+        wget http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+        chmod +x miniconda.sh;
+        ./miniconda.sh -b;
+      fi
+    else
+      if [ ! -d "/home/travis/miniconda2" ]; then
+        wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+        chmod +x miniconda.sh;
+        ./miniconda.sh -b;
+      fi
     fi
-  - export PATH=/home/travis/miniconda2/bin:$PATH
+    
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      export PATH=/home/travis/miniconda2/bin:$PATH;
+    else
+      export PATH=/home/travis/miniconda3/bin:$PATH;
+    fi
+    
   - conda update --yes conda
   - export PYTHONPATH=$PWD/glassure:$PYTHONPATH
 
