@@ -20,7 +20,10 @@ before_install:
 
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy pyqt pytest pytest-cov pandas
-  - pip install pyqtgraph lmfit
+  - pip install pyqtgraph lmfit coverall coverage
 
 script:
-  - py.test --cov-report term-missing --cov-config .coveragerc --cov=glassure
+  - coverage run --source glassure -m py.test
+  
+after_success:
+  coveralls
