@@ -24,6 +24,7 @@ class ExtrapolationWidgetTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        cls.app.exit()
         cls.app.quit()
         cls.app.deleteLater()
         del cls.app
