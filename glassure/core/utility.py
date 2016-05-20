@@ -192,9 +192,9 @@ def extrapolate_to_zero_poly(spectrum, x_max, replace=False):
         return (y_fit - (x_fit - c) * a - (x_fit - c) ** 2 * b)
 
     result = lmfit.minimize(optimization_fcn, params)
-    a = params['a'].value
-    b = params['b'].value
-    c = params['c'].value
+    a = result.params['a'].value
+    b = result.params['b'].value
+    c = result.params['c'].value
 
     x_low = np.sort(np.arange(min(x), 0, -x_step))
     if replace:
