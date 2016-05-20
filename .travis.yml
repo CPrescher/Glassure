@@ -5,10 +5,6 @@ python:
   - 2.7
   - 3.5
   
-cache:
-  directories:
-    - /home/travis/miniconda2
-
 before_install:
   # install anaconda
   - if [ ! -d "/home/travis/miniconda2" ]; then
