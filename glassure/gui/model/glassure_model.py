@@ -221,12 +221,12 @@ class GlassureModel(QtCore.QObject):
             self.sq_spectrum = extrapolate_to_zero_linear(self.sq_spectrum)
         elif self.extrapolation_method == 'spline':
             self.sq_spectrum = extrapolate_to_zero_spline(self.sq_spectrum,
-                                                          self.extrapolation_parameters['q_max'])
+                                                          self.extrapolation_parameters['q_max'],
+                                                          replace=self.extrapolation_parameters['replace'])
         elif self.extrapolation_method == 'poly':
             self.sq_spectrum = extrapolate_to_zero_poly(self.sq_spectrum,
-                                                        x_max = self.extrapolation_parameters['q_max'],
-                                                        replace = self.extrapolation_parameters['replace'])
-
+                                                        x_max=self.extrapolation_parameters['q_max'],
+                                                        replace=self.extrapolation_parameters['replace'])
 
     def calculate_fr(self):
         self.fr_spectrum = calculate_fr(self.sq_spectrum,
