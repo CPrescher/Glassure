@@ -53,11 +53,11 @@ class GlassureModel(QtCore.QObject):
 
     def load_data(self, filename):
         self.original_spectrum.load(filename)
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     def load_bkg(self, filename):
         self.background_spectrum.load(filename)
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     @property
     def atomic_density(self):
@@ -82,7 +82,7 @@ class GlassureModel(QtCore.QObject):
     @background_scaling.setter
     def background_scaling(self, new_value):
         self._background_spectrum.scaling = new_value
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     @property
     def composition(self):
@@ -91,7 +91,7 @@ class GlassureModel(QtCore.QObject):
     @composition.setter
     def composition(self, new_composition):
         self._composition = new_composition
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     @property
     def density(self):
@@ -100,7 +100,7 @@ class GlassureModel(QtCore.QObject):
     @density.setter
     def density(self, new_density):
         self._density = new_density
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     @property
     def q_min(self):
@@ -109,7 +109,7 @@ class GlassureModel(QtCore.QObject):
     @q_min.setter
     def q_min(self, new_q_min):
         self._q_min = new_q_min
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     @property
     def q_max(self):
@@ -118,7 +118,7 @@ class GlassureModel(QtCore.QObject):
     @q_max.setter
     def q_max(self, new_q_max):
         self._q_max = new_q_max
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     @property
     def r_min(self):
@@ -127,7 +127,7 @@ class GlassureModel(QtCore.QObject):
     @r_min.setter
     def r_min(self, new_r_min):
         self._r_min = new_r_min
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     @property
     def r_max(self):
@@ -136,7 +136,7 @@ class GlassureModel(QtCore.QObject):
     @r_max.setter
     def r_max(self, new_r_max):
         self._r_max = new_r_max
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     @property
     def use_modification_fcn(self):
@@ -145,7 +145,7 @@ class GlassureModel(QtCore.QObject):
     @use_modification_fcn.setter
     def use_modification_fcn(self, value):
         self._use_modification_fcn = value
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     @property
     def sq_spectrum(self):
@@ -177,10 +177,10 @@ class GlassureModel(QtCore.QObject):
     def set_smooth(self, value):
         self.original_spectrum.set_smoothing(value)
         self._background_spectrum.set_smoothing(value)
-        self.calculate_spectra()
+        self.calculate_transforms()
 
-    def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min, r_max, use_modification_fcn=False,
-                         interpolation_method=None, interpolation_parameters=None):
+    def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min=0, r_max=10,
+                         use_modification_fcn=False, interpolation_method=None, interpolation_parameters=None):
         self.composition = composition
         self.density = density
 
@@ -195,9 +195,9 @@ class GlassureModel(QtCore.QObject):
         self.interpolation_method = interpolation_method
         self.interpolation_parameters = interpolation_parameters
 
-        self.calculate_spectra()
+        self.calculate_transforms()
 
-    def calculate_spectra(self):
+    def calculate_transforms(self):
         if len(self.composition) != 0 and \
                         self.original_spectrum is not None and \
                         self.background_spectrum is not None:
@@ -268,7 +268,7 @@ class GlassureModel(QtCore.QObject):
             background_scaling = params['background_scaling'].value
 
             self.background_spectrum.scaling = background_scaling
-            self.calculate_spectra()
+            self.calculate_transforms()
             self.optimize_sq(iterations, fcn_callback=callback_fcn)
 
             r, fr = self.fr_spectrum.limit(0, self.r_cutoff).data
@@ -308,13 +308,13 @@ class GlassureModel(QtCore.QObject):
     def set_diamond_content(self, content_value):
         if content_value is 0:
             self.diamond_background_spectrum = None
-            self.calculate_spectra()
+            self.calculate_transforms()
             return
 
         q, _ = self.background_spectrum.data
         int = calculate_incoherent_scattering({'C': 1}, q) * content_value
         self.diamond_background_spectrum = Pattern(q, int)
-        self.calculate_spectra()
+        self.calculate_transforms()
 
     def optimize_diamond_content(self, diamond_content=0, callback_fcn=None):
         params = Parameters()

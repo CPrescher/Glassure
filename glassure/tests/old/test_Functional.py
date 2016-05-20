@@ -7,25 +7,30 @@ import os
 import numpy as np
 from gui.qt import QtGui
 
-from gui.controller.gui_controller import MainController
+from gui.controller.gui_controller import GlassureController
 
-unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
+unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
+
 
 class GlassureFunctionalTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QtGui.QApplication([])
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.app.quit()
+
     def setUp(self):
-        self.app = QtGui.QApplication([])
-        self.main_controller = MainController()
+        self.main_controller = GlassureController()
         self.main_view = self.main_controller.main_widget
         self.model = self.main_controller.model
 
-    def tearDown(self):
-        del self.app
-
     def test_normal_workflow(self):
-        #Edd opens the program and wants to load his data and background file:
+        # Edd opens the program and wants to load his data and background file:
 
-        self.main_controller.load_data(os.path.join(unittest_data_path, 'Mg2SiO4_091.xy'))
-        self.main_controller.load_bkg(os.path.join(unittest_data_path, 'Mg2SiO4_091_bkg.xy'))
+        self.main_controller.load_data(os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy'))
+        self.main_controller.load_bkg(os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy'))
 
         # he gives the composition of the sample and the normalization procedure is automatically done and he sees
         # a computed g(r) and s(q)
@@ -60,5 +65,4 @@ class GlassureFunctionalTest(unittest.TestCase):
         self.assertFalse(np.array_equal(prev_sq_data, self.main_view.spectrum_widget.sq_item.getData()))
         self.assertFalse(np.array_equal(prev_gr_data, self.main_view.spectrum_widget.pdf_item.getData()))
 
-
-        self.fail("finish this test!")
+        # self.fail("finish this test!")

@@ -2,39 +2,36 @@
 __author__ = 'Clemens Prescher'
 
 import unittest
+import os
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-from core import pattern
-from gui.model import glassure_model
-from gui.model import calc_transforms
+from core import Pattern
+from core import calculate_sq
+from gui.model.glassure_model import GlassureModel
+
+unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
+
+
+def data_path(filename):
+    return os.path.join(unittest_data_path, filename)
 
 
 class GlassureModelTest(unittest.TestCase):
     def setUp(self):
-        self.model = glassure_model()
+        self.model = GlassureModel()
 
     def tearDown(self):
         pass
 
-    def limit_spectrum_q(self, spectrum, q_max):
-        q, int = spectrum.data
-        return spectrum(q[np.where(q < q_max)], int[np.where(q < q_max)])
-
-    def plot_spectrum(self, spectrum):
-        x, y = spectrum.data
-        plt.plot(x, y)
-
     def test_calculate_transforms(self):
-        data_spectrum = pattern()
-        data_spectrum.load('data/Mg2SiO4_091.xy')
+        data_spectrum = Pattern.from_file(data_path('Mg2SiO4_ambient.xy'))
 
-        bkg_spectrum = pattern()
-        bkg_spectrum.load('data/Mg2SiO4_091_bkg.xy')
+        bkg_spectrum = Pattern.from_file(data_path('Mg2SiO4_ambient_bkg.xy'))
 
-        self.model.load_data('data/Mg2SiO4_091.xy')
-        self.model.load_bkg('data/Mg2SiO4_091_bkg.xy')
+        self.model.load_data(data_path('Mg2SiO4_ambient.xy'))
+        self.model.load_bkg(data_path('Mg2SiO4_ambient_bkg.xy'))
 
         odata1_x, odata1_y = self.model.original_spectrum.data
         odata2_x, odata2_y = data_spectrum.data
@@ -44,11 +41,10 @@ class GlassureModelTest(unittest.TestCase):
         bkg_data2_x, bkg_data2_y = bkg_spectrum.data
         self.assertEqual(np.sum(np.abs(bkg_data2_y - bkg_data1_y)), 0)
 
-
         q_min = 0
         q_max = 10
-        data_spectrum = self.limit_spectrum_q(data_spectrum, q_max)
-        bkg_spectrum = self.limit_spectrum_q(bkg_spectrum, q_max)
+        data_spectrum = data_spectrum.limit(0, q_max)
+        bkg_spectrum = bkg_spectrum.limit(0, q_max)
 
         density = 1.7
         background_scaling = 0.83133015
@@ -61,13 +57,13 @@ class GlassureModelTest(unittest.TestCase):
 
         self.model.background_scaling = background_scaling
         self.model.update_parameter(elemental_abundances, density, q_min, q_max, 1.0)
-        sq_spectrum, fr_spectrum, gr_spectrum = calc_transforms(data_spectrum, bkg_spectrum,
-                                                                background_scaling, elemental_abundances,
-                                                                density, r)
-        sq_spectrum1_x, sq_spectrum1_y = self.model.sq_spectrum.data
-        sq_spectrum2_x, sq_spectrum2_y = sq_spectrum.data
 
+        sample_spectrum = data_spectrum - background_scaling * bkg_spectrum
+        sq_spectrum_core = calculate_sq(sample_spectrum, density, elemental_abundances)
+
+
+        sq_spectrum1_x, sq_spectrum1_y = self.model.sq_spectrum.data
+        sq_spectrum2_x, sq_spectrum2_y = sq_spectrum_core.data
 
         self.assertEqual(len(sq_spectrum1_x), len(sq_spectrum2_x))
-
         self.assertEqual(np.sum(np.abs(sq_spectrum1_y - sq_spectrum2_y)), 0)

@@ -5,24 +5,27 @@ import unittest
 import os
 
 from gui.qt import QtCore, QtGui, QTest
-from gui.controller import gui_controller
+from gui.controller.gui_controller import GlassureController
 
-unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
+unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 
 class CompositionGroupBoxTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QtGui.QApplication([])
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.app.quit()
+
     def setUp(self):
-        self.app = QtGui.QApplication([])
-        self.controller = gui_controller()
+        self.controller = GlassureController()
         self.widget = self.controller.main_widget
         self.composition_gb = self.widget.left_control_widget.composition_widget
 
         self.controller.load_data(os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy'))
         self.controller.load_data(os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy'))
-
-
-    def tearDown(self):
-        del self.app
 
     def test_adding_and_deleting_elements(self):
         QTest.mouseClick(self.composition_gb.add_element_btn, QtCore.Qt.LeftButton)
@@ -80,4 +83,3 @@ class CompositionGroupBoxTest(unittest.TestCase):
             'O': 3,
         }
         self.assertEqual(self.composition_gb.get_composition(), new_composition)
-

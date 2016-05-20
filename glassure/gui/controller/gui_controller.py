@@ -19,7 +19,7 @@ from gui.widgets.main_widget import MainWidget
 from gui.model.glassure_model import GlassureModel
 
 
-class MainController(object):
+class GlassureController(object):
     def __init__(self):
         self.main_widget = MainWidget()
 
