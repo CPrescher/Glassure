@@ -4,12 +4,18 @@ language: python
 python:
   - 2.7
   - 3.5
+  
+cache:
+  directories:
+    - /home/travis/miniconda2
 
 before_install:
   # install anaconda
-  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
+  - if [ ! -d "/home/travis/miniconda2" ]; then
+      wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+      chmod +x miniconda.sh;
+      ./miniconda.sh -b;
+    fi
   - export PATH=/home/travis/miniconda2/bin:$PATH
   - conda update --yes conda
   - export PYTHONPATH=$PWD/glassure:$PYTHONPATH
@@ -20,10 +26,10 @@ before_install:
 
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy pyqt pytest pytest-cov pandas
-  - pip install pyqtgraph lmfit coverall coverage
+  - pip install pyqtgraph lmfit coveralls coverage pytest-xdist
 
 script:
-  - coverage run --source glassure -m py.test
+  - coverage run --source glassure -m py.test -n 2
   
 after_success:
   coveralls
