@@ -88,13 +88,13 @@ class GlassureFunctionalTest(unittest.TestCase):
         self.assertTrue(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_item.getData()))
         self.assertFalse(np.array_equal(prev_gr_data, self.main_widget.spectrum_widget.pdf_item.getData()))
 
-        # the data unfortunately is not measured up to a Q of 0 A^-1, however the missing data below 1 A^-1 might have
-        # an effect on the optimization procedure later, therefor he wants to activate extrapolation to zero
+        # the data unfortunately is not measured up to a Q of 0 A^-1, however the missing data below 1 A^-1 is already
+        # might have extrapolated with a step function, he thinks the polynomial option might be a better choice:
 
-        click_checkbox(self.main_widget.activate_extrapolation_cb)
+        self.assertLess(self.main_widget.spectrum_widget.sq_item.getData()[0][0], 0.5)
 
-        new_sq_data = self.main_widget.spectrum_widget.sq_item.getData()
-        self.assertLess(new_sq_data[0][0], 0.5)
+        prev_sq_data = self.main_widget.spectrum_widget.sq_item.getData()
+        click_checkbox(self.main_widget.left_control_widget.extrapolation_widget.poly_extrapolation_rb)
+        self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_item.getData()))
 
-
-        self.fail("finish this test!")
+        # self.fail("finish this test!")

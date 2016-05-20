@@ -27,7 +27,7 @@ class ExtrapolationWidget(QtGui.QWidget):
         self.linear_extrapolation_rb = MyRadioButton("Linear")
         self.poly_extrapolation_rb = MyRadioButton("Polynomial")
         self.spline_extrapolation_rb = MyRadioButton("Spline")
-        self.step_extrapolation_rb.setCheckable(True)
+        self.step_extrapolation_rb.setChecked(True)
 
         self.q_max_lbl = QtGui.QLabel("Q Max:")
         self.q_max_txt = QtGui.QLineEdit("2")
