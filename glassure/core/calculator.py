@@ -63,11 +63,11 @@ class GlassureCalculator(object):
 class StandardCalculator(GlassureCalculator):
     def __init__(self, original_spectrum, background_spectrum, composition, density,
                  r=np.linspace(0, 10, 1000), normalization_attenuation_factor=0.001, use_modification_fcn=False,
-                 interpolation_method=None, interpolation_parameters=None):
+                 extrapolation_method=None, extrapolation_parameters=None):
         self.attenuation_factor = normalization_attenuation_factor
         self.use_modification_fcn = use_modification_fcn
-        self.interpolation_method = interpolation_method
-        self.interpolation_parameters = interpolation_parameters
+        self.extrapolation_method = extrapolation_method
+        self.extrapolation_parameters = extrapolation_parameters
 
         super(StandardCalculator, self).__init__(original_spectrum, background_spectrum,
                                                  composition, density, r)
@@ -88,18 +88,18 @@ class StandardCalculator(GlassureCalculator):
                                                 self.incoherent_scattering,
                                                 n).data
 
-        if self.interpolation_method is None:
+        if self.extrapolation_method is None:
             return Pattern(q, structure_factor)
         else:
             step = q[1] - q[0]
             q_low = np.arange(step, min(q), step)
-            if self.interpolation_method == 'linear':
+            if self.extrapolation_method == 'linear':
                 return extrapolate_to_zero_linear(Pattern(q, structure_factor))
-            elif self.interpolation_method == 'spline':
-                q_low_cutoff = np.arange(step, self.interpolation_parameters['cutoff'], step)
+            elif self.extrapolation_method == 'spline':
+                q_low_cutoff = np.arange(step, self.extrapolation_parameters['cutoff'], step)
                 intensity_low_cutoff = np.zeros(q_low_cutoff.shape)
 
-                ind_to_q_max = np.where(q <= self.interpolation_parameters['q_max'])
+                ind_to_q_max = np.where(q <= self.extrapolation_parameters['q_max'])
                 q_spline = np.concatenate((q_low_cutoff, q[ind_to_q_max]))
                 int_spline = np.concatenate((intensity_low_cutoff, structure_factor[ind_to_q_max]))
 

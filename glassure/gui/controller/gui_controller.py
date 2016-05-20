@@ -59,7 +59,7 @@ class GlassureController(object):
 
         # updating the calculation parameters
         self.main_widget.left_control_widget.options_widget.options_parameters_changed.connect(self.update_model)
-        self.main_widget.left_control_widget.interpolation_widget.interpolation_parameters_changed.connect(self.update_model)
+        self.main_widget.left_control_widget.extrapolation_widget.extrapolation_parameters_changed.connect(self.update_model)
         self.main_widget.right_control_widget.optimization_widget.calculation_parameters_changed.connect(self.update_model)
 
         # optimization controls
@@ -148,16 +148,16 @@ class GlassureController(object):
         r_cutoff, _ = self.main_widget.get_optimization_parameter()
 
         use_modification_fcn = self.main_widget.use_modification_cb.isChecked()
-        interpolation_method = self.main_widget.get_interpolation_method()
-        interpolation_parameters= self.main_widget.get_interpolation_parameters()
+        extrapolation_method = self.main_widget.get_extrapolation_method()
+        extrapolation_parameters= self.main_widget.get_extrapolation_parameters()
 
         self.model.update_parameter(composition, density,
                                     q_min, q_max,
                                     r_cutoff,
                                     r_min, r_max,
                                     use_modification_fcn,
-                                    interpolation_method,
-                                    interpolation_parameters)
+                                    extrapolation_method,
+                                    extrapolation_parameters)
 
     def optimize_btn_clicked(self):
         self.main_widget.left_control_widget.setEnabled(False)

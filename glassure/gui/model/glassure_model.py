@@ -10,6 +10,9 @@ from core.utility import calculate_incoherent_scattering, convert_density_to_ato
 from core import calculate_sq, calculate_gr, calculate_fr
 from core.optimization import optimize_sq
 
+from core.utility import extrapolate_to_zero_linear, extrapolate_to_zero_step, extrapolate_to_zero_spline, \
+    extrapolate_to_zero_poly
+
 
 class GlassureModel(QtCore.QObject):
     data_changed = Signal()
@@ -48,8 +51,8 @@ class GlassureModel(QtCore.QObject):
         # initialize all Flags
         self._use_modification_fcn = False
 
-        self.interpolation_method = None
-        self.interpolation_parameters = None
+        self.extrapolation_method = None
+        self.extrapolation_parameters = None
 
     def load_data(self, filename):
         self.original_spectrum.load(filename)
@@ -180,7 +183,7 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min=0, r_max=10,
-                         use_modification_fcn=False, interpolation_method=None, interpolation_parameters=None):
+                         use_modification_fcn=False, extrapolation_method=None, extrapolation_parameters=None):
         self.composition = composition
         self.density = density
 
@@ -192,8 +195,8 @@ class GlassureModel(QtCore.QObject):
         self.r_max = r_max
 
         self.use_modification_fcn = use_modification_fcn
-        self.interpolation_method = interpolation_method
-        self.interpolation_parameters = interpolation_parameters
+        self.extrapolation_method = extrapolation_method
+        self.extrapolation_parameters = extrapolation_parameters
 
         self.calculate_transforms()
 
@@ -201,7 +204,6 @@ class GlassureModel(QtCore.QObject):
         if len(self.composition) != 0 and \
                         self.original_spectrum is not None and \
                         self.background_spectrum is not None:
-
             self.calculate_sq()
             self.calculate_fr()
             self.calculate_gr()
@@ -213,6 +215,19 @@ class GlassureModel(QtCore.QObject):
                                         density=self.density,
                                         composition=self.composition)
 
+        if self.extrapolation_method == 'step':
+            self.sq_spectrum = extrapolate_to_zero_step(self.sq_spectrum)
+        if self.extrapolation_method == 'linear':
+            self.sq_spectrum = extrapolate_to_zero_linear(self.sq_spectrum)
+        elif self.extrapolation_method == 'spline':
+            self.sq_spectrum = extrapolate_to_zero_spline(self.sq_spectrum,
+                                                          self.extrapolation_parameters['q_max'])
+        elif self.extrapolation_method == 'poly':
+            self.sq_spectrum = extrapolate_to_zero_poly(self.sq_spectrum,
+                                                        x_max = self.extrapolation_parameters['q_max'],
+                                                        replace = self.extrapolation_parameters['replace'])
+
+
     def calculate_fr(self):
         self.fr_spectrum = calculate_fr(self.sq_spectrum,
                                         r=np.arange(self.r_min, self.r_max + self.r_step * 0.5, self.r_step),
@@ -221,14 +236,13 @@ class GlassureModel(QtCore.QObject):
     def calculate_gr(self):
         self.gr_spectrum = calculate_gr(self.fr_spectrum, self.density, self.composition)
 
-
     def optimize_sq(self, iterations=50, fcn_callback=None, attenuation_factor=1, use_modification_fcn=False):
         self.sq_spectrum = optimize_sq(self.sq_spectrum, self.r_cutoff,
-                                       iterations = iterations,
-                                       atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition,
-                                                                                                    self.density),
+                                       iterations=iterations,
+                                       atomic_density=convert_density_to_atoms_per_cubic_angstrom(self.composition,
+                                                                                                  self.density),
                                        use_modification_fcn=use_modification_fcn,
-                                       attenuation_factor= attenuation_factor,
+                                       attenuation_factor=attenuation_factor,
                                        fcn_callback=fcn_callback)
         self.calculate_fr()
         self.calculate_gr()
@@ -248,8 +262,8 @@ class GlassureModel(QtCore.QObject):
             bkg_min=bkg_min,
             bkg_max=bkg_max,
             use_modification_fcn=self.use_modification_fcn,
-            interpolation_method=self.interpolation_method,
-            interpolation_parameters=self.interpolation_parameters,
+            extrapolation_method=self.extrapolation_method,
+            extrapolation_parameters=self.extrapolation_parameters,
             output_txt=output_txt
         )
 

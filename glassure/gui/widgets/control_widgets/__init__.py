@@ -5,5 +5,5 @@ from .data_widget import DataWidget
 from .optimization_widget import OptimizationWidget
 from .options_widget import OptionsWidget
 from .density_optimization_widget import DensityOptimizationWidget
-from .interpolation_widget import InterpolationWidget
+from .extrapolation_widget import ExtrapolationWidget
 from .diamond_widget import DiamondWidget

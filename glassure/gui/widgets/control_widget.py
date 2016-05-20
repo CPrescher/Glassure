@@ -3,7 +3,7 @@
 from ..qt import QtGui
 
 from .control_widgets import CompositionWidget, DataWidget, OptimizationWidget, \
-    OptionsWidget, DensityOptimizationWidget, InterpolationWidget, DiamondWidget
+    OptionsWidget, DensityOptimizationWidget, ExtrapolationWidget, DiamondWidget
 from .custom_widgets import ExpandableBox
 
 
@@ -19,12 +19,12 @@ class LeftControlWidget(QtGui.QWidget):
         self.options_widget = OptionsWidget()
         self.optimization_widget = OptimizationWidget()
         self.density_optimization_widget = DensityOptimizationWidget()
-        self.interpolation_widget = InterpolationWidget()
+        self.extrapolation_widget = ExtrapolationWidget()
 
         self.vertical_layout.addWidget(ExpandableBox(self.data_widget, "Data"))
         self.vertical_layout.addWidget(ExpandableBox(self.composition_widget, "Composition"))
         self.vertical_layout.addWidget(ExpandableBox(self.options_widget, "Options"))
-        self.vertical_layout.addWidget(ExpandableBox(self.interpolation_widget, "Interpolation"))
+        self.vertical_layout.addWidget(ExpandableBox(self.extrapolation_widget, "Extrapolation"))
 
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.Expanding))

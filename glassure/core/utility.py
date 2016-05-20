@@ -130,7 +130,7 @@ def extrapolate_to_zero_spline(spectrum, x_max, smooth_factor=None, replace=Fals
     :param spectrum: input spectrum
     :param x_max: defines the the maximum x value within the spline will be fitted to the input spectrum, This parameter
     should be larger than minimum of the spectrum x
-    :param smooth_factor: defines the smoothing of the spline interpolation please see numpy.UnivariateSpline manual for
+    :param smooth_factor: defines the smoothing of the spline extrapolation please see numpy.UnivariateSpline manual for
     explanations
     :param replace: boolean flag whether to replace the data values in the fitted region (default = False)
     :return: extrapolated Spectrum (includes the original one)

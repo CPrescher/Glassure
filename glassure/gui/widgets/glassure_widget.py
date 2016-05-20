@@ -72,7 +72,7 @@ class GlassureWidget(QtGui.QWidget):
         self.r_min_txt = self.left_control_widget.options_widget.r_min_txt
         self.use_modification_cb = self.left_control_widget.options_widget.modification_fcn_cb
 
-        self.activate_interpolation_cb = self.left_control_widget.interpolation_widget.activate_cb
+        self.activate_extrapolation_cb = self.left_control_widget.extrapolation_widget.activate_cb
 
         self.save_sq_btn = self.spectrum_widget.mouse_position_widget.save_sq_btn
         self.save_gr_btn = self.spectrum_widget.mouse_position_widget.save_gr_btn
@@ -82,8 +82,8 @@ class GlassureWidget(QtGui.QWidget):
         self.get_density = self.left_control_widget.composition_widget.get_density
 
         self.get_parameter = self.left_control_widget.options_widget.get_parameter
-        self.get_interpolation_method = self.left_control_widget.interpolation_widget.get_interpolation_method
-        self.get_interpolation_parameters = self.left_control_widget.interpolation_widget.get_interpolation_parameters
+        self.get_extrapolation_method = self.left_control_widget.extrapolation_widget.get_extrapolation_method
+        self.get_extrapolation_parameters = self.left_control_widget.extrapolation_widget.get_extrapolation_parameters
         self.get_optimization_parameter = self.right_control_widget.optimization_widget.get_parameter
 
     def show(self):
