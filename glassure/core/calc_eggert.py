@@ -386,7 +386,7 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
 def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_density, initial_bkg_scaling,
                         initial_thickness, sample_thickness, wavelength,
                         initial_carbon_content=1, r_cutoff=2.28, iterations=1,
-                        use_modification_fcn=False):
+                        use_modification_fcn=False, vary=(True, True, True)):
     """
     Optimizes density, background scaling and diamond content for a list of sample thickness with a given initial
     gasket thickness in the diamond anvil cell (DAC). The calculation is done by utilizing the soller slit transfer
@@ -405,6 +405,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
     :param r_cutoff: cutoff value below which there is no signal expected (below the first peak in g(r)
     :param iterations: number of iterations for optimization, described in equations 47-49 in Eggert et al. 2002
     :param use_modification_fcn: Whether or not to use the Lorch modification function during the Fourier transform.
+    :param vary: 3 boolean flags whether to vary: density, bkg_scaling, carbon_content during the optimization
     :return:
     """
     N = sum([composition[x] for x in composition])
@@ -470,15 +471,15 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
     from lmfit import Parameters, minimize, report_fit
 
     params = Parameters()
-    params.add('diamond_content', value=initial_carbon_content, min=0)
-    params.add('bkg_scaling', value=initial_bkg_scaling)
-    params.add('density', value=initial_density, min=0)
+    params.add('density', value=initial_density, min=0, vary=vary[0])
+    params.add('bkg_scaling', value=initial_bkg_scaling, vary=vary[1])
+    params.add('diamond_content', value=initial_carbon_content, min=0, vary=vary[2])
 
     result = minimize(optimization_fcn, params)
 
     report_fit(result)
 
     return result.chisqr, \
-           result.params['bkg_scaling'].value, result.params['bkg_scaling'].stderr,\
            result.params['density'].value, result.params['density'].stderr,\
+           result.params['bkg_scaling'].value, result.params['bkg_scaling'].stderr,\
            result.params['diamond_content'].value, result.params['diamond_content'].stderr
