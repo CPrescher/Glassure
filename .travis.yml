@@ -36,6 +36,7 @@ before_install:
       export PATH=/home/travis/miniconda3/bin:$PATH;
     fi
   - ls $HOME
+  - ls
     
   - conda update --yes conda
   - export PYTHONPATH=$PWD/glassure:$PYTHONPATH
