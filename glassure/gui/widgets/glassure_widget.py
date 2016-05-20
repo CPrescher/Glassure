@@ -11,9 +11,9 @@ from gui.widgets.custom_widgets import SpectrumWidget
 from .control_widget import LeftControlWidget, RightControlWidget
 
 
-class MainWidget(QtGui.QWidget):
+class GlassureWidget(QtGui.QWidget):
     def __init__(self, *args, **kwargs):
-        super(MainWidget, self).__init__(*args, **kwargs)
+        super(GlassureWidget, self).__init__(*args, **kwargs)
         self.horizontal_layout = QtGui.QHBoxLayout(self)
         self.horizontal_layout.setContentsMargins(0, 0, 0, 0)
         self.horizontal_layout.setSpacing(0)
@@ -48,7 +48,24 @@ class MainWidget(QtGui.QWidget):
 
         self.load_stylesheet()
 
+        self.create_shortcuts()
+
         self.setWindowTitle("Glassure v{}".format(__version__))
+
+    def create_shortcuts(self):
+        self.bkg_scaling_sb = self.left_control_widget.data_widget.background_options_gb.scale_sb
+        self.bkg_scaling_step_txt = self.left_control_widget.data_widget.background_options_gb.scale_step_txt
+
+        self.smooth_sb = self.left_control_widget.data_widget.smooth_gb.smooth_sb
+        self.smooth_step_txt = self.left_control_widget.data_widget.smooth_gb.smooth_step_txt
+
+        self.q_max_txt = self.left_control_widget.options_widget.q_max_txt
+        self.q_min_txt = self.left_control_widget.options_widget.q_min_txt
+        self.r_max_txt = self.left_control_widget.options_widget.r_max_txt
+        self.r_min_txt = self.left_control_widget.options_widget.r_min_txt
+        self.use_modification_cb = self.left_control_widget.options_widget.modification_fcn_cb
+
+        self.activate_interpolation_cb = self.left_control_widget.interpolation_widget.activate_cb
 
     def show(self):
         QtGui.QWidget.show(self)

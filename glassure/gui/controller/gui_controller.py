@@ -15,13 +15,13 @@ pg.setConfigOption('background', 'k')
 pg.setConfigOption('foreground', 'w')
 pg.setConfigOption('antialias', True)
 
-from gui.widgets.main_widget import MainWidget
+from gui.widgets.glassure_widget import GlassureWidget
 from gui.model.glassure_model import GlassureModel
 
 
 class GlassureController(object):
     def __init__(self):
-        self.main_widget = MainWidget()
+        self.main_widget = GlassureWidget()
 
         self.model = GlassureModel()
         self.working_directory = ''
