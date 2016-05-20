@@ -1,11 +1,11 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
-__version__ = '0.1'
 
 import sys
 import os
 
-from PyQt4 import QtGui, QtCore
+from core import __version__
+
+from ..qt import QtGui, QtCore
 
 from gui.widgets.custom_widgets import SpectrumWidget
 from .control_widget import LeftControlWidget, RightControlWidget
@@ -52,9 +52,10 @@ class MainWidget(QtGui.QWidget):
 
     def show(self):
         QtGui.QWidget.show(self)
-        self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
-        self.activateWindow()
-        self.raise_()
+        if sys.platform == "darwin":
+            self.main_widget.setWindowState(self.main_widget.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
+            self.main_widget.activateWindow()
+            self.main_widget.raise_()
 
     def load_stylesheet(self):
         stylesheet_file = open(os.path.join(module_path(), "DioptasStyle.qss"), 'r')
@@ -68,7 +69,4 @@ def we_are_frozen():
 
 
 def module_path():
-    encoding = sys.getfilesystemencoding()
-    if we_are_frozen():
-        return os.path.dirname(unicode(sys.executable, encoding))
-    return os.path.dirname(unicode(__file__, encoding))
+    return os.path.dirname(__file__)

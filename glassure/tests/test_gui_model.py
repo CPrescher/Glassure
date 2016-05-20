@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 import os
 import unittest
@@ -91,5 +90,3 @@ class GuiModelTest(unittest.TestCase):
         self.model.optimize_sq(5, use_modification_fcn=False)
         sq2 = self.model.sq_spectrum
         self.assertFalse(np.allclose(sq1.y, sq2.y))
-
-

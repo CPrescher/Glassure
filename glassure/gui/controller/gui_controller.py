@@ -1,12 +1,9 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
-
-__version__ = 0.1
 
 import sys
 import os
 
-from PyQt4 import QtGui, QtCore
+from ..qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
 
@@ -37,10 +34,6 @@ class MainController(object):
         Displays the main window on the screen and makes it active
         """
         self.main_widget.show()
-        if sys.platform == "darwin":
-            self.main_widget.setWindowState(self.main_widget.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
-            self.main_widget.activateWindow()
-            self.main_widget.raise_()
 
     def connect_signals(self):
         """

@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+
 from copy import deepcopy
 
 import numpy as np
@@ -7,7 +8,7 @@ from scipy.integrate import simps
 from .scattering_factors import scattering_factor_param, calculate_coherent_scattering_factor, \
     calculate_incoherent_scattered_intensity
 from soller_correction import SollerCorrection
-from .spectrum import Spectrum
+from .pattern import Pattern
 
 
 def calculate_atomic_number_sum(composition):
@@ -130,12 +131,12 @@ def calculate_coherent_scattering(sample_spectrum, alpha, N, incoherent_scatteri
     :param N: Number of atoms
     :param incoherent_scattering: incoherent scattering intensity
     :return: Coherent Scattering Spectrum
-    :rtype: Spectrum
+    :rtype: Pattern
     """
 
     q, intensity = sample_spectrum.data
     coherent_intensity = N * (alpha * intensity - incoherent_scattering)
-    return Spectrum(q, coherent_intensity)
+    return Pattern(q, coherent_intensity)
 
 
 def calculate_sq(coherent_pattern, N, z_tot, f_effective):
@@ -146,12 +147,12 @@ def calculate_sq(coherent_pattern, N, z_tot, f_effective):
     :param z_tot: sum opf atomic numbers for the material
     :param f_effective: Q dependent effective form factor
     :return: S(q) spectrum
-    :rtype: Spectrum
+    :rtype: Pattern
     """
     q, coherent_intensity = coherent_pattern.data
     sq_intensity = coherent_intensity / (N * z_tot ** 2 * f_effective ** 2)
 
-    return Spectrum(q, sq_intensity)
+    return Pattern(q, sq_intensity)
 
 
 def calculate_fr(iq_spectrum, r=None, use_modification_fcn=False):
@@ -164,13 +165,13 @@ def calculate_fr(iq_spectrum, r=None, use_modification_fcn=False):
     can be used to address issues with a low q_max. This will broaden the sharp peaks in f(r)
 
     :param iq_spectrum:             interference function i(q) = S(Q)-S_inf with lim_inf i(Q)=0 and unit(q)=A^-1
-    :type iq_spectrum: Spectrum
+    :type iq_spectrum: Pattern
     :param r:                       numpy array giving the r-values for which F(r) will be calculated,
                                     default is 0 to 10 with 0.01 as a step. units should be in Angstrom.
     :param use_modification_fcn:    boolean flag whether to use the Lorch modification function
 
     :return: F(r) spectrum
-    :rtype: Spectrum
+    :rtype: Pattern
     """
     if r is None:
         r = np.arange(0, 10, 0.01)
@@ -184,7 +185,7 @@ def calculate_fr(iq_spectrum, r=None, use_modification_fcn=False):
     fr = 2.0 / np.pi * simps(modification * q * (iq) * \
                              np.array(np.sin(np.mat(q).T * np.mat(r))).T, q)
 
-    return Spectrum(r, fr)
+    return Pattern(r, fr)
 
 
 def optimize_iq(iq_spectrum, r_cutoff, iterations, atomic_density, j, s_inf=1, use_modification_fcn=False,
@@ -238,7 +239,7 @@ def optimize_iq(iq_spectrum, r_cutoff, iterations, atomic_density, j, s_inf=1, u
         integral = np.trapz(in_integral, r) / attenuation_factor
         iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 
-        iq_spectrum = Spectrum(q, iq_optimized)
+        iq_spectrum = Pattern(q, iq_optimized)
 
         if fcn_callback is not None and iteration % callback_period == 0:
             fr_spectrum = calculate_fr(iq_spectrum, use_modification_fcn=use_modification_fcn)
@@ -286,7 +287,7 @@ def calculate_chi2_map(data_spectrum, bkg_spectrum, composition,
 
             coherent_pattern = calculate_coherent_scattering(sample_spectrum, alpha, N, inc)
             sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
-            iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
+            iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
 
             delta_fr = np.zeros(r.shape)
 
@@ -302,7 +303,7 @@ def calculate_chi2_map(data_spectrum, bkg_spectrum, composition,
                 integral = np.trapz(in_integral, r)
                 iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 
-                iq_pattern = Spectrum(q, iq_optimized)
+                iq_pattern = Pattern(q, iq_optimized)
 
             chi2[n1, n2] = np.sum(delta_fr ** 2)
     return chi2
@@ -347,7 +348,7 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
 
         coherent_pattern = calculate_coherent_scattering(sample_spectrum, alpha, N, inc)
         sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
-        iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
+        iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
 
         fr_pattern = calculate_fr(iq_pattern, r, use_modification_fcn=use_modification_fcn)
 
@@ -361,7 +362,7 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
             integral = np.trapz(in_integral, r)
             iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 
-            iq_pattern = Spectrum(q, iq_optimized)
+            iq_pattern = Pattern(q, iq_optimized)
             fr_pattern = calculate_fr(iq_pattern, r)
 
             q, iq_int = iq_pattern.data
@@ -430,20 +431,20 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
 
         sample_transfer, diamond_transfer = soller.transfer_function_dac(sample_thickness, initial_thickness)
 
-        diamond_background = diamond_content * Spectrum(q,
-                                                        calculate_incoherent_scattering({'C': 1},
+        diamond_background = diamond_content * Pattern(q,
+                                                       calculate_incoherent_scattering({'C': 1},
                                                                                         q) / diamond_transfer)
 
         sample_spectrum = data_spectrum - bkg_scaling * bkg_spectrum
         sample_spectrum = sample_spectrum - diamond_background
-        sample_spectrum = Spectrum(q, sample_spectrum.y * sample_transfer)
+        sample_spectrum = Pattern(q, sample_spectrum.y * sample_transfer)
         sample_spectrum = sample_spectrum.extend_to(0, 0)
 
         alpha = calculate_alpha(sample_spectrum, z_tot, f_eff, s_inf, j, density)
 
         coherent_pattern = calculate_coherent_scattering(sample_spectrum, alpha, N, inc)
         sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
-        iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
+        iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
 
         r = np.arange(0, r_cutoff, 0.02)
         fr_pattern = calculate_fr(iq_pattern, r, use_modification_fcn=use_modification_fcn)
@@ -458,7 +459,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
             integral = np.trapz(in_integral, r)
             iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 
-            iq_pattern = Spectrum(q, iq_optimized)
+            iq_pattern = Pattern(q, iq_optimized)
             fr_pattern = calculate_fr(iq_pattern, r)
 
             q, iq_int = iq_pattern.data

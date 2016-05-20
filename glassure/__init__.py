@@ -1,2 +1,2 @@
-__author__ = 'Clemens Prescher'
-__version__= '0.1'
+# -*- coding: utf8 -*-
+from core import __version__

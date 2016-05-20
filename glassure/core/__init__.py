@@ -1,5 +1,3 @@
-__author__ = 'Clemens Prescher'
-
 import sys
 import os
 
@@ -10,20 +8,17 @@ def _we_are_frozen():
 
 
 def _module_path():
-    encoding = sys.getfilesystemencoding()
-    if _we_are_frozen():
-        return os.path.dirname(unicode(sys.executable, encoding))
-    return os.path.dirname(unicode(__file__, encoding))
+    return os.path.dirname(__file__)
 
 
 
-from .spectrum import Spectrum
+from .pattern import Pattern
 
 from .calc import *
 from .utility import *
 from .optimization import *
 from .soller_correction import *
 
-
-
-
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions

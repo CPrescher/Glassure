@@ -1,9 +1,9 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 import pyqtgraph as pg
 import numpy as np
-from PyQt4 import QtCore, QtGui
+from ...qt import QtCore, QtGui, Signal
+
 
 # TODO refactoring of the 3 lists: overlays, overlay_names, overlay_show,
 # should probably a class, making it more readable
@@ -95,9 +95,9 @@ class SpectrumWidget(QtGui.QWidget):
 
 
 class ModifiedPlotItem(pg.PlotItem):
-    mouse_moved = QtCore.pyqtSignal(float, float)
-    mouse_left_clicked = QtCore.pyqtSignal(float, float)
-    range_changed = QtCore.pyqtSignal(list)
+    mouse_moved = Signal(float, float)
+    mouse_left_clicked = Signal(float, float)
+    range_changed = Signal(list)
 
     def __init__(self, *args, **kwargs):
         super(ModifiedPlotItem, self).__init__(*args, **kwargs)
@@ -229,5 +229,3 @@ class MousePositionWidget(QtGui.QWidget):
         self.horizontal_layout.addWidget(self.save_sq_btn)
         self.horizontal_layout.addWidget(self.save_pdf_btn)
         self.setLayout(self.horizontal_layout)
-
-

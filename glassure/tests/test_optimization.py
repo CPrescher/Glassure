@@ -1,10 +1,10 @@
-__author__ = 'Clemens Prescher'
+# -*- coding: utf8 -*-
 
 import os
 import unittest
 import numpy as np
 
-from core import Spectrum, convert_density_to_atoms_per_cubic_angstrom
+from core import Pattern, convert_density_to_atoms_per_cubic_angstrom
 from core.utility import extrapolate_to_zero_poly
 from core.calc import calculate_sq
 from core.optimization import optimize_sq
@@ -16,8 +16,8 @@ background_path = os.path.join(unittest_data_path, 'Fe81S19_bkg.chi')
 
 class OptimizationTest(unittest.TestCase):
     def setUp(self):
-        self.data_spectrum = Spectrum.from_file(data_path)
-        self.background_spectrum = Spectrum.from_file(background_path)
+        self.data_spectrum = Pattern.from_file(data_path)
+        self.background_spectrum = Pattern.from_file(background_path)
         self.composition = {'Fe': 0.81, 'S': 0.19}
         self.density = 7.9
         self.atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)

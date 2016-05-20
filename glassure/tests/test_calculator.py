@@ -1,12 +1,11 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
 import unittest
 import os
 
 import numpy as np
 
-from core import Spectrum
+from core import Pattern
 from core.calc import calculate_normalization_factor, calculate_sq, calculate_fr, calculate_gr, calculate_sq_from_gr
 from core.optimization import optimize_incoherent_container_scattering, optimize_sq
 from core.calculator import StandardCalculator
@@ -19,14 +18,13 @@ bkg_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy')
 class GlassureCalculatorTest(unittest.TestCase):
     def setUp(self):
         self.density = 2.9
-        self.composition = {'Mg':2, 'Si':1, 'O':4}
-        self.r = np.linspace(0.1,10,1000)
+        self.composition = {'Mg': 2, 'Si': 1, 'O': 4}
+        self.r = np.linspace(0.1, 10, 1000)
 
-
-        self.data_spectrum = Spectrum()
+        self.data_spectrum = Pattern()
         self.data_spectrum.load(sample_path)
 
-        self.bkg_spectrum = Spectrum()
+        self.bkg_spectrum = Pattern()
         self.bkg_spectrum.load(bkg_path)
 
         self.sample_spectrum = self.data_spectrum - self.bkg_spectrum
@@ -35,14 +33,14 @@ class GlassureCalculatorTest(unittest.TestCase):
             original_spectrum=self.data_spectrum,
             background_spectrum=self.bkg_spectrum,
             elemental_abundances=self.composition,
-            density =self.density,
-            r = self.r
+            density=self.density,
+            r=self.r
         )
 
     def compare_spectra(self, spectrum1, spectrum2):
         _, y1 = spectrum1.data
         _, y2 = spectrum2.data
-        print np.sum(np.abs(y1-y2))
+        print np.sum(np.abs(y1 - y2))
         return np.array_equal(y1, y2)
 
     def test_normalization_factor_calculation(self):
@@ -51,7 +49,7 @@ class GlassureCalculatorTest(unittest.TestCase):
         self.assertEqual(alpha_new, alpha_old)
 
     def test_sq_calculation(self):
-        sq_spectrum_old = calculate_sq(self.sample_spectrum,self.density, self.composition)
+        sq_spectrum_old = calculate_sq(self.sample_spectrum, self.density, self.composition)
         sq_spectrum_new = self.calculator.calc_sq()
 
         _, y_old = sq_spectrum_old.data
@@ -89,10 +87,10 @@ class GlassureCalculatorTest(unittest.TestCase):
             original_spectrum=self.data_spectrum.limit(0, 24),
             background_spectrum=self.bkg_spectrum.limit(0, 24),
             elemental_abundances=self.composition,
-            density =self.density,
-            r = self.r
+            density=self.density,
+            r=self.r
         )
-        r= np.arange(0, 1.4, 0.02)
+        r = np.arange(0, 1.4, 0.02)
         self.calculator.optimize_sq(r, 5)
         sq_spectrum_optimized_calc = self.calculator.sq_spectrum
 
@@ -115,14 +113,12 @@ class GlassureCalculatorTest(unittest.TestCase):
 
         q, sq = sq_spectrum.data
 
-        sq_spectrum_inv = calculate_sq_from_gr(gr_spectrum, q, self.density, self.composition)
+        calculate_sq_from_gr(gr_spectrum, q, self.density, self.composition)
 
     def test_optimize_container_background(self):
         res = optimize_incoherent_container_scattering(self.sample_spectrum,
                                                        sample_density=self.density,
                                                        sample_composition=self.composition,
-                                                       container_composition={'C':1},
+                                                       container_composition={'C': 1},
                                                        r_cutoff=1.5)
-        print res
-
-
+        print(res)

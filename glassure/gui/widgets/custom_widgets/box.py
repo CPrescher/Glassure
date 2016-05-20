@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
-from PyQt4 import QtGui
+from ...qt import QtGui
+
 
 class ExpandableBox(QtGui.QWidget):
     def __init__(self, content_widget, title='', hide=False):
@@ -47,14 +47,13 @@ class ExpandableBox(QtGui.QWidget):
         self.head_widget.setLayout(self._head_layout)
         self.head_widget.setObjectName("head_widget")
 
-
     def create_content_widget(self, content_widget):
 
         self._content_widget = content_widget
 
         self.content_widget = QtGui.QWidget()
         self.content_layout = QtGui.QVBoxLayout()
-        self.content_layout.setContentsMargins(8,8,8,8)
+        self.content_layout.setContentsMargins(8, 8, 8, 8)
         self.content_layout.setSpacing(0)
         self.content_layout.addWidget(self._content_widget)
         self.content_widget.setLayout(self.content_layout)

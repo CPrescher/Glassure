@@ -1,12 +1,11 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
-from PyQt4 import QtCore, QtGui
 
+from ...qt import QtCore, QtGui, Signal
 from core.scattering_factors import scattering_factor_param
 
 
 class CompositionWidget(QtGui.QWidget):
-    composition_changed = QtCore.pyqtSignal(dict, float)
+    composition_changed = Signal(dict, float)
 
     def __init__(self, *args):
         super(CompositionWidget, self).__init__(*args)
@@ -124,8 +123,13 @@ class TextDoubleDelegate(QtGui.QStyledItemDelegate):
 
     def setEditorData(self, parent, index):
         value = index.model().data(index, QtCore.Qt.EditRole)
-        if value.toString() != '':
-            self.editor.setText("{:g}".format(float(str(value.toString()))))
+        try:
+            value = value.toString()
+        except AttributeError:
+            value = value
+
+        if value != '':
+            self.editor.setText("{:g}".format(float(value)))
 
     def setModelData(self, parent, model, index):
         value = self.editor.text()

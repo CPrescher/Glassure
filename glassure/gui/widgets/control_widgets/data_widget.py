@@ -1,8 +1,7 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
+from ...qt import QtCore, QtGui
 
-from PyQt4 import QtCore, QtGui
 
 class DataWidget(QtGui.QWidget):
     def __init__(self):

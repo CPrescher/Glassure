@@ -5,9 +5,8 @@ import unittest
 import sys
 
 import numpy as np
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtTest import QTest
 
+from gui.qt import QtCore, QtGui, QTest
 from gui.controller import gui_controller
 
 

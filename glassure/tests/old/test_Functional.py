@@ -5,7 +5,7 @@ import unittest
 import os
 
 import numpy as np
-from PyQt4 import QtGui
+from gui.qt import QtGui
 
 from gui.controller.gui_controller import MainController
 

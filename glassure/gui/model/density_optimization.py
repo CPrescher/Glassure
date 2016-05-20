@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
-__author__ = 'clemens'
+
 import numpy as np
-from PyQt4 import QtGui
+from ..qt import QtGui
 from lmfit import Parameters, minimize, report_fit
 
 from core.calculator import StandardCalculator
@@ -81,7 +81,7 @@ class DensityOptimizer(object):
 
     def write_output(self, msg):
         if self.output_txt is None:
-            print msg
+            print(msg)
         else:
             previous_txt = str(self.output_txt.toPlainText())
             new_txt = previous_txt + "\n" + str(msg)

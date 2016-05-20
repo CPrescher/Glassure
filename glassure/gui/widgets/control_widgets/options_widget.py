@@ -1,13 +1,12 @@
 # -*- coding: utf8 -*-
-__author__ = 'Clemens Prescher'
 
-from PyQt4 import QtCore, QtGui
+from ...qt import QtCore, QtGui, Signal
 
 from ..custom_widgets import HorizontalLine
 
 
 class OptionsWidget(QtGui.QWidget):
-    options_parameters_changed = QtCore.pyqtSignal()
+    options_parameters_changed = Signal()
 
     def __init__(self, *args):
         super(OptionsWidget, self).__init__(*args)
@@ -48,7 +47,7 @@ class OptionsWidget(QtGui.QWidget):
 
     def create_layout(self):
         self.grid_layout = QtGui.QGridLayout()
-        self.grid_layout.setContentsMargins(0,0,0,0)
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(5)
 
         self.grid_layout.addWidget(self.q_range_lbl, 0, 0)

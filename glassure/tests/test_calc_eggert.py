@@ -1,9 +1,11 @@
+# -*- coding: utf8 -*-
+
 import os
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from core import Spectrum
+from core import Pattern
 from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
     calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha, \
     calculate_coherent_scattering, calculate_sq, calculate_fr, optimize_iq, \
@@ -23,10 +25,10 @@ class CalcEggertTest(unittest.TestCase):
         self.composition = {'Ar': 1}
         self.r = np.linspace(0.1, 10, 1000)
 
-        data_spectrum = Spectrum.from_file(sample_path)
-        bkg_spectrum = Spectrum.from_file(bkg_path)
-        self.data_spectrum = Spectrum(data_spectrum.x / 10., data_spectrum.y)
-        self.bkg_spectrum = Spectrum(bkg_spectrum.x / 10., bkg_spectrum.y)
+        data_spectrum = Pattern.from_file(sample_path)
+        bkg_spectrum = Pattern.from_file(bkg_path)
+        self.data_spectrum = Pattern(data_spectrum.x / 10., data_spectrum.y)
+        self.bkg_spectrum = Pattern(bkg_spectrum.x / 10., bkg_spectrum.y)
 
         bkg_scaling = 0.57
 
@@ -146,7 +148,7 @@ class CalcEggertTest(unittest.TestCase):
                                                          inc)
 
         sq_pattern = calculate_sq(coherent_pattern, self.N, z_tot, f_eff)
-        iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
+        iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
 
         fr_pattern = calculate_fr(iq_pattern, r=np.arange(0, 14, 0.02))
 
@@ -168,7 +170,7 @@ class CalcEggertTest(unittest.TestCase):
                                                          inc)
 
         sq_pattern = calculate_sq(coherent_pattern, self.N, z_tot, f_eff)
-        iq_pattern = Spectrum(sq_pattern.x, sq_pattern.y - s_inf)
+        iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
         iq_pattern_optimized = optimize_iq(iq_pattern, 2.4, 10, 0.026, j, s_inf)
         self.assertLess(np.abs(np.mean(iq_pattern_optimized.limit(5, 20).y)), 0.1)
 
