@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Luindil/Glassure.svg?branch=develop)](https://travis-ci.org/Luindil/Glassure)
+
 # Glassure
 
 
