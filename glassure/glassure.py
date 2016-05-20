@@ -4,10 +4,12 @@ from __future__ import absolute_import
 
 import sys
 
-from gui.qt import QtGui
-from gui.controller.gui_controller import MainController
-
 from core import __version__ as version
+from core._version import get_versions
+from gui.controller.gui_controller import MainController
+from gui.qt import QtGui
+__version__ = get_versions()['version']
+del get_versions
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
