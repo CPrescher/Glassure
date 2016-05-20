@@ -5,7 +5,6 @@ import unittest
 import os
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 from core import Pattern
 from core import calculate_sq
