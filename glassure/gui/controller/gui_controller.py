@@ -44,22 +44,17 @@ class GlassureController(object):
 
         self.model.data_changed.connect(self.model_changed)
 
-        self.connect_click_function(self.main_widget.left_control_widget.data_widget.file_widget.load_data_btn,
-                                    self.load_data)
-        self.connect_click_function(self.main_widget.left_control_widget.data_widget.file_widget.load_background_btn,
-                                    self.load_bkg)
+        self.connect_click_function(self.main_widget.load_data_btn, self.load_data)
+        self.connect_click_function(self.main_widget.load_bkg_btn, self.load_bkg)
 
 
         # connecting background scaling and smoothing of the original data
-        self.main_widget.left_control_widget.data_widget.background_options_gb.scale_sb.valueChanged.connect(
-            self.bkg_scale_changed)
-        self.main_widget.left_control_widget.data_widget.smooth_gb.smooth_sb.valueChanged.connect(self.smooth_changed)
+        self.main_widget.bkg_scaling_sb.valueChanged.connect(self.bkg_scale_changed)
+        self.main_widget.smooth_sb.valueChanged.connect(self.smooth_changed)
 
         # updating the composition
-        self.connect_click_function(self.main_widget.left_control_widget.composition_widget.add_element_btn,
-                                    self.add_element_btn_clicked)
-        self.connect_click_function(self.main_widget.left_control_widget.composition_widget.delete_element_btn,
-                                    self.delete_element_btn_clicked)
+        self.connect_click_function(self.main_widget.add_element_btn, self.add_element_btn_clicked)
+        self.connect_click_function(self.main_widget.delete_element_btn, self.delete_element_btn_clicked)
         self.main_widget.left_control_widget.composition_widget.composition_changed.connect(self.update_model)
 
         # updating the calculation parameters
@@ -78,10 +73,8 @@ class GlassureController(object):
         )
 
         # Saving the resulting data
-        self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_sq_btn,
-                                    self.save_sq_btn_clicked)
-        self.connect_click_function(self.main_widget.spectrum_widget.mouse_position_widget.save_pdf_btn,
-                                    self.save_pdf_btn_clicked)
+        self.connect_click_function(self.main_widget.save_sq_btn, self.save_sq_btn_clicked)
+        self.connect_click_function(self.main_widget.save_gr_btn, self.save_gr_btn_clicked)
 
     def connect_click_function(self, emitter, function):
         self.main_widget.connect(emitter, QtCore.SIGNAL('clicked()'), function)
@@ -212,7 +205,7 @@ class GlassureController(object):
             self.model.sq_spectrum.save(filename)
             self.sq_directory = os.path.dirname(filename)
 
-    def save_pdf_btn_clicked(self, filename=None):
+    def save_gr_btn_clicked(self, filename=None):
         if filename is None:
             filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget, "Save g(r) Data.",
                                                              os.path.join(self.gr_directory,

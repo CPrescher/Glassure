@@ -216,8 +216,8 @@ class MousePositionWidget(QtGui.QWidget):
 
         self.save_sq_btn = QtGui.QPushButton("Save S(Q)")
         self.save_sq_btn.setFlat(True)
-        self.save_pdf_btn = QtGui.QPushButton("Save g(r)")
-        self.save_pdf_btn.setFlat(True)
+        self.save_gr_btn = QtGui.QPushButton("Save g(r)")
+        self.save_gr_btn.setFlat(True)
 
         self.horizontal_layout.addWidget(self.x_unit_lbl)
         self.horizontal_layout.addWidget(self.x_value_lbl)
@@ -227,5 +227,5 @@ class MousePositionWidget(QtGui.QWidget):
                                                                QtGui.QSizePolicy.Fixed))
 
         self.horizontal_layout.addWidget(self.save_sq_btn)
-        self.horizontal_layout.addWidget(self.save_pdf_btn)
+        self.horizontal_layout.addWidget(self.save_gr_btn)
         self.setLayout(self.horizontal_layout)

@@ -53,11 +53,17 @@ class GlassureWidget(QtGui.QWidget):
         self.setWindowTitle("Glassure v{}".format(__version__))
 
     def create_shortcuts(self):
+        self.load_data_btn = self.left_control_widget.data_widget.file_widget.load_data_btn
+        self.load_bkg_btn = self.left_control_widget.data_widget.file_widget.load_background_btn
+
         self.bkg_scaling_sb = self.left_control_widget.data_widget.background_options_gb.scale_sb
         self.bkg_scaling_step_txt = self.left_control_widget.data_widget.background_options_gb.scale_step_txt
 
         self.smooth_sb = self.left_control_widget.data_widget.smooth_gb.smooth_sb
         self.smooth_step_txt = self.left_control_widget.data_widget.smooth_gb.smooth_step_txt
+
+        self.add_element_btn = self.left_control_widget.composition_widget.add_element_btn
+        self.delete_element_btn = self.left_control_widget.composition_widget.delete_element_btn
 
         self.q_max_txt = self.left_control_widget.options_widget.q_max_txt
         self.q_min_txt = self.left_control_widget.options_widget.q_min_txt
@@ -66,6 +72,9 @@ class GlassureWidget(QtGui.QWidget):
         self.use_modification_cb = self.left_control_widget.options_widget.modification_fcn_cb
 
         self.activate_interpolation_cb = self.left_control_widget.interpolation_widget.activate_cb
+
+        self.save_sq_btn = self.spectrum_widget.mouse_position_widget.save_sq_btn
+        self.save_gr_btn = self.spectrum_widget.mouse_position_widget.save_pdf_btn
 
     def show(self):
         QtGui.QWidget.show(self)
