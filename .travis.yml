@@ -14,7 +14,6 @@ cache:
 before_install:
   # install anaconda
   - echo $TRAVIS_PYTHON_VERSION
-  - ls /home/travis
   - if [ "$TRAVIS_PYTHON_VERSION" == "2.7" ]; then
       if [ ! -d "/home/travis/miniconda2/bin" ]; then
         rm -rf /home/travis/miniconda2;
@@ -37,8 +36,6 @@ before_install:
     else
       export PATH=/home/travis/miniconda3/bin:$PATH;
     fi
-  - ls $HOME
-  - ls
     
   - conda update --yes conda
   - export PYTHONPATH=$PWD/glassure:$PYTHONPATH
