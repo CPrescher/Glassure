@@ -18,6 +18,7 @@ class CompositionGroupBoxTest(unittest.TestCase):
     def tearDownClass(cls):
         cls.app.quit()
         cls.app.deleteLater()
+        del cls.app
 
     def setUp(self):
         self.controller = GlassureController()
