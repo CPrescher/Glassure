@@ -31,11 +31,11 @@ class GlassureModelTest(unittest.TestCase):
         self.model.load_data(data_path('Mg2SiO4_ambient.xy'))
         self.model.load_bkg(data_path('Mg2SiO4_ambient_bkg.xy'))
 
-        odata1_x, odata1_y = self.model.original_spectrum.data
+        odata1_x, odata1_y = self.model.original_pattern.data
         odata2_x, odata2_y = data_spectrum.data
         self.assertEqual(np.sum(np.abs(odata1_y - odata2_y)), 0)
 
-        bkg_data1_x, bkg_data1_y = self.model.background_spectrum.data
+        bkg_data1_x, bkg_data1_y = self.model.background_pattern.data
         bkg_data2_x, bkg_data2_y = bkg_spectrum.data
         self.assertEqual(np.sum(np.abs(bkg_data2_y - bkg_data1_y)), 0)
 
@@ -60,7 +60,7 @@ class GlassureModelTest(unittest.TestCase):
         sq_spectrum_core = calculate_sq(sample_spectrum, density, elemental_abundances)
 
 
-        sq_spectrum1_x, sq_spectrum1_y = self.model.sq_spectrum.data
+        sq_spectrum1_x, sq_spectrum1_y = self.model.sq_pattern.data
         sq_spectrum2_x, sq_spectrum2_y = sq_spectrum_core.data
 
         self.assertEqual(len(sq_spectrum1_x), len(sq_spectrum2_x))

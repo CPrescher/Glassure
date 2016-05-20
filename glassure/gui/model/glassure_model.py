@@ -24,14 +24,14 @@ class GlassureModel(QtCore.QObject):
         super(GlassureModel, self).__init__()
 
         # initialize all spectra
-        self.original_spectrum = Pattern()
-        self._background_spectrum = Pattern()
+        self.original_pattern = Pattern()
+        self._background_pattern = Pattern()
 
-        self.diamond_background_spectrum = None
+        self.diamond_bkg_pattern = None
 
-        self._sq_spectrum = None
-        self._fr_spectrum = None
-        self._gr_spectrum = None
+        self._sq_pattern = None
+        self._fr_pattern = None
+        self._gr_pattern = None
 
         # initialize all parameters
         self._composition = {}
@@ -55,11 +55,11 @@ class GlassureModel(QtCore.QObject):
         self.extrapolation_parameters = None
 
     def load_data(self, filename):
-        self.original_spectrum.load(filename)
+        self.original_pattern.load(filename)
         self.calculate_transforms()
 
     def load_bkg(self, filename):
-        self.background_spectrum.load(filename)
+        self.background_pattern.load(filename)
         self.calculate_transforms()
 
     @property
@@ -69,22 +69,22 @@ class GlassureModel(QtCore.QObject):
         return 0
 
     @property
-    def background_spectrum(self):
-        if self.diamond_background_spectrum is None:
-            return self._background_spectrum
-        return self._background_spectrum + self.diamond_background_spectrum
+    def background_pattern(self):
+        if self.diamond_bkg_pattern is None:
+            return self._background_pattern
+        return self._background_pattern + self.diamond_bkg_pattern
 
-    def get_background_spectrum(self):
-        x, y = self.background_spectrum.data
+    def get_background_pattern(self):
+        x, y = self.background_pattern.data
         return Pattern(x, y)
 
     @property
     def background_scaling(self):
-        return self._background_spectrum.scaling
+        return self._background_pattern.scaling
 
     @background_scaling.setter
     def background_scaling(self, new_value):
-        self._background_spectrum.scaling = new_value
+        self._background_pattern.scaling = new_value
         self.calculate_transforms()
 
     @property
@@ -151,35 +151,35 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     @property
-    def sq_spectrum(self):
-        return self._sq_spectrum
+    def sq_pattern(self):
+        return self._sq_pattern
 
-    @sq_spectrum.setter
-    def sq_spectrum(self, new_sq):
-        self._sq_spectrum = new_sq
+    @sq_pattern.setter
+    def sq_pattern(self, new_sq):
+        self._sq_pattern = new_sq
         self.sq_changed.emit(new_sq)
 
     @property
-    def fr_spectrum(self):
-        return self._fr_spectrum
+    def fr_pattern(self):
+        return self._fr_pattern
 
-    @fr_spectrum.setter
-    def fr_spectrum(self, new_fr):
-        self._fr_spectrum = new_fr
+    @fr_pattern.setter
+    def fr_pattern(self, new_fr):
+        self._fr_pattern = new_fr
         self.fr_changed.emit(new_fr)
 
     @property
-    def gr_spectrum(self):
-        return self._gr_spectrum
+    def gr_pattern(self):
+        return self._gr_pattern
 
-    @gr_spectrum.setter
-    def gr_spectrum(self, new_gr):
-        self._gr_spectrum = new_gr
+    @gr_pattern.setter
+    def gr_pattern(self, new_gr):
+        self._gr_pattern = new_gr
         self.gr_changed.emit(new_gr)
 
     def set_smooth(self, value):
-        self.original_spectrum.set_smoothing(value)
-        self._background_spectrum.set_smoothing(value)
+        self.original_pattern.set_smoothing(value)
+        self._background_pattern.set_smoothing(value)
         self.calculate_transforms()
 
     def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min=0, r_max=10,
@@ -202,56 +202,56 @@ class GlassureModel(QtCore.QObject):
 
     def calculate_transforms(self):
         if len(self.composition) != 0 and \
-                        self.original_spectrum is not None and \
-                        self.background_spectrum is not None:
+                        self.original_pattern is not None and \
+                        self.background_pattern is not None:
             self.calculate_sq()
             self.calculate_fr()
             self.calculate_gr()
         self.data_changed.emit()
 
     def calculate_sq(self):
-        self.sq_spectrum = calculate_sq((self.original_spectrum - self.background_spectrum). \
-                                        limit(self.q_min, self.q_max),
-                                        density=self.density,
-                                        composition=self.composition)
+        self.sq_pattern = calculate_sq((self.original_pattern - self.background_pattern). \
+                                       limit(self.q_min, self.q_max),
+                                       density=self.density,
+                                       composition=self.composition)
 
         if self.extrapolation_method == 'step':
-            self.sq_spectrum = extrapolate_to_zero_step(self.sq_spectrum)
+            self.sq_pattern = extrapolate_to_zero_step(self.sq_pattern)
         if self.extrapolation_method == 'linear':
-            self.sq_spectrum = extrapolate_to_zero_linear(self.sq_spectrum)
+            self.sq_pattern = extrapolate_to_zero_linear(self.sq_pattern)
         elif self.extrapolation_method == 'spline':
-            self.sq_spectrum = extrapolate_to_zero_spline(self.sq_spectrum,
-                                                          self.extrapolation_parameters['q_max'],
-                                                          replace=self.extrapolation_parameters['replace'])
+            self.sq_pattern = extrapolate_to_zero_spline(self.sq_pattern,
+                                                         self.extrapolation_parameters['q_max'],
+                                                         replace=self.extrapolation_parameters['replace'])
         elif self.extrapolation_method == 'poly':
-            self.sq_spectrum = extrapolate_to_zero_poly(self.sq_spectrum,
-                                                        x_max=self.extrapolation_parameters['q_max'],
-                                                        replace=self.extrapolation_parameters['replace'])
+            self.sq_pattern = extrapolate_to_zero_poly(self.sq_pattern,
+                                                       x_max=self.extrapolation_parameters['q_max'],
+                                                       replace=self.extrapolation_parameters['replace'])
 
     def calculate_fr(self):
-        self.fr_spectrum = calculate_fr(self.sq_spectrum,
-                                        r=np.arange(self.r_min, self.r_max + self.r_step * 0.5, self.r_step),
-                                        use_modification_fcn=self.use_modification_fcn)
+        self.fr_pattern = calculate_fr(self.sq_pattern,
+                                       r=np.arange(self.r_min, self.r_max + self.r_step * 0.5, self.r_step),
+                                       use_modification_fcn=self.use_modification_fcn)
 
     def calculate_gr(self):
-        self.gr_spectrum = calculate_gr(self.fr_spectrum, self.density, self.composition)
+        self.gr_pattern = calculate_gr(self.fr_pattern, self.density, self.composition)
 
     def optimize_sq(self, iterations=50, fcn_callback=None, attenuation_factor=1, use_modification_fcn=False):
-        self.sq_spectrum = optimize_sq(self.sq_spectrum, self.r_cutoff,
-                                       iterations=iterations,
-                                       atomic_density=convert_density_to_atoms_per_cubic_angstrom(self.composition,
+        self.sq_pattern = optimize_sq(self.sq_pattern, self.r_cutoff,
+                                      iterations=iterations,
+                                      atomic_density=convert_density_to_atoms_per_cubic_angstrom(self.composition,
                                                                                                   self.density),
-                                       use_modification_fcn=use_modification_fcn,
-                                       attenuation_factor=attenuation_factor,
-                                       fcn_callback=fcn_callback)
+                                      use_modification_fcn=use_modification_fcn,
+                                      attenuation_factor=attenuation_factor,
+                                      fcn_callback=fcn_callback)
         self.calculate_fr()
         self.calculate_gr()
         self.data_changed.emit()
 
     def optimize_density_and_scaling2(self, density_min, density_max, bkg_min, bkg_max, iterations, output_txt=None):
         optimizer = DensityOptimizer(
-            original_spectrum=self.original_spectrum.limit(self.q_min, self.q_max),
-            background_spectrum=self.background_spectrum.limit(self.q_min, self.q_max),
+            original_spectrum=self.original_pattern.limit(self.q_min, self.q_max),
+            background_spectrum=self.background_pattern.limit(self.q_min, self.q_max),
             initial_background_scaling=self.background_scaling,
             elemental_abundances=self.composition,
             initial_density=self.density,
@@ -281,11 +281,11 @@ class GlassureModel(QtCore.QObject):
             density = params['density'].value
             background_scaling = params['background_scaling'].value
 
-            self.background_spectrum.scaling = background_scaling
+            self.background_pattern.scaling = background_scaling
             self.calculate_transforms()
             self.optimize_sq(iterations, fcn_callback=callback_fcn)
 
-            r, fr = self.fr_spectrum.limit(0, self.r_cutoff).data
+            r, fr = self.fr_pattern.limit(0, self.r_cutoff).data
 
             output = (-fr - 4 * np.pi * convert_density_to_atoms_per_cubic_angstrom(self.composition, density) *
                       r) ** 2
@@ -321,13 +321,13 @@ class GlassureModel(QtCore.QObject):
 
     def set_diamond_content(self, content_value):
         if content_value is 0:
-            self.diamond_background_spectrum = None
+            self.diamond_bkg_pattern = None
             self.calculate_transforms()
             return
 
-        q, _ = self.background_spectrum.data
+        q, _ = self.background_pattern.data
         int = calculate_incoherent_scattering({'C': 1}, q) * content_value
-        self.diamond_background_spectrum = Pattern(q, int)
+        self.diamond_bkg_pattern = Pattern(q, int)
         self.calculate_transforms()
 
     def optimize_diamond_content(self, diamond_content=0, callback_fcn=None):
@@ -339,7 +339,7 @@ class GlassureModel(QtCore.QObject):
         def optimization_fcn(params):
             diamond_content = params['content'].value
             self.set_diamond_content(diamond_content)
-            low_r_spectrum = self.gr_spectrum.limit(0, self.r_cutoff)
+            low_r_spectrum = self.gr_pattern.limit(0, self.r_cutoff)
             if callback_fcn is not None:
                 callback_fcn(diamond_content)
             return low_r_spectrum.data[1]
