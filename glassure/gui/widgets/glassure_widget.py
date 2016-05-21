@@ -65,6 +65,7 @@ class GlassureWidget(QtGui.QWidget):
 
         self.add_element_btn = self.left_control_widget.composition_widget.add_element_btn
         self.delete_element_btn = self.left_control_widget.composition_widget.delete_element_btn
+        self.density_txt = self.left_control_widget.composition_widget.density_txt
 
         self.q_max_txt = self.left_control_widget.options_widget.q_max_txt
         self.q_min_txt = self.left_control_widget.options_widget.q_min_txt
@@ -73,6 +74,10 @@ class GlassureWidget(QtGui.QWidget):
         self.use_modification_cb = self.left_control_widget.options_widget.modification_fcn_cb
 
         self.activate_extrapolation_cb = self.left_control_widget.extrapolation_widget.activate_cb
+        self.extrapolation_q_max_txt = self.left_control_widget.extrapolation_widget.q_max_txt
+
+        self.optimize_btn = self.right_control_widget.optimization_widget.optimize_btn
+        self.optimize_r_cutoff_txt = self.right_control_widget.optimization_widget.r_cutoff_txt
 
         self.save_sq_btn = self.spectrum_widget.mouse_position_widget.save_sq_btn
         self.save_gr_btn = self.spectrum_widget.mouse_position_widget.save_gr_btn

@@ -3,6 +3,7 @@
 from gui.qt import QtGui, QtCore, QTest
 
 def set_widget_text(widget, txt):
+    widget.setText('')
     txt = str(txt)
     QTest.keyClicks(widget, txt)
     QTest.keyClick(widget, QtCore.Qt.Key_Enter)
@@ -11,3 +12,6 @@ def set_widget_text(widget, txt):
 
 def click_checkbox(checkbox_widget):
     QTest.mouseClick(checkbox_widget, QtCore.Qt.LeftButton, pos=QtCore.QPoint(2, checkbox_widget.height() / 2))
+
+def click_button(widget):
+    QTest.mouseClick(widget, QtCore.Qt.LeftButton)

@@ -8,7 +8,7 @@ from gui.qt import QtGui, QtCore, QTest
 
 from gui.controller.gui_controller import GlassureController
 
-from tests.utility import set_widget_text, click_checkbox
+from tests.utility import set_widget_text, click_checkbox, click_button
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -51,6 +51,11 @@ class GlassureFunctionalTest(unittest.TestCase):
         self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_item.getData()))
         self.assertFalse(np.array_equal(prev_gr_data, self.main_widget.spectrum_widget.pdf_item.getData()))
 
+        # Now he wants to enter the correct density value:
+        prev_gr_data = self.main_widget.spectrum_widget.pdf_item.getData()
+        set_widget_text(self.main_widget.density_txt, 2.9)
+        self.assertFalse(np.array_equal(prev_gr_data, self.main_widget.spectrum_widget.pdf_item.getData()))
+
         # Then he he adjusts the scale of the background data and it automatically adjusts sq and gr
         prev_sq_data = self.main_widget.spectrum_widget.sq_item.getData()
         prev_gr_data = self.main_widget.spectrum_widget.pdf_item.getData()
@@ -90,7 +95,8 @@ class GlassureFunctionalTest(unittest.TestCase):
         self.assertFalse(np.array_equal(prev_gr_data, self.main_widget.spectrum_widget.pdf_item.getData()))
 
         # the data unfortunately is not measured up to a Q of 0 A^-1, however the missing data below 1 A^-1 is already
-        # might have extrapolated with a step function, he thinks the polynomial option might be a better choice:
+        # extrapolated with a step function, he thinks the polynomial option might be a better choice, selects it and
+        # sees the change:
 
         self.assertLess(self.main_widget.spectrum_widget.sq_item.getData()[0][0], 0.5)
 
@@ -98,4 +104,23 @@ class GlassureFunctionalTest(unittest.TestCase):
         click_checkbox(self.main_widget.left_control_widget.extrapolation_widget.poly_extrapolation_rb)
         self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_item.getData()))
 
-        # self.fail("finish this test!")
+        # changing the q_max value, gives an even better result for the polynomial extrapolation
+
+        prev_sq_data = self.main_widget.spectrum_widget.sq_item.getData()
+        set_widget_text(self.main_widget.extrapolation_q_max_txt, 1.5)
+        self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_item.getData()))
+
+        # looks good already! However, the oscillations below 1 Angstrom bother him still a lot, so he wants to
+        # optimize this by using the Eggert et al. (2002) method:
+
+        prev_sq_data = self.main_widget.spectrum_widget.sq_item.getData()
+        click_button(self.main_widget.optimize_btn)
+        self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_item.getData()))
+
+        # However he realizes that the default cutoff might too low for this kind of data. and gives a larger number,
+        # and optimizes again:
+
+        prev_sq_data = self.main_widget.spectrum_widget.sq_item.getData()
+        set_widget_text(self.main_widget.optimize_r_cutoff_txt, 1.2)
+        click_button(self.main_widget.optimize_btn)
+        self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_item.getData()))
