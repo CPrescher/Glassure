@@ -48,6 +48,19 @@ class GlassureModel(QtCore.QObject):
         self.configurations.append(deepcopy(self.current_configuration))
         self.configuration_ind = -1
 
+    def remove_configuration(self):
+        # removes the currently selected configuration, unless only one configuration is left
+        if len(self.configurations) == 1:
+            return
+
+        del self.configurations[self.configuration_ind]
+
+        if self.configuration_ind >= len(self.configurations):
+            self.configuration_ind = -1
+
+    def select_configuration(self, ind):
+        self.configuration_ind = ind
+
     @property
     def atomic_density(self):
         if len(self.current_configuration.composition):

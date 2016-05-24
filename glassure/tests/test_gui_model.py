@@ -93,7 +93,7 @@ class GuiModelTest(unittest.TestCase):
         sq2 = self.model.sq_pattern
         self.assertFalse(np.allclose(sq1.y, sq2.y))
 
-    def test_adding_a_configurations(self):
+    def test_adding_a_configuration(self):
         # Adding a configuration and then change one parameter to see if new configuration behaves independently
         self.model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
         sq1 = self.model.sq_pattern
@@ -110,3 +110,51 @@ class GuiModelTest(unittest.TestCase):
 
         self.assertLess(sq1.x[-1], 10)
         self.assertGreater(sq2.x[-1], 10)
+
+    def test_selecting_a_configuration(self):
+        self.model.add_configuration()
+        self.model.q_max = 12
+
+        self.model.add_configuration()
+        self.model.q_max = 14
+
+        self.model.select_configuration(0)
+        self.assertEqual(self.model.q_max, 10)
+
+        self.model.select_configuration(1)
+        self.assertEqual(self.model.q_max, 12)
+
+        self.model.select_configuration(2)
+        self.assertEqual(self.model.q_max, 14)
+
+    def test_removing_configuration_with_only_one_configuration(self):
+        # should not remove the last configuration!
+        self.model.remove_configuration()
+        self.assertEqual(len(self.model.configurations), 1)
+
+    def test_remove_last_configuration(self):
+        self.model.add_configuration()
+        self.model.q_max = 12
+        self.model.add_configuration()
+        self.model.q_max = 14
+
+        self.assertEqual(self.model.q_max, 14)
+        self.model.remove_configuration()
+        self.assertEqual(self.model.q_max, 12)
+
+        self.model.select_configuration(1)
+        self.model.remove_configuration()
+        self.assertEqual(self.model.q_max, 10)
+
+    def test_remove_center_configuration(self):
+        self.model.add_configuration()
+        self.model.q_max = 12
+        self.model.add_configuration()
+        self.model.q_max = 14
+
+        self.model.select_configuration(1)
+        self.assertEqual(self.model.q_max, 12)
+        self.model.remove_configuration()
+        self.assertEqual(self.model.q_max, 14)
+
+
