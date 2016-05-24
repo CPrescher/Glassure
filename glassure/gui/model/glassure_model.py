@@ -80,7 +80,7 @@ class GlassureModel(QtCore.QObject):
 
     @background_scaling.setter
     def background_scaling(self, new_value):
-        self.current_configuration._background_pattern.scaling = new_value
+        self.current_configuration.background_pattern.scaling = new_value
         self.calculate_transforms()
 
     @property
