@@ -40,6 +40,7 @@ class GuiModelTest(unittest.TestCase):
 
     def test_changing_q_range(self):
         self.model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
+        self.model.extrapolation_method = None
 
         sq = self.model.sq_pattern
         self.assertGreater(np.min(sq.x), self.model.q_min)

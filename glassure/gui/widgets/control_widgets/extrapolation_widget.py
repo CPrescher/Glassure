@@ -138,6 +138,8 @@ class ExtrapolationWidget(QtGui.QWidget):
         elif method == "spline":
             self.spline_extrapolation_rb.setChecked(True)
 
+        self.update_visibility()
+
     def get_extrapolation_parameters(self):
         if self.spline_extrapolation_rb.isChecked() or self.poly_extrapolation_rb.isChecked():
             return {'q_max': float(str(self.q_max_txt.text())),

@@ -36,12 +36,14 @@ class ConfigurationController(object):
 
     def update_configurations_tw(self):
         self.main_widget.configuration_tw.setRowCount(0)
+        self.main_widget.configuration_tw.blockSignals(True)
         for configuration in self.model.configurations:
             color = configuration.color
             self.main_widget.configuration_widget.add_configuration(
                 configuration.name,
                 '#%02x%02x%02x' % (int(color[0]), int(color[1]), int(color[2]))
             )
+        self.main_widget.configuration_tw.blockSignals(False)
         self.main_widget.configuration_tw.selectRow(self.model.configuration_ind)
 
     def configuration_selected(self, ind):
@@ -67,4 +69,5 @@ class ConfigurationController(object):
         self.main_widget.use_modification_cb.setChecked(self.model.use_modification_fcn)
 
         # extrapolations widget
+        print(self.model.extrapolation_method)
         self.main_widget.set_extrapolation_method(self.model.extrapolation_method)

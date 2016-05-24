@@ -132,5 +132,3 @@ class ConfigurationControllerTest(unittest.TestCase):
         self.configuration_widget.configuration_tw.selectRow(0)
         self.assertTrue(self.main_widget.activate_extrapolation_cb.isChecked())
         self.assertTrue(self.main_widget.left_control_widget.extrapolation_widget.step_extrapolation_rb.isChecked())
-
-

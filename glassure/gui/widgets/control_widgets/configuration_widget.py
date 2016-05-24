@@ -48,6 +48,7 @@ class ConfigurationWidget(QtGui.QWidget):
         """)
 
     def add_configuration(self, name, color):
+        self.configuration_tw.blockSignals(True)
         current_rows = self.configuration_tw.rowCount()
         self.configuration_tw.setRowCount(current_rows + 1)
 
@@ -71,8 +72,8 @@ class ConfigurationWidget(QtGui.QWidget):
         self.configuration_tw.setColumnWidth(0, 20)
         self.configuration_tw.setColumnWidth(1, 25)
         self.configuration_tw.setRowHeight(current_rows, 25)
-        self.select_configuration(current_rows)
         self.configuration_tw.blockSignals(False)
+        self.select_configuration(current_rows)
 
     def select_configuration(self, ind):
         if self.configuration_tw.rowCount() > 0:
