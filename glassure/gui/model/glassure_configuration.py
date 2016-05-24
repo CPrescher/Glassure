@@ -1,9 +1,15 @@
 # -*- coding: utf8 -*-
+from colorsys import hsv_to_rgb
+from copy import deepcopy
+
+import numpy as np
 
 from core.pattern import Pattern
 
 
 class GlassureConfiguration(object):
+    num = 0
+
     def __init__(self):
         super(GlassureConfiguration, self).__init__()
         # initialize all spectra
@@ -36,3 +42,22 @@ class GlassureConfiguration(object):
 
         self.extrapolation_method = None
         self.extrapolation_parameters = None
+
+        self.name = 'Config {}'.format(GlassureConfiguration.num)
+        self.color = calculate_color(GlassureConfiguration.num)
+        GlassureConfiguration.num += 1
+
+    def copy(self):
+        new_configuration = deepcopy(self)
+        new_configuration.name = 'Config {}'.format(GlassureConfiguration.num)
+        new_configuration.color = calculate_color(GlassureConfiguration.num)
+        GlassureConfiguration.num += 1
+
+        return new_configuration
+
+
+def calculate_color(ind):
+    s = 0.8
+    v = 0.8
+    h = (0.19 * (ind + 2)) % 1
+    return np.array(hsv_to_rgb(h, s, v)) * 255

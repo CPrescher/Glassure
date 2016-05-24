@@ -56,6 +56,8 @@ class GlassureWidget(QtGui.QWidget):
     def create_widget_shortcuts(self):
         self.load_data_btn = self.left_control_widget.data_widget.file_widget.load_data_btn
         self.load_bkg_btn = self.left_control_widget.data_widget.file_widget.load_background_btn
+        self.data_filename_lbl = self.left_control_widget.data_widget.file_widget.data_filename_lbl
+        self.bkg_filename_lbl = self.left_control_widget.data_widget.file_widget.background_filename_lbl
 
         self.bkg_scaling_sb = self.left_control_widget.data_widget.background_options_gb.scale_sb
         self.bkg_scaling_step_txt = self.left_control_widget.data_widget.background_options_gb.scale_step_txt

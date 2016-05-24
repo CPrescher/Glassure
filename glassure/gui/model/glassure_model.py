@@ -1,7 +1,6 @@
 # -*- coding: utf8 -*-
 
 import numpy as np
-from copy import deepcopy
 from lmfit import Parameters, minimize
 from ..qt import QtGui, QtCore, Signal
 
@@ -18,6 +17,8 @@ from .glassure_configuration import GlassureConfiguration
 
 
 class GlassureModel(QtCore.QObject):
+    configurations_changed = Signal()
+    configuration_selected = Signal(int)
     data_changed = Signal()
     sq_changed = Signal(Pattern)
     fr_changed = Signal(Pattern)
@@ -45,8 +46,9 @@ class GlassureModel(QtCore.QObject):
         return self.configurations[self.configuration_ind]
 
     def add_configuration(self):
-        self.configurations.append(deepcopy(self.current_configuration))
+        self.configurations.append(self.current_configuration.copy())
         self.configuration_ind = -1
+        self.configurations_changed.emit()
 
     def remove_configuration(self):
         # removes the currently selected configuration, unless only one configuration is left
@@ -57,9 +59,11 @@ class GlassureModel(QtCore.QObject):
 
         if self.configuration_ind >= len(self.configurations):
             self.configuration_ind = -1
+        self.configurations_changed.emit()
 
     def select_configuration(self, ind):
         self.configuration_ind = ind
+        self.configuration_selected.emit(ind)
 
     @property
     def atomic_density(self):

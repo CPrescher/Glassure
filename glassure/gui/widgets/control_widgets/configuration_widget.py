@@ -50,7 +50,6 @@ class ConfigurationWidget(QtGui.QWidget):
     def add_configuration(self, name, color):
         current_rows = self.configuration_tw.rowCount()
         self.configuration_tw.setRowCount(current_rows + 1)
-        self.configuration_tw.blockSignals(True)
 
         show_cb = QtGui.QCheckBox()
         show_cb.setChecked(True)

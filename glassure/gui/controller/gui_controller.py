@@ -1,7 +1,6 @@
 # -*- coding: utf8 -*-
 
 import os
-from colorsys import hsv_to_rgb
 
 import numpy as np
 
@@ -18,6 +17,8 @@ pg.setConfigOption('antialias', True)
 from gui.widgets.glassure_widget import GlassureWidget
 from gui.model.glassure_model import GlassureModel
 
+from .configuration_controller import ConfigurationController
+
 
 class GlassureController(object):
     def __init__(self):
@@ -28,6 +29,8 @@ class GlassureController(object):
         self.sq_directory = ''
         self.gr_directory = ''
         self.connect_signals()
+
+        self.configuration_controller = ConfigurationController(self.main_widget, self.model)
 
     def show_window(self):
         """
@@ -75,10 +78,6 @@ class GlassureController(object):
         self.main_widget.right_control_widget.diamond_widget.diamond_optimize_btn.clicked.connect(
             self.optimize_diamond_btn_clicked
         )
-
-        # Configuration Controls
-        self.main_widget.freeze_configuration_btn.clicked.connect(self.freeze_configuration)
-        self.main_widget.remove_configuration_btn.clicked.connect(self.remove_configuration)
 
         # Saving the resulting data
         self.connect_click_function(self.main_widget.save_sq_btn, self.save_sq_btn_clicked)
@@ -224,21 +223,3 @@ class GlassureController(object):
         if filename is not '':
             self.model.gr_pattern.save(filename)
             self.gr_directory = os.path.dirname(filename)
-
-    def freeze_configuration(self):
-        color = calculate_color(np.random.random_integers(1000))
-        self.main_widget.configuration_widget.add_configuration(
-            'Config 1',
-            '#%02x%02x%02x' % (int(color[0]), int(color[1]), int(color[2]))
-        )
-
-    def remove_configuration(self):
-        cur_ind = self.main_widget.configuration_widget.get_selected_configuration_row()
-        self.main_widget.configuration_widget.remove_configuration(cur_ind)
-
-
-def calculate_color(ind):
-    s = 0.8
-    v = 0.8
-    h = (0.19 * (ind + 2)) % 1
-    return np.array(hsv_to_rgb(h, s, v)) * 255
