@@ -3,7 +3,7 @@
 from ..qt import QtGui
 
 from .control_widgets import CompositionWidget, DataWidget, OptimizationWidget, \
-    OptionsWidget, DensityOptimizationWidget, ExtrapolationWidget, DiamondWidget
+    OptionsWidget, DensityOptimizationWidget, ExtrapolationWidget, DiamondWidget, ConfigurationWidget
 from .custom_widgets import ExpandableBox
 
 
@@ -45,10 +45,12 @@ class RightControlWidget(QtGui.QWidget):
         self.optimization_widget = OptimizationWidget()
         self.density_optimization_widget = DensityOptimizationWidget()
         self.diamond_widget = DiamondWidget()
+        self.configuration_widget = ConfigurationWidget()
 
         self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization"))
-        self.vertical_layout.addWidget(ExpandableBox(self.density_optimization_widget, "Density Optimization"))
-        self.vertical_layout.addWidget(ExpandableBox(self.diamond_widget, "Diamond Correction"))
+        self.vertical_layout.addWidget(ExpandableBox(self.density_optimization_widget, "Density Optimization", True))
+        self.vertical_layout.addWidget(ExpandableBox(self.diamond_widget, "Diamond Correction", True))
+        self.vertical_layout.addWidget(ExpandableBox(self.configuration_widget, "Configurations"))
 
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.Expanding))

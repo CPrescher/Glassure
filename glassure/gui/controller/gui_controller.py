@@ -1,12 +1,12 @@
 # -*- coding: utf8 -*-
 
-import sys
 import os
+from colorsys import hsv_to_rgb
+
+import numpy as np
 
 from ..qt import QtGui, QtCore
-import numpy as np
 import pyqtgraph as pg
-
 
 # # Switch to using white background and black foreground
 pg.setConfigOption('useOpenGL', False)
@@ -40,13 +40,12 @@ class GlassureController(object):
         Connects Gui signals with the model and model signals with the GUI.
         """
 
-        #model
+        # model
 
         self.model.data_changed.connect(self.model_changed)
 
         self.connect_click_function(self.main_widget.load_data_btn, self.load_data)
         self.connect_click_function(self.main_widget.load_bkg_btn, self.load_bkg)
-
 
         # connecting background scaling and smoothing of the original data
         self.main_widget.bkg_scaling_sb.valueChanged.connect(self.bkg_scale_changed)
@@ -59,18 +58,26 @@ class GlassureController(object):
 
         # updating the calculation parameters
         self.main_widget.left_control_widget.options_widget.options_parameters_changed.connect(self.update_model)
-        self.main_widget.left_control_widget.extrapolation_widget.extrapolation_parameters_changed.connect(self.update_model)
-        self.main_widget.right_control_widget.optimization_widget.calculation_parameters_changed.connect(self.update_model)
+        self.main_widget.left_control_widget.extrapolation_widget.extrapolation_parameters_changed.connect(
+            self.update_model)
+        self.main_widget.right_control_widget.optimization_widget.calculation_parameters_changed.connect(
+            self.update_model)
 
         # optimization controls
-        self.main_widget.right_control_widget.optimization_widget.optimize_btn.clicked.connect(self.optimize_btn_clicked)
-        self.main_widget.right_control_widget.density_optimization_widget.optimize_btn.clicked.connect(self.optimize_density)
+        self.main_widget.right_control_widget.optimization_widget.optimize_btn.clicked.connect(
+            self.optimize_btn_clicked)
+        self.main_widget.right_control_widget.density_optimization_widget.optimize_btn.clicked.connect(
+            self.optimize_density)
 
         # Diamond controls
-        self.main_widget.right_control_widget.diamond_widget.diamond_txt.editingFinished.connect(self.diamond_content_changed)
+        self.main_widget.right_control_widget.diamond_widget.diamond_txt.editingFinished.connect(
+            self.diamond_content_changed)
         self.main_widget.right_control_widget.diamond_widget.diamond_optimize_btn.clicked.connect(
             self.optimize_diamond_btn_clicked
         )
+
+        # Configuration Controls
+        self.main_widget.freeze_configuration_btn.clicked.connect(self.freeze_configuration)
 
         # Saving the resulting data
         self.connect_click_function(self.main_widget.save_sq_btn, self.save_sq_btn_clicked)
@@ -111,9 +118,8 @@ class GlassureController(object):
         if self.model.gr_pattern is not None:
             self.main_widget.spectrum_widget.plot_pdf(self.model.gr_pattern)
 
-        self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl.\
+        self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl. \
             setText("{:.4f}".format(self.model.atomic_density))
-
 
     def bkg_scale_changed(self, value):
         self.model.background_scaling = value
@@ -149,7 +155,7 @@ class GlassureController(object):
 
         use_modification_fcn = self.main_widget.use_modification_cb.isChecked()
         extrapolation_method = self.main_widget.get_extrapolation_method()
-        extrapolation_parameters= self.main_widget.get_extrapolation_parameters()
+        extrapolation_parameters = self.main_widget.get_extrapolation_parameters()
 
         self.model.update_parameter(composition, density,
                                     q_min, q_max,
@@ -163,8 +169,10 @@ class GlassureController(object):
         self.main_widget.left_control_widget.setEnabled(False)
         self.main_widget.right_control_widget.setEnabled(False)
         self.model.optimize_sq(
-            iterations=int(str(self.main_widget.right_control_widget.optimization_widget.optimize_iterations_txt.text())),
-            attenuation_factor=int(self.main_widget.right_control_widget.optimization_widget.attenuation_factor_sb.value()),
+            iterations=int(
+                str(self.main_widget.right_control_widget.optimization_widget.optimize_iterations_txt.text())),
+            attenuation_factor=int(
+                self.main_widget.right_control_widget.optimization_widget.attenuation_factor_sb.value()),
             fcn_callback=self.plot_optimization_progress
         )
         self.main_widget.left_control_widget.setEnabled(True)
@@ -179,7 +187,7 @@ class GlassureController(object):
         density_min, density_max, bkg_min, bkg_max, iterations = \
             self.main_widget.left_control_widget.density_optimization_widget.get_parameter()
         self.model.optimize_density_and_scaling(
-            density_min, density_max, bkg_min, bkg_max, iterations,output_txt=
+            density_min, density_max, bkg_min, bkg_max, iterations, output_txt=
             self.main_widget.right_control_widget.density_optimization_widget.optimization_output_txt,
             callback_fcn=self.plot_optimization_progress)
 
@@ -189,11 +197,12 @@ class GlassureController(object):
 
     def optimize_diamond_btn_clicked(self):
         start_value = float(str(self.main_widget.right_control_widget.diamond_widget.diamond_txt.text()))
+
         def callback_fcn(diamond_content):
             self.main_widget.right_control_widget.diamond_widget.diamond_txt.setText('{:.2f}'.format(diamond_content))
             QtGui.QApplication.processEvents()
-        self.model.optimize_diamond_content(diamond_content=start_value, callback_fcn=callback_fcn)
 
+        self.model.optimize_diamond_content(diamond_content=start_value, callback_fcn=callback_fcn)
 
     def save_sq_btn_clicked(self, filename=None):
         if filename is None:
@@ -214,3 +223,17 @@ class GlassureController(object):
         if filename is not '':
             self.model.gr_pattern.save(filename)
             self.gr_directory = os.path.dirname(filename)
+
+    def freeze_configuration(self):
+        color = calculate_color(np.random.random_integers(1000))
+        self.main_widget.configuration_widget.add_configuration(
+            'Config 1',
+            '#%02x%02x%02x' % (int(color[0]), int(color[1]), int(color[2]))
+        )
+
+
+def calculate_color(ind):
+    s = 0.8
+    v = 0.8
+    h = (0.19 * (ind + 2)) % 1
+    return np.array(hsv_to_rgb(h, s, v)) * 255

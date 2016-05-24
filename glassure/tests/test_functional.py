@@ -122,5 +122,26 @@ class GlassureFunctionalTest(unittest.TestCase):
 
         prev_sq_data = self.main_widget.spectrum_widget.sq_item.getData()
         set_widget_text(self.main_widget.optimize_r_cutoff_txt, 1.2)
+        self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_item.getData()))
+
+        prev_sq_data = self.main_widget.spectrum_widget.sq_item.getData()
         click_button(self.main_widget.optimize_btn)
         self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_item.getData()))
+
+    def test_working_with_configurations(self):
+        # Edd starts to mak some analysis
+
+        self.main_controller.load_data(os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy'))
+        self.main_controller.load_bkg(os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy'))
+
+        self.main_widget.left_control_widget.composition_widget.add_element('Si', 1)
+
+        # He likes the default parameters, but wants to test it against another density, therefore he saves the current
+        # state
+
+        click_button(self.main_widget.freeze_configuration_btn)
+
+        # and magically sees that there are now is a field in the configuration table and extra other lines in the plot
+        # widgets
+
+        self.assertEqual(self.main_widget.configuration_tw.rowCount(), 1)

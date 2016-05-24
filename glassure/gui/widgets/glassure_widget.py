@@ -82,6 +82,11 @@ class GlassureWidget(QtGui.QWidget):
         self.save_sq_btn = self.spectrum_widget.mouse_position_widget.save_sq_btn
         self.save_gr_btn = self.spectrum_widget.mouse_position_widget.save_gr_btn
 
+        self.configuration_widget = self.right_control_widget.configuration_widget
+        self.freeze_configuration_btn = self.right_control_widget.configuration_widget.freeze_btn
+        self.configuration_tw = self.right_control_widget.configuration_widget.configuration_tw
+
+
     def create_function_shortcuts(self):
         self.get_composition = self.left_control_widget.composition_widget.get_composition
         self.get_density = self.left_control_widget.composition_widget.get_density
