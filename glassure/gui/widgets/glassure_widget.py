@@ -84,6 +84,7 @@ class GlassureWidget(QtGui.QWidget):
 
         self.configuration_widget = self.right_control_widget.configuration_widget
         self.freeze_configuration_btn = self.right_control_widget.configuration_widget.freeze_btn
+        self.remove_configuration_btn = self.right_control_widget.configuration_widget.remove_btn
         self.configuration_tw = self.right_control_widget.configuration_widget.configuration_tw
 
 

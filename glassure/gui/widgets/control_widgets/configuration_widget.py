@@ -88,9 +88,13 @@ class ConfigurationWidget(QtGui.QWidget):
         return row
 
     def remove_configuration(self, ind):
+        if self.configuration_tw.rowCount() == 0:
+            return
+
         self.configuration_tw.blockSignals(True)
         self.configuration_tw.removeRow(ind)
         self.configuration_tw.blockSignals(False)
+
         del self.configuration_show_cbs[ind]
         del self.configuration_color_btns[ind]
 

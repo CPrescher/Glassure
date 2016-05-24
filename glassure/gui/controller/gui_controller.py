@@ -78,6 +78,7 @@ class GlassureController(object):
 
         # Configuration Controls
         self.main_widget.freeze_configuration_btn.clicked.connect(self.freeze_configuration)
+        self.main_widget.remove_configuration_btn.clicked.connect(self.remove_configuration)
 
         # Saving the resulting data
         self.connect_click_function(self.main_widget.save_sq_btn, self.save_sq_btn_clicked)
@@ -230,6 +231,10 @@ class GlassureController(object):
             'Config 1',
             '#%02x%02x%02x' % (int(color[0]), int(color[1]), int(color[2]))
         )
+
+    def remove_configuration(self):
+        cur_ind = self.main_widget.configuration_widget.get_selected_configuration_row()
+        self.main_widget.configuration_widget.remove_configuration(cur_ind)
 
 
 def calculate_color(ind):
