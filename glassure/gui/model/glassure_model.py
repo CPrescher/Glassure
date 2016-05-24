@@ -13,6 +13,8 @@ from core.optimization import optimize_sq
 from core.utility import extrapolate_to_zero_linear, extrapolate_to_zero_step, extrapolate_to_zero_spline, \
     extrapolate_to_zero_poly
 
+from .glassure_configuration import GlassureConfiguration
+
 
 class GlassureModel(QtCore.QObject):
     data_changed = Signal()
@@ -23,163 +25,201 @@ class GlassureModel(QtCore.QObject):
     def __init__(self):
         super(GlassureModel, self).__init__()
 
-        # initialize all spectra
-        self.original_pattern = Pattern()
-        self._background_pattern = Pattern()
-
-        self.diamond_bkg_pattern = None
-
-        self._sq_pattern = None
-        self._fr_pattern = None
-        self._gr_pattern = None
-
-        # initialize all parameters
-        self._composition = {}
-
-        self._density = 2.2
-        self.density_error = None
-
-        self._q_min = 0.0
-        self._q_max = 10.0
-
-        self._r_min = 0.5
-        self._r_max = 10
-        self.r_step = 0.01
-
-        self.r_cutoff = 1.4
-
-        # initialize all Flags
-        self._use_modification_fcn = False
-
-        self.extrapolation_method = None
-        self.extrapolation_parameters = None
+        self.configurations = []
+        self.configurations.append(GlassureConfiguration())
+        self.configuration_ind = 0
 
     def load_data(self, filename):
         self.original_pattern.load(filename)
         self.calculate_transforms()
 
     def load_bkg(self, filename):
-        self.background_pattern.load(filename)
+        self.current_configuration.background_pattern.load(filename)
         self.calculate_transforms()
 
     @property
+    def current_configuration(self):
+        return self.configurations[self.configuration_ind]
+
+    @property
     def atomic_density(self):
-        if len(self.composition):
-            return convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
+        if len(self.current_configuration.composition):
+            return convert_density_to_atoms_per_cubic_angstrom(self.current_configuration.composition,
+                                                               self.density)
         return 0
 
     @property
-    def background_pattern(self):
-        if self.diamond_bkg_pattern is None:
-            return self._background_pattern
-        return self._background_pattern + self.diamond_bkg_pattern
+    def original_pattern(self):
+        return self.current_configuration.original_pattern
+
+    @original_pattern.setter
+    def original_pattern(self, new_pattern):
+        self.current_configuration.original_pattern = new_pattern
 
     def get_background_pattern(self):
         x, y = self.background_pattern.data
         return Pattern(x, y)
 
     @property
+    def background_pattern(self):
+        if self.current_configuration.diamond_bkg_pattern is None:
+            return self.current_configuration.background_pattern
+        return self.current_configuration.background_pattern + self.current_configuration.diamond_bkg_pattern
+
+    @property
+    def diamond_bkg_pattern(self):
+        return self.current_configuration.diamond_bkg_pattern
+
+    @diamond_bkg_pattern.setter
+    def diamond_bkg_pattern(self, new_pattern):
+        self.current_configuration.diamond_bkg_pattern = new_pattern
+
+    @property
     def background_scaling(self):
-        return self._background_pattern.scaling
+        return self.current_configuration._background_pattern.scaling
 
     @background_scaling.setter
     def background_scaling(self, new_value):
-        self._background_pattern.scaling = new_value
-        self.calculate_transforms()
-
-    @property
-    def composition(self):
-        return self._composition
-
-    @composition.setter
-    def composition(self, new_composition):
-        self._composition = new_composition
-        self.calculate_transforms()
-
-    @property
-    def density(self):
-        return self._density
-
-    @density.setter
-    def density(self, new_density):
-        self._density = new_density
-        self.calculate_transforms()
-
-    @property
-    def q_min(self):
-        return self._q_min
-
-    @q_min.setter
-    def q_min(self, new_q_min):
-        self._q_min = new_q_min
-        self.calculate_transforms()
-
-    @property
-    def q_max(self):
-        return self._q_max
-
-    @q_max.setter
-    def q_max(self, new_q_max):
-        self._q_max = new_q_max
-        self.calculate_transforms()
-
-    @property
-    def r_min(self):
-        return self._r_min
-
-    @r_min.setter
-    def r_min(self, new_r_min):
-        self._r_min = new_r_min
-        self.calculate_transforms()
-
-    @property
-    def r_max(self):
-        return self._r_max
-
-    @r_max.setter
-    def r_max(self, new_r_max):
-        self._r_max = new_r_max
-        self.calculate_transforms()
-
-    @property
-    def use_modification_fcn(self):
-        return self._use_modification_fcn
-
-    @use_modification_fcn.setter
-    def use_modification_fcn(self, value):
-        self._use_modification_fcn = value
+        self.current_configuration._background_pattern.scaling = new_value
         self.calculate_transforms()
 
     @property
     def sq_pattern(self):
-        return self._sq_pattern
+        return self.current_configuration.sq_pattern
 
     @sq_pattern.setter
     def sq_pattern(self, new_sq):
-        self._sq_pattern = new_sq
+        self.current_configuration.sq_pattern = new_sq
         self.sq_changed.emit(new_sq)
 
     @property
     def fr_pattern(self):
-        return self._fr_pattern
+        return self.current_configuration.fr_pattern
 
     @fr_pattern.setter
     def fr_pattern(self, new_fr):
-        self._fr_pattern = new_fr
+        self.current_configuration.fr_pattern = new_fr
         self.fr_changed.emit(new_fr)
 
     @property
     def gr_pattern(self):
-        return self._gr_pattern
+        return self.current_configuration.gr_pattern
 
     @gr_pattern.setter
     def gr_pattern(self, new_gr):
-        self._gr_pattern = new_gr
+        self.current_configuration.gr_pattern = new_gr
         self.gr_changed.emit(new_gr)
+
+    @property
+    def composition(self):
+        return self.current_configuration.composition
+
+    @composition.setter
+    def composition(self, new_composition):
+        self.current_configuration.composition = new_composition
+        self.calculate_transforms()
+
+    @property
+    def density(self):
+        return self.current_configuration.density
+
+    @density.setter
+    def density(self, new_density):
+        self.current_configuration.density = new_density
+        self.calculate_transforms()
+
+    @property
+    def density_error(self):
+        return self.current_configuration.density_error
+
+    @density_error.setter
+    def density_error(self, new_density_error):
+        self.current_configuration.density_error = new_density_error
+
+    @property
+    def q_min(self):
+        return self.current_configuration.q_min
+
+    @q_min.setter
+    def q_min(self, new_q_min):
+        self.current_configuration.q_min = new_q_min
+        self.calculate_transforms()
+
+    @property
+    def q_max(self):
+        return self.current_configuration.q_max
+
+    @q_max.setter
+    def q_max(self, new_q_max):
+        self.current_configuration.q_max = new_q_max
+        self.calculate_transforms()
+
+    @property
+    def r_min(self):
+        return self.current_configuration.r_min
+
+    @r_min.setter
+    def r_min(self, new_r_min):
+        self.current_configuration.r_min = new_r_min
+        self.calculate_transforms()
+
+    @property
+    def r_max(self):
+        return self.current_configuration.r_max
+
+    @r_max.setter
+    def r_max(self, new_r_max):
+        self.current_configuration.r_max = new_r_max
+        self.calculate_transforms()
+
+    @property
+    def r_step(self):
+        return self.current_configuration.r_step
+
+    @r_step.setter
+    def r_step(self, new_r_step):
+        self.current_configuration.r_step = new_r_step
+        self.calculate_transforms()
+
+    @property
+    def r_cutoff(self):
+        return self.current_configuration.r_cutoff
+
+    @r_cutoff.setter
+    def r_cutoff(self, new_r_cutoff):
+        self.current_configuration.r_cutoff = new_r_cutoff
+        self.calculate_transforms()
+
+    @property
+    def use_modification_fcn(self):
+        return self.current_configuration.use_modification_fcn
+
+    @use_modification_fcn.setter
+    def use_modification_fcn(self, value):
+        self.current_configuration.use_modification_fcn = value
+        self.calculate_transforms()
+
+    @property
+    def extrapolation_method(self):
+        return self.current_configuration.extrapolation_method
+
+    @extrapolation_method.setter
+    def extrapolation_method(self, value):
+        self.current_configuration.extrapolation_method = value
+        self.calculate_transforms()
+
+    @property
+    def extrapolation_parameters(self):
+        return self.current_configuration.extrapolation_parameters
+
+    @extrapolation_parameters.setter
+    def extrapolation_parameters(self, value):
+        self.current_configuration.extrapolation_parameters = value
+        self.calculate_transforms()
 
     def set_smooth(self, value):
         self.original_pattern.set_smoothing(value)
-        self._background_pattern.set_smoothing(value)
+        self.current_configuration.background_pattern.set_smoothing(value)
         self.calculate_transforms()
 
     def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min=0, r_max=10,
@@ -210,10 +250,11 @@ class GlassureModel(QtCore.QObject):
         self.data_changed.emit()
 
     def calculate_sq(self):
-        self.sq_pattern = calculate_sq((self.original_pattern - self.background_pattern). \
-                                       limit(self.q_min, self.q_max),
-                                       density=self.density,
-                                       composition=self.composition)
+        self.sq_pattern = calculate_sq((self.original_pattern - self.background_pattern).limit(
+            self.q_min, self.q_max),
+            density=self.density,
+            composition=self.composition
+        )
 
         if self.extrapolation_method == 'step':
             self.sq_pattern = extrapolate_to_zero_step(self.sq_pattern)
@@ -240,7 +281,7 @@ class GlassureModel(QtCore.QObject):
         self.sq_pattern = optimize_sq(self.sq_pattern, self.r_cutoff,
                                       iterations=iterations,
                                       atomic_density=convert_density_to_atoms_per_cubic_angstrom(self.composition,
-                                                                                                  self.density),
+                                                                                                 self.density),
                                       use_modification_fcn=use_modification_fcn,
                                       attenuation_factor=attenuation_factor,
                                       fcn_callback=fcn_callback)
