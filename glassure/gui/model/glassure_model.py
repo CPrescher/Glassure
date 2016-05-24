@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 
 import numpy as np
+from copy import deepcopy
 from lmfit import Parameters, minimize
 from ..qt import QtGui, QtCore, Signal
 
@@ -42,6 +43,10 @@ class GlassureModel(QtCore.QObject):
     @property
     def current_configuration(self):
         return self.configurations[self.configuration_ind]
+
+    def add_configuration(self):
+        self.configurations.append(deepcopy(self.current_configuration))
+        self.configuration_ind = -1
 
     @property
     def atomic_density(self):

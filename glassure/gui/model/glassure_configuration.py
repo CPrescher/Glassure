@@ -1,10 +1,9 @@
 # -*- coding: utf8 -*-
 
-from ..qt import QtGui, QtCore, Signal
 from core.pattern import Pattern
 
 
-class GlassureConfiguration(QtCore.QObject):
+class GlassureConfiguration(object):
     def __init__(self):
         super(GlassureConfiguration, self).__init__()
         # initialize all spectra

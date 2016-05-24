@@ -7,6 +7,8 @@ import numpy as np
 
 from gui.model.glassure_model import GlassureModel
 
+from tests.utility import array_almost_equal
+
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 sample_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy')
 bkg_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy')
@@ -90,3 +92,21 @@ class GuiModelTest(unittest.TestCase):
         self.model.optimize_sq(5, use_modification_fcn=False)
         sq2 = self.model.sq_pattern
         self.assertFalse(np.allclose(sq1.y, sq2.y))
+
+    def test_adding_a_configurations(self):
+        # Adding a configuration and then change one parameter to see if new configuration behaves independently
+        self.model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
+        sq1 = self.model.sq_pattern
+
+        self.assertLess(sq1.x[-1], 10)
+
+        self.model.add_configuration()
+        sq2 = self.model.sq_pattern
+
+        self.assertLess(sq2.x[-1], 10)
+
+        self.model.q_max = 12
+        sq2 = self.model.sq_pattern
+
+        self.assertLess(sq1.x[-1], 10)
+        self.assertGreater(sq2.x[-1], 10)
