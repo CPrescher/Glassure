@@ -29,6 +29,8 @@ class GlassureModel(QtCore.QObject):
         self.configurations.append(GlassureConfiguration())
         self.configuration_ind = 0
 
+        self.auto_update = True
+
     def load_data(self, filename):
         self.original_pattern.load(filename)
         self.calculate_transforms()
@@ -224,6 +226,8 @@ class GlassureModel(QtCore.QObject):
 
     def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min=0, r_max=10,
                          use_modification_fcn=False, extrapolation_method=None, extrapolation_parameters=None):
+
+        self.auto_update = False
         self.composition = composition
         self.density = density
 
@@ -238,9 +242,13 @@ class GlassureModel(QtCore.QObject):
         self.extrapolation_method = extrapolation_method
         self.extrapolation_parameters = extrapolation_parameters
 
+        self.auto_update = True
         self.calculate_transforms()
 
     def calculate_transforms(self):
+        if not self.auto_update:
+            return
+
         if len(self.composition) != 0 and \
                         self.original_pattern is not None and \
                         self.background_pattern is not None:
