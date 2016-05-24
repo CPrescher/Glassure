@@ -48,7 +48,6 @@ class CompositionWidget(QtGui.QWidget):
 
         self.setLayout(self.main_layout)
 
-
     def _style_widgets(self):
         self.density_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
         self.density_atomic_units_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
@@ -94,6 +93,13 @@ class CompositionWidget(QtGui.QWidget):
         self.composition_tw.removeRow(ind)
         self.composition_tw.blockSignals(False)
         self.emit_composition_changed_signal()
+
+    def set_composition(self, composition):
+        self.composition_tw.blockSignals(True)
+        self.composition_tw.setRowCount(0)
+        for element, value in composition.items():
+            self.add_element(element, value)
+        self.composition_tw.blockSignals(False)
 
     def get_composition(self):
         composition = {}

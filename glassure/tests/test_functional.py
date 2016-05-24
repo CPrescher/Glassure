@@ -144,4 +144,4 @@ class GlassureFunctionalTest(unittest.TestCase):
         # and magically sees that there are now is a field in the configuration table and extra other lines in the plot
         # widgets
 
-        self.assertEqual(self.main_widget.configuration_tw.rowCount(), 1)
+        self.assertEqual(self.main_widget.configuration_tw.rowCount(), 2)

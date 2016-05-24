@@ -3,17 +3,16 @@
 import unittest
 import os
 
-import numpy as np
-from gui.qt import QtGui, QtCore, QTest
+from gui.qt import QtGui
 
 from gui.controller.gui_controller import GlassureController
 
-from tests.utility import set_widget_text, click_checkbox, click_button
+from tests.utility import click_button
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 
 
-class GlassureFunctionalTest(unittest.TestCase):
+class ConfigurationWidgetTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = QtGui.QApplication([])

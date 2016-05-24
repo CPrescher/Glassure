@@ -52,3 +52,16 @@ class ConfigurationController(object):
         # background scaling and smoothing
         self.main_widget.bkg_scaling_sb.setValue(self.model.current_configuration.background_pattern.scaling)
         self.main_widget.smooth_sb.setValue(self.model.original_pattern.smoothing)
+
+        # composition widget
+        self.main_widget.set_composition(self.model.composition)
+        self.main_widget.density_txt.setText(str(self.model.density))
+
+        # parameters widget
+        self.main_widget.q_min_txt.setText(str(self.model.q_min))
+        self.main_widget.q_max_txt.setText(str(self.model.q_max))
+
+        self.main_widget.r_min_txt.setText(str(self.model.r_min))
+        self.main_widget.r_max_txt.setText(str(self.model.r_max))
+
+        self.main_widget.use_modification_cb.setChecked(self.model.use_modification_fcn)

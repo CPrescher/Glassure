@@ -67,6 +67,7 @@ class GlassureWidget(QtGui.QWidget):
 
         self.add_element_btn = self.left_control_widget.composition_widget.add_element_btn
         self.delete_element_btn = self.left_control_widget.composition_widget.delete_element_btn
+        self.composition_tw = self.left_control_widget.composition_widget.composition_tw
         self.density_txt = self.left_control_widget.composition_widget.density_txt
 
         self.q_max_txt = self.left_control_widget.options_widget.q_max_txt
@@ -91,6 +92,7 @@ class GlassureWidget(QtGui.QWidget):
 
 
     def create_function_shortcuts(self):
+        self.set_composition = self.left_control_widget.composition_widget.set_composition
         self.get_composition = self.left_control_widget.composition_widget.get_composition
         self.get_density = self.left_control_widget.composition_widget.get_density
 
