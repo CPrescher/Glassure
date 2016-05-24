@@ -123,6 +123,21 @@ class ExtrapolationWidget(QtGui.QWidget):
         elif self.spline_extrapolation_rb.isChecked():
             return "spline"
 
+    def set_extrapolation_method(self, method):
+        if method is None:
+            self.activate_cb.setChecked(False)
+        else:
+            self.activate_cb.setChecked(True)
+
+        if method == 'step':
+            self.step_extrapolation_rb.setChecked(True)
+        elif method == "linear":
+            self.linear_extrapolation_rb.setChecked(True)
+        elif method == "poly":
+            self.poly_extrapolation_rb.setChecked(True)
+        elif method == "spline":
+            self.spline_extrapolation_rb.setChecked(True)
+
     def get_extrapolation_parameters(self):
         if self.spline_extrapolation_rb.isChecked() or self.poly_extrapolation_rb.isChecked():
             return {'q_max': float(str(self.q_max_txt.text())),

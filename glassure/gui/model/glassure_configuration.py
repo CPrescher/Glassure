@@ -40,8 +40,8 @@ class GlassureConfiguration(object):
         # initialize all Flags
         self.use_modification_fcn = False
 
-        self.extrapolation_method = None
-        self.extrapolation_parameters = None
+        self.extrapolation_method = 'step'
+        self.extrapolation_parameters = {'q_max': 2, 'replace':False}
 
         self.name = 'Config {}'.format(GlassureConfiguration.num)
         self.color = calculate_color(GlassureConfiguration.num)

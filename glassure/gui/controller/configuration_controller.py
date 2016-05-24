@@ -65,3 +65,6 @@ class ConfigurationController(object):
         self.main_widget.r_max_txt.setText(str(self.model.r_max))
 
         self.main_widget.use_modification_cb.setChecked(self.model.use_modification_fcn)
+
+        # extrapolations widget
+        self.main_widget.set_extrapolation_method(self.model.extrapolation_method)

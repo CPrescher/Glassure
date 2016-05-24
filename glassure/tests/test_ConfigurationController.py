@@ -122,3 +122,15 @@ class ConfigurationControllerTest(unittest.TestCase):
 
         self.configuration_widget.configuration_tw.selectRow(1)
         self.assertTrue(self.main_widget.use_modification_cb.isChecked())
+
+    def test_configuration_method_is_updated(self):
+        click_button(self.configuration_widget.freeze_btn)
+        click_checkbox(self.main_widget.left_control_widget.extrapolation_widget.linear_extrapolation_rb)
+        click_button(self.configuration_widget.freeze_btn)
+        click_checkbox(self.main_widget.activate_extrapolation_cb) # deactivate
+
+        self.configuration_widget.configuration_tw.selectRow(0)
+        self.assertTrue(self.main_widget.activate_extrapolation_cb.isChecked())
+        self.assertTrue(self.main_widget.left_control_widget.extrapolation_widget.step_extrapolation_rb.isChecked())
+
+
