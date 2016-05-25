@@ -58,7 +58,7 @@ class ConfigurationController(object):
             self.main_widget.spectrum_widget.remove_sq_item()
             self.main_widget.spectrum_widget.remove_gr_item()
 
-    def update_widget_controls(self, ind):
+    def update_widget_controls(self):
 
         self.main_widget.left_control_widget.optimization_widget.blockSignals(True)
         # filenames

@@ -36,7 +36,7 @@ class ConfigurationControllerTest(unittest.TestCase):
         click_button(self.configuration_widget.freeze_btn)
         self.model.original_pattern.name = 'lala'
 
-        self.configuration_controller.update_configurations_tw()
+        self.configuration_controller.update_widget_controls()
         self.assertEqual(str(self.main_widget.data_filename_lbl.text()), 'lala')
 
         self.configuration_widget.configuration_tw.selectRow(0)
@@ -46,7 +46,7 @@ class ConfigurationControllerTest(unittest.TestCase):
         click_button(self.configuration_widget.freeze_btn)
         self.model.current_configuration.background_pattern.name = 'lala'
 
-        self.configuration_controller.update_configurations_tw()
+        self.configuration_controller.update_widget_controls()
         self.assertEqual(str(self.main_widget.bkg_filename_lbl.text()), 'lala')
 
         self.configuration_widget.configuration_tw.selectRow(0)
@@ -149,7 +149,7 @@ class ConfigurationControllerTest(unittest.TestCase):
         self.assertTrue(self.main_widget.left_control_widget.extrapolation_widget.replace_cb.isChecked())
 
     def test_r_cutoff_is_updated(self):
-        self.txt_widget_update_test(self.main_widget.optimize_r_cutoff_txt, 1.8)
+        self.txt_widget_update_test(self.main_widget.optimize_r_cutoff_txt, 5)
 
     def test_optimization_iterations_is_updated(self):
         self.txt_widget_update_test(self.main_widget.optimize_iterations_txt, 3)

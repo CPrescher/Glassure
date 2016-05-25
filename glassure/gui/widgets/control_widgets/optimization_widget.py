@@ -16,7 +16,7 @@ class OptimizationWidget(QtGui.QWidget):
 
     def create_widgets(self):
         self.r_cutoff_lbl = QtGui.QLabel('r cutoff:')
-        self.r_cutoff_txt = QtGui.QLineEdit('1')
+        self.r_cutoff_txt = QtGui.QLineEdit('1.4')
 
         self.optimize_btn = QtGui.QPushButton("Optimize")
         self.optimize_iterations_lbl = QtGui.QLabel("Iterations:")
