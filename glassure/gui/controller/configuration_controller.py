@@ -1,4 +1,3 @@
-
 from ..widgets.glassure_widget import GlassureWidget
 from ..model.glassure_model import GlassureModel
 
@@ -16,7 +15,6 @@ class ConfigurationController(object):
         self.model = glassure_model
 
         self.connect_signals()
-
 
         self.update_configurations_tw()
 
@@ -75,3 +73,4 @@ class ConfigurationController(object):
 
         # optimizations widget
         self.main_widget.optimize_r_cutoff_txt.setText(str(self.model.r_cutoff))
+        self.main_widget.optimize_iterations_txt.setText(str(self.model.optimization_iterations))

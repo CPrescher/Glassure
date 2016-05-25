@@ -215,6 +215,22 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     @property
+    def optimization_iterations(self):
+        return self.current_configuration.optimization_iterations
+
+    @optimization_iterations.setter
+    def optimization_iterations(self, new_value):
+        self.current_configuration.optimization_iterations = new_value
+
+    @property
+    def optimization_attenuation(self):
+        return self.current_configuration.optimization_attenuation
+
+    @optimization_attenuation.setter
+    def optimization_attenuation(self, new_value):
+        self.current_configuration.optimization_attenuation = new_value
+
+    @property
     def use_modification_fcn(self):
         return self.current_configuration.use_modification_fcn
 
@@ -246,8 +262,9 @@ class GlassureModel(QtCore.QObject):
         self.current_configuration.background_pattern.set_smoothing(value)
         self.calculate_transforms()
 
-    def update_parameter(self, composition, density, q_min, q_max, r_cutoff, r_min=0, r_max=10,
-                         use_modification_fcn=False, extrapolation_method=None, extrapolation_parameters=None):
+    def update_parameter(self, composition, density, q_min, q_max, r_min, r_max,
+                         use_modification_fcn, extrapolation_method, extrapolation_parameters,
+                         r_cutoff, optimize_iterations, optimize_attenuation):
 
         self.auto_update = False
         self.composition = composition
@@ -256,13 +273,16 @@ class GlassureModel(QtCore.QObject):
         self.q_min = q_min
         self.q_max = q_max
 
-        self.r_cutoff = r_cutoff
         self.r_min = r_min
         self.r_max = r_max
 
         self.use_modification_fcn = use_modification_fcn
         self.extrapolation_method = extrapolation_method
         self.extrapolation_parameters = extrapolation_parameters
+
+        self.r_cutoff = r_cutoff
+        self.optimization_iterations = optimize_iterations
+        self.optimization_attenuation = optimize_attenuation
 
         self.auto_update = True
         self.calculate_transforms()

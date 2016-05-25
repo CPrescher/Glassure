@@ -81,6 +81,7 @@ class GlassureWidget(QtGui.QWidget):
 
         self.optimize_btn = self.right_control_widget.optimization_widget.optimize_btn
         self.optimize_r_cutoff_txt = self.right_control_widget.optimization_widget.r_cutoff_txt
+        self.optimize_iterations_txt = self.right_control_widget.optimization_widget.optimize_iterations_txt
 
         self.save_sq_btn = self.spectrum_widget.mouse_position_widget.save_sq_btn
         self.save_gr_btn = self.spectrum_widget.mouse_position_widget.save_gr_btn

@@ -4,7 +4,7 @@ from ...qt import QtCore, QtGui, Signal
 
 
 class OptimizationWidget(QtGui.QWidget):
-    calculation_parameters_changed = Signal(float)
+    calculation_parameters_changed = Signal()
 
     def __init__(self, *args):
         super(OptimizationWidget, self).__init__(*args)
@@ -66,14 +66,19 @@ class OptimizationWidget(QtGui.QWidget):
 
     def create_signals(self):
         self.r_cutoff_txt.editingFinished.connect(self.emit_calculation_changed_signal)
+        self.optimize_iterations_txt.editingFinished.connect(self.emit_calculation_changed_signal)
+        self.attenuation_factor_sb.valueChanged.connect(self.calculation_parameters_changed.emit)
 
     def emit_calculation_changed_signal(self):
         if self.r_cutoff_txt.isModified():
-            r_cutoff = float(str(self.r_cutoff_txt.text()))
-            self.calculation_parameters_changed.emit(r_cutoff)
+            self.calculation_parameters_changed.emit()
             self.r_cutoff_txt.setModified(False)
+        elif self.optimize_iterations_txt.isModified():
+            self.calculation_parameters_changed.emit()
+            self.optimize_iterations_txt.setModified(False)
 
     def get_parameter(self):
         r_cutoff = float(str(self.r_cutoff_txt.text()))
         iterations = int(str(self.optimize_iterations_txt.text()))
-        return r_cutoff, iterations
+        attenuation = int(self.attenuation_factor_sb.value())
+        return r_cutoff, iterations, attenuation

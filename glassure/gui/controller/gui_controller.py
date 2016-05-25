@@ -151,19 +151,23 @@ class GlassureController(object):
         density = self.main_widget.left_control_widget.composition_widget.get_density()
 
         q_min, q_max, r_min, r_max = self.main_widget.get_parameter()
-        r_cutoff, _ = self.main_widget.get_optimization_parameter()
 
         use_modification_fcn = self.main_widget.use_modification_cb.isChecked()
         extrapolation_method = self.main_widget.get_extrapolation_method()
         extrapolation_parameters = self.main_widget.get_extrapolation_parameters()
 
+        r_cutoff, optimize_iterations, optimize_attenuation = self.main_widget.get_optimization_parameter()
+
         self.model.update_parameter(composition, density,
                                     q_min, q_max,
-                                    r_cutoff,
                                     r_min, r_max,
                                     use_modification_fcn,
                                     extrapolation_method,
-                                    extrapolation_parameters)
+                                    extrapolation_parameters,
+                                    r_cutoff,
+                                    optimize_iterations,
+                                    optimize_attenuation
+        )
 
     def optimize_btn_clicked(self):
         self.main_widget.left_control_widget.setEnabled(False)

@@ -151,4 +151,5 @@ class ConfigurationControllerTest(unittest.TestCase):
     def test_r_cutoff_is_updated(self):
         self.txt_widget_update_test(self.main_widget.optimize_r_cutoff_txt, 1.8)
 
-
+    def test_optimization_iterations_is_updated(self):
+        self.txt_widget_update_test(self.main_widget.optimize_iterations_txt, 3)
