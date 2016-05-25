@@ -153,3 +153,13 @@ class ConfigurationControllerTest(unittest.TestCase):
 
     def test_optimization_iterations_is_updated(self):
         self.txt_widget_update_test(self.main_widget.optimize_iterations_txt, 3)
+
+    def test_optimization_attenuation_is_updated(self):
+        click_button(self.configuration_widget.freeze_btn)
+        self.main_widget.optimize_attenuation_sb.setValue(4)
+
+        self.configuration_widget.configuration_tw.selectRow(0)
+        self.assertEqual(self.main_widget.optimize_attenuation_sb.value(), 1)
+
+        self.configuration_widget.configuration_tw.selectRow(1)
+        self.assertEqual(self.main_widget.optimize_attenuation_sb.value(), 4)

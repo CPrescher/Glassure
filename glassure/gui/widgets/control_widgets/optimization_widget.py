@@ -82,3 +82,10 @@ class OptimizationWidget(QtGui.QWidget):
         iterations = int(str(self.optimize_iterations_txt.text()))
         attenuation = int(self.attenuation_factor_sb.value())
         return r_cutoff, iterations, attenuation
+
+    def set_parameter(self, r_cutoff, iterations, attenuation):
+        self.blockSignals(True)
+        self.r_cutoff_txt.setText(str(r_cutoff))
+        self.optimize_iterations_txt.setText(str(int(iterations)))
+        self.attenuation_factor_sb.setValue(attenuation)
+        self.blockSignals(False)

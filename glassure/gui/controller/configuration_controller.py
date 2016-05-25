@@ -72,5 +72,5 @@ class ConfigurationController(object):
             self.main_widget.set_extrapolation_parameters(self.model.extrapolation_parameters)
 
         # optimizations widget
-        self.main_widget.optimize_r_cutoff_txt.setText(str(self.model.r_cutoff))
-        self.main_widget.optimize_iterations_txt.setText(str(self.model.optimization_iterations))
+        self.main_widget.set_optimization_parameter(self.model.r_cutoff, self.model.optimization_iterations,
+                                                    self.model.optimization_attenuation)
