@@ -163,3 +163,37 @@ class ConfigurationControllerTest(unittest.TestCase):
 
         self.configuration_widget.configuration_tw.selectRow(1)
         self.assertEqual(self.main_widget.optimize_attenuation_sb.value(), 4)
+
+    def test_new_plots_are_created(self):
+        click_button(self.configuration_widget.freeze_btn)
+        self.assertEqual(len(self.main_widget.spectrum_widget.gr_items), 2)
+
+    def test_plot_items_are_removed(self):
+        click_button(self.configuration_widget.freeze_btn)
+        click_button(self.configuration_widget.freeze_btn)
+        click_button(self.configuration_widget.remove_btn)
+        self.assertEqual(len(self.main_widget.spectrum_widget.gr_items), 2)
+
+    def test_plot_items_show_different_data(self):
+        click_button(self.main_widget.add_element_btn)
+        click_button(self.configuration_widget.freeze_btn)
+        set_widget_text(self.main_widget.q_max_txt, 12)
+
+        x1, y1 = self.main_widget.spectrum_widget.sq_items[0].getData()
+        x2, y2 = self.main_widget.spectrum_widget.sq_items[1].getData()
+
+        self.assertNotAlmostEqual(x1[-1], x2[-1])
+
+    def test_correct_configuration_selected_after_remove(self):
+
+        click_button(self.configuration_widget.freeze_btn)
+        click_button(self.configuration_widget.freeze_btn)
+        click_button(self.configuration_widget.freeze_btn)
+        click_button(self.configuration_widget.freeze_btn)
+
+        self.configuration_widget.configuration_tw.selectRow(1)
+        self.assertEqual(self.model.configuration_ind, 1)
+
+        click_button(self.configuration_widget.remove_btn)
+        self.assertEqual(self.model.configuration_ind, 1)
+        self.assertEqual(self.configuration_widget.configuration_tw.selectedIndexes()[0].row(), 1)

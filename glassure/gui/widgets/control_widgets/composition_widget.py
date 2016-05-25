@@ -96,10 +96,12 @@ class CompositionWidget(QtGui.QWidget):
 
     def set_composition(self, composition):
         self.composition_tw.blockSignals(True)
+        self.blockSignals(True)
         self.composition_tw.setRowCount(0)
         for element, value in composition.items():
             self.add_element(element, value)
         self.composition_tw.blockSignals(False)
+        self.blockSignals(False)
 
     def get_composition(self):
         composition = {}

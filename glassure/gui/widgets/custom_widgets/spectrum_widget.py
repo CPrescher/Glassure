@@ -4,9 +4,7 @@ import pyqtgraph as pg
 import numpy as np
 from ...qt import QtCore, QtGui, Signal
 
-
-# TODO refactoring of the 3 lists: overlays, overlay_names, overlay_show,
-# should probably a class, making it more readable
+from .ExLegendItem import LegendItem
 
 
 class SpectrumWidget(QtGui.QWidget):
@@ -34,11 +32,11 @@ class SpectrumWidget(QtGui.QWidget):
 
         self.spectrum_plot = ModifiedPlotItem()
         self.sq_plot = ModifiedPlotItem()
-        self.pdf_plot = ModifiedPlotItem()
+        self.gr_plot = ModifiedPlotItem()
 
         self.pg_layout.addItem(self.spectrum_plot, 0, 0)
         self.pg_layout.addItem(self.sq_plot, 1, 0)
-        self.pg_layout.addItem(self.pdf_plot, 2, 0)
+        self.pg_layout.addItem(self.gr_plot, 2, 0)
 
         self.pg_layout_widget.addItem(self.pg_layout)
 
@@ -51,48 +49,108 @@ class SpectrumWidget(QtGui.QWidget):
         self.sq_plot.setLabel('bottom', text='Q (1/A)')
         self.sq_plot.setLabel('left', text='S(Q)')
 
-        self.pdf_plot.setLabel('bottom', text='r (A)')
-        self.pdf_plot.setLabel('left', text='g(r)')
+        self.gr_plot.setLabel('bottom', text='r (A)')
+        self.gr_plot.setLabel('left', text='g(r)')
 
     def create_items(self):
         self.spectrum_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
         self.bkg_item = pg.PlotDataItem(pen=pg.mkPen('r', width=1.5, style=QtCore.Qt.DashLine))
-        self.sq_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
-        self.pdf_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
-
         self.spectrum_plot.addItem(self.spectrum_item)
         self.spectrum_plot.addItem(self.bkg_item)
-        self.sq_plot.addItem(self.sq_item)
-        self.pdf_plot.addItem(self.pdf_item)
+
+        self.sq_items = []
+        self.sq_show = []
+        self.add_sq_item()
+
+        self.gr_items = []
+        self.gr_show = []
+        self.add_gr_item()
+
+    def add_sq_item(self, color='w', show=True):
+        self.sq_items.append(pg.PlotDataItem([], [], pen=pg.mkPen(color=color, width=1.5)))
+        self.sq_show.append(show)
+        if show:
+            self.sq_plot.addItem(self.sq_items[-1])
+
+    def add_gr_item(self, color='w', show=True):
+        self.gr_items.append(pg.PlotDataItem([], [], pen=pg.mkPen(color=color, width=1.5)))
+        self.gr_show.append(show)
+        if show:
+            self.gr_plot.addItem(self.gr_items[-1])
+
+    def remove_sq_item(self, ind=-1):
+        self.sq_plot.removeItem(self.sq_items[ind])
+        del self.sq_items[ind]
+        del self.sq_show[ind]
+
+    def remove_gr_item(self, ind=-1):
+        self.gr_plot.removeItem(self.gr_items[ind])
+        del self.gr_items[ind]
+        del self.gr_show[ind]
+
+    # def hide_overlay(self, ind):
+    #     self.spectrum_plot.removeItem(self.overlays[ind])
+    #     self.legend.hideItem(ind + 1)
+    #     self.overlay_show[ind] = False
+    #     self.update_graph_range()
+    #
+    # def show_overlay(self, ind):
+    #     self.spectrum_plot.addItem(self.overlays[ind])
+    #     self.legend.showItem(ind + 1)
+    #     self.overlay_show[ind] = True
+    #     self.update_graph_range()
+    #
+    # def update_overlay(self, pattern, ind):
+    #     x, y = pattern.data
+    #     self.overlays[ind].setData(x, y)
+    #     self.update_graph_range()
+    #
+    # def set_overlay_color(self, ind, color):
+    #     self.overlays[ind].setPen(pg.mkPen(color=color, width=1.5))
+    #     self.legend.setItemColor(ind + 1, color)
+    #
+    # def rename_overlay(self, ind, name):
+    #     self.legend.renameItem(ind + 1, name)
 
     def create_signals(self):
         self.spectrum_plot.connect_mouse_move_event()
         self.sq_plot.connect_mouse_move_event()
-        self.pdf_plot.connect_mouse_move_event()
+        self.gr_plot.connect_mouse_move_event()
         self.spectrum_plot.mouse_moved.connect(self.mouse_moved)
         self.sq_plot.mouse_moved.connect(self.mouse_moved)
-        self.pdf_plot.mouse_moved.connect(self.mouse_moved)
+        self.gr_plot.mouse_moved.connect(self.mouse_moved)
 
     def mouse_moved(self, x, y):
         self.mouse_position_widget.x_value_lbl.setText("{:9.3f}".format(x))
         self.mouse_position_widget.y_value_lbl.setText("{:9.3f}".format(y))
 
-    def plot_spectrum(self, spec):
-        x, y = spec.data
+    def plot_spectrum(self, pattern):
+        x, y = pattern.data
         self.spectrum_item.setData(x=x, y=y)
 
-    def plot_bkg(self, spectrum):
-        x, y = spectrum.data
+    def plot_bkg(self, pattern):
+        x, y = pattern.data
         self.bkg_item.setData(x=x, y=y)
 
-    def plot_sq(self, spectrum):
-        x, y = spectrum.data
-        self.sq_item.setData(x=x, y=y)
+    def set_sq_pattern(self, pattern, ind):
+        x, y = pattern.data
+        self.sq_items[ind].setData(x=x, y=y)
 
-    def plot_pdf(self, spectrum):
-        x, y = spectrum.data
-        self.pdf_item.setData(x=x, y=y)
+    def set_gr_pattern(self, pattern, ind):
+        x, y = pattern.data
+        self.gr_items[ind].setData(x=x, y=y)
 
+    def set_color(self, color, ind):
+        self.sq_items[ind].setPen(pg.mkPen(color=color, width=1.5))
+        self.gr_items[ind].setPen(pg.mkPen(color=color, width=1.5))
+        self.sq_items[ind].setZValue(0)
+        self.gr_items[ind].setZValue(0)
+
+    def activate_ind(self, ind):
+        self.sq_items[ind].setPen(pg.mkPen(color='w', width=2))
+        self.gr_items[ind].setPen(pg.mkPen(color='w', width=2))
+        self.sq_items[ind].setZValue(100)
+        self.gr_items[ind].setZValue(100)
 
 class ModifiedPlotItem(pg.PlotItem):
     mouse_moved = Signal(float, float)

@@ -47,7 +47,7 @@ class GlassureModel(QtCore.QObject):
 
     def add_configuration(self):
         self.configurations.append(self.current_configuration.copy())
-        self.configuration_ind = -1
+        self.configuration_ind = len(self.configurations) - 1
         self.configurations_changed.emit()
 
     def remove_configuration(self):
@@ -58,10 +58,12 @@ class GlassureModel(QtCore.QObject):
         del self.configurations[self.configuration_ind]
 
         if self.configuration_ind >= len(self.configurations):
-            self.configuration_ind = -1
+            self.configuration_ind = len(self.configurations) - 1
         self.configurations_changed.emit()
 
     def select_configuration(self, ind):
+        if ind < 0:
+            ind = len(self.configurations) + ind
         self.configuration_ind = ind
         self.configuration_selected.emit(ind)
 

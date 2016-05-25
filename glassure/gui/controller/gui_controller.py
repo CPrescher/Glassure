@@ -114,9 +114,9 @@ class GlassureController(object):
         if self.model.background_pattern is not None:
             self.main_widget.spectrum_widget.plot_bkg(self.model.get_background_pattern())
         if self.model.sq_pattern is not None:
-            self.main_widget.spectrum_widget.plot_sq(self.model.sq_pattern)
+            self.main_widget.spectrum_widget.set_sq_pattern(self.model.sq_pattern, self.model.configuration_ind)
         if self.model.gr_pattern is not None:
-            self.main_widget.spectrum_widget.plot_pdf(self.model.gr_pattern)
+            self.main_widget.spectrum_widget.set_gr_pattern(self.model.gr_pattern, self.model.configuration_ind)
 
         self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl. \
             setText("{:.4f}".format(self.model.atomic_density))
@@ -183,8 +183,8 @@ class GlassureController(object):
         self.main_widget.right_control_widget.setEnabled(True)
 
     def plot_optimization_progress(self, sq_spectrum, fr_spectrum, gr_spectrum):
-        self.main_widget.spectrum_widget.plot_sq(sq_spectrum)
-        self.main_widget.spectrum_widget.plot_pdf(gr_spectrum)
+        self.main_widget.spectrum_widget.set_sq_pattern(sq_spectrum, self.model.configuration_ind)
+        self.main_widget.spectrum_widget.set_gr_pattern(gr_spectrum, self.model.configuration_ind)
         QtGui.QApplication.processEvents()
 
     def optimize_density(self):
