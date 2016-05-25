@@ -148,6 +148,7 @@ class ExtrapolationWidget(QtGui.QWidget):
             return {}
 
     def set_extrapolation_parameters(self, param):
+        print(param)
         self.q_max_txt.setText(str(param['q_max']))
         self.replace_cb.setChecked(param['replace'])
 

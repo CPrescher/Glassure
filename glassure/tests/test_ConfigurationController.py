@@ -147,3 +147,8 @@ class ConfigurationControllerTest(unittest.TestCase):
         self.configuration_widget.configuration_tw.selectRow(1)
         self.assertEqual(float(str(self.main_widget.left_control_widget.extrapolation_widget.q_max_txt.text())), 1.4)
         self.assertTrue(self.main_widget.left_control_widget.extrapolation_widget.replace_cb.isChecked())
+
+    def test_r_cutoff_is_updated(self):
+        self.txt_widget_update_test(self.main_widget.optimize_r_cutoff_txt, 1.8)
+
+

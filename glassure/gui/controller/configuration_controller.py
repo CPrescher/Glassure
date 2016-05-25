@@ -70,4 +70,8 @@ class ConfigurationController(object):
 
         # extrapolations widget
         self.main_widget.set_extrapolation_method(self.model.extrapolation_method)
-        self.main_widget.set_extrapolation_parameters(self.model.extrapolation_parameters)
+        if self.model.extrapolation_method in ('poly', 'spline'):
+            self.main_widget.set_extrapolation_parameters(self.model.extrapolation_parameters)
+
+        # optimizations widget
+        self.main_widget.optimize_r_cutoff_txt.setText(str(self.model.r_cutoff))
