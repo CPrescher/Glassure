@@ -147,6 +147,10 @@ class ExtrapolationWidget(QtGui.QWidget):
         else:
             return {}
 
+    def set_extrapolation_parameters(self, param):
+        self.q_max_txt.setText(str(param['q_max']))
+        self.replace_cb.setChecked(param['replace'])
+
 
 class MyRadioButton(QtGui.QPushButton):
     def __init__(self, *args):

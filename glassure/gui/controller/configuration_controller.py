@@ -69,5 +69,5 @@ class ConfigurationController(object):
         self.main_widget.use_modification_cb.setChecked(self.model.use_modification_fcn)
 
         # extrapolations widget
-        print(self.model.extrapolation_method)
         self.main_widget.set_extrapolation_method(self.model.extrapolation_method)
+        self.main_widget.set_extrapolation_parameters(self.model.extrapolation_parameters)

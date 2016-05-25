@@ -127,8 +127,23 @@ class ConfigurationControllerTest(unittest.TestCase):
         click_button(self.configuration_widget.freeze_btn)
         click_checkbox(self.main_widget.left_control_widget.extrapolation_widget.linear_extrapolation_rb)
         click_button(self.configuration_widget.freeze_btn)
-        click_checkbox(self.main_widget.activate_extrapolation_cb) # deactivate
+        click_checkbox(self.main_widget.activate_extrapolation_cb)  # deactivate
 
         self.configuration_widget.configuration_tw.selectRow(0)
         self.assertTrue(self.main_widget.activate_extrapolation_cb.isChecked())
         self.assertTrue(self.main_widget.left_control_widget.extrapolation_widget.step_extrapolation_rb.isChecked())
+
+    def test_configuration_parameters_are_updated(self):
+        click_checkbox(self.main_widget.left_control_widget.extrapolation_widget.poly_extrapolation_rb)
+        click_button(self.configuration_widget.freeze_btn)
+
+        set_widget_text(self.main_widget.left_control_widget.extrapolation_widget.q_max_txt, 1.4)
+        click_checkbox(self.main_widget.left_control_widget.extrapolation_widget.replace_cb)
+
+        self.configuration_widget.configuration_tw.selectRow(0)
+        self.assertEqual(float(str(self.main_widget.left_control_widget.extrapolation_widget.q_max_txt.text())), 2)
+        self.assertFalse(self.main_widget.left_control_widget.extrapolation_widget.replace_cb.isChecked())
+
+        self.configuration_widget.configuration_tw.selectRow(1)
+        self.assertEqual(float(str(self.main_widget.left_control_widget.extrapolation_widget.q_max_txt.text())), 1.4)
+        self.assertTrue(self.main_widget.left_control_widget.extrapolation_widget.replace_cb.isChecked())
