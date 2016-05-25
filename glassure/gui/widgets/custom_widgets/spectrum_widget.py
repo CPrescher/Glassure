@@ -88,30 +88,6 @@ class SpectrumWidget(QtGui.QWidget):
         del self.gr_items[ind]
         del self.gr_show[ind]
 
-    # def hide_overlay(self, ind):
-    #     self.spectrum_plot.removeItem(self.overlays[ind])
-    #     self.legend.hideItem(ind + 1)
-    #     self.overlay_show[ind] = False
-    #     self.update_graph_range()
-    #
-    # def show_overlay(self, ind):
-    #     self.spectrum_plot.addItem(self.overlays[ind])
-    #     self.legend.showItem(ind + 1)
-    #     self.overlay_show[ind] = True
-    #     self.update_graph_range()
-    #
-    # def update_overlay(self, pattern, ind):
-    #     x, y = pattern.data
-    #     self.overlays[ind].setData(x, y)
-    #     self.update_graph_range()
-    #
-    # def set_overlay_color(self, ind, color):
-    #     self.overlays[ind].setPen(pg.mkPen(color=color, width=1.5))
-    #     self.legend.setItemColor(ind + 1, color)
-    #
-    # def rename_overlay(self, ind, name):
-    #     self.legend.renameItem(ind + 1, name)
-
     def create_signals(self):
         self.spectrum_plot.connect_mouse_move_event()
         self.sq_plot.connect_mouse_move_event()
@@ -151,6 +127,23 @@ class SpectrumWidget(QtGui.QWidget):
         self.gr_items[ind].setPen(pg.mkPen(color='w', width=2))
         self.sq_items[ind].setZValue(100)
         self.gr_items[ind].setZValue(100)
+
+    def hide_sq(self, ind):
+        self.sq_plot.removeItem(self.sq_items[ind])
+        self.sq_show[ind] = False
+
+    def hide_gr(self, ind):
+        self.gr_plot.removeItem(self.gr_items[ind])
+        self.gr_show[ind] = False
+
+    def show_sq(self, ind):
+        self.sq_plot.addItem(self.sq_items[ind])
+        self.sq_show[ind] = True
+
+    def show_gr(self, ind):
+        self.gr_plot.addItem(self.gr_items[ind])
+        self.gr_show[ind] = True
+
 
 class ModifiedPlotItem(pg.PlotItem):
     mouse_moved = Signal(float, float)

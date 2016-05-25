@@ -185,7 +185,6 @@ class ConfigurationControllerTest(unittest.TestCase):
         self.assertNotAlmostEqual(x1[-1], x2[-1])
 
     def test_correct_configuration_selected_after_remove(self):
-
         click_button(self.configuration_widget.freeze_btn)
         click_button(self.configuration_widget.freeze_btn)
         click_button(self.configuration_widget.freeze_btn)
@@ -197,3 +196,24 @@ class ConfigurationControllerTest(unittest.TestCase):
         click_button(self.configuration_widget.remove_btn)
         self.assertEqual(self.model.configuration_ind, 1)
         self.assertEqual(self.configuration_widget.configuration_tw.selectedIndexes()[0].row(), 1)
+
+    def test_changing_configuration_visibility(self):
+        click_button(self.configuration_widget.freeze_btn)
+        click_button(self.configuration_widget.freeze_btn)
+
+        click_checkbox(self.configuration_widget.configuration_show_cbs[1])
+
+        self.assertFalse(self.main_widget.spectrum_widget.gr_items[1] in
+                         self.main_widget.spectrum_widget.gr_plot.items)
+        self.assertFalse(self.main_widget.spectrum_widget.sq_items[1] in
+                         self.main_widget.spectrum_widget.sq_plot.items)
+
+        click_checkbox(self.configuration_widget.configuration_show_cbs[1])
+
+        self.assertTrue(self.main_widget.spectrum_widget.gr_items[1] in
+                         self.main_widget.spectrum_widget.gr_plot.items)
+        self.assertTrue(self.main_widget.spectrum_widget.sq_items[1] in
+                         self.main_widget.spectrum_widget.sq_plot.items)
+
+
+

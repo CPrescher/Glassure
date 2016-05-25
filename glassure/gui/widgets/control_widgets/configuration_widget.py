@@ -95,13 +95,20 @@ class ConfigurationWidget(QtGui.QWidget):
         self.configuration_tw.removeRow(ind)
         self.configuration_tw.blockSignals(False)
 
-        del self.configuration_show_cbs[ind]
-        del self.configuration_color_btns[ind]
+        self.configuration_show_cbs.remove(self.configuration_show_cbs[ind])
+        self.configuration_color_btns.remove(self.configuration_color_btns[ind])
 
         if self.configuration_tw.rowCount() > ind:
             self.select_configuration(ind)
         else:
             self.select_configuration(self.configuration_tw.rowCount() - 1)
+
+    def clear_configuration_tw(self):
+        self.configuration_tw.clear()
+        self.configuration_tw.setRowCount(0)
+
+        self.configuration_show_cbs = []
+        self.configuration_color_btns = []
 
     def configuration_color_btn_click(self, button):
         self.configuration_color_btn_clicked.emit(self.configuration_color_btns.index(button), button)
@@ -120,5 +127,3 @@ class ConfigurationWidget(QtGui.QWidget):
     def configuration_label_editingFinished(self, row, col):
         label_item = self.configuration_tw.item(row, col)
         self.configuration_name_changed.emit(row, str(label_item.text()))
-
-

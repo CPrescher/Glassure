@@ -29,13 +29,16 @@ class ConfigurationController(object):
         self.model.configuration_selected.connect(self.update_widget_controls)
         self.model.configuration_selected.connect(self.update_spectrum_items)
 
+        self.main_widget.configuration_widget.configuration_show_cb_state_changed.connect(
+            self.update_configuration_visibility
+        )
+
     def freeze_configuration(self):
         self.model.add_configuration()
 
     def update_configurations_tw(self):
         self.main_widget.configuration_tw.blockSignals(True)
-        self.main_widget.configuration_tw.clear()
-        self.main_widget.configuration_tw.setRowCount(0)
+        self.main_widget.configuration_widget.clear_configuration_tw()
 
         for configuration in self.model.configurations:
             color = configuration.color
@@ -102,3 +105,11 @@ class ConfigurationController(object):
                 self.main_widget.spectrum_widget.activate_ind(ind)
             else:
                 self.main_widget.spectrum_widget.set_color(self.model.configurations[ind].color, ind)
+
+    def update_configuration_visibility(self, ind, visible):
+        if visible:
+            self.main_widget.spectrum_widget.show_sq(ind)
+            self.main_widget.spectrum_widget.show_gr(ind)
+        else:
+            self.main_widget.spectrum_widget.hide_sq(ind)
+            self.main_widget.spectrum_widget.hide_gr(ind)
