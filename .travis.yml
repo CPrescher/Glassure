@@ -45,7 +45,7 @@ before_install:
   - sh -e /etc/init.d/xvfb start
 
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy pyqt pytest pytest-cov pandas
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy pyqt pytest pytest-cov pandas mock
   - pip install pyqtgraph lmfit coveralls coverage
 
 script:
