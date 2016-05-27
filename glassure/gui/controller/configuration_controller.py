@@ -115,7 +115,6 @@ class ConfigurationController(object):
             if ind == self.model.configuration_ind:
                 self.main_widget.spectrum_widget.activate_ind(ind)
             else:
-                print(self.model.configurations[ind].color)
                 self.main_widget.spectrum_widget.set_color(self.model.configurations[ind].color, ind)
 
     def update_configuration_visibility(self, ind, visible):
