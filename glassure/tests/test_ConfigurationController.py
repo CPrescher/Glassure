@@ -1,10 +1,10 @@
 # -*- coding: utf8 -*-
 
 import unittest
+from mock import patch
 import os
 
-import numpy as np
-from gui.qt import QtGui, QtCore, QTest
+from gui.qt import QtGui
 
 from gui.controller.gui_controller import GlassureController
 
@@ -211,9 +211,27 @@ class ConfigurationControllerTest(unittest.TestCase):
         click_checkbox(self.configuration_widget.configuration_show_cbs[1])
 
         self.assertTrue(self.main_widget.spectrum_widget.gr_items[1] in
-                         self.main_widget.spectrum_widget.gr_plot.items)
+                        self.main_widget.spectrum_widget.gr_plot.items)
         self.assertTrue(self.main_widget.spectrum_widget.sq_items[1] in
-                         self.main_widget.spectrum_widget.sq_plot.items)
+                        self.main_widget.spectrum_widget.sq_plot.items)
 
+    @patch('PyQt4.QtGui.QColorDialog.getColor')
+    def test_changing_configuration_color(self, getColor):
 
+        click_button(self.configuration_widget.freeze_btn)
+        click_button(self.configuration_widget.freeze_btn)
+
+        # changing a non-active configuration will change its color immediately in the pattern widget:
+
+        new_color = QtGui.QColor(233, 1, 3)
+        getColor.return_value = new_color
+        click_button(self.configuration_widget.configuration_color_btns[1])
+        self.assertEqual(self.main_widget.spectrum_widget.sq_items[1].opts['pen'].color().rgb(), new_color.rgb())
+
+        # changing the active color, will have no effect on current color
+
+        new_color = QtGui.QColor(233, 1, 255)
+        getColor.return_value = new_color
+        click_button(self.configuration_widget.configuration_color_btns[2])
+        self.assertNotEqual(self.main_widget.spectrum_widget.sq_items[2].opts['pen'].color().rgb(), new_color.rgb())
 

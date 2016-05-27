@@ -144,6 +144,11 @@ class SpectrumWidget(QtGui.QWidget):
         self.gr_plot.addItem(self.gr_items[ind])
         self.gr_show[ind] = True
 
+    def set_configuration_color(self, color, ind):
+        self.sq_items[ind].setPen(pg.mkPen(color=color, width=1.5))
+        self.gr_items[ind].setPen(pg.mkPen(color=color, width=1.5))
+
+
 
 class ModifiedPlotItem(pg.PlotItem):
     mouse_moved = Signal(float, float)

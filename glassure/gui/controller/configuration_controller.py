@@ -1,3 +1,7 @@
+# -*- coding: utf8 -*-
+
+from ..qt import QtGui
+
 from ..widgets.glassure_widget import GlassureWidget
 from ..model.glassure_model import GlassureModel
 
@@ -31,6 +35,9 @@ class ConfigurationController(object):
 
         self.main_widget.configuration_widget.configuration_show_cb_state_changed.connect(
             self.update_configuration_visibility
+        )
+        self.main_widget.configuration_widget.configuration_color_btn_clicked.connect(
+            self.configuration_color_btn_clicked
         )
 
     def freeze_configuration(self):
@@ -95,12 +102,18 @@ class ConfigurationController(object):
     def update_spectrum_items(self, cur_ind):
         self.update_spectrum_widget()
 
+        self.update_spectrum_items_data(cur_ind)
+        self.update_spectrum_items_color(cur_ind)
+
+    def update_spectrum_items_data(self, cur_ind):
         for ind in range(len(self.model.configurations)):
             if self.model.configurations[ind].sq_pattern is None:
                 continue
             self.main_widget.spectrum_widget.set_sq_pattern(self.model.configurations[ind].sq_pattern, ind)
             self.main_widget.spectrum_widget.set_gr_pattern(self.model.configurations[ind].gr_pattern, ind)
 
+    def update_spectrum_items_color(self, cur_ind):
+        for ind in range(len(self.model.configurations)):
             if ind == self.model.configuration_ind:
                 self.main_widget.spectrum_widget.activate_ind(ind)
             else:
@@ -113,3 +126,20 @@ class ConfigurationController(object):
         else:
             self.main_widget.spectrum_widget.hide_sq(ind)
             self.main_widget.spectrum_widget.hide_gr(ind)
+
+    def configuration_color_btn_clicked(self, ind, button):
+        """
+        Callback for the color buttons in the configuration table. Opens up a color dialog. The color of the
+        configuration and its respective button will be changed according to the selection
+        :param ind: configuration ind
+        :param button: button to color
+        """
+        previous_color = button.palette().color(1)
+        new_color = QtGui.QColorDialog.getColor(previous_color, self.main_widget)
+
+        if not new_color.isValid():
+            return
+
+        self.model.configurations[ind].color = new_color.name()
+        self.update_spectrum_items_color(self.model.configuration_ind)
+        button.setStyleSheet('background-color:' + new_color.name())
