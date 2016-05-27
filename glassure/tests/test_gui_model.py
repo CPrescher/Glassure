@@ -90,7 +90,7 @@ class GuiModelTest(unittest.TestCase):
         self.model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
 
         sq1 = self.model.sq_pattern
-        self.model.optimize_sq(5, use_modification_fcn=False)
+        self.model.optimize = True
         sq2 = self.model.sq_pattern
         self.assertFalse(np.allclose(sq1.y, sq2.y))
 

@@ -114,7 +114,7 @@ class GlassureFunctionalTest(unittest.TestCase):
         # optimize this by using the Eggert et al. (2002) method:
 
         prev_sq_data = self.main_widget.spectrum_widget.sq_items[0].getData()
-        click_button(self.main_widget.optimize_btn)
+        click_checkbox(self.main_widget.optimize_activate_cb)
         self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_items[0].getData()))
 
         # However he realizes that the default cutoff might too low for this kind of data. and gives a larger number,
@@ -122,10 +122,6 @@ class GlassureFunctionalTest(unittest.TestCase):
 
         prev_sq_data = self.main_widget.spectrum_widget.sq_items[0].getData()
         set_widget_text(self.main_widget.optimize_r_cutoff_txt, 1.2)
-        self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_items[0].getData()))
-
-        prev_sq_data = self.main_widget.spectrum_widget.sq_items[0].getData()
-        click_button(self.main_widget.optimize_btn)
         self.assertFalse(np.array_equal(prev_sq_data, self.main_widget.spectrum_widget.sq_items[0].getData()))
 
     def test_working_with_configurations(self):

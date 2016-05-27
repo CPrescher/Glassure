@@ -32,6 +32,7 @@ class GlassureModel(QtCore.QObject):
         self.configuration_ind = 0
 
         self.auto_update = True
+        self.optimization_callback = None
 
     def load_data(self, filename):
         self.original_pattern.load(filename)
@@ -43,6 +44,9 @@ class GlassureModel(QtCore.QObject):
 
     @property
     def current_configuration(self):
+        """
+        :rtype: GlassureConfiguration
+        """
         return self.configurations[self.configuration_ind]
 
     def add_configuration(self):
@@ -208,29 +212,38 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     @property
+    def optimize(self):
+        return self.current_configuration.optimize
+
+    @optimize.setter
+    def optimize(self, new_flag):
+        self.current_configuration.optimize = new_flag
+        self.calculate_transforms()
+
+    @property
     def r_cutoff(self):
-        return self.current_configuration.r_cutoff
+        return self.current_configuration.optimize_r_cutoff
 
     @r_cutoff.setter
     def r_cutoff(self, new_r_cutoff):
-        self.current_configuration.r_cutoff = new_r_cutoff
+        self.current_configuration.optimize_r_cutoff = new_r_cutoff
         self.calculate_transforms()
 
     @property
     def optimization_iterations(self):
-        return self.current_configuration.optimization_iterations
+        return self.current_configuration.optimize_iterations
 
     @optimization_iterations.setter
     def optimization_iterations(self, new_value):
-        self.current_configuration.optimization_iterations = new_value
+        self.current_configuration.optimize_iterations = new_value
 
     @property
     def optimization_attenuation(self):
-        return self.current_configuration.optimization_attenuation
+        return self.current_configuration.optimize_attenuation
 
     @optimization_attenuation.setter
     def optimization_attenuation(self, new_value):
-        self.current_configuration.optimization_attenuation = new_value
+        self.current_configuration.optimize_attenuation = new_value
 
     @property
     def use_modification_fcn(self):
@@ -266,7 +279,7 @@ class GlassureModel(QtCore.QObject):
 
     def update_parameter(self, composition, density, q_min, q_max, r_min, r_max,
                          use_modification_fcn, extrapolation_method, extrapolation_parameters,
-                         r_cutoff, optimize_iterations, optimize_attenuation):
+                         optimize_active, r_cutoff, optimize_iterations, optimize_attenuation):
 
         self.auto_update = False
         self.composition = composition
@@ -282,6 +295,7 @@ class GlassureModel(QtCore.QObject):
         self.extrapolation_method = extrapolation_method
         self.extrapolation_parameters = extrapolation_parameters
 
+        self.optimize = optimize_active
         self.r_cutoff = r_cutoff
         self.optimization_iterations = optimize_iterations
         self.optimization_attenuation = optimize_attenuation
@@ -297,6 +311,16 @@ class GlassureModel(QtCore.QObject):
                         self.original_pattern is not None and \
                         self.background_pattern is not None:
             self.calculate_sq()
+
+            if self.optimize:
+                self.sq_pattern = optimize_sq(self.sq_pattern, self.r_cutoff,
+                                              iterations=self.optimization_iterations,
+                                              atomic_density=convert_density_to_atoms_per_cubic_angstrom(
+                                                  self.composition,
+                                                  self.density),
+                                              use_modification_fcn=False,
+                                              attenuation_factor=self.optimization_attenuation,
+                                              fcn_callback=self.optimization_callback)
             self.calculate_fr()
             self.calculate_gr()
         self.data_changed.emit()
@@ -328,18 +352,6 @@ class GlassureModel(QtCore.QObject):
 
     def calculate_gr(self):
         self.gr_pattern = calculate_gr(self.fr_pattern, self.density, self.composition)
-
-    def optimize_sq(self, iterations=50, fcn_callback=None, attenuation_factor=1, use_modification_fcn=False):
-        self.sq_pattern = optimize_sq(self.sq_pattern, self.r_cutoff,
-                                      iterations=iterations,
-                                      atomic_density=convert_density_to_atoms_per_cubic_angstrom(self.composition,
-                                                                                                 self.density),
-                                      use_modification_fcn=use_modification_fcn,
-                                      attenuation_factor=attenuation_factor,
-                                      fcn_callback=fcn_callback)
-        self.calculate_fr()
-        self.calculate_gr()
-        self.data_changed.emit()
 
     def optimize_density_and_scaling2(self, density_min, density_max, bkg_min, bkg_max, iterations, output_txt=None):
         optimizer = DensityOptimizer(

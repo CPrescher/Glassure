@@ -79,7 +79,7 @@ class GlassureWidget(QtGui.QWidget):
         self.activate_extrapolation_cb = self.left_control_widget.extrapolation_widget.activate_cb
         self.extrapolation_q_max_txt = self.left_control_widget.extrapolation_widget.q_max_txt
 
-        self.optimize_btn = self.right_control_widget.optimization_widget.optimize_btn
+        self.optimize_activate_cb = self.right_control_widget.optimization_widget.activate_cb
         self.optimize_r_cutoff_txt = self.right_control_widget.optimization_widget.r_cutoff_txt
         self.optimize_iterations_txt = self.right_control_widget.optimization_widget.optimize_iterations_txt
         self.optimize_attenuation_sb = self.right_control_widget.optimization_widget.attenuation_factor_sb

@@ -55,7 +55,7 @@ class GlassureModelTest(unittest.TestCase):
 
         self.model.background_scaling = background_scaling
         self.model.update_parameter(elemental_abundances, density, q_min, q_max, 0, 10, False,
-                                    None, {}, 1.5, 5, 1)
+                                    None, {}, False, 1.5, 5, 1)
 
         sample_spectrum = data_spectrum - background_scaling * bkg_spectrum
         sq_spectrum_core = calculate_sq(sample_spectrum, density, elemental_abundances)

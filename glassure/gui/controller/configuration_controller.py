@@ -66,8 +66,8 @@ class ConfigurationController(object):
             self.main_widget.spectrum_widget.remove_gr_item()
 
     def update_widget_controls(self):
-
         self.main_widget.left_control_widget.optimization_widget.blockSignals(True)
+
         # filenames
         self.main_widget.data_filename_lbl.setText(self.model.original_pattern.name)
         self.main_widget.bkg_filename_lbl.setText(self.model.current_configuration.background_pattern.name)
@@ -95,6 +95,7 @@ class ConfigurationController(object):
             self.main_widget.set_extrapolation_parameters(self.model.extrapolation_parameters)
 
         # optimizations widget
+        self.main_widget.optimize_activate_cb.setChecked(self.model.optimize)
         self.main_widget.set_optimization_parameter(self.model.r_cutoff, self.model.optimization_iterations,
                                                     self.model.optimization_attenuation)
         self.main_widget.left_control_widget.optimization_widget.blockSignals(False)

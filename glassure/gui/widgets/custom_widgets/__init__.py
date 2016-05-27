@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtGui
+from ...qt import QtGui, QtCore
 from .box import ExpandableBox
 from .lines import HorizontalLine
 from .spectrum_widget import SpectrumWidget
@@ -16,6 +16,11 @@ class NumberTextField(QtGui.QLineEdit):
     def __init__(self, *args, **kwargs):
         super(NumberTextField, self).__init__(*args, **kwargs)
         self.setValidator(QtGui.QDoubleValidator())
+        self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+class LabelAlignRight(QtGui.QLabel):
+    def __init__(self, *args, **kwargs):
+        super(LabelAlignRight, self).__init__(*args, **kwargs)
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
 class FlatButton(QtGui.QPushButton):

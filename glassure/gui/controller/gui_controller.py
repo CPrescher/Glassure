@@ -25,6 +25,7 @@ class GlassureController(object):
         self.main_widget = GlassureWidget()
 
         self.model = GlassureModel()
+        self.model.optimization_callback = self.plot_optimization_progress
         self.working_directory = ''
         self.sq_directory = ''
         self.gr_directory = ''
@@ -63,12 +64,12 @@ class GlassureController(object):
         self.main_widget.left_control_widget.options_widget.options_parameters_changed.connect(self.update_model)
         self.main_widget.left_control_widget.extrapolation_widget.extrapolation_parameters_changed.connect(
             self.update_model)
-        self.main_widget.right_control_widget.optimization_widget.calculation_parameters_changed.connect(
-            self.update_model)
 
         # optimization controls
-        self.main_widget.right_control_widget.optimization_widget.optimize_btn.clicked.connect(
-            self.optimize_btn_clicked)
+        self.main_widget.right_control_widget.optimization_widget.optimization_parameters_changed.connect(
+            self.update_model
+        )
+
         self.main_widget.right_control_widget.density_optimization_widget.optimize_btn.clicked.connect(
             self.optimize_density)
 
@@ -156,7 +157,7 @@ class GlassureController(object):
         extrapolation_method = self.main_widget.get_extrapolation_method()
         extrapolation_parameters = self.main_widget.get_extrapolation_parameters()
 
-        r_cutoff, optimize_iterations, optimize_attenuation = self.main_widget.get_optimization_parameter()
+        optimize_active, r_cutoff, optimize_iterations, optimize_attenuation = self.main_widget.get_optimization_parameter()
 
         self.model.update_parameter(composition, density,
                                     q_min, q_max,
@@ -164,23 +165,11 @@ class GlassureController(object):
                                     use_modification_fcn,
                                     extrapolation_method,
                                     extrapolation_parameters,
+                                    optimize_active,
                                     r_cutoff,
                                     optimize_iterations,
                                     optimize_attenuation
         )
-
-    def optimize_btn_clicked(self):
-        self.main_widget.left_control_widget.setEnabled(False)
-        self.main_widget.right_control_widget.setEnabled(False)
-        self.model.optimize_sq(
-            iterations=int(
-                str(self.main_widget.right_control_widget.optimization_widget.optimize_iterations_txt.text())),
-            attenuation_factor=int(
-                self.main_widget.right_control_widget.optimization_widget.attenuation_factor_sb.value()),
-            fcn_callback=self.plot_optimization_progress
-        )
-        self.main_widget.left_control_widget.setEnabled(True)
-        self.main_widget.right_control_widget.setEnabled(True)
 
     def plot_optimization_progress(self, sq_spectrum, fr_spectrum, gr_spectrum):
         self.main_widget.spectrum_widget.set_sq_pattern(sq_spectrum, self.model.configuration_ind)

@@ -36,9 +36,10 @@ class GlassureConfiguration(object):
         self.r_step = 0.01
 
         # optimization parameters
-        self.r_cutoff = 1.4
-        self.optimization_iterations = 5
-        self.optimization_attenuation = 1
+        self.optimize = False
+        self.optimize_r_cutoff = 1.4
+        self.optimize_iterations = 5
+        self.optimize_attenuation = 1
 
         # initialize all Flags
         self.use_modification_fcn = False

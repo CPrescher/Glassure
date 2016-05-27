@@ -148,6 +148,17 @@ class ConfigurationControllerTest(unittest.TestCase):
         self.assertEqual(float(str(self.main_widget.left_control_widget.extrapolation_widget.q_max_txt.text())), 1.4)
         self.assertTrue(self.main_widget.left_control_widget.extrapolation_widget.replace_cb.isChecked())
 
+    def test_optimization_activate_is_updated(self):
+        activate_cb = self.main_widget.optimize_activate_cb
+        click_button(self.configuration_widget.freeze_btn)
+        click_checkbox(activate_cb)
+        click_button(self.configuration_widget.freeze_btn)
+
+        self.assertTrue(activate_cb.isChecked())
+
+        self.configuration_widget.configuration_tw.selectRow(0)
+        self.assertFalse(activate_cb.isChecked())
+
     def test_r_cutoff_is_updated(self):
         self.txt_widget_update_test(self.main_widget.optimize_r_cutoff_txt, 5)
 
@@ -217,7 +228,6 @@ class ConfigurationControllerTest(unittest.TestCase):
 
     @patch('PyQt4.QtGui.QColorDialog.getColor')
     def test_changing_configuration_color(self, getColor):
-
         click_button(self.configuration_widget.freeze_btn)
         click_button(self.configuration_widget.freeze_btn)
 
@@ -234,4 +244,3 @@ class ConfigurationControllerTest(unittest.TestCase):
         getColor.return_value = new_color
         click_button(self.configuration_widget.configuration_color_btns[2])
         self.assertNotEqual(self.main_widget.spectrum_widget.sq_items[2].opts['pen'].color().rgb(), new_color.rgb())
-
