@@ -28,7 +28,7 @@ class ConfigurationController(object):
         self.main_widget.configuration_tw.currentCellChanged.connect(self.model.select_configuration)
 
         self.model.configurations_changed.connect(self.update_configurations_tw)
-        self.model.configurations_changed.connect(self.update_spectrum_widget)
+        self.model.configurations_changed.connect(self.update_spectrum_items)
 
         self.model.configuration_selected.connect(self.update_widget_controls)
         self.model.configuration_selected.connect(self.update_spectrum_items)
@@ -56,17 +56,8 @@ class ConfigurationController(object):
         self.main_widget.configuration_tw.blockSignals(False)
         self.main_widget.configuration_widget.select_configuration(self.model.configuration_ind)
 
-    def update_spectrum_widget(self):
-        while len(self.main_widget.spectrum_widget.sq_items) < len(self.model.configurations):
-            self.main_widget.spectrum_widget.add_sq_item()
-            self.main_widget.spectrum_widget.add_gr_item()
-
-        while len(self.main_widget.spectrum_widget.sq_items) > len(self.model.configurations):
-            self.main_widget.spectrum_widget.remove_sq_item()
-            self.main_widget.spectrum_widget.remove_gr_item()
-
     def update_widget_controls(self):
-        self.main_widget.left_control_widget.optimization_widget.blockSignals(True)
+        self.main_widget.right_control_widget.optimization_widget.blockSignals(True)
 
         # filenames
         self.main_widget.data_filename_lbl.setText(self.model.original_pattern.name)
@@ -98,13 +89,19 @@ class ConfigurationController(object):
         self.main_widget.optimize_activate_cb.setChecked(self.model.optimize)
         self.main_widget.set_optimization_parameter(self.model.r_cutoff, self.model.optimization_iterations,
                                                     self.model.optimization_attenuation)
-        self.main_widget.left_control_widget.optimization_widget.blockSignals(False)
+        self.main_widget.right_control_widget.optimization_widget.blockSignals(False)
 
-    def update_spectrum_items(self, cur_ind):
-        self.update_spectrum_widget()
+    def update_spectrum_items(self):
+        while len(self.main_widget.spectrum_widget.sq_items) < len(self.model.configurations):
+            self.main_widget.spectrum_widget.add_sq_item()
+            self.main_widget.spectrum_widget.add_gr_item()
 
-        self.update_spectrum_items_data(cur_ind)
-        self.update_spectrum_items_color(cur_ind)
+        while len(self.main_widget.spectrum_widget.sq_items) > len(self.model.configurations):
+            self.main_widget.spectrum_widget.remove_sq_item()
+            self.main_widget.spectrum_widget.remove_gr_item()
+
+        self.update_spectrum_items_data(self.model.configuration_ind)
+        self.update_spectrum_items_color(self.model.configuration_ind)
 
     def update_spectrum_items_data(self, cur_ind):
         for ind in range(len(self.model.configurations)):
