@@ -115,6 +115,7 @@ class ConfigurationController(object):
             if ind == self.model.configuration_ind:
                 self.main_widget.spectrum_widget.activate_ind(ind)
             else:
+                print(self.model.configurations[ind].color)
                 self.main_widget.spectrum_widget.set_color(self.model.configurations[ind].color, ind)
 
     def update_configuration_visibility(self, ind, visible):
@@ -138,6 +139,6 @@ class ConfigurationController(object):
         if not new_color.isValid():
             return
 
-        self.model.configurations[ind].color = new_color.name()
+        self.model.configurations[ind].color = [new_color.red(), new_color.green(), new_color.blue()]
         self.update_spectrum_items_color(self.model.configuration_ind)
         button.setStyleSheet('background-color:' + new_color.name())
