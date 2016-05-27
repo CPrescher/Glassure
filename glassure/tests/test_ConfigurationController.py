@@ -13,7 +13,7 @@ from tests.utility import set_widget_text, click_checkbox, click_button
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 
 
-class ConfigurationControllerTest(unittest.TestCase):
+class Widget_ConfigurationControllerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = QtGui.QApplication([])
@@ -175,6 +175,26 @@ class ConfigurationControllerTest(unittest.TestCase):
         self.configuration_widget.configuration_tw.selectRow(1)
         self.assertEqual(self.main_widget.optimize_attenuation_sb.value(), 4)
 
+
+class Pattern_ConfigurationControllerTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QtGui.QApplication([])
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.app.exit()
+        cls.app.quit()
+        cls.app.deleteLater()
+        del cls.app
+
+    def setUp(self):
+        self.main_controller = GlassureController()
+        self.main_widget = self.main_controller.main_widget
+        self.configuration_widget = self.main_widget.configuration_widget
+        self.configuration_controller = self.main_controller.configuration_controller
+        self.model = self.main_controller.model
+
     def test_new_plots_are_created(self):
         click_button(self.configuration_widget.freeze_btn)
         self.assertEqual(len(self.main_widget.spectrum_widget.gr_items), 2)
@@ -232,14 +252,12 @@ class ConfigurationControllerTest(unittest.TestCase):
         click_button(self.configuration_widget.freeze_btn)
 
         # changing a non-active configuration will change its color immediately in the pattern widget:
-
         new_color = QtGui.QColor(233, 1, 3)
         getColor.return_value = new_color
         click_button(self.configuration_widget.configuration_color_btns[1])
         self.assertEqual(self.main_widget.spectrum_widget.sq_items[1].opts['pen'].color().rgb(), new_color.rgb())
 
         # changing the active color, will have no effect on current color
-
         new_color = QtGui.QColor(233, 1, 255)
         getColor.return_value = new_color
         click_button(self.configuration_widget.configuration_color_btns[2])
