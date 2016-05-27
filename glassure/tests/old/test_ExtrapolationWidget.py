@@ -20,14 +20,9 @@ def data_path(filename):
 class ExtrapolationWidgetTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.app = QtGui.QApplication([])
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.app.exit()
-        cls.app.quit()
-        cls.app.deleteLater()
-        del cls.app
+        cls.app = QtGui.QApplication.instance()
+        if cls.app is None:
+            cls.app = QtGui.QApplication([])
 
     def setUp(self):
         self.controller = GlassureController()
