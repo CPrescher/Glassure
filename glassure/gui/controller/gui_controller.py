@@ -25,7 +25,6 @@ class GlassureController(object):
         self.main_widget = GlassureWidget()
 
         self.model = GlassureModel()
-        self.model.optimization_callback = self.plot_optimization_progress
         self.working_directory = ''
         self.sq_directory = ''
         self.gr_directory = ''
@@ -66,6 +65,10 @@ class GlassureController(object):
             self.update_model)
 
         # optimization controls
+
+        self.main_widget.right_control_widget.optimization_widget.plot_progress_cb.stateChanged.connect(
+            self.update_plot_progress
+        )
         self.main_widget.right_control_widget.optimization_widget.optimization_parameters_changed.connect(
             self.update_model
         )
@@ -170,6 +173,12 @@ class GlassureController(object):
                                     optimize_iterations,
                                     optimize_attenuation
         )
+
+    def update_plot_progress(self, bool):
+        if bool:
+            self.model.optimization_callback = self.plot_optimization_progress
+        else:
+            self.model.optimization_callback = None
 
     def plot_optimization_progress(self, sq_spectrum, fr_spectrum, gr_spectrum):
         self.main_widget.spectrum_widget.set_sq_pattern(sq_spectrum, self.model.configuration_ind)

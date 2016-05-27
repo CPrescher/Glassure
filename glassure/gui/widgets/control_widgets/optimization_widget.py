@@ -28,8 +28,10 @@ class OptimizationWidget(QtGui.QWidget):
         self.optimize_iterations_lbl = LabelAlignRight("Iterations:")
         self.optimize_iterations_txt = NumberTextField('5')
 
-        self.attenuation_factor_lbl = QtGui.QLabel("Attenuation:")
+        self.attenuation_factor_lbl = LabelAlignRight("Attenuation:")
         self.attenuation_factor_sb = QtGui.QSpinBox()
+
+        self.plot_progress_cb = QtGui.QCheckBox('plot progress')
 
     def style_widgets(self):
 
@@ -65,6 +67,8 @@ class OptimizationWidget(QtGui.QWidget):
 
         self.grid_layout.addWidget(self.attenuation_factor_lbl, 5, 0)
         self.grid_layout.addWidget(self.attenuation_factor_sb, 5, 1)
+
+        self.grid_layout.addWidget(self.plot_progress_cb, 6, 1, 1, 2)
 
         self.param_widget = QtGui.QWidget()
         self.param_widget.setLayout(self.grid_layout)
