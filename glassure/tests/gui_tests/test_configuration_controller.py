@@ -189,6 +189,43 @@ class Widget_ConfigurationControllerTest(unittest.TestCase):
         self.configuration_widget.configuration_tw.selectRow(1)
         self.assertEqual(self.main_widget.right_control_widget.soller_widget.wavelength_txt.get_value(), 0.3344)
 
+    def test_soller_parameters_stress_test(self):
+        click_button(self.configuration_widget.freeze_btn)
+        click_button(self.configuration_widget.freeze_btn)
+        click_button(self.configuration_widget.freeze_btn)
+
+        soller_parameters1 = self.main_widget.soller_widget.get_parameters()
+
+        soller_parameters2 = {'sample_thickness': 2.0,  # in mm
+                              'wavelength': 0.3,  # in Angstrom
+                              'inner_radius': 61,  # in mm
+                              'outer_radius': 220,  # in mm
+                              'inner_width': 0.01,  # in mm
+                              'outer_width': 0.3,  # in mm
+                              'inner_length': 2,  # in mm
+                              'outer_length': 4}  # in mm
+
+        soller_parameters3 = {'sample_thickness': 1.5,  # in mm
+                              'wavelength': 0.1,  # in Angstrom
+                              'inner_radius': 34,  # in mm
+                              'outer_radius': 212,  # in mm
+                              'inner_width': 0.123,  # in mm
+                              'outer_width': 0.32,  # in mm
+                              'inner_length': 4,  # in mm
+                              'outer_length': 5}  # in mm
+
+        self.configuration_widget.configuration_tw.selectRow(1)
+        self.model.soller_parameters = soller_parameters2
+        self.configuration_widget.configuration_tw.selectRow(2)
+        self.model.soller_parameters = soller_parameters3
+
+        self.configuration_widget.configuration_tw.selectRow(0)
+        self.assertEqual(soller_parameters1, self.main_widget.soller_widget.get_parameters())
+        self.configuration_widget.configuration_tw.selectRow(1)
+        self.assertEqual(soller_parameters2, self.main_widget.soller_widget.get_parameters())
+        self.configuration_widget.configuration_tw.selectRow(2)
+        self.assertEqual(soller_parameters3, self.main_widget.soller_widget.get_parameters())
+
 
 class Pattern_ConfigurationControllerTest(unittest.TestCase):
     @classmethod
