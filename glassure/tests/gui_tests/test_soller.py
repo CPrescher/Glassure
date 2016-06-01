@@ -35,19 +35,9 @@ class SollerWidgetTest(unittest.TestCase):
         self.controller.load_bkg(data_path('Mg2SiO4_ambient_bkg.xy'))
 
     def test_activate_soller_correction(self):
-
         _, prev_sq = self.model.sq_pattern.data
-        if self.soller_widget.activate_cb.isChecked():
-            click_checkbox(self.soller_widget.activate_cb)
+        click_checkbox(self.soller_widget.activate_cb)
 
         _, new_sq = self.model.sq_pattern.data
-
-        import numpy as np
-        print(prev_sq)
-        print(new_sq)
-        print(np.sum(prev_sq-new_sq))
-
-        print(array_almost_equal(prev_sq, new_sq))
-
 
         self.assertFalse(array_almost_equal(prev_sq, new_sq))

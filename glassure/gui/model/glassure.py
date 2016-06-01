@@ -9,6 +9,7 @@ from .density_optimization import DensityOptimizer
 from core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
 from core import calculate_sq, calculate_gr, calculate_fr
 from core.optimization import optimize_sq
+from core.soller_correction import SollerCorrectionGui
 
 from core.utility import extrapolate_to_zero_linear, extrapolate_to_zero_step, extrapolate_to_zero_spline, \
     extrapolate_to_zero_poly
@@ -353,11 +354,43 @@ class GlassureModel(QtCore.QObject):
         self.data_changed.emit()
 
     def calculate_sq(self):
-        self.sq_pattern = calculate_sq((self.original_pattern - self.background_pattern).limit(
-            self.q_min, self.q_max),
-            density=self.density,
-            composition=self.composition
-        )
+        sample_pattern = (self.original_pattern - self.background_pattern).limit(self.q_min, self.q_max)
+
+        if self.use_soller_correction:
+            q, intensity = sample_pattern.data
+            if self.soller_correction is None or \
+                            self.soller_correction._max_thickness < self.soller_parameters['sample_thickness'] or \
+                            self.soller_correction.wavelength != self.soller_parameters['wavelength'] or \
+                            self.soller_correction._inner_radius != self.soller_parameters['inner_radius'] or \
+                            self.soller_correction._outer_radius != self.soller_parameters['outer_radius'] or \
+                            self.soller_correction._inner_width != self.soller_parameters['inner_width'] or \
+                            self.soller_correction._outer_width != self.soller_parameters['outer_width'] or \
+                            self.soller_correction._inner_length != self.soller_parameters['inner_length'] or \
+                            self.soller_correction._outer_length != self.soller_parameters['outer_length']:
+
+                if 2 > self.soller_parameters['sample_thickness']:
+                    max_thickness = 2
+                else:
+                    max_thickness = self.soller_parameters["sample_thickness"] * 1.5
+
+                self.soller_correction = SollerCorrectionGui(
+                    q=q,
+                    wavelength=self.soller_parameters['wavelength'],
+                    max_thickness=max_thickness,
+                    inner_radius=self.soller_parameters['inner_radius'],
+                    outer_radius=self.soller_parameters['outer_radius'],
+                    inner_width=self.soller_parameters['inner_width'],
+                    outer_width=self.soller_parameters['outer_width'],
+                    inner_length=self.soller_parameters['inner_length'],
+                    outer_length=self.soller_parameters['outer_length'])
+
+            sample_pattern = Pattern(q, self.soller_correction.transfer_function_sample(
+                self.soller_parameters['sample_thickness']) * intensity)
+
+        self.sq_pattern = calculate_sq(sample_pattern,
+                                       density=self.density,
+                                       composition=self.composition
+                                       )
 
         if self.extrapolation_method == 'step':
             self.sq_pattern = extrapolate_to_zero_step(self.sq_pattern)

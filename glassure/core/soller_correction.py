@@ -155,6 +155,16 @@ class SollerCorrection(object):
         diamond_transfer_function += self.transfer_function_from_region(-d2, -d1)
         diamond_transfer_function /= 2
         return sample_transfer_function, diamond_transfer_function
+    
+class SollerCorrectionGui(SollerCorrection):
+    def __init__(self,  q, wavelength, max_thickness, inner_radius=62, outer_radius=210,
+                 inner_width=0.05, outer_width=0.2, inner_length=8, outer_length=6):
+
+        two_theta = np.arcsin(q * wavelength / (4 * np.pi)) * 360 / np.pi
+        super(SollerCorrectionGui, self).__init__(two_theta, max_thickness, inner_radius, outer_radius,
+                 inner_width, outer_width, inner_length, outer_length)
+        self.wavelength = wavelength
+        self.q = q
 
 
 # Utility functions and classes
