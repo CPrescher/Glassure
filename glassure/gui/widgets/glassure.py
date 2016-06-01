@@ -7,7 +7,11 @@ from core import __version__
 
 from ..qt import QtGui, QtCore
 
+from .control import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget, DensityOptimizationWidget, \
+    ExtrapolationWidget, DiamondWidget, ConfigurationWidget, SollerWidget
 from gui.widgets.custom import SpectrumWidget
+
+from .custom import ExpandableBox
 
 
 class GlassureWidget(QtGui.QWidget):
@@ -91,6 +95,7 @@ class GlassureWidget(QtGui.QWidget):
         self.remove_configuration_btn = self.right_control_widget.configuration_widget.remove_btn
         self.configuration_tw = self.right_control_widget.configuration_widget.configuration_tw
 
+        self.soller_widget = self.right_control_widget.soller_widget
 
     def create_function_shortcuts(self):
         self.set_composition = self.left_control_widget.composition_widget.set_composition
@@ -119,14 +124,6 @@ class GlassureWidget(QtGui.QWidget):
         stylesheet_file = open(os.path.join(module_path(), "DioptasStyle.qss"), 'r')
         stylesheet_str = stylesheet_file.read()
         self.setStyleSheet(stylesheet_str)
-
-
-
-from ..qt import QtGui
-
-from .control import CompositionWidget, DataWidget, OptimizationWidget, \
-    OptionsWidget, DensityOptimizationWidget, ExtrapolationWidget, DiamondWidget, ConfigurationWidget
-from .custom import ExpandableBox
 
 
 class LeftControlWidget(QtGui.QWidget):
@@ -164,11 +161,13 @@ class RightControlWidget(QtGui.QWidget):
         self.optimization_widget = OptimizationWidget()
         self.density_optimization_widget = DensityOptimizationWidget()
         self.diamond_widget = DiamondWidget()
+        self.soller_widget = SollerWidget()
 
         self.vertical_layout.addWidget(ExpandableBox(self.configuration_widget, "Configurations"))
         self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization"))
         self.vertical_layout.addWidget(ExpandableBox(self.density_optimization_widget, "Density Optimization", True))
         self.vertical_layout.addWidget(ExpandableBox(self.diamond_widget, "Diamond Correction", True))
+        self.vertical_layout.addWidget(ExpandableBox(self.soller_widget, "Soller Slit Correction", True))
 
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.MinimumExpanding))

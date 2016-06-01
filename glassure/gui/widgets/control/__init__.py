@@ -8,3 +8,4 @@ from .density_optimization import DensityOptimizationWidget
 from .extrapolation import ExtrapolationWidget
 from .diamond import DiamondWidget
 from .configuration import ConfigurationWidget
+from .soller import SollerWidget

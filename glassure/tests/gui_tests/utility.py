@@ -20,5 +20,5 @@ def click_button(widget):
     QTest.mouseClick(widget, QtCore.Qt.LeftButton)
 
 
-def array_almost_equal(array1, array2, places=7):
-    return np.abs(np.sum(array1 - array2))/len(array1) <1/(places*10)
+def array_almost_equal(array1, array2, places=3):
+    return np.sum(array1 - array2)/len(array1) < 1/(places*10.)

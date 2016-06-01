@@ -45,7 +45,20 @@ class GlassureConfiguration(object):
         self.use_modification_fcn = False
 
         self.extrapolation_method = 'step'
-        self.extrapolation_parameters = {'q_max': 2, 'replace':False}
+        self.extrapolation_parameters = {'q_max': 2, 'replace': False}
+
+        # soller slit correction parameters
+        self.use_soller_correction = False
+        self.soller_correction = None
+        self.soller_sample_thickness = 0.200  # in m
+        # default parameters for soller slit ID27, ESRF and GSECARS, APS
+        self.soller_parameters = {'wavelength': 0.31, # in Angstrom
+                                  'inner_radius': 62, # in mm
+                                  'outer_radius': 210, # in mm
+                                  'inner_width': 0.05, # in mm
+                                  'outer_width': 0.2, # in mm
+                                  'inner_length': 8, # in mm
+                                  'outer_length': 6} # in mm
 
         self.name = 'Config {}'.format(GlassureConfiguration.num)
         self.color = calculate_color(GlassureConfiguration.num)
