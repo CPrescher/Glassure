@@ -6,7 +6,7 @@ import sys
 
 from core import __version__ as version
 from core._version import get_versions
-from gui.controller.gui_controller import GlassureController
+from gui.controller.glassure import GlassureController
 from gui.qt import QtGui
 __version__ = get_versions()['version']
 del get_versions

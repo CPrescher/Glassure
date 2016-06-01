@@ -3,7 +3,7 @@
 from functools import partial
 
 from ...qt import QtCore, QtGui, Signal
-from ..custom_widgets import FlatButton, ListTableWidget
+from ..custom import FlatButton, ListTableWidget
 
 
 class ConfigurationWidget(QtGui.QWidget):

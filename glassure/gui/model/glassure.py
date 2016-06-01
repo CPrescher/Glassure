@@ -13,7 +13,7 @@ from core.optimization import optimize_sq
 from core.utility import extrapolate_to_zero_linear, extrapolate_to_zero_step, extrapolate_to_zero_spline, \
     extrapolate_to_zero_poly
 
-from .glassure_configuration import GlassureConfiguration
+from .configuration import GlassureConfiguration
 
 
 class GlassureModel(QtCore.QObject):

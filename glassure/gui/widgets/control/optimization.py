@@ -2,7 +2,7 @@
 
 from ...qt import QtCore, QtGui, Signal
 
-from ..custom_widgets import NumberTextField, LabelAlignRight, HorizontalLine
+from ..custom import NumberTextField, LabelAlignRight, HorizontalLine
 
 
 class OptimizationWidget(QtGui.QWidget):

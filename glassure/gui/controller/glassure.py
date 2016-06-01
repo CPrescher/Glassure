@@ -14,10 +14,10 @@ pg.setConfigOption('background', 'k')
 pg.setConfigOption('foreground', 'w')
 pg.setConfigOption('antialias', True)
 
-from gui.widgets.glassure_widget import GlassureWidget
-from gui.model.glassure_model import GlassureModel
+from gui.widgets.glassure import GlassureWidget
+from gui.model.glassure import GlassureModel
 
-from .configuration_controller import ConfigurationController
+from .configuration import ConfigurationController
 
 
 class GlassureController(object):

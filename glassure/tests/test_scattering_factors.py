@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-
 import unittest
 
 from core.scattering_factors import *

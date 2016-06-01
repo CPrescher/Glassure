@@ -5,8 +5,8 @@ import os
 
 import numpy as np
 
-from gui.qt import QtCore, QtGui, QTest
-from gui.controller.gui_controller import GlassureController
+from gui.qt import QtGui
+from gui.controller.glassure import GlassureController
 
 from tests.utility import click_checkbox, set_widget_text
 

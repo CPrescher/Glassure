@@ -2,7 +2,7 @@
 
 from ...qt import QtCore, QtGui, Signal
 
-from ..custom_widgets import HorizontalLine
+from ..custom import HorizontalLine
 
 
 class OptionsWidget(QtGui.QWidget):

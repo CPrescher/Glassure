@@ -5,11 +5,11 @@ import os
 
 from gui.qt import QtGui
 
-from gui.controller.gui_controller import GlassureController
+from gui.controller.glassure import GlassureController
 
 from tests.utility import click_button
 
-unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
+unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 
 class ConfigurationWidgetTest(unittest.TestCase):

@@ -3,7 +3,7 @@
 from ...qt import QtGui, QtCore
 from .box import ExpandableBox
 from .lines import HorizontalLine
-from .spectrum_widget import SpectrumWidget
+from .spectrum import SpectrumWidget
 
 
 def VerticalSpacerItem():

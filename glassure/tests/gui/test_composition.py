@@ -4,7 +4,7 @@ import unittest
 import os
 
 from gui.qt import QtCore, QtGui, QTest
-from gui.controller.gui_controller import GlassureController
+from gui.controller.glassure import GlassureController
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 

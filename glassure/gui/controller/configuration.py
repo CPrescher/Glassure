@@ -2,8 +2,8 @@
 
 from ..qt import QtGui
 
-from ..widgets.glassure_widget import GlassureWidget
-from ..model.glassure_model import GlassureModel
+from ..widgets.glassure import GlassureWidget
+from ..model.glassure import GlassureModel
 
 
 class ConfigurationController(object):

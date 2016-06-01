@@ -4,8 +4,6 @@ import pyqtgraph as pg
 import numpy as np
 from ...qt import QtCore, QtGui, Signal
 
-from .ExLegendItem import LegendItem
-
 
 class SpectrumWidget(QtGui.QWidget):
     def __init__(self, *args, **kwargs):
