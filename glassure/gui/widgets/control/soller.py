@@ -28,7 +28,6 @@ class SollerWidget(QtGui.QWidget):
         self.param_layout = QtGui.QGridLayout()
         self.thickness_txt = ValueLabelTxtPair("Sample d:", 0.2, "mm", self.param_layout, 0)
         self.wavelength_txt = ValueLabelTxtPair("X-ray wavelength:", 0.31, "A", self.param_layout, 1)
-
         self.param_layout.addWidget(HorizontalLine(), 2, 0, 1, 3)
         self.inner_radius_txt = ValueLabelTxtPair("Inner radius:", '', "mm", self.param_layout, 4)
         self.outer_radius_txt = ValueLabelTxtPair("Outer radius:", '', "mm", self.param_layout, 5)

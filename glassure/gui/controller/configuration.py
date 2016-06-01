@@ -21,6 +21,7 @@ class ConfigurationController(object):
         self.connect_signals()
 
         self.update_configurations_tw()
+        self.update_widget_controls()
 
     def connect_signals(self):
         self.widget.freeze_configuration_btn.clicked.connect(self.model.add_configuration)

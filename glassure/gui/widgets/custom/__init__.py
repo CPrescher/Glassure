@@ -71,12 +71,13 @@ class ValueLabelTxtPair(QtGui.QWidget):
 
         self.value_txt.editingFinished.connect(self.editingFinished.emit)
 
-        self.setText = self.value_txt.setText
-
     def get_value(self):
         return float(str(self.value_txt.text()))
 
     def set_value(self, value):
         self.value_txt.setText(str(value))
+
+    def setText(self, new_str):
+        self.value_txt.setText(new_str)
 
 

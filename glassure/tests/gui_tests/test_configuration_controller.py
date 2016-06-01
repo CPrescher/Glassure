@@ -9,7 +9,7 @@ from gui.controller.glassure import GlassureController
 from gui.qt import QtGui
 from tests.gui_tests.utility import set_widget_text, click_checkbox, click_button
 
-unittest_data_path = os.path.join(os.path.dirname(__file__), '..',  'data')
+unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 
 class Widget_ConfigurationControllerTest(unittest.TestCase):
@@ -169,9 +169,19 @@ class Widget_ConfigurationControllerTest(unittest.TestCase):
         self.configuration_widget.configuration_tw.selectRow(1)
         self.assertEqual(self.main_widget.optimize_attenuation_sb.value(), 4)
 
+    def test_soller_active_is_updated(self):
+        click_button(self.configuration_widget.freeze_btn)
+        click_checkbox(self.main_widget.soller_active_cb)
+
+        self.configuration_widget.configuration_tw.selectRow(0)
+        self.assertFalse(self.main_widget.soller_active_cb.isChecked())
+
+        self.configuration_widget.configuration_tw.selectRow(1)
+        self.assertTrue(self.main_widget.soller_active_cb.isChecked())
+
     def test_soller_parameters_are_updated(self):
         click_button(self.configuration_widget.freeze_btn)
-        set_widget_text(self.main_widget.right_control_widget.soller_widget.wavelength_txt, 0.3344)
+        set_widget_text(self.main_widget.right_control_widget.soller_widget.wavelength_txt.value_txt, 0.3344)
 
         self.configuration_widget.configuration_tw.selectRow(0)
         self.assertEqual(self.main_widget.right_control_widget.soller_widget.wavelength_txt.get_value(), 0.31)

@@ -22,8 +22,11 @@ class SollerController(object):
         self.connect_signals()
 
     def connect_signals(self):
-        self.soller_widget.soller_parameters_changed.connect(self.soller_parameters_changed)
+        self.soller_widget.soller_parameters_changed.connect(self.parameters_changed)
+        self.soller_widget.activate_cb.stateChanged.connect(self.active_cb_state_changed)
 
-    def soller_parameters_changed(self):
-        print("haha")
+    def parameters_changed(self):
         self.model.soller_parameters = self.soller_widget.get_parameters()
+
+    def active_cb_state_changed(self):
+        self.model.use_soller_correction = self.soller_widget.activate_cb.isChecked()
