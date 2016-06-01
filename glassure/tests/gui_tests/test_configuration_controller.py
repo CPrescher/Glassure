@@ -1,14 +1,13 @@
 # -*- coding: utf8 -*-
 
-import unittest
-from mock import patch
 import os
+import unittest
 
-from gui.qt import QtGui
+from mock import patch
 
 from gui.controller.glassure import GlassureController
-
-from tests.utility import set_widget_text, click_checkbox, click_button
+from gui.qt import QtGui
+from tests.gui_tests.utility import set_widget_text, click_checkbox, click_button
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..',  'data')
 

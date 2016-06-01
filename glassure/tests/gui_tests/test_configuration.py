@@ -1,13 +1,11 @@
 # -*- coding: utf8 -*-
 
-import unittest
 import os
-
-from gui.qt import QtGui
+import unittest
 
 from gui.controller.glassure import GlassureController
-
-from tests.utility import click_button
+from gui.qt import QtGui
+from tests.gui_tests.utility import click_button
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 

@@ -1,14 +1,13 @@
 # -*- coding: utf8 -*-
 
-import unittest
 import os
+import unittest
 
 import numpy as np
 
-from gui.qt import QtGui
 from gui.controller.glassure import GlassureController
-
-from tests.utility import click_checkbox, set_widget_text
+from gui.qt import QtGui
+from tests.gui_tests.utility import click_checkbox, set_widget_text
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 
