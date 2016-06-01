@@ -7,6 +7,7 @@ import numpy as np
 
 from core import Pattern
 from core import calculate_sq
+from gui.qt import QtGui
 from gui.model.glassure import GlassureModel
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
@@ -17,6 +18,12 @@ def data_path(filename):
 
 
 class GlassureModelTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QtGui.QApplication.instance()
+        if cls.app is None:
+            cls.app = QtGui.QApplication([])
+
     def setUp(self):
         self.model = GlassureModel()
         self.model.load_data(data_path('Mg2SiO4_ambient.xy'))
@@ -57,7 +64,6 @@ class GlassureModelTest(unittest.TestCase):
 
         sample_spectrum = data_spectrum - background_scaling * bkg_spectrum
         sq_spectrum_core = calculate_sq(sample_spectrum, density, elemental_abundances)
-
 
         sq_spectrum1_x, sq_spectrum1_y = self.model.sq_pattern.data
         sq_spectrum2_x, sq_spectrum2_y = sq_spectrum_core.data
