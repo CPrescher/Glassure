@@ -18,6 +18,7 @@ from gui.widgets.glassure import GlassureWidget
 from gui.model.glassure import GlassureModel
 
 from .configuration import ConfigurationController
+from .soller import SollerController
 
 
 class GlassureController(object):
@@ -31,6 +32,7 @@ class GlassureController(object):
         self.connect_signals()
 
         self.configuration_controller = ConfigurationController(self.main_widget, self.model)
+        self.soller_controller = SollerController(self.main_widget, self.model)
 
     def show_window(self):
         """
@@ -187,7 +189,7 @@ class GlassureController(object):
 
     def optimize_density(self):
         density_min, density_max, bkg_min, bkg_max, iterations = \
-            self.main_widget.left_control_widget.density_optimization_widget.get_parameter()
+            self.main_widget.left_control_widget.density_optimization_widget.get_parameters()
         self.model.optimize_density_and_scaling(
             density_min, density_max, bkg_min, bkg_max, iterations, output_txt=
             self.main_widget.right_control_widget.density_optimization_widget.optimization_output_txt,

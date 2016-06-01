@@ -96,6 +96,7 @@ class GlassureWidget(QtGui.QWidget):
         self.configuration_tw = self.right_control_widget.configuration_widget.configuration_tw
 
         self.soller_widget = self.right_control_widget.soller_widget
+        self.soller_active_cb = self.right_control_widget.soller_widget.activate_cb
 
     def create_function_shortcuts(self):
         self.set_composition = self.left_control_widget.composition_widget.set_composition
@@ -111,6 +112,9 @@ class GlassureWidget(QtGui.QWidget):
 
         self.set_optimization_parameter = self.right_control_widget.optimization_widget.set_parameter
         self.get_optimization_parameter = self.right_control_widget.optimization_widget.get_parameter
+
+        self.set_soller_parameter = self.right_control_widget.soller_widget.set_parameters
+        self.get_soller_parameter = self.right_control_widget.soller_widget.get_parameters
 
     def show(self):
         QtGui.QWidget.show(self)

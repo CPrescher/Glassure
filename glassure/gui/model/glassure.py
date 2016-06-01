@@ -272,6 +272,33 @@ class GlassureModel(QtCore.QObject):
         self.current_configuration.extrapolation_parameters = value
         self.calculate_transforms()
 
+    @property
+    def use_soller_correction(self):
+        return self.current_configuration.use_soller_correction
+
+    @use_soller_correction.setter
+    def use_soller_correction(self, value):
+        self.current_configuration.use_soller_correction = value
+        self.calculate_transforms()
+
+    @property
+    def soller_correction(self):
+        return self.current_configuration.soller_correction
+
+    @soller_correction.setter
+    def soller_correction(self, new_value):
+        self.current_configuration.soller_correction = new_value
+        self.calculate_transforms()
+
+    @property
+    def soller_parameters(self):
+        return self.current_configuration.soller_parameters
+
+    @soller_parameters.setter
+    def soller_parameters(self, new_parameters):
+        self.current_configuration.soller_parameters = new_parameters
+        self.calculate_transforms()
+
     def set_smooth(self, value):
         self.original_pattern.set_smoothing(value)
         self.current_configuration.background_pattern.set_smoothing(value)

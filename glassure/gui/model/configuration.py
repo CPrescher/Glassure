@@ -50,9 +50,9 @@ class GlassureConfiguration(object):
         # soller slit correction parameters
         self.use_soller_correction = False
         self.soller_correction = None
-        self.soller_sample_thickness = 0.200  # in m
         # default parameters for soller slit ID27, ESRF and GSECARS, APS
-        self.soller_parameters = {'wavelength': 0.31, # in Angstrom
+        self.soller_parameters = {'sample_thickness': 1.0, #in mm
+                                  'wavelength': 0.31, # in Angstrom
                                   'inner_radius': 62, # in mm
                                   'outer_radius': 210, # in mm
                                   'inner_width': 0.05, # in mm

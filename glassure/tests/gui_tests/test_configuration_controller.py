@@ -169,6 +169,16 @@ class Widget_ConfigurationControllerTest(unittest.TestCase):
         self.configuration_widget.configuration_tw.selectRow(1)
         self.assertEqual(self.main_widget.optimize_attenuation_sb.value(), 4)
 
+    def test_soller_parameters_are_updated(self):
+        click_button(self.configuration_widget.freeze_btn)
+        set_widget_text(self.main_widget.right_control_widget.soller_widget.wavelength_txt, 0.3344)
+
+        self.configuration_widget.configuration_tw.selectRow(0)
+        self.assertEqual(self.main_widget.right_control_widget.soller_widget.wavelength_txt.get_value(), 0.31)
+
+        self.configuration_widget.configuration_tw.selectRow(1)
+        self.assertEqual(self.main_widget.right_control_widget.soller_widget.wavelength_txt.get_value(), 0.3344)
+
 
 class Pattern_ConfigurationControllerTest(unittest.TestCase):
     @classmethod
