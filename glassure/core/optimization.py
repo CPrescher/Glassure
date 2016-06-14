@@ -251,12 +251,12 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
     :param data_spectrum: original data spectrum
     :param bkg_spectrum: original background spectrum
     :param composition: composition as a dictionary with the elements as keys and the abundances as values
-    :param initial_density: density starting point for the optimization procedure
+    :param initial_density: number density starting point for the optimization procedure
     :param initial_bkg_scaling: background scaling starting point for the optimization procedure
-    :param initial_thickness: gasket thickness with which the background was measured.
-    :param sample_thickness: sample thickness for which the sample was measured
+    :param initial_thickness: gasket thickness with which the background was measured in mm
+    :param sample_thickness: sample thickness for which the sample was measured in mm
     :param wavelength: wavelength of the radiation used - needed for calculation of soller slit transfer function in
-                       q-space
+                       q-space in Angstrom
     :param initial_carbon_content: carbon content starting point for the optimization
     :param r_cutoff: cutoff value below which there is no signal expected (below the first peak in g(r)
     :param iterations: number of iterations for optimization, described in equations 47-49 in Eggert et al. 2002
@@ -273,6 +273,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
 
     tth = 2 * np.arcsin(data_spectrum.x * wavelength / (4 * np.pi)) / np.pi * 180
     soller = SollerCorrection(tth, initial_thickness)
+    sample_transfer, diamond_transfer = soller.transfer_function_dac(sample_thickness, initial_thickness)
 
 
     def optimization_fcn(params):
@@ -283,8 +284,6 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
         q, data_int = data_spectrum.data
         _, bkg_int = bkg_spectrum.data
 
-        sample_transfer, diamond_transfer = soller.transfer_function_dac(sample_thickness, initial_thickness)
-
         diamond_background = diamond_content * Pattern(q,
                                                        calculate_incoherent_scattering({'C': 1},
                                                                                        q) / diamond_transfer)
@@ -294,31 +293,31 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
         sample_spectrum = Pattern(q, sample_spectrum.y * sample_transfer)
         sample_spectrum = sample_spectrum.extend_to(0, 0)
 
-        normalization_factor = fit_normalization_factor(sample_spectrum, composition)
+        normalization_factor = calculate_normalization_factor_raw(sample_spectrum, density, f_squared_mean,
+                                                                  f_mean_squared, incoherent_scattering)
 
         sq_pattern = calculate_sq_raw(sample_spectrum=sample_spectrum,
                                       f_squared_mean=f_squared_mean,
                                       f_mean_squared=f_mean_squared,
                                       incoherent_scattering=incoherent_scattering,
                                       normalization_factor=normalization_factor)
-        iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - 1)
 
         r = np.arange(0, r_cutoff, 0.02)
         fr_pattern = calculate_fr(sq_spectrum=sq_pattern, r=r, use_modification_fcn=use_modification_fcn)
 
-        q, iq_int = iq_pattern.data
+        q, sq_int = sq_pattern.data
         r, fr_int = fr_pattern.data
+        iq_int = sq_int-1
 
         delta_fr = fr_int + 4 * np.pi * r * density
 
         for iteration in range(iterations):
             in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
             integral = np.trapz(in_integral, r)
-            iq_optimized = iq_int - (iq_int+1) / q * integral
+            iq_optimized = iq_int - 1. / q * (iq_int + 1) * integral
 
             iq_pattern = Pattern(q, iq_optimized)
-            sq_pattern = Pattern(q, iq_optimized + 1)
-            fr_pattern = calculate_fr(sq_pattern, r)
+            fr_pattern = calculate_fr(Pattern(q, iq_optimized+1), r)
 
             q, iq_int = iq_pattern.data
             r, fr_int = fr_pattern.data

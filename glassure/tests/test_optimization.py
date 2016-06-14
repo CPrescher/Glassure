@@ -35,7 +35,6 @@ class OptimizationTest(unittest.TestCase):
         self.assertFalse(np.allclose(sq.y, sq_optimized.y))
 
     def test_optimize_soller_slit_dac(self):
-        self.density = 1.9
         self.composition = {'Ar': 1}
         self.r = np.linspace(0.1, 10, 1000)
 
@@ -47,17 +46,10 @@ class OptimizationTest(unittest.TestCase):
         self.data_spectrum = Pattern(data_spectrum.x / 10., data_spectrum.y)
         self.bkg_spectrum = Pattern(bkg_spectrum.x / 10., bkg_spectrum.y)
 
-        bkg_scaling = 0.57
-
-        self.q_min = 0.3
-        self.q_max = 9.0
-
-        self.sample_spectrum = self.data_spectrum - bkg_scaling * self.bkg_spectrum
-        self.sample_spectrum = self.sample_spectrum.limit(self.q_min, self.q_max).extend_to(0, 0)
 
         initial_thickness = 0.1
         current_thickness = 0.05
-        diamond_content = 10
+        diamond_content = 30
 
         chi2, density, density_err, bkg_scaling, bkg_scaling_err, diamond_content, diamond_content_err = \
             optimize_soller_dac(
