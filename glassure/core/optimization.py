@@ -242,7 +242,7 @@ def optimize_incoherent_container_scattering(sample_spectrum, sample_density, sa
 def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_density, initial_bkg_scaling,
                         initial_thickness, sample_thickness, wavelength,
                         initial_carbon_content=1, r_cutoff=2.28, iterations=1,
-                        use_modification_fcn=False, vary=(True, True, True)):
+                        use_modification_fcn=False, vary=(True, True, True), verbose=False):
     """
     Optimizes density, background scaling and diamond content for a list of sample thickness with a given initial
     gasket thickness in the diamond anvil cell (DAC). The calculation is done by utilizing the soller slit transfer
@@ -262,6 +262,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
     :param iterations: number of iterations for optimization, described in equations 47-49 in Eggert et al. 2002
     :param use_modification_fcn: Whether or not to use the Lorch modification function during the Fourier transform.
     :param vary: 3 boolean flags whether to vary: density, bkg_scaling, carbon_content during the optimization
+    :param verbose: boolean flag whether to print out a fit report or not
     :return:
     """
 
@@ -302,7 +303,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
                                       incoherent_scattering=incoherent_scattering,
                                       normalization_factor=normalization_factor)
 
-        r = np.arange(0, r_cutoff, 0.02)
+        r = np.arange(0, r_cutoff, 0.05)
         fr_pattern = calculate_fr(sq_spectrum=sq_pattern, r=r, use_modification_fcn=use_modification_fcn)
 
         q, sq_int = sq_pattern.data
@@ -324,7 +325,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
 
             delta_fr = fr_int + 4 * np.pi * r * density
 
-        return delta_fr
+        return delta_fr/len(delta_fr)
 
 
     from lmfit import Parameters, minimize, report_fit
@@ -336,7 +337,8 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
 
     result = minimize(optimization_fcn, params)
 
-    report_fit(result)
+    if verbose:
+        report_fit(result)
 
     return result.chisqr, \
            result.params['density'].value, result.params['density'].stderr, \
