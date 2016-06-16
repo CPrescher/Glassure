@@ -103,7 +103,7 @@ def fit_normalization_factor(sample_spectrum, composition, q_cutoff=3, method="s
 
 
 def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent_scattering, normalization_factor,
-                     method='AL'):
+                     method='FZ'):
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
 
@@ -123,17 +123,17 @@ def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent
     :return: S(Q) spectrum
     """
     q, intensity = sample_spectrum.data
-    if method == 'AL':
+    if method == 'FZ':
         sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean + f_mean_squared) / \
              f_mean_squared
-    elif method == 'FZ':
+    elif method == 'AL':
         sq = (normalization_factor * intensity - incoherent_scattering)/f_squared_mean
     else:
         raise NotImplementedError('{} method is not implemented'.format(method))
     return Pattern(q, sq)
 
 
-def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001, method='AL'):
+def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001, method='FZ'):
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
 
