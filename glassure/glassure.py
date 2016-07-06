@@ -21,8 +21,8 @@ if __name__ == "__main__":
         app.setStyle('plastique')
         # other possible values: "windows", "motif", "cde", "plastique", "windowsxp", or "macintosh"
     controller = GlassureController()
-    controller.load_data('tests/data/Mg2SiO4_ambient.xy')
-    controller.load_bkg('tests/data/Mg2SiO4_ambient_bkg.xy')
+    # controller.load_data('tests/data/Mg2SiO4_ambient.xy')
+    # controller.load_bkg('tests/data/Mg2SiO4_ambient_bkg.xy')
     controller.show_window()
     app.exec_()
     del app
