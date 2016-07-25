@@ -9,7 +9,7 @@ from ..qt import QtGui, QtCore
 
 from .control import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget, DensityOptimizationWidget, \
     ExtrapolationWidget, DiamondWidget, ConfigurationWidget, SollerWidget
-from gui.widgets.custom import SpectrumWidget
+from .custom import SpectrumWidget
 
 from .custom import ExpandableBox
 
