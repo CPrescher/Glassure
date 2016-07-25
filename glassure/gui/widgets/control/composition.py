@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 from ...qt import QtCore, QtGui, Signal
-from core.scattering_factors import scattering_factor_param
+from ....core.scattering_factors import scattering_factor_param
 
 
 class CompositionWidget(QtGui.QWidget):
