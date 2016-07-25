@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from core.pattern import Pattern
+from ...core.pattern import Pattern
 
 
 class GlassureConfiguration(object):
