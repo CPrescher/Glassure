@@ -12,7 +12,7 @@ setup(
     author='Clemens Prescher',
     author_email="clemens.prescher@gmail.com",
     url='https://github.com/Luindil/glassure/',
-    install_requires = ['numpy', 'scipy', 'lmfit', 'pandas'],
+    install_requires = ['numpy', 'scipy', 'lmfit', 'pandas', 'pyqtgraph'],
     description='API and GUI for analysis of total scattering data',
     classifiers=['Intended Audience :: Science/Research',
                  'Operating System :: OS Independent',
