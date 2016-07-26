@@ -4,10 +4,10 @@ import os
 import unittest
 import numpy as np
 
-from core import Pattern, convert_density_to_atoms_per_cubic_angstrom
-from core.utility import extrapolate_to_zero_poly
-from core.calc import calculate_sq
-from core.optimization import optimize_sq, optimize_soller_dac
+from glassure.core import Pattern, convert_density_to_atoms_per_cubic_angstrom
+from glassure.core.utility import extrapolate_to_zero_poly
+from glassure.core.calc import calculate_sq
+from glassure.core.optimization import optimize_sq, optimize_soller_dac
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 data_path = os.path.join(unittest_data_path, 'Fe81S19.chi')

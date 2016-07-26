@@ -4,8 +4,8 @@ import os
 import unittest
 import numpy as np
 
-from core import Pattern
-from core.transfer_function import calculate_transfer_function
+from glassure.core import Pattern
+from glassure.core.transfer_function import calculate_transfer_function
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 sample_path = os.path.join(unittest_data_path, 'glass_rod_SS.xy')

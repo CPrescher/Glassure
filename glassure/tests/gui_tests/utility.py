@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 import numpy as np
 
-from gui.qt import QtGui, QtCore, QTest
+from glassure.gui.qt import QtGui, QtCore, QTest
 
 
 def set_widget_text(widget, txt):

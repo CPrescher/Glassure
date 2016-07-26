@@ -4,8 +4,8 @@ import unittest
 
 import numpy as np
 
-from core import SollerCorrection
-from core.soller_correction import calculate_angles
+from glassure.core import SollerCorrection
+from glassure.core.soller_correction import calculate_angles
 
 
 class SollerCorrectionTest(unittest.TestCase):

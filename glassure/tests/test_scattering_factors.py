@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 import unittest
 
-from core.scattering_factors import *
+from glassure.core.scattering_factors import *
 
 
 class ScatteringFactorTest(unittest.TestCase):

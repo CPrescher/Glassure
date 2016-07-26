@@ -5,10 +5,10 @@ import os
 
 import numpy as np
 
-from core import Pattern
-from core.calc import calculate_normalization_factor, calculate_sq, calculate_fr, calculate_gr, calculate_sq_from_gr
-from core.optimization import optimize_incoherent_container_scattering, optimize_sq
-from core.calculator import StandardCalculator
+from glassure.core import Pattern
+from glassure.core.calc import calculate_normalization_factor, calculate_sq, calculate_fr, calculate_gr, calculate_sq_from_gr
+from glassure.core.optimization import optimize_incoherent_container_scattering, optimize_sq
+from glassure.core.calculator import StandardCalculator
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 sample_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy')

@@ -3,8 +3,8 @@
 import unittest
 import os
 
-from gui.qt import QtCore, QtGui, QTest
-from gui.controller.glassure import GlassureController
+from glassure.gui.qt import QtCore, QtGui, QTest
+from glassure.gui.controller.glassure import GlassureController
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 

@@ -5,10 +5,10 @@ import os
 
 import numpy as np
 
-from core import Pattern
-from core import calculate_sq
-from gui.qt import QtGui
-from gui.model.glassure import GlassureModel
+from glassure.core import Pattern
+from glassure.core import calculate_sq
+from glassure.gui.qt import QtGui
+from glassure.gui.model.glassure import GlassureModel
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 

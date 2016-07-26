@@ -4,8 +4,8 @@ import os
 import unittest
 import numpy as np
 
-from core import Pattern
-from core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
+from glassure.core import Pattern
+from glassure.core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
     calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha, \
     calculate_coherent_scattering, calculate_sq, calculate_fr, optimize_iq, \
     calculate_chi2_map, optimize_density_and_bkg_scaling, optimize_soller_dac

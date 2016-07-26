@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from core import Pattern
+from glassure.core import Pattern
 
 
 class PatternTest(unittest.TestCase):

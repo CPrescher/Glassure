@@ -3,9 +3,9 @@
 import os
 import unittest
 
-from gui.controller.glassure import GlassureController
-from gui.qt import QtGui
-from tests.gui_tests.utility import click_button
+from glassure.gui.controller.glassure import GlassureController
+from glassure.gui.qt import QtGui
+from glassure.tests.gui_tests.utility import click_button
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 

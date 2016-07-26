@@ -4,8 +4,8 @@ import os
 import unittest
 import numpy as np
 
-from core import Pattern
-from core.calc import calculate_normalization_factor, fit_normalization_factor
+from glassure.core import Pattern
+from glassure.core.calc import calculate_normalization_factor, fit_normalization_factor
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 sample_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy')

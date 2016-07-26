@@ -5,9 +5,9 @@ import unittest
 
 import numpy as np
 
-from gui.controller.glassure import GlassureController
-from gui.qt import QtGui
-from tests.gui_tests.utility import set_widget_text, click_checkbox, click_button
+from glassure.gui.controller.glassure import GlassureController
+from glassure.gui.qt import QtGui
+from glassure.tests.gui_tests.utility import set_widget_text, click_checkbox, click_button
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 
