@@ -26,30 +26,24 @@ It is known to run on Windows, Mac OS X and Linux.
 
 ## Installation
 
-The easiest way for Python Newcomers would be to use the Anaconda 64bit Python
-distribution. Please download it from [https://www.continuum.io/downloads](https://www.continuum.io/downloads).
+The easiest way for Python Newcomers would be to use the Anaconda or Miniconda 64bit Python 3.5
+distribution. 
+Please download it from [https://www.continuum.io/downloads](https://www.continuum.io/downloads) and install it.
 
 Then run the following in the commandline (or Anaconda prompt under Windows):
 
 ```bash
-conda update --all
-pip install lmfit pyqtgraph
+conda config --add channels cprescher
+conda install glassure
 ```
 
-After that you can install Glassure as a library and use the functionality in your
-own scripts or programs by running:
-
+The graphical user interface for glassure can now be started from by typing
 ```bash
-python setup.py
+glassure
 ```
 
-in the Glassure folder. Or you can run the GUI program by running:
-
-```bash
-python glassure/glassure.py
-```
-
-in the main repository folder.
+if you want to make a short cut for the desktop, the glassure executable can be found in the 
+%anaconda_directory%/scripts folder.  
 
 
 
