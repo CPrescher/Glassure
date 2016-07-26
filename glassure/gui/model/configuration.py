@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from core.pattern import Pattern
+from ...core.pattern import Pattern
 
 
 class GlassureConfiguration(object):
@@ -59,6 +59,12 @@ class GlassureConfiguration(object):
                                   'outer_width': 0.2, # in mm
                                   'inner_length': 8, # in mm
                                   'outer_length': 6} # in mm
+
+        # transfer function stuff
+        self.use_transfer_function = False
+        self.transfer_function = None
+        self.transfer_std_pattern = None
+        self.transfer_sample_pattern = None
 
         self.name = 'Config {}'.format(GlassureConfiguration.num)
         self.color = calculate_color(GlassureConfiguration.num)

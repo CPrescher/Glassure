@@ -4,14 +4,14 @@ import numpy as np
 from lmfit import Parameters, minimize
 from ..qt import QtGui, QtCore, Signal
 
-from core.pattern import Pattern
+from ...core.pattern import Pattern
 from .density_optimization import DensityOptimizer
-from core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
-from core import calculate_sq, calculate_gr, calculate_fr
-from core.optimization import optimize_sq
-from core.soller_correction import SollerCorrectionGui
+from ...core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
+from ...core import calculate_sq, calculate_gr, calculate_fr
+from ...core.optimization import optimize_sq
+from ...core.soller_correction import SollerCorrectionGui
 
-from core.utility import extrapolate_to_zero_linear, extrapolate_to_zero_step, extrapolate_to_zero_spline, \
+from ...core.utility import extrapolate_to_zero_linear, extrapolate_to_zero_step, extrapolate_to_zero_spline, \
     extrapolate_to_zero_poly
 
 from .configuration import GlassureConfiguration

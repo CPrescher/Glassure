@@ -1,8 +1,8 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui, Signal
+from ...qt import QtGui, Signal
 
-from ..custom import NumberTextField, LabelAlignRight, HorizontalLine, ValueLabelTxtPair
+from ..custom import HorizontalLine, ValueLabelTxtPair
 
 
 class SollerWidget(QtGui.QWidget):

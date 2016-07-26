@@ -4,8 +4,8 @@ import numpy as np
 from ..qt import QtGui
 from lmfit import Parameters, minimize, report_fit
 
-from core.calculator import StandardCalculator
-from core.utility import convert_density_to_atoms_per_cubic_angstrom
+from ...core.calculator import StandardCalculator
+from ...core.utility import convert_density_to_atoms_per_cubic_angstrom
 
 
 class DensityOptimizer(object):
