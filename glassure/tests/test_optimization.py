@@ -46,7 +46,6 @@ class OptimizationTest(unittest.TestCase):
         self.data_spectrum = Pattern(data_spectrum.x / 10., data_spectrum.y)
         self.bkg_spectrum = Pattern(bkg_spectrum.x / 10., bkg_spectrum.y)
 
-
         initial_thickness = 0.1
         current_thickness = 0.05
         diamond_content = 30

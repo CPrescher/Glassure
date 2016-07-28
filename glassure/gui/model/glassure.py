@@ -10,6 +10,7 @@ from ...core.utility import calculate_incoherent_scattering, convert_density_to_
 from ...core import calculate_sq, calculate_gr, calculate_fr
 from ...core.optimization import optimize_sq
 from ...core.soller_correction import SollerCorrectionGui
+from ...core.transfer_function import calculate_transfer_function
 
 from ...core.utility import extrapolate_to_zero_linear, extrapolate_to_zero_step, extrapolate_to_zero_spline, \
     extrapolate_to_zero_poly
@@ -300,6 +301,44 @@ class GlassureModel(QtCore.QObject):
         self.current_configuration.soller_parameters = new_parameters
         self.calculate_transforms()
 
+    @property
+    def use_transfer_function(self):
+        return self.current_configuration.use_transfer_function
+
+    @use_transfer_function.setter
+    def use_transfer_function(self, new_value):
+        self.current_configuration.use_transfer_function = new_value
+        if new_value:
+            self.update_transfer_function()
+
+    @property
+    def transfer_function(self):
+        return self.current_configuration.transfer_function
+
+    @property
+    def transfer_std_pattern(self):
+        """
+        :rtype: Pattern
+        """
+        return self.current_configuration.transfer_std_pattern
+
+    @transfer_std_pattern.setter
+    def transfer_std_pattern(self, new_pattern):
+        self.current_configuration.transfer_std_pattern = new_pattern
+        self.update_transfer_function()
+
+    @property
+    def transfer_sample_pattern(self):
+        """
+        :rtype: Pattern
+        """
+        return self.current_configuration.transfer_sample_pattern
+
+    @transfer_sample_pattern.setter
+    def transfer_sample_pattern(self, new_pattern):
+        self.current_configuration.transfer_sample_pattern = new_pattern
+        self.update_transfer_function()
+
     def set_smooth(self, value):
         self.original_pattern.set_smoothing(value)
         self.current_configuration.background_pattern.set_smoothing(value)
@@ -511,3 +550,27 @@ class GlassureModel(QtCore.QObject):
 
         result = minimize(optimization_fcn, params)
         print(result)
+
+    def update_transfer_function(self):
+        if self.transfer_std_pattern is None or self.transfer_sample_pattern is None or not self.use_transfer_function:
+            return
+        q_min = np.max([self.transfer_std_pattern.x[0], self.transfer_sample_pattern.x[0]])
+        q_max = np.min([self.transfer_std_pattern.x[-1], self.transfer_sample_pattern.x[-1]])
+        self.current_configuration.transfer_function = calculate_transfer_function(
+            self.transfer_std_pattern.limit(q_min, q_max),
+            self.transfer_sample_pattern.limit(q_min, q_max)
+        )
+
+    def load_transfer_std_pattern(self, filename):
+        self.transfer_std_pattern = Pattern.from_file(filename)
+
+    def load_transfer_std_bkg_pattern(self, filename):
+        self.transfer_std_pattern.bkg_spectrum = Pattern.from_file(filename)
+        self.update_transfer_function()
+
+    def load_transfer_sample_pattern(self, filename):
+        self.transfer_sample_pattern = Pattern.from_file(filename)
+
+    def load_transfer_sample_bkg_pattern(self, filename):
+        self.transfer_sample_pattern.bkg_spectrum = Pattern.from_file(filename)
+        self.update_transfer_function()

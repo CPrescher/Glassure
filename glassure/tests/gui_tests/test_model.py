@@ -208,3 +208,18 @@ class GlassureModelTest(unittest.TestCase):
         self.assertEqual(self.model.q_max, 12)
         self.model.remove_configuration()
         self.assertEqual(self.model.q_max, 14)
+
+    def test_use_transfer_function(self):
+        sample_path = os.path.join(unittest_data_path, 'glass_rod_SS.xy')
+        std_path = os.path.join(unittest_data_path, 'glass_rod_WOS.xy')
+
+        self.model.load_transfer_sample_pattern(sample_path)
+        self.model.load_transfer_std_pattern(std_path)
+
+        self.model.load_data(sample_path)
+        self.model.load_bkg(sample_path)
+        self.model.background_scaling = 0
+        self.model.use_transfer_function = True
+        test_y = self.model.original_pattern.limit(0, 14).y * self.model.transfer_function(
+            self.model.original_pattern.limit(0, 14).x)
+        self.assertAlmostEqual(np.std(self.model.transfer_std_pattern.limit(0,14).y / test_y), 0, delta=0.02)
