@@ -325,7 +325,6 @@ class GlassureModel(QtCore.QObject):
     @transfer_std_pattern.setter
     def transfer_std_pattern(self, new_pattern):
         self.current_configuration.transfer_std_pattern = new_pattern
-        self.update_transfer_function()
 
     @property
     def transfer_sample_pattern(self):
@@ -337,7 +336,6 @@ class GlassureModel(QtCore.QObject):
     @transfer_sample_pattern.setter
     def transfer_sample_pattern(self, new_pattern):
         self.current_configuration.transfer_sample_pattern = new_pattern
-        self.update_transfer_function()
 
     def set_smooth(self, value):
         self.original_pattern.set_smoothing(value)
@@ -394,6 +392,9 @@ class GlassureModel(QtCore.QObject):
 
     def calculate_sq(self):
         sample_pattern = (self.original_pattern - self.background_pattern).limit(self.q_min, self.q_max)
+
+        if self.use_transfer_function and self.transfer_function is not None:
+            sample_pattern.y = sample_pattern.y * self.transfer_function(sample_pattern.x)
 
         if self.use_soller_correction:
             q, intensity = sample_pattern.data
@@ -560,9 +561,11 @@ class GlassureModel(QtCore.QObject):
             self.transfer_std_pattern.limit(q_min, q_max),
             self.transfer_sample_pattern.limit(q_min, q_max)
         )
+        self.calculate_transforms()
 
     def load_transfer_std_pattern(self, filename):
         self.transfer_std_pattern = Pattern.from_file(filename)
+        self.update_transfer_function()
 
     def load_transfer_std_bkg_pattern(self, filename):
         self.transfer_std_pattern.bkg_spectrum = Pattern.from_file(filename)
@@ -570,6 +573,7 @@ class GlassureModel(QtCore.QObject):
 
     def load_transfer_sample_pattern(self, filename):
         self.transfer_sample_pattern = Pattern.from_file(filename)
+        self.update_transfer_function()
 
     def load_transfer_sample_bkg_pattern(self, filename):
         self.transfer_sample_pattern.bkg_spectrum = Pattern.from_file(filename)

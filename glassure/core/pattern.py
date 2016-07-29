@@ -123,9 +123,17 @@ class Pattern(object):
     def x(self):
         return self._x
 
+    @x.setter
+    def x(self, new_value):
+        self._x = new_value
+
     @property
     def y(self):
         return self._y
+
+    @y.setter
+    def y(self, new_y):
+        self._y = new_y
 
     @property
     def scaling(self):
