@@ -316,6 +316,15 @@ class GlassureModel(QtCore.QObject):
         return self.current_configuration.transfer_function
 
     @property
+    def transfer_function_smoothing(self):
+        return self.current_configuration.transfer_function_smoothing
+
+    @transfer_function_smoothing.setter
+    def transfer_function_smoothing(self, new_value):
+        self.current_configuration.transfer_function_smoothing = new_value
+        self.update_transfer_function()
+
+    @property
     def transfer_std_pattern(self):
         """
         :rtype: Pattern
@@ -559,7 +568,8 @@ class GlassureModel(QtCore.QObject):
         q_max = np.min([self.transfer_std_pattern.x[-1], self.transfer_sample_pattern.x[-1]])
         self.current_configuration.transfer_function = calculate_transfer_function(
             self.transfer_std_pattern.limit(q_min, q_max),
-            self.transfer_sample_pattern.limit(q_min, q_max)
+            self.transfer_sample_pattern.limit(q_min, q_max),
+            smooth_factor=self.transfer_function_smoothing
         )
         self.calculate_transforms()
 

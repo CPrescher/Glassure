@@ -63,6 +63,7 @@ class GlassureConfiguration(object):
         # transfer function stuff
         self.use_transfer_function = False
         self.transfer_function = None
+        self.transfer_function_smoothing = 1
         self.transfer_std_pattern = None
         self.transfer_sample_pattern = None
 
