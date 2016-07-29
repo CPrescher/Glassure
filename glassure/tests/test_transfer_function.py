@@ -15,8 +15,16 @@ std_path = os.path.join(unittest_data_path, 'glass_rod_WOS.xy')
 class TransferFunctionTest(unittest.TestCase):
 
     def test_transfer_function_calculation(self):
-        std_pattern = Pattern.from_file(std_path).limit(0, 14)
-        sample_pattern = Pattern.from_file(sample_path).limit(0, 14)
-        transfer_function = calculate_transfer_function(std_pattern, sample_pattern)
+        std_pattern = Pattern.from_file(std_path).limit(1, 14)
+        sample_pattern = Pattern.from_file(sample_path).limit(1, 14)
+        transfer_function = calculate_transfer_function(std_pattern, sample_pattern, 1)
         test_y = sample_pattern.y * transfer_function(sample_pattern.x)
-        self.assertAlmostEqual(np.std(std_pattern.y/test_y), 0, delta=0.02)
+
+        self.assertAlmostEqual(np.std(std_pattern.y/test_y), 0, delta=0.2)
+
+    def test_transfer_function_is_normalized(self):
+        std_pattern = Pattern.from_file(std_path).limit(1, 14)
+        sample_pattern = Pattern.from_file(sample_path).limit(1, 14)
+        transfer_function = calculate_transfer_function(std_pattern, sample_pattern)
+
+        self.assertLessEqual(np.min(transfer_function(sample_pattern.x)), 1)
