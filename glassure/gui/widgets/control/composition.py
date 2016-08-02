@@ -112,7 +112,7 @@ class CompositionWidget(QtGui.QWidget):
         return composition
 
     def get_density(self):
-        return float(str(self.density_txt.text()))
+        return float(str(self.density_txt.text()).replace(",", "."))
 
     def emit_composition_changed_signal(self):
         self.composition_changed.emit(self.get_composition(), self.get_density())

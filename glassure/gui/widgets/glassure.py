@@ -8,7 +8,7 @@ from ...core import __version__
 from ..qt import QtGui, QtCore
 
 from .control import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget, DensityOptimizationWidget, \
-    ExtrapolationWidget, DiamondWidget, ConfigurationWidget, SollerWidget
+    ExtrapolationWidget, DiamondWidget, ConfigurationWidget, SollerWidget, TransferFunctionWidget
 from .custom import SpectrumWidget
 
 from .custom import ExpandableBox
@@ -166,12 +166,14 @@ class RightControlWidget(QtGui.QWidget):
         self.density_optimization_widget = DensityOptimizationWidget()
         self.diamond_widget = DiamondWidget()
         self.soller_widget = SollerWidget()
+        self.transfer_widget = TransferFunctionWidget()
 
         self.vertical_layout.addWidget(ExpandableBox(self.configuration_widget, "Configurations"))
         self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization"))
         self.vertical_layout.addWidget(ExpandableBox(self.density_optimization_widget, "Density Optimization", True))
         self.vertical_layout.addWidget(ExpandableBox(self.diamond_widget, "Diamond Correction", True))
         self.vertical_layout.addWidget(ExpandableBox(self.soller_widget, "Soller Slit Correction", True))
+        self.vertical_layout.addWidget(ExpandableBox(self.transfer_widget, "Transfer Function Correction", True))
 
         self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
                                                              QtGui.QSizePolicy.MinimumExpanding))
