@@ -2,7 +2,7 @@
 
 from ...qt import QtCore, QtGui, Signal
 
-from ..custom import HorizontalLine
+from ..custom import HorizontalLine, HorizontalSpacerItem
 
 
 class OptionsWidget(QtGui.QWidget):
@@ -50,20 +50,22 @@ class OptionsWidget(QtGui.QWidget):
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(5)
 
-        self.grid_layout.addWidget(self.q_range_lbl, 0, 0)
-        self.grid_layout.addWidget(self.q_min_txt, 0, 1)
-        self.grid_layout.addWidget(QtGui.QLabel('-'), 0, 2)
-        self.grid_layout.addWidget(self.q_max_txt, 0, 3)
-        self.grid_layout.addWidget(QtGui.QLabel('A<sup>-1</sup>'), 0, 4)
+        self.grid_layout.addItem(QtGui.QSpacerItem(50, 0, QtGui.QSizePolicy.MinimumExpanding,
+                                                             QtGui.QSizePolicy.Fixed), 0, 0)
+        self.grid_layout.addWidget(self.q_range_lbl, 0, 1)
+        self.grid_layout.addWidget(self.q_min_txt, 0, 2)
+        self.grid_layout.addWidget(QtGui.QLabel('-'), 0, 3)
+        self.grid_layout.addWidget(self.q_max_txt, 0, 4)
+        self.grid_layout.addWidget(QtGui.QLabel('A<sup>-1</sup>'), 0, 5)
 
-        self.grid_layout.addWidget(self.r_range_lbl, 1, 0)
-        self.grid_layout.addWidget(self.r_min_txt, 1, 1)
-        self.grid_layout.addWidget(QtGui.QLabel('-'), 1, 2)
-        self.grid_layout.addWidget(self.r_max_txt, 1, 3)
-        self.grid_layout.addWidget(QtGui.QLabel('A'), 1, 4)
+        self.grid_layout.addWidget(self.r_range_lbl, 1, 1)
+        self.grid_layout.addWidget(self.r_min_txt, 1, 2)
+        self.grid_layout.addWidget(QtGui.QLabel('-'), 1, 3)
+        self.grid_layout.addWidget(self.r_max_txt, 1, 4)
+        self.grid_layout.addWidget(QtGui.QLabel('A'), 1, 5)
 
-        self.grid_layout.addWidget(HorizontalLine(), 2, 0, 1, 5)
-        self.grid_layout.addWidget(self.modification_fcn_cb, 3, 1, 1, 4)
+        self.grid_layout.addWidget(HorizontalLine(), 2, 0, 1, 6)
+        self.grid_layout.addWidget(self.modification_fcn_cb, 3, 1, 1, 6)
 
         self.setLayout(self.grid_layout)
 
