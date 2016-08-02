@@ -27,4 +27,4 @@ class TransferFunctionTest(unittest.TestCase):
         sample_pattern = Pattern.from_file(sample_path).limit(1, 14)
         transfer_function = calculate_transfer_function(std_pattern, sample_pattern)
 
-        self.assertLessEqual(np.min(transfer_function(sample_pattern.x)), 1)
+        self.assertAlmostEqual(np.min(transfer_function(sample_pattern.x)), 1, delta=0.01)
