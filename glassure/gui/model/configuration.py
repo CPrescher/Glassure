@@ -51,21 +51,25 @@ class GlassureConfiguration(object):
         self.use_soller_correction = False
         self.soller_correction = None
         # default parameters for soller slit ID27, ESRF and GSECARS, APS
-        self.soller_parameters = {'sample_thickness': 1.0, #in mm
-                                  'wavelength': 0.31, # in Angstrom
-                                  'inner_radius': 62, # in mm
-                                  'outer_radius': 210, # in mm
-                                  'inner_width': 0.05, # in mm
-                                  'outer_width': 0.2, # in mm
-                                  'inner_length': 8, # in mm
-                                  'outer_length': 6} # in mm
+        self.soller_parameters = {'sample_thickness': 1.0,  # in mm
+                                  'wavelength': 0.31,  # in Angstrom
+                                  'inner_radius': 62,  # in mm
+                                  'outer_radius': 210,  # in mm
+                                  'inner_width': 0.05,  # in mm
+                                  'outer_width': 0.2,  # in mm
+                                  'inner_length': 8,  # in mm
+                                  'outer_length': 6}  # in mm
 
         # transfer function stuff
         self.use_transfer_function = False
         self.transfer_function = None
-        self.transfer_function_smoothing = 1
+        self.transfer_function_smoothing = 1.0
         self.transfer_std_pattern = None
+        self.transfer_std_bkg_pattern = None
+        self.transfer_std_bkg_scaling = 1.0
         self.transfer_sample_pattern = None
+        self.transfer_sample_bkg_pattern = None
+        self.transfer_sample_bkg_scaling = 1
 
         self.name = 'Config {}'.format(GlassureConfiguration.num)
         self.color = calculate_color(GlassureConfiguration.num)

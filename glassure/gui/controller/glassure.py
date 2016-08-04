@@ -19,6 +19,7 @@ from ..model.glassure import GlassureModel
 
 from .configuration import ConfigurationController
 from .soller import SollerController
+from .transfer import TransferFunctionController
 
 
 class GlassureController(object):
@@ -33,6 +34,7 @@ class GlassureController(object):
 
         self.configuration_controller = ConfigurationController(self.main_widget, self.model)
         self.soller_controller = SollerController(self.main_widget, self.model)
+        self.transfer_controller = TransferFunctionController(self.main_widget, self.model)
 
     def show_window(self):
         """

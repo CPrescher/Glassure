@@ -6,13 +6,14 @@ import versioneer
 
 setup(
     name='glassure',
-    version = versioneer.get_version(),
-    cmdclass = versioneer.get_cmdclass(),
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     license='MIT',
     author='Clemens Prescher',
     author_email="clemens.prescher@gmail.com",
     url='https://github.com/Luindil/glassure/',
-    install_requires = ['numpy', 'scipy', 'lmfit', 'pandas', 'pyqtgraph'],
+    install_requires=['numpy', 'scipy', 'lmfit', 'pandas', 'pyqtgraph'],
+    test_requires=['mock'],
     description='API and GUI for analysis of total scattering data',
     classifiers=['Intended Audience :: Science/Research',
                  'Operating System :: OS Independent',
@@ -25,5 +26,3 @@ setup(
                                'core/data/atomic_weights.csv',
                                'gui/widgets/DioptasStyle.qss']}
 )
-
-

@@ -98,6 +98,9 @@ class GlassureWidget(QtGui.QWidget):
         self.soller_widget = self.right_control_widget.soller_widget
         self.soller_active_cb = self.right_control_widget.soller_widget.activate_cb
 
+        self.transfer_widget = self.right_control_widget.transfer_widget
+        self.transfer_active_cb = self.right_control_widget.transfer_widget.activate_cb
+
     def create_function_shortcuts(self):
         self.set_composition = self.left_control_widget.composition_widget.set_composition
         self.get_composition = self.left_control_widget.composition_widget.get_composition

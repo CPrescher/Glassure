@@ -228,7 +228,7 @@ class GlassureModelTest(unittest.TestCase):
         self.model.use_transfer_function = True
         test_y = self.model.original_pattern.limit(0, 14).y * self.model.transfer_function(
             self.model.original_pattern.limit(0, 14).x)
-        self.assertAlmostEqual(np.std(self.model.transfer_std_pattern.limit(0, 14).y / test_y), 0, delta=0.02)
+        self.assertAlmostEqual(np.std(self.model.transfer_std_pattern.limit(0, 14).y / test_y), 0, delta=0.2)
 
         sq_pattern_with_transfer = self.model.sq_pattern
 

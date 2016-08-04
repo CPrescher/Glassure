@@ -336,6 +336,27 @@ class GlassureModel(QtCore.QObject):
         self.current_configuration.transfer_std_pattern = new_pattern
 
     @property
+    def transfer_std_bkg_pattern(self):
+        """
+        :rtype Pattern:
+        """
+        return self.current_configuration.transfer_std_bkg_pattern
+
+    @transfer_std_bkg_pattern.setter
+    def transfer_std_bkg_pattern(self, new_pattern):
+        self.current_configuration.transfer_std_bkg_pattern = new_pattern
+        self.update_transfer_function()
+
+    @property
+    def transfer_std_bkg_scaling(self):
+        return self.current_configuration.transfer_std_bkg_scaling
+
+    @transfer_std_bkg_scaling.setter
+    def transfer_std_bkg_scaling(self, new_value):
+        self.current_configuration.transfer_std_bkg_scaling = new_value
+        self.update_transfer_function()
+
+    @property
     def transfer_sample_pattern(self):
         """
         :rtype: Pattern
@@ -345,6 +366,27 @@ class GlassureModel(QtCore.QObject):
     @transfer_sample_pattern.setter
     def transfer_sample_pattern(self, new_pattern):
         self.current_configuration.transfer_sample_pattern = new_pattern
+
+    @property
+    def transfer_sample_bkg_pattern(self):
+        """
+        :rtype Pattern:
+        """
+        return self.current_configuration.transfer_sample_bkg_pattern
+
+    @transfer_sample_bkg_pattern.setter
+    def transfer_sample_bkg_pattern(self, new_pattern):
+        self.current_configuration.transfer_sample_bkg_pattern = new_pattern
+        self.update_transfer_function()
+
+    @property
+    def transfer_sample_bkg_scaling(self):
+        return self.current_configuration.transfer_sample_bkg_scaling
+
+    @transfer_sample_bkg_scaling.setter
+    def transfer_sample_bkg_scaling(self, new_value):
+        self.current_configuration.transfer_sample_bkg_scaling = new_value
+        self.update_transfer_function()
 
     def set_smooth(self, value):
         self.original_pattern.set_smoothing(value)
@@ -566,25 +608,33 @@ class GlassureModel(QtCore.QObject):
             return
         q_min = np.max([self.transfer_std_pattern.x[0], self.transfer_sample_pattern.x[0]])
         q_max = np.min([self.transfer_std_pattern.x[-1], self.transfer_sample_pattern.x[-1]])
+
+        if self.transfer_std_bkg_pattern is None:
+            std_pattern = self.transfer_std_pattern
+        else:
+            std_pattern = self.transfer_std_pattern - self.transfer_std_bkg_scaling * self.transfer_std_bkg_pattern
+
+        if self.transfer_sample_bkg_pattern is None:
+            sample_pattern = self.transfer_sample_pattern
+        else:
+            sample_pattern = self.transfer_sample_pattern - self.transfer_sample_bkg_scaling * \
+                                                            self.transfer_sample_bkg_pattern
+
         self.current_configuration.transfer_function = calculate_transfer_function(
-            self.transfer_std_pattern.limit(q_min, q_max),
-            self.transfer_sample_pattern.limit(q_min, q_max),
+            std_pattern.limit(q_min, q_max),
+            sample_pattern.limit(q_min, q_max),
             smooth_factor=self.transfer_function_smoothing
         )
         self.calculate_transforms()
 
     def load_transfer_std_pattern(self, filename):
         self.transfer_std_pattern = Pattern.from_file(filename)
-        self.update_transfer_function()
 
     def load_transfer_std_bkg_pattern(self, filename):
-        self.transfer_std_pattern.bkg_spectrum = Pattern.from_file(filename)
-        self.update_transfer_function()
+        self.transfer_std_bkg_pattern = Pattern.from_file(filename)
 
     def load_transfer_sample_pattern(self, filename):
         self.transfer_sample_pattern = Pattern.from_file(filename)
-        self.update_transfer_function()
 
     def load_transfer_sample_bkg_pattern(self, filename):
-        self.transfer_sample_pattern.bkg_spectrum = Pattern.from_file(filename)
-        self.update_transfer_function()
+        self.transfer_sample_bkg_pattern = Pattern.from_file(filename)
