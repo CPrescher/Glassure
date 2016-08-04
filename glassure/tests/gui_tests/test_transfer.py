@@ -145,3 +145,17 @@ class TransferWidgetTest(unittest.TestCase):
         _, y_after = self.model.sq_pattern.data
 
         self.assertFalse(np.array_equal(y_after, y_before))
+
+    def test_transfer_function_gets_deactivated(self):
+        QtGui.QFileDialog.getOpenFileName = MagicMock(return_value=data_path('glass_rod_WOS.xy'))
+        click_button(self.transfer_widget.load_std_btn)
+        QtGui.QFileDialog.getOpenFileName = MagicMock(return_value=data_path('glass_rod_SS.xy'))
+        click_button(self.transfer_widget.load_sample_btn)
+
+        click_checkbox(self.transfer_widget.activate_cb)
+
+        _, y_before = self.model.sq_pattern.data
+        click_checkbox(self.transfer_widget.activate_cb)
+        _, y_after = self.model.sq_pattern.data
+
+        self.assertFalse(np.array_equal(y_after, y_before))

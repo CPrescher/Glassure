@@ -310,6 +310,8 @@ class GlassureModel(QtCore.QObject):
         self.current_configuration.use_transfer_function = new_value
         if new_value:
             self.update_transfer_function()
+        else:
+            self.calculate_transforms()
 
     @property
     def transfer_function(self):
