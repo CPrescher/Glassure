@@ -27,9 +27,7 @@ class GlassureController(object):
         self.main_widget = GlassureWidget()
 
         self.model = GlassureModel()
-        self.working_directory = ''
-        self.sq_directory = ''
-        self.gr_directory = ''
+        self.settings = QtCore.QSettings('Glassure', 'Glassure')
         self.connect_signals()
 
         self.configuration_controller = ConfigurationController(self.main_widget, self.model)
@@ -97,22 +95,22 @@ class GlassureController(object):
     def load_data(self, filename=None):
         if filename is None:
             filename = str(QtGui.QFileDialog.getOpenFileName(
-                self.main_widget, caption="Load Spectrum", directory=self.working_directory))
+                self.main_widget, caption="Load Spectrum", directory=self.settings.value('working_directory')))
 
         if filename is not '':
             self.model.load_data(filename)
-            self.working_directory = os.path.dirname(filename)
+            self.settings.setValue('working_directory', os.path.dirname(filename))
             self.main_widget.left_control_widget.data_widget.file_widget.data_filename_lbl.setText(
                 os.path.basename(filename))
 
     def load_bkg(self, filename=None):
         if filename is None:
-            filename = str(QtGui.QFileDialog.getOpenFileName(self.main_widget, "Load background data",
-                                                             directory=self.working_directory))
+            filename = str(QtGui.QFileDialog.getOpenFileName(
+                self.main_widget, "Load background data", directory=self.settings.value('working_directory')))
 
         if filename is not None and filename != '':
             self.model.load_bkg(filename)
-            self.working_directory = os.path.dirname(filename)
+            self.settings.setValue('working_directory', os.path.dirname(filename))
             self.main_widget.left_control_widget.data_widget.file_widget.background_filename_lbl.setText(
                 os.path.basename(filename))
 
@@ -176,7 +174,7 @@ class GlassureController(object):
                                     r_cutoff,
                                     optimize_iterations,
                                     optimize_attenuation
-        )
+                                    )
 
     def update_plot_progress(self, bool):
         if bool:
@@ -212,20 +210,30 @@ class GlassureController(object):
 
     def save_sq_btn_clicked(self, filename=None):
         if filename is None:
-            filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget, "Save S(Q) Data.",
-                                                             os.path.join(self.sq_directory,
-                                                                          self.model.original_pattern.name + ".txt"),
+            if self.settings.value('sq_directory') is not None:
+                sq_filename = os.path.join(self.settings.value('sq_directory'),
+                                            self.model.original_pattern.name + ".txt")
+            else:
+                sq_filename = None
+            filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget,
+                                                             "Save S(Q) Data.",
+                                                             sq_filename,
                                                              ('Data (*.txt)')))
         if filename is not '':
             self.model.sq_pattern.save(filename)
-            self.sq_directory = os.path.dirname(filename)
+            self.settings.setValue('sq_directory', os.path.dirname(filename))
 
     def save_gr_btn_clicked(self, filename=None):
         if filename is None:
-            filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget, "Save g(r) Data.",
-                                                             os.path.join(self.gr_directory,
-                                                                          self.model.original_pattern.name + ".txt"),
+            if self.settings.value('gr_directory') is not None:
+                gr_filename = os.path.join(self.settings.value('gr_directory'),
+                                            self.model.original_pattern.name + ".txt")
+            else:
+                gr_filename = None
+            filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget,
+                                                             "Save g(r) Data.",
+                                                             gr_filename,
                                                              ('Data (*.txt)')))
         if filename is not '':
             self.model.gr_pattern.save(filename)
-            self.gr_directory = os.path.dirname(filename)
+            self.settings.setValue('gr_directory',os.path.dirname(filename))
