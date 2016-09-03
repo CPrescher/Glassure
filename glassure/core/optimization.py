@@ -242,7 +242,8 @@ def optimize_incoherent_container_scattering(sample_spectrum, sample_density, sa
 def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_density, initial_bkg_scaling,
                         initial_thickness, sample_thickness, wavelength,
                         initial_carbon_content=1, r_cutoff=2.28, iterations=1,
-                        use_modification_fcn=False, vary=(True, True, True), verbose=False):
+                        use_modification_fcn=False, vary=(True, True, True),
+                        normalization_method='int', verbose=False):
     """
     Optimizes density, background scaling and diamond content for a list of sample thickness with a given initial
     gasket thickness in the diamond anvil cell (DAC). The calculation is done by utilizing the soller slit transfer
@@ -262,6 +263,8 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
     :param iterations: number of iterations for optimization, described in equations 47-49 in Eggert et al. 2002
     :param use_modification_fcn: Whether or not to use the Lorch modification function during the Fourier transform.
     :param vary: 3 boolean flags whether to vary: density, bkg_scaling, carbon_content during the optimization
+    :param normalization_method: determines the method used for estimating the normalization method. possible values are
+                                 'int' for an integral or 'fit' for fitting the high q region form factors.
     :param verbose: boolean flag whether to print out a fit report or not
     :return:
     """
@@ -294,7 +297,10 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
         sample_spectrum = Pattern(q, sample_spectrum.y * sample_transfer)
         sample_spectrum = sample_spectrum.extend_to(0, 0)
 
-        normalization_factor = calculate_normalization_factor_raw(sample_spectrum, density, f_squared_mean,
+        if normalization_method == 'fit':
+            normalization_factor = fit_normalization_factor(sample_spectrum, composition)
+        else:
+            normalization_factor = calculate_normalization_factor_raw(sample_spectrum, density, f_squared_mean,
                                                                   f_mean_squared, incoherent_scattering)
 
         sq_pattern = calculate_sq_raw(sample_spectrum=sample_spectrum,

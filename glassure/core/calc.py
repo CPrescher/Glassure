@@ -127,13 +127,14 @@ def calculate_sq_raw(sample_spectrum, f_squared_mean, f_mean_squared, incoherent
         sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean + f_mean_squared) / \
              f_mean_squared
     elif method == 'AL':
-        sq = (normalization_factor * intensity - incoherent_scattering)/f_squared_mean
+        sq = (normalization_factor * intensity - incoherent_scattering) / f_squared_mean
     else:
         raise NotImplementedError('{} method is not implemented'.format(method))
     return Pattern(q, sq)
 
 
-def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001, method='FZ'):
+def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001, method='FZ',
+                 normalization_method='int'):
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
 
@@ -151,6 +152,9 @@ def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001
                                     - 'AL' - Ashcroft-Langreth
                                     - 'FZ' - Faber-Ziman
 
+    :param normalization_method: determines the method used for estimating the normalization method. possible values are
+                                 'int' for an integral or 'fit' for fitting the high q region form factors.
+
     :return: S(Q) spectrum
     """
     q, intensity = sample_spectrum.data
@@ -158,12 +162,15 @@ def calculate_sq(sample_spectrum, density, composition, attenuation_factor=0.001
     f_mean_squared = calculate_f_mean_squared(composition, q)
     incoherent_scattering = calculate_incoherent_scattering(composition, q)
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
-    normalization_factor = calculate_normalization_factor_raw(sample_spectrum,
-                                                              atomic_density,
-                                                              f_squared_mean,
-                                                              f_mean_squared,
-                                                              incoherent_scattering,
-                                                              attenuation_factor)
+    if normalization_method == 'fit':
+        normalization_factor = fit_normalization_factor(sample_spectrum, composition)
+    else:
+        normalization_factor = calculate_normalization_factor_raw(sample_spectrum,
+                                                                  atomic_density,
+                                                                  f_squared_mean,
+                                                                  f_mean_squared,
+                                                                  incoherent_scattering,
+                                                                  attenuation_factor)
     return calculate_sq_raw(sample_spectrum,
                             f_squared_mean,
                             f_mean_squared,
