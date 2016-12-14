@@ -1,32 +1,20 @@
 # -*- coding: utf8 -*-
 
-import os
 import unittest
 
 import numpy as np
 
 from glassure.gui.controller.glassure import GlassureController
-from glassure.gui.qt import QtGui
-from glassure.tests.gui_tests.utility import click_checkbox, set_widget_text
-
-unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
+from glassure.tests.gui_tests.utility import click_checkbox, set_widget_text, QtTest, prepare_file_loading
 
 
-def data_path(filename):
-    return os.path.join(unittest_data_path, filename)
-
-
-class ExtrapolationWidgetTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.app = QtGui.QApplication.instance()
-        if cls.app is None:
-            cls.app = QtGui.QApplication([])
-
+class ExtrapolationWidgetTest(QtTest):
     def setUp(self):
         self.controller = GlassureController()
-        self.controller.load_data(data_path('Mg2SiO4_ambient.xy'))
-        self.controller.load_bkg(data_path('Mg2SiO4_ambient_bkg.xy'))
+        prepare_file_loading('Mg2SiO4_ambient.xy')
+        self.controller.load_data()
+        prepare_file_loading('Mg2SiO4_ambient_bkg.xy')
+        self.controller.load_bkg()
         self.data = self.controller.model
         self.widget = self.controller.main_widget
         self.extrapolation_widget = self.widget.left_control_widget.extrapolation_widget

@@ -1,24 +1,12 @@
 # -*- coding: utf8 -*-
-
-import os
-import unittest
-
-from mock import patch
+from mock import MagicMock
 
 from glassure.gui.controller.glassure import GlassureController
-from glassure.gui.qt import QtGui
-from glassure.tests.gui_tests.utility import set_widget_text, click_checkbox, click_button
-
-unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
+from glassure.gui.qt import QtGui, QtWidgets
+from glassure.tests.gui_tests.utility import set_widget_text, click_checkbox, click_button, QtTest
 
 
-class Widget_ConfigurationControllerTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.app = QtGui.QApplication.instance()
-        if cls.app is None:
-            cls.app = QtGui.QApplication([])
-
+class WidgetConfigurationControllerTest(QtTest):
     def setUp(self):
         self.main_controller = GlassureController()
         self.main_widget = self.main_controller.main_widget
@@ -227,13 +215,7 @@ class Widget_ConfigurationControllerTest(unittest.TestCase):
         self.assertEqual(soller_parameters3, self.main_widget.soller_widget.get_parameters())
 
 
-class Pattern_ConfigurationControllerTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.app = QtGui.QApplication.instance()
-        if cls.app is None:
-            cls.app = QtGui.QApplication([])
-
+class Pattern_ConfigurationControllerTest(QtTest):
     def setUp(self):
         self.main_controller = GlassureController()
         self.main_widget = self.main_controller.main_widget
@@ -292,19 +274,18 @@ class Pattern_ConfigurationControllerTest(unittest.TestCase):
         self.assertTrue(self.main_widget.spectrum_widget.sq_items[1] in
                         self.main_widget.spectrum_widget.sq_plot.items)
 
-    @patch('PyQt4.QtGui.QColorDialog.getColor')
-    def test_changing_configuration_color(self, getColor):
+    def test_changing_configuration_color(self):
         click_button(self.configuration_widget.freeze_btn)
         click_button(self.configuration_widget.freeze_btn)
 
         # changing a non-active configuration will change its color immediately in the pattern widget:
         new_color = QtGui.QColor(233, 1, 3)
-        getColor.return_value = new_color
+        QtWidgets.QColorDialog.getColor = MagicMock(return_value=new_color)
         click_button(self.configuration_widget.configuration_color_btns[1])
         self.assertEqual(self.main_widget.spectrum_widget.sq_items[1].opts['pen'].color().rgb(), new_color.rgb())
 
         # changing the active color, will have no effect on current color
         new_color = QtGui.QColor(233, 1, 255)
-        getColor.return_value = new_color
+        QtWidgets.QColorDialog.getColor = MagicMock(return_value=new_color)
         click_button(self.configuration_widget.configuration_color_btns[2])
         self.assertNotEqual(self.main_widget.spectrum_widget.sq_items[2].opts['pen'].color().rgb(), new_color.rgb())

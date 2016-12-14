@@ -1,28 +1,19 @@
 # -*- coding: utf8 -*-
-
-import unittest
-import os
-
-from glassure.gui.qt import QtCore, QtGui, QTest
+from glassure.gui.qt import QtCore, QTest
 from glassure.gui.controller.glassure import GlassureController
+from .utility import prepare_file_loading, QtTest
 
-unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 
-
-class CompositionGroupBoxTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.app = QtGui.QApplication.instance()
-        if cls.app is None:
-            cls.app = QtGui.QApplication([])
-
+class CompositionGroupBoxTest(QtTest):
     def setUp(self):
         self.controller = GlassureController()
         self.widget = self.controller.main_widget
         self.composition_gb = self.widget.left_control_widget.composition_widget
 
-        self.controller.load_data(os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy'))
-        self.controller.load_data(os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy'))
+        prepare_file_loading('Mg2SiO4_ambient.xy')
+        self.controller.load_data()
+        prepare_file_loading('Mg2SiO4_ambient_bkg.xy')
+        self.controller.load_bkg()
 
     def test_adding_and_deleting_elements(self):
         QTest.mouseClick(self.composition_gb.add_element_btn, QtCore.Qt.LeftButton)

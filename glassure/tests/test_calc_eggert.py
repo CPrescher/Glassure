@@ -222,6 +222,6 @@ class CalcEggertTest(unittest.TestCase):
             use_modification_fcn=True
         )
 
-        self.assertAlmostEqual(diamond_content, 0, places=5)
+        self.assertAlmostEqual(diamond_content, 0, places=4)
         self.assertAlmostEqual(bkg_scaling, 0.56, places=2)
         self.assertAlmostEqual(density, 0.026, places=3)

@@ -1,29 +1,17 @@
 # -*- coding: utf8 -*-
 
-import unittest
 import os
 
 import numpy as np
 
 from glassure.core import Pattern
 from glassure.core import calculate_sq
-from glassure.gui.qt import QtGui
 from glassure.gui.model.glassure import GlassureModel
-
-unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
-
-
-def data_path(filename):
-    return os.path.join(unittest_data_path, filename)
+from .utility import data_path, QtTest
 
 
-class GlassureModelTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.app = QtGui.QApplication.instance()
-        if cls.app is None:
-            cls.app = QtGui.QApplication([])
 
+class GlassureModelTest(QtTest):
     def setUp(self):
         self.model = GlassureModel()
         self.model.load_data(data_path('Mg2SiO4_ambient.xy'))
@@ -210,8 +198,8 @@ class GlassureModelTest(unittest.TestCase):
         self.assertEqual(self.model.q_max, 14)
 
     def test_use_transfer_function(self):
-        sample_path = os.path.join(unittest_data_path, 'glass_rod_SS.xy')
-        std_path = os.path.join(unittest_data_path, 'glass_rod_WOS.xy')
+        sample_path = data_path('glass_rod_SS.xy')
+        std_path = data_path('glass_rod_WOS.xy')
 
         self.model.load_data(sample_path)
         self.model.load_bkg(sample_path)
