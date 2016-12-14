@@ -2,13 +2,13 @@
 
 import pyqtgraph as pg
 import numpy as np
-from ...qt import QtCore, QtGui, Signal
+from ...qt import QtCore, QtWidgets, QtGui, Signal
 
 
-class SpectrumWidget(QtGui.QWidget):
+class SpectrumWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(SpectrumWidget, self).__init__(*args, **kwargs)
-        self._layout = QtGui.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(8)
         self.create_plots()
@@ -147,7 +147,6 @@ class SpectrumWidget(QtGui.QWidget):
         self.gr_items[ind].setPen(pg.mkPen(color=color, width=1.5))
 
 
-
 class ModifiedPlotItem(pg.PlotItem):
     mouse_moved = Signal(float, float)
     mouse_left_clicked = Signal(float, float)
@@ -244,18 +243,18 @@ class ModifiedPlotItem(pg.PlotItem):
         self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])
 
 
-class MousePositionWidget(QtGui.QWidget):
+class MousePositionWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(MousePositionWidget, self).__init__()
 
-        self.horizontal_layout = QtGui.QHBoxLayout()
+        self.horizontal_layout = QtWidgets.QHBoxLayout()
         self.horizontal_layout.setContentsMargins(0, 0, 0, 5)
         self.horizontal_layout.setSpacing(5)
-        self.x_unit_lbl = QtGui.QLabel('x:')
-        self.x_value_lbl = QtGui.QLabel('0.00')
+        self.x_unit_lbl = QtWidgets.QLabel('x:')
+        self.x_value_lbl = QtWidgets.QLabel('0.00')
 
-        self.y_unit_lbl = QtGui.QLabel('y:')
-        self.y_value_lbl = QtGui.QLabel('0.00')
+        self.y_unit_lbl = QtWidgets.QLabel('y:')
+        self.y_value_lbl = QtWidgets.QLabel('0.00')
 
         self.x_unit_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
         self.x_value_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
@@ -268,17 +267,17 @@ class MousePositionWidget(QtGui.QWidget):
         self.x_value_lbl.setFixedWidth(50)
         self.y_value_lbl.setFixedWidth(50)
 
-        self.save_sq_btn = QtGui.QPushButton("Save S(Q)")
+        self.save_sq_btn = QtWidgets.QPushButton("Save S(Q)")
         self.save_sq_btn.setFlat(True)
-        self.save_gr_btn = QtGui.QPushButton("Save g(r)")
+        self.save_gr_btn = QtWidgets.QPushButton("Save g(r)")
         self.save_gr_btn.setFlat(True)
 
         self.horizontal_layout.addWidget(self.x_unit_lbl)
         self.horizontal_layout.addWidget(self.x_value_lbl)
         self.horizontal_layout.addWidget(self.y_unit_lbl)
         self.horizontal_layout.addWidget(self.y_value_lbl)
-        self.horizontal_layout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                               QtGui.QSizePolicy.Fixed))
+        self.horizontal_layout.addSpacerItem(QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Expanding,
+                                                                   QtWidgets.QSizePolicy.Fixed))
 
         self.horizontal_layout.addWidget(self.save_sq_btn)
         self.horizontal_layout.addWidget(self.save_gr_btn)

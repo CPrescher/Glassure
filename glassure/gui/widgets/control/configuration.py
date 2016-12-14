@@ -2,12 +2,12 @@
 
 from functools import partial
 
-from ...qt import QtCore, QtGui, Signal
+from ...qt import QtCore, QtWidgets, Signal
 from ..custom import FlatButton, ListTableWidget
 
 
-class ConfigurationWidget(QtGui.QWidget):
-    configuration_color_btn_clicked = Signal(int, QtGui.QWidget)
+class ConfigurationWidget(QtWidgets.QWidget):
+    configuration_color_btn_clicked = Signal(int, QtWidgets.QWidget)
     configuration_show_cb_state_changed = Signal(int, bool)
     configuration_name_changed = Signal(int, str)
 
@@ -22,17 +22,17 @@ class ConfigurationWidget(QtGui.QWidget):
         self.configuration_color_btns = []
 
     def _create_widgets(self):
-        self.freeze_btn = QtGui.QPushButton("Freeze")
-        self.remove_btn = QtGui.QPushButton("Remove")
+        self.freeze_btn = QtWidgets.QPushButton("Freeze")
+        self.remove_btn = QtWidgets.QPushButton("Remove")
         self.configuration_tw = ListTableWidget(columns=3)
         self.configuration_tw.setObjectName('configuration_tw')
 
     def _create_layout(self):
-        self._button_layout = QtGui.QHBoxLayout()
+        self._button_layout = QtWidgets.QHBoxLayout()
         self._button_layout.addWidget(self.freeze_btn)
         self._button_layout.addWidget(self.remove_btn)
 
-        self._main_layout = QtGui.QVBoxLayout()
+        self._main_layout = QtWidgets.QVBoxLayout()
         self._main_layout.addLayout(self._button_layout)
         self._main_layout.addWidget(self.configuration_tw)
 
@@ -52,7 +52,7 @@ class ConfigurationWidget(QtGui.QWidget):
         current_rows = self.configuration_tw.rowCount()
         self.configuration_tw.setRowCount(current_rows + 1)
 
-        show_cb = QtGui.QCheckBox()
+        show_cb = QtWidgets.QCheckBox()
         show_cb.setChecked(True)
         show_cb.stateChanged.connect(partial(self.configuration_show_cb_changed, show_cb))
         show_cb.setStyleSheet("background-color: transparent")
@@ -65,9 +65,9 @@ class ConfigurationWidget(QtGui.QWidget):
         self.configuration_tw.setCellWidget(current_rows, 1, color_button)
         self.configuration_color_btns.append(color_button)
 
-        name_item = QtGui.QTableWidgetItem(name)
+        name_item = QtWidgets.QTableWidgetItem(name)
         name_item.setFlags(name_item.flags() & ~QtCore.Qt.ItemIsEditable)
-        self.configuration_tw.setItem(current_rows, 2, QtGui.QTableWidgetItem(name))
+        self.configuration_tw.setItem(current_rows, 2, QtWidgets.QTableWidgetItem(name))
 
         self.configuration_tw.setColumnWidth(0, 20)
         self.configuration_tw.setColumnWidth(1, 25)

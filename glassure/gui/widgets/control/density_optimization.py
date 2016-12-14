@@ -1,9 +1,9 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui, Signal
+from ...qt import QtCore, QtGui, QtWidgets, Signal
 
 
-class DensityOptimizationWidget(QtGui.QWidget):
+class DensityOptimizationWidget(QtWidgets.QWidget):
     calculation_parameters_changed = Signal(float)
 
     def __init__(self, *args):
@@ -13,19 +13,19 @@ class DensityOptimizationWidget(QtGui.QWidget):
         self.create_layout()
 
     def create_widgets(self):
-        self.density_range_lbl = QtGui.QLabel('Density range:')
-        self.density_min_txt = QtGui.QLineEdit('1')
-        self.density_max_txt = QtGui.QLineEdit('10')
+        self.density_range_lbl = QtWidgets.QLabel('Density range:')
+        self.density_min_txt = QtWidgets.QLineEdit('1')
+        self.density_max_txt = QtWidgets.QLineEdit('10')
 
-        self.bkg_range_lbl = QtGui.QLabel('Bkg range:')
-        self.bkg_min_txt = QtGui.QLineEdit('0.1')
-        self.bkg_max_txt = QtGui.QLineEdit('2')
+        self.bkg_range_lbl = QtWidgets.QLabel('Bkg range:')
+        self.bkg_min_txt = QtWidgets.QLineEdit('0.1')
+        self.bkg_max_txt = QtWidgets.QLineEdit('2')
 
-        self.optimize_btn = QtGui.QPushButton("Optimize")
-        self.optimize_iterations_lbl = QtGui.QLabel("Iterations:")
-        self.optimize_iterations_txt = QtGui.QLineEdit('5')
+        self.optimize_btn = QtWidgets.QPushButton("Optimize")
+        self.optimize_iterations_lbl = QtWidgets.QLabel("Iterations:")
+        self.optimize_iterations_txt = QtWidgets.QLineEdit('5')
 
-        self.optimization_output_txt = QtGui.QTextEdit()
+        self.optimization_output_txt = QtWidgets.QTextEdit()
         self.optimization_output_txt.setReadOnly(True)
 
     def style_widgets(self):
@@ -52,19 +52,19 @@ class DensityOptimizationWidget(QtGui.QWidget):
         self.optimize_btn.setFlat(True)
 
     def create_layout(self):
-        self.grid_layout = QtGui.QGridLayout()
+        self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(5)
 
         self.grid_layout.addWidget(self.density_range_lbl, 0, 0)
         self.grid_layout.addWidget(self.density_min_txt, 0, 1)
-        self.grid_layout.addWidget(QtGui.QLabel('-'), 0, 2)
+        self.grid_layout.addWidget(QtWidgets.QLabel('-'), 0, 2)
         self.grid_layout.addWidget(self.density_max_txt, 0, 3)
-        self.grid_layout.addWidget(QtGui.QLabel("g/cm^3"), 0, 4)
+        self.grid_layout.addWidget(QtWidgets.QLabel("g/cm^3"), 0, 4)
 
         self.grid_layout.addWidget(self.bkg_range_lbl, 1, 0)
         self.grid_layout.addWidget(self.bkg_min_txt, 1, 1)
-        self.grid_layout.addWidget(QtGui.QLabel('-'), 1, 2)
+        self.grid_layout.addWidget(QtWidgets.QLabel('-'), 1, 2)
         self.grid_layout.addWidget(self.bkg_max_txt, 1, 3)
 
         self.grid_layout.addWidget(self.optimize_iterations_lbl, 2, 0)

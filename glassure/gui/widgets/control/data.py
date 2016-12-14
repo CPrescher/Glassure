@@ -1,9 +1,9 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui
+from ...qt import QtCore, QtGui, QtWidgets
 
 
-class DataWidget(QtGui.QWidget):
+class DataWidget(QtWidgets.QWidget):
     def __init__(self):
         super(DataWidget, self).__init__()
 
@@ -11,7 +11,7 @@ class DataWidget(QtGui.QWidget):
         self.background_options_gb = BackgroundOptionsGroupBox()
         self.smooth_gb = SmoothGroupBox()
 
-        self._layout = QtGui.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
         self._layout.addWidget(self.file_widget)
@@ -21,18 +21,18 @@ class DataWidget(QtGui.QWidget):
         self.setLayout(self._layout)
 
 
-class FileWidget(QtGui.QWidget):
+class FileWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(FileWidget, self).__init__(*args, **kwargs)
 
-        self.vertical_layout = QtGui.QVBoxLayout()
+        self.vertical_layout = QtWidgets.QVBoxLayout()
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.load_data_btn = QtGui.QPushButton("Load Data")
-        self.data_filename_lbl = QtGui.QLabel("None")
+        self.load_data_btn = QtWidgets.QPushButton("Load Data")
+        self.data_filename_lbl = QtWidgets.QLabel("None")
         self.data_filename_lbl.setAlignment(QtCore.Qt.AlignRight)
-        self.load_background_btn = QtGui.QPushButton("Load Bkg")
-        self.background_filename_lbl = QtGui.QLabel("None")
+        self.load_background_btn = QtWidgets.QPushButton("Load Bkg")
+        self.background_filename_lbl = QtWidgets.QLabel("None")
         self.background_filename_lbl.setAlignment(QtCore.Qt.AlignRight)
 
         self.vertical_layout.addWidget(self.load_data_btn)
@@ -43,7 +43,7 @@ class FileWidget(QtGui.QWidget):
         self.setLayout(self.vertical_layout)
 
 
-class BackgroundOptionsGroupBox(QtGui.QGroupBox):
+class BackgroundOptionsGroupBox(QtWidgets.QGroupBox):
     def __init__(self, *args):
         super(BackgroundOptionsGroupBox, self).__init__(*args)
 
@@ -53,9 +53,9 @@ class BackgroundOptionsGroupBox(QtGui.QGroupBox):
         self.create_signals()
 
     def create_widgets(self):
-        self.scale_lbl = QtGui.QLabel("Scale:")
-        self.scale_sb = QtGui.QDoubleSpinBox()
-        self.scale_step_txt = QtGui.QLineEdit("0.01")
+        self.scale_lbl = QtWidgets.QLabel("Scale:")
+        self.scale_sb = QtWidgets.QDoubleSpinBox()
+        self.scale_step_txt = QtWidgets.QLineEdit("0.01")
 
     def style_widgets(self):
         self.scale_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
@@ -71,7 +71,7 @@ class BackgroundOptionsGroupBox(QtGui.QGroupBox):
         self.scale_step_txt.setValidator(QtGui.QDoubleValidator())
 
     def create_layout(self):
-        self.grid_layout = QtGui.QGridLayout()
+        self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.setContentsMargins(3, 5, 5, 3)
         self.grid_layout.setSpacing(5)
 
@@ -88,22 +88,22 @@ class BackgroundOptionsGroupBox(QtGui.QGroupBox):
         self.scale_sb.setSingleStep(float(str(self.scale_step_txt.text())))
 
 
-class SmoothGroupBox(QtGui.QGroupBox):
+class SmoothGroupBox(QtWidgets.QGroupBox):
     def __init__(self, *args):
         super(SmoothGroupBox, self).__init__(*args)
-        self.grid_layout = QtGui.QGridLayout()
+        self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.setContentsMargins(3, 5, 5, 3)
         self.grid_layout.setSpacing(5)
 
-        self.smooth_lbl = QtGui.QLabel("Smooth:")
+        self.smooth_lbl = QtWidgets.QLabel("Smooth:")
         self.smooth_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
-        self.smooth_sb = QtGui.QDoubleSpinBox()
+        self.smooth_sb = QtWidgets.QDoubleSpinBox()
         self.smooth_sb.setAlignment(QtCore.Qt.AlignRight)
         self.smooth_sb.setSingleStep(1)
         self.smooth_sb.setMinimumWidth(80)
 
-        self.smooth_step_txt = QtGui.QLineEdit("1")
+        self.smooth_step_txt = QtWidgets.QLineEdit("1")
         self.smooth_step_txt.setAlignment(QtCore.Qt.AlignRight)
         self.smooth_step_txt.setValidator(QtGui.QDoubleValidator())
         self.smooth_step_txt.setMaximumWidth(60)

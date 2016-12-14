@@ -7,14 +7,20 @@ import sys
 from glassure.core import __version__ as version
 from glassure.core._version import get_versions
 from glassure.gui.controller.glassure import GlassureController
-from glassure.gui.qt import QtGui
+from glassure.gui.qt import QtWidgets
 
 __version__ = get_versions()['version']
 del get_versions
 
 
+def my_exception_hook(exctype, value, traceback):
+    # Print the error and traceback
+    print(exctype, value, traceback)
+
+sys.excepthook = my_exception_hook
+
 def main():
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     from sys import platform as _platform
 
     print("Glassure {}".format(version))

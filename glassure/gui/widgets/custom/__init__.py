@@ -1,51 +1,51 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtGui, QtCore, Signal
+from ...qt import QtCore, QtGui, QtWidgets, Signal
 from .box import ExpandableBox
 from .lines import HorizontalLine
 from .spectrum import SpectrumWidget
 
 
 def VerticalSpacerItem():
-    return QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+    return QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
 
 
 def HorizontalSpacerItem():
-    return QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.MinimumExpanding)
+    return QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
 
 
-class NumberTextField(QtGui.QLineEdit):
+class NumberTextField(QtWidgets.QLineEdit):
     def __init__(self, *args, **kwargs):
         super(NumberTextField, self).__init__(*args, **kwargs)
         self.setValidator(QtGui.QDoubleValidator())
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
 
-class LabelAlignRight(QtGui.QLabel):
+class LabelAlignRight(QtWidgets.QLabel):
     def __init__(self, *args, **kwargs):
         super(LabelAlignRight, self).__init__(*args, **kwargs)
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
 
-class FlatButton(QtGui.QPushButton):
+class FlatButton(QtWidgets.QPushButton):
     def __init__(self, *args):
         super(FlatButton, self).__init__(*args)
         self.setFlat(True)
 
 
-class CheckableFlatButton(QtGui.QPushButton):
+class CheckableFlatButton(QtWidgets.QPushButton):
     def __init__(self, *args):
         super(CheckableFlatButton, self).__init__(*args)
         self.setFlat(True)
         self.setCheckable(True)
 
 
-class ListTableWidget(QtGui.QTableWidget):
+class ListTableWidget(QtWidgets.QTableWidget):
     def __init__(self, columns=3):
         super(ListTableWidget, self).__init__()
 
-        self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.setColumnCount(columns)
         self.horizontalHeader().setVisible(False)
         self.verticalHeader().setVisible(False)
@@ -53,7 +53,7 @@ class ListTableWidget(QtGui.QTableWidget):
         self.setShowGrid(False)
 
 
-class ValueLabelTxtPair(QtGui.QWidget):
+class ValueLabelTxtPair(QtWidgets.QWidget):
     editingFinished = Signal()
 
     def __init__(self, label_str, value_init, unit_str, layout, layout_row=0, layout_col=0, parent=None):

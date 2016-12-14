@@ -1,11 +1,11 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui, Signal
+from ...qt import QtCore, QtGui, QtWidgets, Signal
 
 from ..custom import HorizontalLine, HorizontalSpacerItem
 
 
-class ExtrapolationWidget(QtGui.QWidget):
+class ExtrapolationWidget(QtWidgets.QWidget):
     extrapolation_parameters_changed = Signal()
 
     def __init__(self, *args):
@@ -21,7 +21,7 @@ class ExtrapolationWidget(QtGui.QWidget):
         self.activate_cb.setChecked(True)
 
     def create_widgets(self):
-        self.activate_cb = QtGui.QCheckBox("activate")
+        self.activate_cb = QtWidgets.QCheckBox("activate")
 
         self.step_extrapolation_rb = MyRadioButton('Step')
         self.linear_extrapolation_rb = MyRadioButton("Linear")
@@ -29,11 +29,11 @@ class ExtrapolationWidget(QtGui.QWidget):
         self.spline_extrapolation_rb = MyRadioButton("Spline")
         self.step_extrapolation_rb.setChecked(True)
 
-        self.q_max_lbl = QtGui.QLabel("Q Max:")
-        self.q_max_txt = QtGui.QLineEdit("2")
-        self.replace_cb = QtGui.QCheckBox("replace")
+        self.q_max_lbl = QtWidgets.QLabel("Q Max:")
+        self.q_max_txt = QtWidgets.QLineEdit("2")
+        self.replace_cb = QtWidgets.QCheckBox("replace")
 
-        self.rb_button_group = QtGui.QButtonGroup()
+        self.rb_button_group = QtWidgets.QButtonGroup()
         self.rb_button_group.addButton(self.step_extrapolation_rb)
         self.rb_button_group.addButton(self.linear_extrapolation_rb)
         self.rb_button_group.addButton(self.poly_extrapolation_rb)
@@ -46,14 +46,14 @@ class ExtrapolationWidget(QtGui.QWidget):
         self.q_max_txt.setValidator(QtGui.QDoubleValidator())
 
     def create_layout(self):
-        self.vertical_layout = QtGui.QVBoxLayout()
+        self.vertical_layout = QtWidgets.QVBoxLayout()
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
         self.vertical_layout.setSpacing(5)
 
         self.vertical_layout.addWidget(self.activate_cb)
         self.vertical_layout.addWidget(HorizontalLine())
 
-        self.rb_layout = QtGui.QGridLayout()
+        self.rb_layout = QtWidgets.QGridLayout()
         self.rb_layout.setContentsMargins(5, 5, 5, 5)
         self.rb_layout.setSpacing(8)
 
@@ -62,11 +62,11 @@ class ExtrapolationWidget(QtGui.QWidget):
         self.rb_layout.addWidget(self.poly_extrapolation_rb, 1, 0)
         self.rb_layout.addWidget(self.spline_extrapolation_rb, 1, 1)
 
-        self.rb_widget = QtGui.QWidget(self)
+        self.rb_widget = QtWidgets.QWidget(self)
         self.rb_widget.setLayout(self.rb_layout)
         self.vertical_layout.addWidget(self.rb_widget)
 
-        self.parameter_layout = QtGui.QGridLayout()
+        self.parameter_layout = QtWidgets.QGridLayout()
         self.parameter_layout.addWidget(HorizontalLine(), 0, 0, 1, 5)
         self.parameter_layout.setContentsMargins(0, 0, 0, 0)
         self.parameter_layout.setSpacing(5)
@@ -75,10 +75,10 @@ class ExtrapolationWidget(QtGui.QWidget):
         self.parameter_layout.addWidget(self.q_max_lbl, 1, 0)
         self.parameter_layout.addWidget(self.q_max_txt)
 
-        self.parameter_layout.addWidget(QtGui.QLabel('A'))
+        self.parameter_layout.addWidget(QtWidgets.QLabel('A'))
         self.parameter_layout.addWidget(self.replace_cb)
 
-        self.parameter_widget = QtGui.QWidget(self)
+        self.parameter_widget = QtWidgets.QWidget(self)
         self.parameter_widget.setLayout(self.parameter_layout)
         self.vertical_layout.addWidget(self.parameter_widget)
 
@@ -152,7 +152,7 @@ class ExtrapolationWidget(QtGui.QWidget):
         self.replace_cb.setChecked(param['replace'])
 
 
-class MyRadioButton(QtGui.QPushButton):
+class MyRadioButton(QtWidgets.QPushButton):
     def __init__(self, *args):
         super(MyRadioButton, self).__init__(*args)
         self.setCheckable(True)

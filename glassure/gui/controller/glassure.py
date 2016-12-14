@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 
-from ..qt import QtGui, QtCore
+from ..qt import QtGui, QtCore, QtWidgets
 import pyqtgraph as pg
 
 # # Switch to using white background and black foreground
@@ -15,6 +15,8 @@ pg.setConfigOption('foreground', 'w')
 pg.setConfigOption('antialias', True)
 
 from ..widgets.glassure import GlassureWidget
+from ..widgets.custom.file_dialogs import open_file_dialog, save_file_dialog
+
 from ..model.glassure import GlassureModel
 
 from .configuration import ConfigurationController
@@ -46,19 +48,18 @@ class GlassureController(object):
         """
 
         # model
-
         self.model.data_changed.connect(self.model_changed)
 
-        self.connect_click_function(self.main_widget.load_data_btn, self.load_data)
-        self.connect_click_function(self.main_widget.load_bkg_btn, self.load_bkg)
+        self.main_widget.load_data_btn.clicked.connect(self.load_data)
+        self.main_widget.load_bkg_btn.clicked.connect(self.load_bkg)
 
         # connecting background scaling and smoothing of the original data
         self.main_widget.bkg_scaling_sb.valueChanged.connect(self.bkg_scale_changed)
         self.main_widget.smooth_sb.valueChanged.connect(self.smooth_changed)
 
         # updating the composition
-        self.connect_click_function(self.main_widget.add_element_btn, self.add_element_btn_clicked)
-        self.connect_click_function(self.main_widget.delete_element_btn, self.delete_element_btn_clicked)
+        self.main_widget.add_element_btn.clicked.connect(self.add_element_btn_clicked)
+        self.main_widget.delete_element_btn.clicked.connect(self.delete_element_btn_clicked)
         self.main_widget.left_control_widget.composition_widget.composition_changed.connect(self.update_model)
 
         # updating the calculation parameters
@@ -86,16 +87,12 @@ class GlassureController(object):
         )
 
         # Saving the resulting data
-        self.connect_click_function(self.main_widget.save_sq_btn, self.save_sq_btn_clicked)
-        self.connect_click_function(self.main_widget.save_gr_btn, self.save_gr_btn_clicked)
+        self.main_widget.save_sq_btn.clicked.connect(self.save_sq_btn_clicked)
+        self.main_widget.save_gr_btn.clicked.connect(self.save_gr_btn_clicked)
 
-    def connect_click_function(self, emitter, function):
-        self.main_widget.connect(emitter, QtCore.SIGNAL('clicked()'), function)
-
-    def load_data(self, filename=None):
-        if filename is None:
-            filename = str(QtGui.QFileDialog.getOpenFileName(
-                self.main_widget, caption="Load Spectrum", directory=self.settings.value('working_directory')))
+    def load_data(self):
+        filename = open_file_dialog(self.main_widget, caption="Load Spectrum",
+                                    directory=self.settings.value('working_directory'))
 
         if filename is not '':
             self.model.load_data(filename)
@@ -103,10 +100,9 @@ class GlassureController(object):
             self.main_widget.left_control_widget.data_widget.file_widget.data_filename_lbl.setText(
                 os.path.basename(filename))
 
-    def load_bkg(self, filename=None):
-        if filename is None:
-            filename = str(QtGui.QFileDialog.getOpenFileName(
-                self.main_widget, "Load background data", directory=self.settings.value('working_directory')))
+    def load_bkg(self):
+        filename = open_file_dialog(self.main_widget, "Load background data",
+                                    directory=self.settings.value('working_directory'))
 
         if filename is not None and filename != '':
             self.model.load_bkg(filename)
@@ -185,7 +181,7 @@ class GlassureController(object):
     def plot_optimization_progress(self, sq_spectrum, fr_spectrum, gr_spectrum):
         self.main_widget.spectrum_widget.set_sq_pattern(sq_spectrum, self.model.configuration_ind)
         self.main_widget.spectrum_widget.set_gr_pattern(gr_spectrum, self.model.configuration_ind)
-        QtGui.QApplication.processEvents()
+        QtWidgets.QApplication.processEvents()
 
     def optimize_density(self):
         density_min, density_max, bkg_min, bkg_max, iterations = \
@@ -204,36 +200,34 @@ class GlassureController(object):
 
         def callback_fcn(diamond_content):
             self.main_widget.right_control_widget.diamond_widget.diamond_txt.setText('{:.2f}'.format(diamond_content))
-            QtGui.QApplication.processEvents()
+            QtWidgets.QApplication.processEvents()
 
         self.model.optimize_diamond_content(diamond_content=start_value, callback_fcn=callback_fcn)
 
-    def save_sq_btn_clicked(self, filename=None):
-        if filename is None:
-            if self.settings.value('sq_directory') is not None:
-                sq_filename = os.path.join(self.settings.value('sq_directory'),
-                                            self.model.original_pattern.name + ".txt")
-            else:
-                sq_filename = None
-            filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget,
-                                                             "Save S(Q) Data.",
-                                                             sq_filename,
-                                                             ('Data (*.txt)')))
+    def save_sq_btn_clicked(self):
+        if self.settings.value('sq_directory') is not None:
+            sq_filename = os.path.join(self.settings.value('sq_directory'),
+                                       self.model.original_pattern.name + ".txt")
+        else:
+            sq_filename = None
+        filename = save_file_dialog(self.main_widget,
+                                    "Save S(Q) Data.",
+                                    sq_filename,
+                                    ('Data (*.txt)'))
         if filename is not '':
             self.model.sq_pattern.save(filename)
             self.settings.setValue('sq_directory', os.path.dirname(filename))
 
-    def save_gr_btn_clicked(self, filename=None):
-        if filename is None:
-            if self.settings.value('gr_directory') is not None:
-                gr_filename = os.path.join(self.settings.value('gr_directory'),
-                                            self.model.original_pattern.name + ".txt")
-            else:
-                gr_filename = None
-            filename = str(QtGui.QFileDialog.getSaveFileName(self.main_widget,
-                                                             "Save g(r) Data.",
-                                                             gr_filename,
-                                                             ('Data (*.txt)')))
+    def save_gr_btn_clicked(self):
+        if self.settings.value('gr_directory') is not None:
+            gr_filename = os.path.join(self.settings.value('gr_directory'),
+                                       self.model.original_pattern.name + ".txt")
+        else:
+            gr_filename = None
+        filename = save_file_dialog(self.main_widget,
+                                    "Save g(r) Data.",
+                                    gr_filename,
+                                    ('Data (*.txt)'))
         if filename is not '':
             self.model.gr_pattern.save(filename)
-            self.settings.setValue('gr_directory',os.path.dirname(filename))
+            self.settings.setValue('gr_directory', os.path.dirname(filename))

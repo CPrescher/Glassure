@@ -5,7 +5,7 @@ import os
 
 from ...core import __version__
 
-from ..qt import QtGui, QtCore
+from ..qt import QtGui, QtWidgets, QtCore
 
 from .control import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget, DensityOptimizationWidget, \
     ExtrapolationWidget, DiamondWidget, ConfigurationWidget, SollerWidget, TransferFunctionWidget
@@ -14,10 +14,10 @@ from .custom import SpectrumWidget
 from .custom import ExpandableBox
 
 
-class GlassureWidget(QtGui.QWidget):
+class GlassureWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(GlassureWidget, self).__init__(*args, **kwargs)
-        self.horizontal_layout = QtGui.QHBoxLayout(self)
+        self.horizontal_layout = QtWidgets.QHBoxLayout(self)
         self.horizontal_layout.setContentsMargins(0, 0, 0, 0)
         self.horizontal_layout.setSpacing(0)
 
@@ -25,14 +25,14 @@ class GlassureWidget(QtGui.QWidget):
         self.left_control_widget = LeftControlWidget()
         self.right_control_widget = RightControlWidget()
 
-        self.left_control_scroll_area = QtGui.QScrollArea()
+        self.left_control_scroll_area = QtWidgets.QScrollArea()
         self.left_control_scroll_area.setWidget(self.left_control_widget)
         self.left_control_scroll_area.setWidgetResizable(True)
 
         self.left_control_scroll_area.setMaximumWidth(300)
         self.left_control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
-        self.right_control_scroll_area = QtGui.QScrollArea()
+        self.right_control_scroll_area = QtWidgets.QScrollArea()
         self.right_control_scroll_area.setWidget(self.right_control_widget)
         self.right_control_scroll_area.setWidgetResizable(True)
 
@@ -120,7 +120,7 @@ class GlassureWidget(QtGui.QWidget):
         self.get_soller_parameter = self.right_control_widget.soller_widget.get_parameters
 
     def show(self):
-        QtGui.QWidget.show(self)
+        QtWidgets.QWidget.show(self)
         if sys.platform == "darwin":
             self.setWindowState(
                 self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
@@ -133,10 +133,10 @@ class GlassureWidget(QtGui.QWidget):
         self.setStyleSheet(stylesheet_str)
 
 
-class LeftControlWidget(QtGui.QWidget):
+class LeftControlWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(LeftControlWidget, self).__init__(*args, **kwargs)
-        self.vertical_layout = QtGui.QVBoxLayout()
+        self.vertical_layout = QtWidgets.QVBoxLayout()
         self.vertical_layout.setSpacing(8)
         self.vertical_layout.setContentsMargins(5, 5, 5, 5)
 
@@ -151,16 +151,16 @@ class LeftControlWidget(QtGui.QWidget):
         self.vertical_layout.addWidget(ExpandableBox(self.options_widget, "Options"))
         self.vertical_layout.addWidget(ExpandableBox(self.extrapolation_widget, "Extrapolation"))
 
-        self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
-                                                             QtGui.QSizePolicy.Expanding))
+        self.vertical_layout.addSpacerItem(QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Fixed,
+                                                                 QtWidgets.QSizePolicy.Expanding))
 
         self.setLayout(self.vertical_layout)
 
 
-class RightControlWidget(QtGui.QWidget):
+class RightControlWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(RightControlWidget, self).__init__(*args, **kwargs)
-        self.vertical_layout = QtGui.QVBoxLayout()
+        self.vertical_layout = QtWidgets.QVBoxLayout()
         self.vertical_layout.setSpacing(8)
         self.vertical_layout.setContentsMargins(5, 5, 5, 5)
 
@@ -178,8 +178,8 @@ class RightControlWidget(QtGui.QWidget):
         self.vertical_layout.addWidget(ExpandableBox(self.soller_widget, "Soller Slit Correction", True))
         self.vertical_layout.addWidget(ExpandableBox(self.transfer_widget, "Transfer Function Correction", True))
 
-        self.vertical_layout.addSpacerItem(QtGui.QSpacerItem(20, 50, QtGui.QSizePolicy.Fixed,
-                                                             QtGui.QSizePolicy.MinimumExpanding))
+        self.vertical_layout.addSpacerItem(QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Fixed,
+                                                                 QtWidgets.QSizePolicy.MinimumExpanding))
 
         self.setLayout(self.vertical_layout)
 

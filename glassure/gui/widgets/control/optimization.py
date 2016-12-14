@@ -1,11 +1,11 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui, Signal
+from ...qt import QtCore, QtGui, QtWidgets, Signal
 
 from ..custom import NumberTextField, LabelAlignRight, HorizontalLine
 
 
-class OptimizationWidget(QtGui.QWidget):
+class OptimizationWidget(QtWidgets.QWidget):
     optimization_parameters_changed = Signal()
 
     def __init__(self, *args):
@@ -20,7 +20,7 @@ class OptimizationWidget(QtGui.QWidget):
         self.activate_cb.setChecked(False)
 
     def create_widgets(self):
-        self.activate_cb = QtGui.QCheckBox("activate")
+        self.activate_cb = QtWidgets.QCheckBox("activate")
 
         self.r_cutoff_lbl = LabelAlignRight('r cutoff:')
         self.r_cutoff_txt = NumberTextField('1.4')
@@ -29,9 +29,9 @@ class OptimizationWidget(QtGui.QWidget):
         self.optimize_iterations_txt = NumberTextField('5')
 
         self.attenuation_factor_lbl = LabelAlignRight("Attenuation:")
-        self.attenuation_factor_sb = QtGui.QSpinBox()
+        self.attenuation_factor_sb = QtWidgets.QSpinBox()
 
-        self.plot_progress_cb = QtGui.QCheckBox('plot progress')
+        self.plot_progress_cb = QtWidgets.QCheckBox('plot progress')
 
     def style_widgets(self):
 
@@ -47,20 +47,20 @@ class OptimizationWidget(QtGui.QWidget):
         self.attenuation_factor_sb.setAlignment(QtCore.Qt.AlignRight)
 
     def create_layout(self):
-        self.main_layout = QtGui.QVBoxLayout()
+        self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(5)
 
         self.main_layout.addWidget(self.activate_cb)
         self.main_layout.addWidget(HorizontalLine())
 
-        self.grid_layout = QtGui.QGridLayout()
+        self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(5)
 
         self.grid_layout.addWidget(self.r_cutoff_lbl, 1, 0)
         self.grid_layout.addWidget(self.r_cutoff_txt, 1, 1)
-        self.grid_layout.addWidget(QtGui.QLabel('A'), 1, 2)
+        self.grid_layout.addWidget(QtWidgets.QLabel('A'), 1, 2)
 
         self.grid_layout.addWidget(self.optimize_iterations_lbl, 4, 0)
         self.grid_layout.addWidget(self.optimize_iterations_txt, 4, 1)
@@ -70,7 +70,7 @@ class OptimizationWidget(QtGui.QWidget):
 
         self.grid_layout.addWidget(self.plot_progress_cb, 6, 1, 1, 2)
 
-        self.param_widget = QtGui.QWidget()
+        self.param_widget = QtWidgets.QWidget()
         self.param_widget.setLayout(self.grid_layout)
 
         self.main_layout.addWidget(self.param_widget)

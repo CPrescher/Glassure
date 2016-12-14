@@ -1,11 +1,11 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtGui
+from ...qt import QtWidgets
 
 
 def HorizontalLine():
-    frame = QtGui.QFrame()
-    frame.setFrameShape(QtGui.QFrame.HLine)
+    frame = QtWidgets.QFrame()
+    frame.setFrameShape(QtWidgets.QFrame.HLine)
     frame.setStyleSheet("border: 2px solid #CCC;")
-    frame.setFrameShadow(QtGui.QFrame.Sunken)
+    frame.setFrameShadow(QtWidgets.QFrame.Sunken)
     return frame

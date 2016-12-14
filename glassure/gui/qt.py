@@ -1,10 +1,15 @@
 # -*- coding: utf8 -*-
 
+# from qtpy import QtCore, QtGui, QtWidgets
+# from qtpy.QtTest import QTest
+# Signal = QtCore.Signal
+
 try:
-    from PyQt4 import QtCore, QtGui
-    from PyQt4.QtTest import QTest
+    from PyQt5 import QtCore, QtGui, QtWidgets
     Signal = QtCore.pyqtSignal
+    from PyQt5.QtTest import QTest
 except ImportError:
-    from PySide import QtCore, QtGui
-    from PySide.QtTest import QTest
-    Signal = QtCore.Signal
+    from PyQt4 import QtCore, QtGui
+    QtWidgets = QtGui
+    Signal = QtCore.pyqtSignal
+    from PyQt4.QtTest import QTest

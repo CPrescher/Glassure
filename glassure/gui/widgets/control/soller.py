@@ -1,11 +1,11 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtGui, Signal
+from ...qt import QtGui, QtWidgets, Signal
 
 from ..custom import HorizontalLine, ValueLabelTxtPair
 
 
-class SollerWidget(QtGui.QWidget):
+class SollerWidget(QtWidgets.QWidget):
     soller_parameters_changed = Signal()
 
     def __init__(self, *args):
@@ -19,13 +19,13 @@ class SollerWidget(QtGui.QWidget):
         self.activate_cb.setChecked(False)
 
     def create_layout_and_widgets(self):
-        self.main_layout = QtGui.QVBoxLayout()
+        self.main_layout = QtWidgets.QVBoxLayout()
 
-        self.activate_cb = QtGui.QCheckBox("activate")
+        self.activate_cb = QtWidgets.QCheckBox("activate")
         self.main_layout.addWidget(self.activate_cb)
         self.main_layout.addWidget(HorizontalLine())
 
-        self.param_layout = QtGui.QGridLayout()
+        self.param_layout = QtWidgets.QGridLayout()
         self.thickness_txt = ValueLabelTxtPair("Sample thickness:", 0.2, "mm", self.param_layout, 0)
         self.wavelength_txt = ValueLabelTxtPair("X-ray wavelength:", 0.31, "A", self.param_layout, 1)
         self.param_layout.addWidget(HorizontalLine(), 2, 0, 1, 3)
@@ -36,7 +36,7 @@ class SollerWidget(QtGui.QWidget):
         self.inner_length_txt = ValueLabelTxtPair("Inner length:", '', "mm", self.param_layout, 8)
         self.outer_length_txt = ValueLabelTxtPair("Inner length:", '', "mm", self.param_layout, 9)
 
-        self.param_widget = QtGui.QWidget()
+        self.param_widget = QtWidgets.QWidget()
         self.param_widget.setLayout(self.param_layout)
 
         self.main_layout.addWidget(self.param_widget)
@@ -48,7 +48,8 @@ class SollerWidget(QtGui.QWidget):
 
         self.param_layout.setContentsMargins(50, 0, 0, 0)
         self.param_layout.setVerticalSpacing(7)
-#
+
+    #
 
     def create_signals(self):
         self.activate_cb.stateChanged.connect(self.param_widget.setVisible)

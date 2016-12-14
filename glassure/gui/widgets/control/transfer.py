@@ -1,12 +1,11 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtGui, QtCore
+from ...qt import QtWidgets, QtCore
 
 from ..custom import FlatButton, HorizontalLine, LabelAlignRight
 
 
-class TransferFunctionWidget(QtGui.QWidget):
-
+class TransferFunctionWidget(QtWidgets.QWidget):
     def __init__(self, *args):
         super(TransferFunctionWidget, self).__init__(*args)
 
@@ -26,26 +25,26 @@ class TransferFunctionWidget(QtGui.QWidget):
         self.sample_filename_lbl = LabelAlignRight("")
         self.sample_bkg_filename_lbl = LabelAlignRight("")
 
-        self.std_bkg_scaling_sb = QtGui.QDoubleSpinBox()
+        self.std_bkg_scaling_sb = QtWidgets.QDoubleSpinBox()
         self.std_bkg_scaling_sb.setValue(1.0)
         self.std_bkg_scaling_sb.setSingleStep(0.01)
 
-        self.sample_bkg_scaling_sb = QtGui.QDoubleSpinBox()
+        self.sample_bkg_scaling_sb = QtWidgets.QDoubleSpinBox()
         self.sample_bkg_scaling_sb.setValue(1.0)
         self.sample_bkg_scaling_sb.setSingleStep(0.01)
 
-        self.smooth_sb = QtGui.QDoubleSpinBox()
+        self.smooth_sb = QtWidgets.QDoubleSpinBox()
         self.smooth_sb.setValue(1.0)
         self.smooth_sb.setSingleStep(0.1)
 
     def create_layout(self):
-        self.main_layout = QtGui.QVBoxLayout()
+        self.main_layout = QtWidgets.QVBoxLayout()
 
-        self.activate_cb = QtGui.QCheckBox("activate")
+        self.activate_cb = QtWidgets.QCheckBox("activate")
         self.main_layout.addWidget(self.activate_cb)
         self.main_layout.addWidget(HorizontalLine())
 
-        self.transfer_layout = QtGui.QGridLayout()
+        self.transfer_layout = QtWidgets.QGridLayout()
         self.transfer_layout.addWidget(self.load_sample_btn, 0, 0)
         self.transfer_layout.addWidget(self.sample_filename_lbl, 0, 1)
         self.transfer_layout.addWidget(self.load_sample_bkg_btn, 1, 0)
@@ -56,10 +55,10 @@ class TransferFunctionWidget(QtGui.QWidget):
         self.transfer_layout.addWidget(self.load_std_bkg_btn, 3, 0)
         self.transfer_layout.addWidget(self.std_bkg_filename_lbl, 3, 1)
 
-        self.scaling_gb = QtGui.QGroupBox("")
-        self.scaling_layout = QtGui.QGridLayout()
-        self.scaling_layout.addItem(QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.MinimumExpanding,
-                                                             QtGui.QSizePolicy.Fixed), 0, 0)
+        self.scaling_gb = QtWidgets.QGroupBox("")
+        self.scaling_layout = QtWidgets.QGridLayout()
+        self.scaling_layout.addItem(QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.MinimumExpanding,
+                                                          QtWidgets.QSizePolicy.Fixed), 0, 0)
         self.scaling_layout.addWidget(LabelAlignRight("Sample bkg scaling:"), 0, 1)
         self.scaling_layout.addWidget(self.sample_bkg_scaling_sb, 0, 2)
         self.scaling_layout.addWidget(LabelAlignRight("Std bkg scaling:"), 1, 1)

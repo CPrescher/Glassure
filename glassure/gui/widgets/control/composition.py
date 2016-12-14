@@ -1,10 +1,10 @@
 # -*- coding: utf8 -*-
 
-from ...qt import QtCore, QtGui, Signal
+from ...qt import QtCore, QtGui, QtWidgets, Signal
 from ....core.scattering_factors import scattering_factor_param
 
 
-class CompositionWidget(QtGui.QWidget):
+class CompositionWidget(QtWidgets.QWidget):
     composition_changed = Signal(dict, float)
 
     def __init__(self, *args):
@@ -15,32 +15,32 @@ class CompositionWidget(QtGui.QWidget):
         self._style_widgets()
 
     def _create_widgets(self):
-        self.add_element_btn = QtGui.QPushButton("Add")
-        self.delete_element_btn = QtGui.QPushButton("Delete")
+        self.add_element_btn = QtWidgets.QPushButton("Add")
+        self.delete_element_btn = QtWidgets.QPushButton("Delete")
 
-        self.density_lbl = QtGui.QLabel("Density:")
-        self.density_txt = QtGui.QLineEdit("2.2")
-        self.density_atomic_units_lbl = QtGui.QLabel("")
+        self.density_lbl = QtWidgets.QLabel("Density:")
+        self.density_txt = QtWidgets.QLineEdit("2.2")
+        self.density_atomic_units_lbl = QtWidgets.QLabel("")
 
-        self.composition_tw = QtGui.QTableWidget()
+        self.composition_tw = QtWidgets.QTableWidget()
         self.composition_tw.cellChanged.connect(self.emit_composition_changed_signal)
 
     def _create_layout(self):
-        self.main_layout = QtGui.QVBoxLayout()
+        self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(5)
 
-        self.button_layout = QtGui.QHBoxLayout()
+        self.button_layout = QtWidgets.QHBoxLayout()
         self.button_layout.setSpacing(15)
         self.button_layout.addWidget(self.add_element_btn)
         self.button_layout.addWidget(self.delete_element_btn)
 
-        self.density_layout = QtGui.QGridLayout()
+        self.density_layout = QtWidgets.QGridLayout()
         self.density_layout.addWidget(self.density_lbl, 0, 0)
         self.density_layout.addWidget(self.density_txt, 0, 1)
-        self.density_layout.addWidget(QtGui.QLabel('g/cm^3'), 0, 2)
+        self.density_layout.addWidget(QtWidgets.QLabel('g/cm^3'), 0, 2)
         self.density_layout.addWidget(self.density_atomic_units_lbl, 1, 1)
-        self.density_layout.addWidget(QtGui.QLabel('at/A^3'), 1, 2)
+        self.density_layout.addWidget(QtWidgets.QLabel('at/A^3'), 1, 2)
 
         self.main_layout.addLayout(self.button_layout)
         self.main_layout.addWidget(self.composition_tw)
@@ -68,8 +68,8 @@ class CompositionWidget(QtGui.QWidget):
         current_rows = self.composition_tw.rowCount()
         self.composition_tw.setRowCount(current_rows + 1)
         self.composition_tw.blockSignals(True)
-        element_cb = QtGui.QComboBox(self)
-        element_cb.setStyle(QtGui.QStyleFactory.create('cleanlooks'))
+        element_cb = QtWidgets.QComboBox(self)
+        element_cb.setStyle(QtWidgets.QStyleFactory.create('cleanlooks'))
 
         for ind, ele in enumerate(scattering_factor_param.index):
             element_cb.insertItem(ind, ele)
@@ -80,9 +80,9 @@ class CompositionWidget(QtGui.QWidget):
 
         element_cb.currentIndexChanged.connect(self.emit_composition_changed_signal)
         if value is not None:
-            value_item = QtGui.QTableWidgetItem(str(value))
+            value_item = QtWidgets.QTableWidgetItem(str(value))
         else:
-            value_item = QtGui.QTableWidgetItem(str(1))
+            value_item = QtWidgets.QTableWidgetItem(str(1))
         value_item.setTextAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.composition_tw.setItem(current_rows, 1, value_item)
         self.composition_tw.blockSignals(False)
@@ -118,12 +118,12 @@ class CompositionWidget(QtGui.QWidget):
         self.composition_changed.emit(self.get_composition(), self.get_density())
 
 
-class TextDoubleDelegate(QtGui.QStyledItemDelegate):
+class TextDoubleDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent):
         super(TextDoubleDelegate, self).__init__(parent)
 
     def createEditor(self, parent, _, model):
-        self.editor = QtGui.QLineEdit(parent)
+        self.editor = QtWidgets.QLineEdit(parent)
         self.editor.setFrame(False)
         self.editor.setValidator(QtGui.QDoubleValidator())
         self.editor.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
