@@ -1,5 +1,5 @@
 [![Coverage Status](https://coveralls.io/repos/github/Luindil/Glassure/badge.svg?branch=develop)](https://coveralls.io/github/Luindil/Glassure?branch=develop)
-[![Build Status](https://travis-ci.org/Luindil/Glassure.svg?branch=develop)](https://travis-ci.org/Luindil/Glassure)
+[![DOI](https://zenodo.org/badge/24698239.svg)](https://zenodo.org/badge/latestdoi/24698239)
 
 # Glassure
 
