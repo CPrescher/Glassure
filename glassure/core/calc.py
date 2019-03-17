@@ -198,37 +198,6 @@ def calculate_sq(sample_pattern, density, composition, attenuation_factor=0.001,
                             method)
 
 
-def calculate_sq_from_gr(gr_pattern, q, density, composition, use_modification_fcn=False):
-    """
-    Performs a back Fourier transform from the pair distribution function g(r)
-
-    :param gr_pattern:      g(r) pattern
-    :param q:               numpy array of q values for which S(Q) should be calculated
-    :param density:         density of the sample in g/cm^3
-    :param composition:     composition as a dictionary with the elements as keys and the abundances as values
-    :param use_modification_fcn:
-        boolean flag whether to use the Lorch modification function
-
-    :return: S(Q) pattern
-    """
-    atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
-    r, gr = gr_pattern.data
-    if use_modification_fcn:
-        modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
-    else:
-        modification = 1
-
-    integral = 0
-    dr = r[2] - r[1]
-    for ind, r_val in enumerate(r):
-        integral += r_val * (gr[ind] - 1) * np.sin(q * r_val) / q
-
-    integral = integral * modification * dr
-    intensity = 4 * np.pi * atomic_density * integral
-
-    return Pattern(q, intensity)
-
-
 def calculate_fr(sq_pattern, r=None, use_modification_fcn=False, method='integral'):
     """
     Calculates F(r) from a given S(Q) pattern for r values. If r is none a range from 0 to 10 with step 0.01 is used.
@@ -245,8 +214,6 @@ def calculate_fr(sq_pattern, r=None, use_modification_fcn=False, method='integra
     :param method:                  determines the method use for calculating fr, possible values are:
                                             - 'integral' solves the Fourier integral, by calculating the integral
                                             - 'fft' solves the Fourier integral by using fast fourier transformation
-    :param extend:                  boolean flag determining whether the input sq_pattern will be extended to 0 by
-                                    adding zeros to the left of the pattern. Default is True
 
     :return: F(r) pattern
     """
@@ -279,6 +246,65 @@ def calculate_fr(sq_pattern, r=None, use_modification_fcn=False, method='integra
     else:
         raise NotImplementedError("{} is not an allowed method for calculate_fr".format(method))
     return Pattern(r, fr)
+
+
+def calculate_sq_from_fr(fr_pattern, q, method='integral'):
+    """
+    Calculates S(Q) from a F(r) pattern for given q values.
+
+    :param fr_pattern:              input F(r) pattern
+    :param q:                       numpy array giving the q-values for which S(q) will be calculated,
+    :param method:                  determines the method use for calculating fr, possible values are:
+                                            - 'integral' solves the Fourier integral, by calculating the integral
+                                            - 'fft' solves the Fourier integral by using fast fourier transformation
+
+    :return: F(r) pattern
+    """
+    r, fr = fr_pattern.data
+
+    if method == 'integral':
+        sq = np.trapz(fr * np.array(np.sin(np.outer(r.T, q))).T, r) / q + 1
+
+    elif method == 'fft':
+        q_step = q[1] - q[0]
+        r_step = r[1] - r[0]
+
+        n_out = int(np.pi / (r_step * q_step))
+
+        r_max_for_ifft = 2 * n_out * r_step
+        ifft_x_step = 2 * np.pi / r_max_for_ifft
+        ifft_x = np.arange(n_out) * ifft_x_step
+
+        y_for_ifft = np.concatenate((fr, np.zeros(2 * n_out - len(r))))
+        ifft_result = np.fft.ifft(y_for_ifft) * r_max_for_ifft
+        ifft_imag = np.imag(ifft_result)[:n_out]
+
+        sq = np.interp(q, ifft_x, ifft_imag) / q + 1
+    else:
+        raise NotImplementedError("{} is not an allowed method for calculate_sq_from_fr".format(method))
+
+    return Pattern(q, sq)
+
+
+def calculate_sq_from_gr(gr_pattern, q, density, composition, method='integral'):
+    """
+    Performs a back Fourier transform from the pair distribution function g(r)
+
+    :param gr_pattern:      g(r) pattern
+    :param q:               numpy array of q values for which S(Q) should be calculated
+    :param density:         density of the sample in g/cm^3
+    :param composition:     composition as a dictionary with the elements as keys and the abundances as values
+
+    :return: S(Q) pattern
+    """
+    atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
+    r, gr = gr_pattern.data
+
+    # removing the nan value at the first index, which is caused by the division by zero when r started from zero
+    if np.isnan(gr[0]):
+        gr[0] = 0
+    fr_pattern = Pattern(r, (gr - 1) * (4.0 * np.pi * r * atomic_density))
+    return calculate_sq_from_fr(fr_pattern, q, method)
 
 
 def calculate_gr_raw(fr_pattern, atomic_density):
