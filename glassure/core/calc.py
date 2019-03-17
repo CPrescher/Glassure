@@ -210,7 +210,7 @@ def calculate_sq_from_gr(gr_spectrum, q, density, composition, use_modification_
     return Pattern(q, intensity)
 
 
-def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False):
+def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False, method='integral'):
     """
     Calculates F(r) from a given S(Q) spectrum for r values. If r is none a range from 0 to 10 with step 0.01 is used.
     A Lorch modification function of the form:
@@ -223,6 +223,9 @@ def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False):
     :param r:                       numpy array giving the r-values for which F(r) will be calculated,
                                     default is 0 to 10 with 0.01 as a step. units should be in Angstrom.
     :param use_modification_fcn:    boolean flag whether to use the Lorch modification function
+    :param method:                  determines the method use for calculating fr, possible values are:
+                                            - 'integral' solves the Fourier integral, by calculating the integral
+                                            - 'fft' solves the Fourier integral by using fast fourier transformation
 
     :return: F(r) spectrum
     """
@@ -234,8 +237,26 @@ def calculate_fr(sq_spectrum, r=None, use_modification_fcn=False):
         modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
     else:
         modification = 1
-    fr = 2.0 / np.pi * np.trapz(modification * q * (sq - 1) * \
-                                np.array(np.sin(np.mat(q).T * np.mat(r))).T, q)
+
+    if method == 'integral':
+        fr = 2.0 / np.pi * np.trapz(modification * q * (sq - 1) * \
+                                    np.array(np.sin(np.outer(q.T, r))).T, q)
+    elif method == 'fft':
+        q_step = q[1] - q[0]
+        r_step = r[1] - r[0]
+
+        n_out = np.max([len(q), int(np.pi / (r_step * q_step))])
+        q_max_for_ifft = 2 * n_out * q_step
+        y_for_ifft = np.concatenate((modification * q * (sq - 1), np.zeros(2 * n_out - len(q))))
+
+        ifft_result = np.fft.ifft(y_for_ifft) * 2 / np.pi * q_max_for_ifft
+        ifft_imag = np.imag(ifft_result)[:n_out]
+        ifft_x_step = 2 * np.pi / q_max_for_ifft
+        ifft_x = np.arange(n_out) * ifft_x_step
+
+        fr = np.interp(r, ifft_x, ifft_imag)
+    else:
+        raise NotImplementedError("{} is not an allowed method for calculate_fr".format(method))
     return Pattern(r, fr)
 
 
