@@ -92,13 +92,13 @@ def convert_density_to_atoms_per_cubic_angstrom(composition, density):
     return density / mean_z * .602214129
 
 
-def extrapolate_to_zero_step(spectrum):
+def extrapolate_to_zero_step(pattern):
     """
-    Extrapolates a spectrum to (0, 0) by setting everything below the q_min of the spectrum to zero
-    :param spectrum: input Spectrum
-    :return: extrapolated Spectrum
+    Extrapolates a pattern to (0, 0) by setting everything below the q_min of the pattern to zero
+    :param pattern: input Pattern
+    :return: extrapolated Pattern
     """
-    x, y = spectrum.data
+    x, y = pattern.data
     step = x[1] - x[0]
     low_x = np.sort(np.arange(min(x), 0, -step))
     low_y = np.zeros(low_x.shape)
@@ -107,13 +107,13 @@ def extrapolate_to_zero_step(spectrum):
                    np.concatenate((low_y, y)))
 
 
-def extrapolate_to_zero_linear(spectrum):
+def extrapolate_to_zero_linear(pattern):
     """
-    Extrapolates a spectrum to (0, 0) using a linear function from the most left point in the spectrum
-    :param spectrum: input Spectrum
-    :return: extrapolated Spectrum (includes the original one)
+    Extrapolates a pattern to (0, 0) using a linear function from the most left point in the pattern
+    :param pattern: input Pattern
+    :return: extrapolated Pattern (includes the original one)
     """
-    x, y = spectrum.data
+    x, y = pattern.data
     step = x[1] - x[0]
     low_x = np.sort(np.arange(min(x), 0, -step))
     low_y = y[0] / x[0] * low_x
@@ -121,22 +121,22 @@ def extrapolate_to_zero_linear(spectrum):
                    np.concatenate((low_y, y)))
 
 
-def extrapolate_to_zero_spline(spectrum, x_max, smooth_factor=None, replace=False):
+def extrapolate_to_zero_spline(pattern, x_max, smooth_factor=None, replace=False):
     """
-    Extrapolates a spectrum to (0, 0) using a spline function.
+    Extrapolates a pattern to (0, 0) using a spline function.
     If the spline hits zero on the y-axis at an x value higher than 0 all values below this intersection
     will be set to zero
 
-    :param spectrum: input spectrum
-    :param x_max: defines the the maximum x value within the spline will be fitted to the input spectrum, This parameter
-    should be larger than minimum of the spectrum x
+    :param pattern: input pattern
+    :param x_max: defines the the maximum x value within the spline will be fitted to the input pattern, This parameter
+    should be larger than minimum of the pattern x
     :param smooth_factor: defines the smoothing of the spline extrapolation please see numpy.UnivariateSpline manual for
     explanations
     :param replace: boolean flag whether to replace the data values in the fitted region (default = False)
-    :return: extrapolated Spectrum (includes the original one)
+    :return: extrapolated Pattern (includes the original one)
     """
 
-    x, y = spectrum.data
+    x, y = pattern.data
     x_step = x[1] - x[0]
     x_low = np.sort(np.arange(min(x), 0, -x_step))
 
@@ -161,19 +161,19 @@ def extrapolate_to_zero_spline(spectrum, x_max, smooth_factor=None, replace=Fals
                    np.concatenate((y_low, y)))
 
 
-def extrapolate_to_zero_poly(spectrum, x_max, replace=False):
+def extrapolate_to_zero_poly(pattern, x_max, replace=False):
     """
-    Extrapolates a spectrum to (0, 0) using a 2nd order polynomial:
+    Extrapolates a pattern to (0, 0) using a 2nd order polynomial:
 
     a*(x-c)+b*(x-c)^2
 
-    :param spectrum: input spectrum
+    :param pattern: input pattern
     :param x_max: defines the maximum x value within the polynomial will be fit
     :param replace: boolean flag whether to replace the data values in the fitted region (default = False)
-    :return: extrapolated Spectrum
+    :return: extrapolated Pattern
     """
 
-    x, y = spectrum.data
+    x, y = pattern.data
     x_step = x[1] - x[0]
 
     x_fit = x[x < x_max]
@@ -216,10 +216,10 @@ def convert_two_theta_to_q_space_raw(two_theta, wavelength):
     return 4 * np.pi * np.sin(two_theta / 360.0 * np.pi) / wavelength
 
 
-def convert_two_theta_to_q_space(spectrum, wavelength):
+def convert_two_theta_to_q_space(pattern, wavelength):
     """
-    Returns a new spectrum with the x-axis converted from two theta into q space
+    Returns a new pattern with the x-axis converted from two theta into q space
     """
-    q_spectrum = copy(spectrum)
-    q_spectrum._x = convert_two_theta_to_q_space_raw(q_spectrum.x, wavelength)
-    return q_spectrum
+    q_pattern = copy(pattern)
+    q_pattern._x = convert_two_theta_to_q_space_raw(q_pattern.x, wavelength)
+    return q_pattern

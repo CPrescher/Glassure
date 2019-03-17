@@ -9,7 +9,7 @@ from ..qt import QtGui, QtWidgets, QtCore
 
 from .control import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget, DensityOptimizationWidget, \
     ExtrapolationWidget, DiamondWidget, ConfigurationWidget, SollerWidget, TransferFunctionWidget
-from .custom import SpectrumWidget
+from .custom import PatternWidget
 
 from .custom import ExpandableBox
 
@@ -21,7 +21,7 @@ class GlassureWidget(QtWidgets.QWidget):
         self.horizontal_layout.setContentsMargins(0, 0, 0, 0)
         self.horizontal_layout.setSpacing(0)
 
-        self.spectrum_widget = SpectrumWidget()
+        self.pattern_widget = PatternWidget()
         self.left_control_widget = LeftControlWidget()
         self.right_control_widget = RightControlWidget()
 
@@ -40,7 +40,7 @@ class GlassureWidget(QtWidgets.QWidget):
         self.right_control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.horizontal_layout.addWidget(self.left_control_scroll_area)
-        self.horizontal_layout.addWidget(self.spectrum_widget)
+        self.horizontal_layout.addWidget(self.pattern_widget)
         self.horizontal_layout.addWidget(self.right_control_scroll_area)
 
         self.horizontal_layout.setStretch(0, 0)
@@ -87,8 +87,8 @@ class GlassureWidget(QtWidgets.QWidget):
         self.optimize_iterations_txt = self.right_control_widget.optimization_widget.optimize_iterations_txt
         self.optimize_attenuation_sb = self.right_control_widget.optimization_widget.attenuation_factor_sb
 
-        self.save_sq_btn = self.spectrum_widget.mouse_position_widget.save_sq_btn
-        self.save_gr_btn = self.spectrum_widget.mouse_position_widget.save_gr_btn
+        self.save_sq_btn = self.pattern_widget.mouse_position_widget.save_sq_btn
+        self.save_gr_btn = self.pattern_widget.mouse_position_widget.save_gr_btn
 
         self.configuration_widget = self.right_control_widget.configuration_widget
         self.freeze_configuration_btn = self.right_control_widget.configuration_widget.freeze_btn

@@ -20,7 +20,7 @@ class Pattern(object):
         self.offset = 0
         self._scaling = 1
         self.smoothing = 0
-        self.bkg_spectrum = None
+        self.bkg_pattern = None
 
     def load(self, filename, skiprows=0):
         try:
@@ -32,7 +32,7 @@ class Pattern(object):
             self.name = os.path.basename(filename).split('.')[:-1][0]
 
         except ValueError:
-            print('Wrong data format for spectrum file! - ' + filename)
+            print('Wrong data format for pattern file! - ' + filename)
             return -1
 
     @staticmethod
@@ -47,25 +47,25 @@ class Pattern(object):
             return Pattern(x, y, name)
 
         except ValueError:
-            print('Wrong data format for spectrum file! - ' + filename)
+            print('Wrong data format for pattern file! - ' + filename)
             return -1
 
     def save(self, filename, header=''):
         data = np.dstack((self._x, self._y))
         np.savetxt(filename, data[0], header=header)
 
-    def set_background(self, spectrum):
-        self.bkg_spectrum = spectrum
+    def set_background(self, pattern):
+        self.bkg_pattern = pattern
 
     def reset_background(self):
-        self.bkg_spectrum = None
+        self.bkg_pattern = None
 
     def set_smoothing(self, amount):
         self.smoothing = amount
 
     def rebin(self, bin_size):
         """
-        Returns a new spectrum which is a rebinned version of the current one.
+        Returns a new pattern which is a rebinned version of the current one.
         """
         x, y = self.data
         x_min = np.round(np.min(x) / bin_size) * bin_size
@@ -79,9 +79,9 @@ class Pattern(object):
 
     @property
     def data(self):
-        if self.bkg_spectrum is not None:
+        if self.bkg_pattern is not None:
             # create background function
-            x_bkg, y_bkg = self.bkg_spectrum.data
+            x_bkg, y_bkg = self.bkg_pattern.data
 
             if not np.array_equal(x_bkg, self._x):
                 # the background will be interpolated
@@ -93,12 +93,12 @@ class Pattern(object):
                 y = self._y[ind]
 
                 if len(x) == 0:
-                    # if there is no overlapping between background and spectrum, raise an error
+                    # if there is no overlapping between background and pattern, raise an error
                     raise BkgNotInRangeError(self.name)
 
                 y = y * self._scaling + self.offset - f_bkg(x)
             else:
-                # if spectrum and bkg have the same x basis we just delete y-y_bkg
+                # if pattern and bkg have the same x basis we just delete y-y_bkg
                 x, y = self._x, self._y * self._scaling + self.offset - y_bkg
         else:
             x, y = self.original_data
@@ -153,12 +153,12 @@ class Pattern(object):
 
     def extend_to(self, x_value, y_value):
         """
-        Extends the current spectrum to a specific x_value by filling it with the y_value. Does not modify inplace but
-        returns a new filled Spectrum
-        :param x_value: Point to which extend the spectrum should be smaller than the lowest x-value in the spectrum or
+        Extends the current pattern to a specific x_value by filling it with the y_value. Does not modify inplace but
+        returns a new filled Pattern
+        :param x_value: Point to which extend the pattern should be smaller than the lowest x-value in the pattern or
                         vice versa
-        :param y_value: number to fill the spectrum with
-        :return: extended Spectrum
+        :param y_value: number to fill the pattern with
+        :return: extended Pattern
         """
         x_step = np.mean(np.diff(self.x))
         x_min = np.min(self.x)
@@ -204,7 +204,7 @@ class Pattern(object):
             y = orig_y[ind]
 
             if len(x) == 0:
-                # if there is no overlapping between background and spectrum, raise an error
+                # if there is no overlapping between background and pattern, raise an error
                 raise BkgNotInRangeError(self.name)
             return Pattern(x, y - other_fcn(x))
         else:
@@ -224,7 +224,7 @@ class Pattern(object):
             y = orig_y[ind]
 
             if len(x) == 0:
-                # if there is no overlapping between background and spectrum, raise an error
+                # if there is no overlapping between background and pattern, raise an error
                 raise BkgNotInRangeError(self.name)
             return Pattern(x, y + other_fcn(x))
         else:
@@ -243,8 +243,8 @@ class Pattern(object):
 
 
 class BkgNotInRangeError(Exception):
-    def __init__(self, spectrum_name):
-        self.spectrum_name = spectrum_name
+    def __init__(self, pattern_name):
+        self.pattern_name = pattern_name
 
     def __str__(self):
-        return "The background range does not overlap with the Spectrum range for " + self.spectrum_name
+        return "The background range does not overlap with the Pattern range for " + self.pattern_name

@@ -225,21 +225,21 @@ class Pattern_ConfigurationControllerTest(QtTest):
 
     def test_new_plots_are_created(self):
         click_button(self.configuration_widget.freeze_btn)
-        self.assertEqual(len(self.main_widget.spectrum_widget.gr_items), 2)
+        self.assertEqual(len(self.main_widget.pattern_widget.gr_items), 2)
 
     def test_plot_items_are_removed(self):
         click_button(self.configuration_widget.freeze_btn)
         click_button(self.configuration_widget.freeze_btn)
         click_button(self.configuration_widget.remove_btn)
-        self.assertEqual(len(self.main_widget.spectrum_widget.gr_items), 2)
+        self.assertEqual(len(self.main_widget.pattern_widget.gr_items), 2)
 
     def test_plot_items_show_different_data(self):
         click_button(self.main_widget.add_element_btn)
         click_button(self.configuration_widget.freeze_btn)
         set_widget_text(self.main_widget.q_max_txt, 12)
 
-        x1, y1 = self.main_widget.spectrum_widget.sq_items[0].getData()
-        x2, y2 = self.main_widget.spectrum_widget.sq_items[1].getData()
+        x1, y1 = self.main_widget.pattern_widget.sq_items[0].getData()
+        x2, y2 = self.main_widget.pattern_widget.sq_items[1].getData()
 
         self.assertNotAlmostEqual(x1[-1], x2[-1])
 
@@ -262,17 +262,17 @@ class Pattern_ConfigurationControllerTest(QtTest):
 
         click_checkbox(self.configuration_widget.configuration_show_cbs[1])
 
-        self.assertFalse(self.main_widget.spectrum_widget.gr_items[1] in
-                         self.main_widget.spectrum_widget.gr_plot.items)
-        self.assertFalse(self.main_widget.spectrum_widget.sq_items[1] in
-                         self.main_widget.spectrum_widget.sq_plot.items)
+        self.assertFalse(self.main_widget.pattern_widget.gr_items[1] in
+                         self.main_widget.pattern_widget.gr_plot.items)
+        self.assertFalse(self.main_widget.pattern_widget.sq_items[1] in
+                         self.main_widget.pattern_widget.sq_plot.items)
 
         click_checkbox(self.configuration_widget.configuration_show_cbs[1])
 
-        self.assertTrue(self.main_widget.spectrum_widget.gr_items[1] in
-                        self.main_widget.spectrum_widget.gr_plot.items)
-        self.assertTrue(self.main_widget.spectrum_widget.sq_items[1] in
-                        self.main_widget.spectrum_widget.sq_plot.items)
+        self.assertTrue(self.main_widget.pattern_widget.gr_items[1] in
+                        self.main_widget.pattern_widget.gr_plot.items)
+        self.assertTrue(self.main_widget.pattern_widget.sq_items[1] in
+                        self.main_widget.pattern_widget.sq_plot.items)
 
     def test_changing_configuration_color(self):
         click_button(self.configuration_widget.freeze_btn)
@@ -282,10 +282,10 @@ class Pattern_ConfigurationControllerTest(QtTest):
         new_color = QtGui.QColor(233, 1, 3)
         QtWidgets.QColorDialog.getColor = MagicMock(return_value=new_color)
         click_button(self.configuration_widget.configuration_color_btns[1])
-        self.assertEqual(self.main_widget.spectrum_widget.sq_items[1].opts['pen'].color().rgb(), new_color.rgb())
+        self.assertEqual(self.main_widget.pattern_widget.sq_items[1].opts['pen'].color().rgb(), new_color.rgb())
 
         # changing the active color, will have no effect on current color
         new_color = QtGui.QColor(233, 1, 255)
         QtWidgets.QColorDialog.getColor = MagicMock(return_value=new_color)
         click_button(self.configuration_widget.configuration_color_btns[2])
-        self.assertNotEqual(self.main_widget.spectrum_widget.sq_items[2].opts['pen'].color().rgb(), new_color.rgb())
+        self.assertNotEqual(self.main_widget.pattern_widget.sq_items[2].opts['pen'].color().rgb(), new_color.rgb())

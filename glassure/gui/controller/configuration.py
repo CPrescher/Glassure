@@ -29,10 +29,10 @@ class ConfigurationController(object):
         self.widget.configuration_tw.currentCellChanged.connect(self.model.select_configuration)
 
         self.model.configurations_changed.connect(self.update_configurations_tw)
-        self.model.configurations_changed.connect(self.update_spectrum_items)
+        self.model.configurations_changed.connect(self.update_pattern_items)
 
         self.model.configuration_selected.connect(self.update_widget_controls)
-        self.model.configuration_selected.connect(self.update_spectrum_items)
+        self.model.configuration_selected.connect(self.update_pattern_items)
 
         self.widget.configuration_widget.configuration_show_cb_state_changed.connect(
             self.update_configuration_visibility
@@ -96,39 +96,39 @@ class ConfigurationController(object):
         self.widget.soller_active_cb.setChecked(self.model.use_soller_correction)
         self.widget.set_soller_parameter(self.model.soller_parameters)
 
-    def update_spectrum_items(self):
-        while len(self.widget.spectrum_widget.sq_items) < len(self.model.configurations):
-            self.widget.spectrum_widget.add_sq_item()
-            self.widget.spectrum_widget.add_gr_item()
+    def update_pattern_items(self):
+        while len(self.widget.pattern_widget.sq_items) < len(self.model.configurations):
+            self.widget.pattern_widget.add_sq_item()
+            self.widget.pattern_widget.add_gr_item()
 
-        while len(self.widget.spectrum_widget.sq_items) > len(self.model.configurations):
-            self.widget.spectrum_widget.remove_sq_item()
-            self.widget.spectrum_widget.remove_gr_item()
+        while len(self.widget.pattern_widget.sq_items) > len(self.model.configurations):
+            self.widget.pattern_widget.remove_sq_item()
+            self.widget.pattern_widget.remove_gr_item()
 
-        self.update_spectrum_items_data(self.model.configuration_ind)
-        self.update_spectrum_items_color(self.model.configuration_ind)
+        self.update_pattern_items_data(self.model.configuration_ind)
+        self.update_pattern_items_color(self.model.configuration_ind)
 
-    def update_spectrum_items_data(self, cur_ind):
+    def update_pattern_items_data(self, cur_ind):
         for ind in range(len(self.model.configurations)):
             if self.model.configurations[ind].sq_pattern is None:
                 continue
-            self.widget.spectrum_widget.set_sq_pattern(self.model.configurations[ind].sq_pattern, ind)
-            self.widget.spectrum_widget.set_gr_pattern(self.model.configurations[ind].gr_pattern, ind)
+            self.widget.pattern_widget.set_sq_pattern(self.model.configurations[ind].sq_pattern, ind)
+            self.widget.pattern_widget.set_gr_pattern(self.model.configurations[ind].gr_pattern, ind)
 
-    def update_spectrum_items_color(self, cur_ind):
+    def update_pattern_items_color(self, cur_ind):
         for ind in range(len(self.model.configurations)):
             if ind == self.model.configuration_ind:
-                self.widget.spectrum_widget.activate_ind(ind)
+                self.widget.pattern_widget.activate_ind(ind)
             else:
-                self.widget.spectrum_widget.set_color(self.model.configurations[ind].color, ind)
+                self.widget.pattern_widget.set_color(self.model.configurations[ind].color, ind)
 
     def update_configuration_visibility(self, ind, visible):
         if visible:
-            self.widget.spectrum_widget.show_sq(ind)
-            self.widget.spectrum_widget.show_gr(ind)
+            self.widget.pattern_widget.show_sq(ind)
+            self.widget.pattern_widget.show_gr(ind)
         else:
-            self.widget.spectrum_widget.hide_sq(ind)
-            self.widget.spectrum_widget.hide_gr(ind)
+            self.widget.pattern_widget.hide_sq(ind)
+            self.widget.pattern_widget.hide_gr(ind)
 
     def configuration_color_btn_clicked(self, ind, button):
         """
@@ -144,5 +144,5 @@ class ConfigurationController(object):
             return
 
         self.model.configurations[ind].color = [new_color.red(), new_color.green(), new_color.blue()]
-        self.update_spectrum_items_color(self.model.configuration_ind)
+        self.update_pattern_items_color(self.model.configuration_ind)
         button.setStyleSheet('background-color:' + new_color.name())

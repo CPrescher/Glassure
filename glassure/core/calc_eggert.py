@@ -99,11 +99,11 @@ def calculate_s_inf(composition, z_tot, f_effective, q):
     return sum_kp_squared / z_tot ** 2
 
 
-def calculate_alpha(sample_spectrum, z_tot, f_effective, s_inf, j, atomic_density):
+def calculate_alpha(sample_pattern, z_tot, f_effective, s_inf, j, atomic_density):
     """
     Calculates the normalization factor alpha after equation (34) from Eggert et al. 2002.
 
-    :param sample_spectrum: Background subtracted sample spectrum
+    :param sample_pattern: Background subtracted sample pattern
     :param z_tot: sum opf atomic numbers for the material
     :param f_effective: Q dependent effective form factor
     :param s_inf: S_inf value (equ. (19) from Eggert et al. 2002)
@@ -112,7 +112,7 @@ def calculate_alpha(sample_spectrum, z_tot, f_effective, s_inf, j, atomic_densit
     :return: normalization factor alpha
     """
 
-    q, intensity = sample_spectrum.data
+    q, intensity = sample_pattern.data
 
     integral_1 = simps((j + s_inf) * q ** 2, q)
     integral_2 = simps((intensity / f_effective ** 2) * q ** 2, q)
@@ -122,19 +122,19 @@ def calculate_alpha(sample_spectrum, z_tot, f_effective, s_inf, j, atomic_densit
     return alpha
 
 
-def calculate_coherent_scattering(sample_spectrum, alpha, N, incoherent_scattering):
+def calculate_coherent_scattering(sample_pattern, alpha, N, incoherent_scattering):
     """
-    Calculates the coherent Scattering Intensity Spectrum
+    Calculates the coherent Scattering Intensity Pattern
 
-    :param sample_spectrum:  Background subtracted sample spectrum
+    :param sample_pattern:  Background subtracted sample pattern
     :param alpha: normalization factor alpha (after equ. (34) from Eggert et al. 2002)
     :param N: Number of atoms
     :param incoherent_scattering: incoherent scattering intensity
-    :return: Coherent Scattering Spectrum
+    :return: Coherent Scattering Pattern
     :rtype: Pattern
     """
 
-    q, intensity = sample_spectrum.data
+    q, intensity = sample_pattern.data
     coherent_intensity = N * (alpha * intensity - incoherent_scattering)
     return Pattern(q, coherent_intensity)
 
@@ -142,11 +142,11 @@ def calculate_coherent_scattering(sample_spectrum, alpha, N, incoherent_scatteri
 def calculate_sq(coherent_pattern, N, z_tot, f_effective):
     """
     Calculates the Structure Factor based on equation (18) in Eggert et al. 2002
-    :param coherent_pattern: coherent spectrum
+    :param coherent_pattern: coherent pattern
     :param N: number of atoms for structural unit, e.g. 3 for SiO2
     :param z_tot: sum opf atomic numbers for the material
     :param f_effective: Q dependent effective form factor
-    :return: S(q) spectrum
+    :return: S(q) pattern
     :rtype: Pattern
     """
     q, coherent_intensity = coherent_pattern.data
@@ -155,7 +155,7 @@ def calculate_sq(coherent_pattern, N, z_tot, f_effective):
     return Pattern(q, sq_intensity)
 
 
-def calculate_fr(iq_spectrum, r=None, use_modification_fcn=False):
+def calculate_fr(iq_pattern, r=None, use_modification_fcn=False):
     """
     Calculates F(r) from a given interference function i(Q) for r values.
     If r is none a range from 0 to 10 with step 0.01 is used.    A Lorch modification function of the form:
@@ -164,19 +164,19 @@ def calculate_fr(iq_spectrum, r=None, use_modification_fcn=False):
 
     can be used to address issues with a low q_max. This will broaden the sharp peaks in f(r)
 
-    :param iq_spectrum:             interference function i(q) = S(Q)-S_inf with lim_inf i(Q)=0 and unit(q)=A^-1
-    :type iq_spectrum: Pattern
+    :param iq_pattern:             interference function i(q) = S(Q)-S_inf with lim_inf i(Q)=0 and unit(q)=A^-1
+    :type iq_pattern: Pattern
     :param r:                       numpy array giving the r-values for which F(r) will be calculated,
                                     default is 0 to 10 with 0.01 as a step. units should be in Angstrom.
     :param use_modification_fcn:    boolean flag whether to use the Lorch modification function
 
-    :return: F(r) spectrum
+    :return: F(r) pattern
     :rtype: Pattern
     """
     if r is None:
         r = np.arange(0, 10, 0.01)
 
-    q, iq = iq_spectrum.data
+    q, iq = iq_pattern.data
     if use_modification_fcn:
         modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
     else:
@@ -188,15 +188,15 @@ def calculate_fr(iq_spectrum, r=None, use_modification_fcn=False):
     return Pattern(r, fr)
 
 
-def optimize_iq(iq_spectrum, r_cutoff, iterations, atomic_density, j, s_inf=1, use_modification_fcn=False,
+def optimize_iq(iq_pattern, r_cutoff, iterations, atomic_density, j, s_inf=1, use_modification_fcn=False,
                 attenuation_factor=1, fcn_callback=None, callback_period=2):
     """
     Performs an optimization of the structure factor based on an r_cutoff value as described in Eggert et al. 2002 PRB,
     65, 174105. This basically does back and forward transforms between S(Q) and f(r) until the region below the
     r_cutoff value is a flat line without any oscillations.
 
-    :param iq_spectrum:
-        original i(Q) spectrum = S(Q)-S_inf
+    :param iq_pattern:
+        original i(Q) pattern = S(Q)-S_inf
     :param r_cutoff:
         cutoff value below which there is no signal expected (below the first peak in g(r))
     :param iterations:
@@ -217,21 +217,21 @@ def optimize_iq(iq_spectrum, r_cutoff, iterations, atomic_density, j, s_inf=1, u
         the amount of change during each iteration.
     :param fcn_callback:
         Function which will be called at an iteration period defined by the callback_period parameter.
-        The function should take 3 arguments: sq_spectrum, fr_spectrum and gr_spectrum. Additionally the function
+        The function should take 3 arguments: sq_pattern, fr_pattern and gr_pattern. Additionally the function
         should return a boolean value, where True continues the optimization and False will stop the optimization
         procedure
     :param callback_period:
         determines how frequently the fcn_callback will be called.
 
     :return:
-        optimized S(Q) spectrum
+        optimized S(Q) pattern
     """
     r = np.arange(0, r_cutoff, 0.02)
-    iq_spectrum = deepcopy(iq_spectrum)
+    iq_pattern = deepcopy(iq_pattern)
     for iteration in range(iterations):
-        fr_spectrum = calculate_fr(iq_spectrum, r, use_modification_fcn)
-        q, iq_int = iq_spectrum.data
-        r, fr_int = fr_spectrum.data
+        fr_pattern = calculate_fr(iq_pattern, r, use_modification_fcn)
+        q, iq_int = iq_pattern.data
+        r, fr_int = fr_pattern.data
 
         delta_fr = fr_int + 4 * np.pi * r * atomic_density
 
@@ -239,22 +239,22 @@ def optimize_iq(iq_spectrum, r_cutoff, iterations, atomic_density, j, s_inf=1, u
         integral = np.trapz(in_integral, r) / attenuation_factor
         iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 
-        iq_spectrum = Pattern(q, iq_optimized)
+        iq_pattern = Pattern(q, iq_optimized)
 
         if fcn_callback is not None and iteration % callback_period == 0:
-            fr_spectrum = calculate_fr(iq_spectrum, use_modification_fcn=use_modification_fcn)
-            gr_spectrum = calculate_gr_raw(fr_spectrum, atomic_density)
-            fcn_callback(iq_spectrum, fr_spectrum, gr_spectrum)
-    return iq_spectrum
+            fr_pattern = calculate_fr(iq_pattern, use_modification_fcn=use_modification_fcn)
+            gr_pattern = calculate_gr_raw(fr_pattern, atomic_density)
+            fcn_callback(iq_pattern, fr_pattern, gr_pattern)
+    return iq_pattern
 
 
-def calculate_chi2_map(data_spectrum, bkg_spectrum, composition,
+def calculate_chi2_map(data_pattern, bkg_pattern, composition,
                        densities, bkg_scalings, r_cutoff, iterations=2):
     """
     Calculates a chi2 2d array for an array of densities and background scalings.
 
-    :param data_spectrum: original data spectrum
-    :param bkg_spectrum: original background spectrum
+    :param data_pattern: original data pattern
+    :param bkg_pattern: original background pattern
     :param composition: composition as a dictionary with the elements as keys and the abundances as values
     :param densities: 1-dimensional array of densities for which to calculate chi2
     :param bkg_scalings: 1-dimensional array of background scalings for which to calculate chi2
@@ -264,7 +264,7 @@ def calculate_chi2_map(data_spectrum, bkg_spectrum, composition,
     """
 
     N = sum([composition[x] for x in composition])
-    q = data_spectrum.extend_to(0, 0).x
+    q = data_pattern.extend_to(0, 0).x
 
     inc = calculate_incoherent_scattering(composition, q)
     f_eff = calculate_effective_form_factors(composition, q)
@@ -280,12 +280,12 @@ def calculate_chi2_map(data_spectrum, bkg_spectrum, composition,
             # bkg_scaling = params['bkg_scaling'].value
 
             r = np.arange(0, r_cutoff, 0.02)
-            sample_spectrum = data_spectrum - bkg_scaling * bkg_spectrum
-            sample_spectrum = sample_spectrum.extend_to(0, 0)
+            sample_pattern = data_pattern - bkg_scaling * bkg_pattern
+            sample_pattern = sample_pattern.extend_to(0, 0)
 
-            alpha = calculate_alpha(sample_spectrum, z_tot, f_eff, s_inf, j, density)
+            alpha = calculate_alpha(sample_pattern, z_tot, f_eff, s_inf, j, density)
 
-            coherent_pattern = calculate_coherent_scattering(sample_spectrum, alpha, N, inc)
+            coherent_pattern = calculate_coherent_scattering(sample_pattern, alpha, N, inc)
             sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
             iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
 
@@ -309,15 +309,15 @@ def calculate_chi2_map(data_spectrum, bkg_spectrum, composition,
     return chi2
 
 
-def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
+def optimize_density_and_bkg_scaling(data_pattern, bkg_pattern, composition,
                                      initial_density, initial_bkg_scaling, r_cutoff, iterations=2,
                                      use_modification_fcn=False):
     """
     This function tries to find the optimum density in background scaling with the given parameters. The equations
     behind the optimization are presented equ (47-50) in the Eggert et al. 2002 paper.
 
-    :param data_spectrum: original data spectrum
-    :param bkg_spectrum: original background spectrum
+    :param data_pattern: original data pattern
+    :param bkg_pattern: original background pattern
     :param composition: composition as a dictionary with the elements as keys and the abundances as values
     :param initial_density: density starting point for the optimization procedure
     :param initial_bkg_scaling: background scaling starting point for the optimization procedure
@@ -328,7 +328,7 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
     """
 
     N = sum([composition[x] for x in composition])
-    q = data_spectrum.extend_to(0, 0).x
+    q = data_pattern.extend_to(0, 0).x
 
     inc = calculate_incoherent_scattering(composition, q)
     f_eff = calculate_effective_form_factors(composition, q)
@@ -341,12 +341,12 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
         bkg_scaling = x['bkg_scaling'].value
 
         r = np.arange(0, r_cutoff, 0.02)
-        sample_spectrum = data_spectrum - bkg_scaling * bkg_spectrum
-        sample_spectrum = sample_spectrum.extend_to(0, 0)
+        sample_pattern = data_pattern - bkg_scaling * bkg_pattern
+        sample_pattern = sample_pattern.extend_to(0, 0)
 
-        alpha = calculate_alpha(sample_spectrum, z_tot, f_eff, s_inf, j, density)
+        alpha = calculate_alpha(sample_pattern, z_tot, f_eff, s_inf, j, density)
 
-        coherent_pattern = calculate_coherent_scattering(sample_spectrum, alpha, N, inc)
+        coherent_pattern = calculate_coherent_scattering(sample_pattern, alpha, N, inc)
         sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
         iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
 
@@ -384,7 +384,7 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
            result.params['bkg_scaling'].value, result.params['density'].stderr
 
 
-def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_density, initial_bkg_scaling,
+def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density, initial_bkg_scaling,
                         initial_thickness, sample_thickness, wavelength,
                         initial_carbon_content=1, r_cutoff=2.28, iterations=1,
                         use_modification_fcn=False, vary=(True, True, True)):
@@ -393,8 +393,8 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
     gasket thickness in the diamond anvil cell (DAC). The calculation is done by utilizing the soller slit transfer
     function and assuming that the DAC has been centered to the rotation center of the soller slit.
 
-    :param data_spectrum: original data spectrum
-    :param bkg_spectrum: original background spectrum
+    :param data_pattern: original data pattern
+    :param bkg_pattern: original background pattern
     :param composition: composition as a dictionary with the elements as keys and the abundances as values
     :param initial_density: density starting point for the optimization procedure
     :param initial_bkg_scaling: background scaling starting point for the optimization procedure
@@ -410,7 +410,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
     :return:
     """
     N = sum([composition[x] for x in composition])
-    q = data_spectrum.extend_to(0, 0).x
+    q = data_pattern.extend_to(0, 0).x
 
     inc = calculate_incoherent_scattering(composition, q)
     f_eff = calculate_effective_form_factors(composition, q)
@@ -418,7 +418,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
     s_inf = calculate_s_inf(composition, z_tot, f_eff, q)
     j = calculate_j(inc, z_tot, f_eff)
 
-    tth = 2 * np.arcsin(data_spectrum.x * wavelength / (4 * np.pi)) / np.pi * 180
+    tth = 2 * np.arcsin(data_pattern.x * wavelength / (4 * np.pi)) / np.pi * 180
     soller = SollerCorrection(tth, initial_thickness)
 
     def optimization_fcn(params):
@@ -426,8 +426,8 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
         bkg_scaling = params['bkg_scaling'].value
         density = params['density'].value
 
-        q, data_int = data_spectrum.data
-        _, bkg_int = bkg_spectrum.data
+        q, data_int = data_pattern.data
+        _, bkg_int = bkg_pattern.data
 
         sample_transfer, diamond_transfer = soller.transfer_function_dac(sample_thickness, initial_thickness)
 
@@ -435,14 +435,14 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
                                                        calculate_incoherent_scattering({'C': 1},
                                                                                         q) / diamond_transfer)
 
-        sample_spectrum = data_spectrum - bkg_scaling * bkg_spectrum
-        sample_spectrum = sample_spectrum - diamond_background
-        sample_spectrum = Pattern(q, sample_spectrum.y * sample_transfer)
-        sample_spectrum = sample_spectrum.extend_to(0, 0)
+        sample_pattern = data_pattern - bkg_scaling * bkg_pattern
+        sample_pattern = sample_pattern - diamond_background
+        sample_pattern = Pattern(q, sample_pattern.y * sample_transfer)
+        sample_pattern = sample_pattern.extend_to(0, 0)
 
-        alpha = calculate_alpha(sample_spectrum, z_tot, f_eff, s_inf, j, density)
+        alpha = calculate_alpha(sample_pattern, z_tot, f_eff, s_inf, j, density)
 
-        coherent_pattern = calculate_coherent_scattering(sample_spectrum, alpha, N, inc)
+        coherent_pattern = calculate_coherent_scattering(sample_pattern, alpha, N, inc)
         sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
         iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
 

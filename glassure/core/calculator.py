@@ -13,31 +13,31 @@ from .optimization import optimize_sq
 
 
 class GlassureCalculator(object):
-    def __init__(self, original_spectrum, background_spectrum, composition, density,
+    def __init__(self, original_pattern, background_pattern, composition, density,
                  r=np.linspace(0, 10, 1000)):
-        self.original_spectrum = original_spectrum
-        self.background_spectrum = background_spectrum
-        self.sample_spectrum = self.original_spectrum - self.background_spectrum
+        self.original_pattern = original_pattern
+        self.background_pattern = background_pattern
+        self.sample_pattern = self.original_pattern - self.background_pattern
         self.elemental_abundances = composition
         self.density = density
         self.atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
 
-        q, _ = self.sample_spectrum.data
+        q, _ = self.sample_pattern.data
         self.incoherent_scattering = calculate_incoherent_scattering(composition, q)
         self.f_mean_squared = calculate_f_mean_squared(composition, q)
         self.f_squared_mean = calculate_f_squared_mean(composition, q)
 
-        self.sq_spectrum = None
-        self.fr_spectrum = None
-        self.gr_spectrum = None
+        self.sq_pattern = None
+        self.fr_pattern = None
+        self.gr_pattern = None
 
         self.r = r
         self.calculate_transforms(r)
 
     def calculate_transforms(self, r):
-        self.sq_spectrum = self.calc_sq()
-        self.fr_spectrum = self.calc_fr(r)
-        self.gr_spectrum = self.calc_gr()
+        self.sq_pattern = self.calc_sq()
+        self.fr_pattern = self.calc_fr(r)
+        self.gr_pattern = self.calc_gr()
 
     def update_density(self, density):
         self.density = density
@@ -61,7 +61,7 @@ class GlassureCalculator(object):
 
 
 class StandardCalculator(GlassureCalculator):
-    def __init__(self, original_spectrum, background_spectrum, composition, density,
+    def __init__(self, original_pattern, background_pattern, composition, density,
                  r=np.linspace(0, 10, 1000), normalization_attenuation_factor=0.001, use_modification_fcn=False,
                  extrapolation_method=None, extrapolation_parameters=None):
         self.attenuation_factor = normalization_attenuation_factor
@@ -69,11 +69,11 @@ class StandardCalculator(GlassureCalculator):
         self.extrapolation_method = extrapolation_method
         self.extrapolation_parameters = extrapolation_parameters
 
-        super(StandardCalculator, self).__init__(original_spectrum, background_spectrum,
+        super(StandardCalculator, self).__init__(original_pattern, background_pattern,
                                                  composition, density, r)
 
     def get_normalization_factor(self):
-        return calculate_normalization_factor_raw(self.sample_spectrum,
+        return calculate_normalization_factor_raw(self.sample_pattern,
                                                   self.atomic_density,
                                                   self.f_squared_mean,
                                                   self.f_mean_squared,
@@ -82,7 +82,7 @@ class StandardCalculator(GlassureCalculator):
 
     def calc_sq(self):
         n = self.get_normalization_factor()
-        q, structure_factor = calculate_sq_raw(self.sample_spectrum,
+        q, structure_factor = calculate_sq_raw(self.sample_pattern,
                                                 self.f_squared_mean,
                                                 self.f_mean_squared,
                                                 self.incoherent_scattering,
@@ -113,13 +113,13 @@ class StandardCalculator(GlassureCalculator):
     def calc_fr(self, r=None):
         if r is None:
             r = self.r
-        return calculate_fr(self.sq_spectrum, r, self.use_modification_fcn)
+        return calculate_fr(self.sq_pattern, r, self.use_modification_fcn)
 
     def calc_gr(self):
-        return calculate_gr_raw(self.fr_spectrum, self.atomic_density)
+        return calculate_gr_raw(self.fr_pattern, self.atomic_density)
 
     def optimize_sq(self, r_cutoff, iterations=10, fcn_callback=None, callback_period=2, attenuation_factor=1):
-        self.sq_spectrum = optimize_sq(self.sq_spectrum,
+        self.sq_pattern = optimize_sq(self.sq_pattern,
                                        r_cutoff=r_cutoff,
                                        iterations=iterations,
                                        atomic_density=self.atomic_density,

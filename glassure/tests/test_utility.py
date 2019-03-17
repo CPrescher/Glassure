@@ -66,11 +66,11 @@ class UtilityTest(unittest.TestCase):
     def test_linear_extrapolation(self):
         x = np.arange(1, 5.05, 0.05)
         y = np.ones(len(x))
-        spectrum = Pattern(x, y)
+        pattern = Pattern(x, y)
 
-        extrapolated_spectrum = extrapolate_to_zero_linear(spectrum)
+        extrapolated_pattern = extrapolate_to_zero_linear(pattern)
 
-        x1, y1 = extrapolated_spectrum.data
+        x1, y1 = extrapolated_pattern.data
 
         self.assertLess(x1[0], x[0])
         self.assertLess(y1[1], y[1])
@@ -83,9 +83,9 @@ class UtilityTest(unittest.TestCase):
         x = np.arange(1, 5.05, 0.05)
         y = -2 + x * 0.2
 
-        spectrum = Pattern(x, y)
+        pattern = Pattern(x, y)
 
-        extrapolated_spectrum = extrapolate_to_zero_spline(spectrum, 2)
+        extrapolated_pattern = extrapolate_to_zero_spline(pattern, 2)
 
     def test_extrapolate_to_zero_poly(self):
         a = 0.3
@@ -95,10 +95,10 @@ class UtilityTest(unittest.TestCase):
 
         x = np.arange(1, 5.05, 0.05)
         y = a * (x - c) + b * (x - c) ** 2
-        spectrum = Pattern(x, y)
+        pattern = Pattern(x, y)
 
-        extrapolated_spectrum = extrapolate_to_zero_poly(spectrum, x_max)
-        x1, y1 = extrapolated_spectrum.data
+        extrapolated_pattern = extrapolate_to_zero_poly(pattern, x_max)
+        x1, y1 = extrapolated_pattern.data
 
         x_extrapolate = x1[x1 < 1]
         y_extrapolate = y1[x1 < 1]
@@ -108,8 +108,8 @@ class UtilityTest(unittest.TestCase):
 
         self.assertAlmostEqual(np.sum(y_extrapolate - y_expected), 0)
 
-        extrapolated_spectrum = extrapolate_to_zero_poly(spectrum, x_max, replace=True)
-        x1, y1 = extrapolated_spectrum.data
+        extrapolated_pattern = extrapolate_to_zero_poly(pattern, x_max, replace=True)
+        x1, y1 = extrapolated_pattern.data
 
         x_extrapolate = x1[x1 < 1]
         y_extrapolate = y1[x1 < 1]
@@ -127,8 +127,8 @@ class UtilityTest(unittest.TestCase):
         self.assertLess(np.max(data_q), 10)
         self.assertAlmostEqual(np.max(data_q), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)
 
-        spectrum_theta = Pattern(data_theta, np.ones(data_theta.shape))
-        spectrum_q = convert_two_theta_to_q_space(spectrum_theta, wavelength)
+        pattern_theta = Pattern(data_theta, np.ones(data_theta.shape))
+        pattern_q = convert_two_theta_to_q_space(pattern_theta, wavelength)
 
-        self.assertLess(np.max(spectrum_q.x), 10)
-        self.assertAlmostEqual(np.max(spectrum_q.x), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)
+        self.assertLess(np.max(pattern_q.x), 10)
+        self.assertAlmostEqual(np.max(pattern_q.x), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)

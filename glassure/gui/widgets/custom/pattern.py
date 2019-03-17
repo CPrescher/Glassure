@@ -5,9 +5,9 @@ import numpy as np
 from ...qt import QtCore, QtWidgets, QtGui, Signal
 
 
-class SpectrumWidget(QtWidgets.QWidget):
+class PatternWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
-        super(SpectrumWidget, self).__init__(*args, **kwargs)
+        super(PatternWidget, self).__init__(*args, **kwargs)
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(8)
@@ -28,11 +28,11 @@ class SpectrumWidget(QtWidgets.QWidget):
         self.pg_layout.setContentsMargins(0, 0, 0, 0)
         self.pg_layout_widget.setContentsMargins(0, 0, 0, 0)
 
-        self.spectrum_plot = ModifiedPlotItem()
+        self.pattern_plot = ModifiedPlotItem()
         self.sq_plot = ModifiedPlotItem()
         self.gr_plot = ModifiedPlotItem()
 
-        self.pg_layout.addItem(self.spectrum_plot, 0, 0)
+        self.pg_layout.addItem(self.pattern_plot, 0, 0)
         self.pg_layout.addItem(self.sq_plot, 1, 0)
         self.pg_layout.addItem(self.gr_plot, 2, 0)
 
@@ -41,8 +41,8 @@ class SpectrumWidget(QtWidgets.QWidget):
         self._layout.addWidget(self.pg_layout_widget)
 
     def style_plots(self):
-        self.spectrum_plot.setLabel('bottom', text='Q (1/A)')
-        self.spectrum_plot.setLabel('left', text='Int (a.u.)')
+        self.pattern_plot.setLabel('bottom', text='Q (1/A)')
+        self.pattern_plot.setLabel('left', text='Int (a.u.)')
 
         self.sq_plot.setLabel('bottom', text='Q (1/A)')
         self.sq_plot.setLabel('left', text='S(Q)')
@@ -51,10 +51,10 @@ class SpectrumWidget(QtWidgets.QWidget):
         self.gr_plot.setLabel('left', text='g(r)')
 
     def create_items(self):
-        self.spectrum_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
+        self.pattern_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
         self.bkg_item = pg.PlotDataItem(pen=pg.mkPen('r', width=1.5, style=QtCore.Qt.DashLine))
-        self.spectrum_plot.addItem(self.spectrum_item)
-        self.spectrum_plot.addItem(self.bkg_item)
+        self.pattern_plot.addItem(self.pattern_item)
+        self.pattern_plot.addItem(self.bkg_item)
 
         self.sq_items = []
         self.sq_show = []
@@ -87,10 +87,10 @@ class SpectrumWidget(QtWidgets.QWidget):
         del self.gr_show[ind]
 
     def create_signals(self):
-        self.spectrum_plot.connect_mouse_move_event()
+        self.pattern_plot.connect_mouse_move_event()
         self.sq_plot.connect_mouse_move_event()
         self.gr_plot.connect_mouse_move_event()
-        self.spectrum_plot.mouse_moved.connect(self.mouse_moved)
+        self.pattern_plot.mouse_moved.connect(self.mouse_moved)
         self.sq_plot.mouse_moved.connect(self.mouse_moved)
         self.gr_plot.mouse_moved.connect(self.mouse_moved)
 
@@ -98,9 +98,9 @@ class SpectrumWidget(QtWidgets.QWidget):
         self.mouse_position_widget.x_value_lbl.setText("{:9.3f}".format(x))
         self.mouse_position_widget.y_value_lbl.setText("{:9.3f}".format(y))
 
-    def plot_spectrum(self, pattern):
+    def plot_pattern(self, pattern):
         x, y = pattern.data
-        self.spectrum_item.setData(x=x, y=y)
+        self.pattern_item.setData(x=x, y=y)
 
     def plot_bkg(self, pattern):
         x, y = pattern.data

@@ -20,26 +20,26 @@ class CalcTest(unittest.TestCase):
         self.composition = {'Mg': 2, 'Si': 1, 'O': 4}
         self.r = np.linspace(0.1, 10, 1000)
 
-        self.data_spectrum = Pattern()
-        self.data_spectrum.load(sample_path)
+        self.data_pattern = Pattern()
+        self.data_pattern.load(sample_path)
 
-        self.bkg_spectrum = Pattern()
-        self.bkg_spectrum.load(bkg_path)
+        self.bkg_pattern = Pattern()
+        self.bkg_pattern.load(bkg_path)
 
-        self.sample_spectrum = self.data_spectrum - self.bkg_spectrum
+        self.sample_pattern = self.data_pattern - self.bkg_pattern
 
     def test_fit_normalization_factor(self):
-        n_integral = calculate_normalization_factor(self.sample_spectrum.limit(0, 20),
+        n_integral = calculate_normalization_factor(self.sample_pattern.limit(0, 20),
                                                     self.density,
                                                     self.composition)
 
-        n_fit = fit_normalization_factor(self.sample_spectrum.limit(0, 20), self.composition)
+        n_fit = fit_normalization_factor(self.sample_pattern.limit(0, 20), self.composition)
 
         self.assertAlmostEqual(n_integral, n_fit, places=2)
 
     def test_fft_implementation_of_calculate_fr(self):
         atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
-        sq = calculate_sq(self.sample_spectrum.limit(0, 20), self.density, self.composition).extend_to(0, 0)
+        sq = calculate_sq(self.sample_pattern.limit(0, 20), self.density, self.composition).extend_to(0, 0)
 
         sq = optimize_sq(sq, 1.4, 5, atomic_density)
 

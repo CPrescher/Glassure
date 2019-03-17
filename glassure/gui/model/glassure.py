@@ -508,8 +508,8 @@ class GlassureModel(QtCore.QObject):
 
     def optimize_density_and_scaling2(self, density_min, density_max, bkg_min, bkg_max, iterations, output_txt=None):
         optimizer = DensityOptimizer(
-            original_spectrum=self.original_pattern.limit(self.q_min, self.q_max),
-            background_spectrum=self.background_pattern.limit(self.q_min, self.q_max),
+            original_pattern=self.original_pattern.limit(self.q_min, self.q_max),
+            background_pattern=self.background_pattern.limit(self.q_min, self.q_max),
             initial_background_scaling=self.background_scaling,
             elemental_abundances=self.composition,
             initial_density=self.density,
@@ -597,10 +597,10 @@ class GlassureModel(QtCore.QObject):
         def optimization_fcn(params):
             diamond_content = params['content'].value
             self.set_diamond_content(diamond_content)
-            low_r_spectrum = self.gr_pattern.limit(0, self.r_cutoff)
+            low_r_pattern = self.gr_pattern.limit(0, self.r_cutoff)
             if callback_fcn is not None:
                 callback_fcn(diamond_content)
-            return low_r_spectrum.data[1]
+            return low_r_pattern.data[1]
 
         result = minimize(optimization_fcn, params)
         print(result)

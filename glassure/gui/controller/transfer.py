@@ -36,7 +36,7 @@ class TransferFunctionController(object):
 
     def load_sample_pattern(self):
         filename = str(QtGui.QFileDialog.getOpenFileName(self.widget,
-                                                         caption="Load Sample Spectrum (in Container)"))
+                                                         caption="Load Sample Pattern (in Container)"))
 
         if filename is not '':
             self.model.load_transfer_sample_pattern(filename)
@@ -45,7 +45,7 @@ class TransferFunctionController(object):
 
     def load_sample_bkg_pattern(self):
         filename = str(QtGui.QFileDialog.getOpenFileName(self.widget,
-                                                         caption="Load Sample Spectrum (in Container)"))
+                                                         caption="Load Sample Pattern (in Container)"))
 
         if filename is not '':
             self.model.load_transfer_sample_bkg_pattern(filename)
@@ -54,7 +54,7 @@ class TransferFunctionController(object):
 
     def load_std_pattern(self):
         filename = str(QtGui.QFileDialog.getOpenFileName(self.widget,
-                                                         caption="Load Sample Spectrum (in Container)"))
+                                                         caption="Load Sample Pattern (in Container)"))
 
         if filename is not '':
             self.model.load_transfer_std_pattern(filename)
@@ -63,7 +63,7 @@ class TransferFunctionController(object):
 
     def load_std_bkg_pattern(self):
         filename = str(QtGui.QFileDialog.getOpenFileName(self.widget,
-                                                         caption="Load Sample Spectrum (in Container)"))
+                                                         caption="Load Sample Pattern (in Container)"))
 
         if filename is not '':
             self.model.load_transfer_std_bkg_pattern(filename)

@@ -10,13 +10,13 @@ from ...core.utility import convert_density_to_atoms_per_cubic_angstrom
 
 class DensityOptimizer(object):
     def __init__(self,
-                 original_spectrum, background_spectrum, initial_background_scaling,
+                 original_pattern, background_pattern, initial_background_scaling,
                  elemental_abundances, initial_density,
                  density_min, density_max, bkg_min, bkg_max, r_cutoff,
                  use_modification_fcn=False, extrapolation_method=None,extrapolation_parameters=None, r=np.linspace(0, 10, 1000),
                  output_txt=None):
-        self.original_spectrum = original_spectrum
-        self.background_spectrum = background_spectrum
+        self.original_pattern = original_pattern
+        self.background_pattern = background_pattern
         self.background_scaling = initial_background_scaling
         self.elemental_abundances = elemental_abundances
         self.density = initial_density
@@ -43,10 +43,10 @@ class DensityOptimizer(object):
             density = params['density'].value
             background_scaling = params['background_scaling'].value
 
-            self.background_spectrum.scaling = background_scaling
+            self.background_pattern.scaling = background_scaling
             calculator = StandardCalculator(
-                original_spectrum=self.original_spectrum,
-                background_spectrum=self.background_spectrum,
+                original_pattern=self.original_pattern,
+                background_pattern=self.background_pattern,
                 composition=self.elemental_abundances,
                 density=density,
                 r=self.r,
@@ -60,9 +60,9 @@ class DensityOptimizer(object):
             )
 
             if fcn_callback is not None:
-                fr_spectrum = calculator.calc_fr()
-                gr_spectrum = calculator.calc_gr()
-                fcn_callback(background_scaling, density, fr_spectrum, gr_spectrum)
+                fr_pattern = calculator.calc_fr()
+                gr_pattern = calculator.calc_gr()
+                fcn_callback(background_scaling, density, fr_pattern, gr_pattern)
 
             r, fr = calculator.calc_fr(self.minimization_r).data
 

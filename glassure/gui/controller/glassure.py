@@ -91,7 +91,7 @@ class GlassureController(object):
         self.main_widget.save_gr_btn.clicked.connect(self.save_gr_btn_clicked)
 
     def load_data(self):
-        filename = open_file_dialog(self.main_widget, caption="Load Spectrum",
+        filename = open_file_dialog(self.main_widget, caption="Load Pattern",
                                     directory=self.settings.value('working_directory'))
 
         if filename is not '':
@@ -112,13 +112,13 @@ class GlassureController(object):
 
     def model_changed(self):
         if self.model.original_pattern is not None:
-            self.main_widget.spectrum_widget.plot_spectrum(self.model.original_pattern)
+            self.main_widget.pattern_widget.plot_pattern(self.model.original_pattern)
         if self.model.background_pattern is not None:
-            self.main_widget.spectrum_widget.plot_bkg(self.model.get_background_pattern())
+            self.main_widget.pattern_widget.plot_bkg(self.model.get_background_pattern())
         if self.model.sq_pattern is not None:
-            self.main_widget.spectrum_widget.set_sq_pattern(self.model.sq_pattern, self.model.configuration_ind)
+            self.main_widget.pattern_widget.set_sq_pattern(self.model.sq_pattern, self.model.configuration_ind)
         if self.model.gr_pattern is not None:
-            self.main_widget.spectrum_widget.set_gr_pattern(self.model.gr_pattern, self.model.configuration_ind)
+            self.main_widget.pattern_widget.set_gr_pattern(self.model.gr_pattern, self.model.configuration_ind)
 
         self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl. \
             setText("{:.4f}".format(self.model.atomic_density))
@@ -178,9 +178,9 @@ class GlassureController(object):
         else:
             self.model.optimization_callback = None
 
-    def plot_optimization_progress(self, sq_spectrum, fr_spectrum, gr_spectrum):
-        self.main_widget.spectrum_widget.set_sq_pattern(sq_spectrum, self.model.configuration_ind)
-        self.main_widget.spectrum_widget.set_gr_pattern(gr_spectrum, self.model.configuration_ind)
+    def plot_optimization_progress(self, sq_pattern, fr_pattern, gr_pattern):
+        self.main_widget.pattern_widget.set_sq_pattern(sq_pattern, self.model.configuration_ind)
+        self.main_widget.pattern_widget.set_gr_pattern(gr_pattern, self.model.configuration_ind)
         QtWidgets.QApplication.processEvents()
 
     def optimize_density(self):

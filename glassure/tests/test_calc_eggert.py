@@ -24,18 +24,18 @@ class CalcEggertTest(unittest.TestCase):
         self.composition = {'Ar': 1}
         self.r = np.linspace(0.1, 10, 1000)
 
-        data_spectrum = Pattern.from_file(sample_path)
-        bkg_spectrum = Pattern.from_file(bkg_path)
-        self.data_spectrum = Pattern(data_spectrum.x / 10., data_spectrum.y)
-        self.bkg_spectrum = Pattern(bkg_spectrum.x / 10., bkg_spectrum.y)
+        data_pattern = Pattern.from_file(sample_path)
+        bkg_pattern = Pattern.from_file(bkg_path)
+        self.data_pattern = Pattern(data_pattern.x / 10., data_pattern.y)
+        self.bkg_pattern = Pattern(bkg_pattern.x / 10., bkg_pattern.y)
 
         bkg_scaling = 0.57
 
         self.q_min = 0.3
         self.q_max = 9.0
 
-        self.sample_spectrum = self.data_spectrum - bkg_scaling * self.bkg_spectrum
-        self.sample_spectrum = self.sample_spectrum.limit(self.q_min, self.q_max).extend_to(0, 0)
+        self.sample_pattern = self.data_pattern - bkg_scaling * self.bkg_pattern
+        self.sample_pattern = self.sample_pattern.limit(self.q_min, self.q_max).extend_to(0, 0)
 
     def test_calculate_atomic_number_sum(self):
         z_tot = calculate_atomic_number_sum({'O': 1})
@@ -82,7 +82,7 @@ class CalcEggertTest(unittest.TestCase):
         self.assertAlmostEqual(s_inf, 0.387305767285)
 
     def test_calculate_alpha(self):
-        q = self.sample_spectrum.x
+        q = self.sample_pattern.x
 
         inc = calculate_incoherent_scattering(self.composition, q)
         f_eff = calculate_effective_form_factors(self.composition, q)
@@ -91,12 +91,12 @@ class CalcEggertTest(unittest.TestCase):
         j = calculate_j(inc, z_tot, f_eff)
 
         atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
-        alpha = calculate_alpha(self.sample_spectrum, z_tot, f_eff, s_inf, j, atomic_density)
+        alpha = calculate_alpha(self.sample_pattern, z_tot, f_eff, s_inf, j, atomic_density)
 
         self.assertAlmostEqual(alpha, 0.150743212607, places=4)
 
     def test_calculate_coherent_scattering(self):
-        q = self.sample_spectrum.x
+        q = self.sample_pattern.x
 
         inc = calculate_incoherent_scattering(self.composition, q)
         f_eff = calculate_effective_form_factors(self.composition, q)
@@ -105,15 +105,15 @@ class CalcEggertTest(unittest.TestCase):
         j = calculate_j(inc, z_tot, f_eff)
 
         atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
-        alpha = calculate_alpha(self.sample_spectrum, z_tot, f_eff, s_inf, j, atomic_density)
+        alpha = calculate_alpha(self.sample_pattern, z_tot, f_eff, s_inf, j, atomic_density)
 
-        coherent_pattern = calculate_coherent_scattering(self.sample_spectrum, alpha, self.N,
+        coherent_pattern = calculate_coherent_scattering(self.sample_pattern, alpha, self.N,
                                                          inc)
 
         self.assertAlmostEqual(coherent_pattern.y[-1], 36.521, places=2)
 
     def test_calculate_sq(self):
-        q = self.sample_spectrum.x
+        q = self.sample_pattern.x
 
         inc = calculate_incoherent_scattering(self.composition, q)
         f_eff = calculate_effective_form_factors(self.composition, q)
@@ -122,9 +122,9 @@ class CalcEggertTest(unittest.TestCase):
         j = calculate_j(inc, z_tot, f_eff)
 
         atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
-        alpha = calculate_alpha(self.sample_spectrum, z_tot, f_eff, s_inf, j, atomic_density)
+        alpha = calculate_alpha(self.sample_pattern, z_tot, f_eff, s_inf, j, atomic_density)
 
-        coherent_pattern = calculate_coherent_scattering(self.sample_spectrum, alpha, self.N,
+        coherent_pattern = calculate_coherent_scattering(self.sample_pattern, alpha, self.N,
                                                          inc)
 
         sq_pattern = calculate_sq(coherent_pattern, self.N, z_tot, f_eff)
@@ -132,7 +132,7 @@ class CalcEggertTest(unittest.TestCase):
         self.assertAlmostEqual(sq_pattern.y[-1], 0.97, places=2)
 
     def test_calculate_fr(self):
-        q = self.sample_spectrum.x
+        q = self.sample_pattern.x
 
         inc = calculate_incoherent_scattering(self.composition, q)
         f_eff = calculate_effective_form_factors(self.composition, q)
@@ -141,9 +141,9 @@ class CalcEggertTest(unittest.TestCase):
         j = calculate_j(inc, z_tot, f_eff)
 
         atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
-        alpha = calculate_alpha(self.sample_spectrum, z_tot, f_eff, s_inf, j, atomic_density)
+        alpha = calculate_alpha(self.sample_pattern, z_tot, f_eff, s_inf, j, atomic_density)
 
-        coherent_pattern = calculate_coherent_scattering(self.sample_spectrum, alpha, self.N,
+        coherent_pattern = calculate_coherent_scattering(self.sample_pattern, alpha, self.N,
                                                          inc)
 
         sq_pattern = calculate_sq(coherent_pattern, self.N, z_tot, f_eff)
@@ -154,7 +154,7 @@ class CalcEggertTest(unittest.TestCase):
         self.assertLess(np.mean(fr_pattern.limit(5, 20).y), 0.2)
 
     def test_optimize_iq(self):
-        q = self.sample_spectrum.x
+        q = self.sample_pattern.x
 
         inc = calculate_incoherent_scattering(self.composition, q)
         f_eff = calculate_effective_form_factors(self.composition, q)
@@ -163,9 +163,9 @@ class CalcEggertTest(unittest.TestCase):
         j = calculate_j(inc, z_tot, f_eff)
 
         atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
-        alpha = calculate_alpha(self.sample_spectrum, z_tot, f_eff, s_inf, j, atomic_density)
+        alpha = calculate_alpha(self.sample_pattern, z_tot, f_eff, s_inf, j, atomic_density)
 
-        coherent_pattern = calculate_coherent_scattering(self.sample_spectrum, alpha, self.N,
+        coherent_pattern = calculate_coherent_scattering(self.sample_pattern, alpha, self.N,
                                                          inc)
 
         sq_pattern = calculate_sq(coherent_pattern, self.N, z_tot, f_eff)
@@ -177,8 +177,8 @@ class CalcEggertTest(unittest.TestCase):
         densities = np.arange(0.02, 0.031, 0.002)
         bkg_scalings = np.arange(0.5, 0.6, 0.02)
 
-        chi2_map = calculate_chi2_map(self.data_spectrum.limit(0.3, 9),
-                                      self.bkg_spectrum.limit(0.3, 9),
+        chi2_map = calculate_chi2_map(self.data_pattern.limit(0.3, 9),
+                                      self.bkg_pattern.limit(0.3, 9),
                                       self.composition,
                                       densities=densities,
                                       bkg_scalings=bkg_scalings,
@@ -191,8 +191,8 @@ class CalcEggertTest(unittest.TestCase):
         self.assertAlmostEqual(bkg_scalings[bkg_scaling_index], 0.54)
 
     def test_optimize_density_and_bkg_scaling(self):
-        density, _, bkg_scaling, _ = optimize_density_and_bkg_scaling(self.data_spectrum.limit(0.3, 9),
-                                                                      self.bkg_spectrum.limit(0.3, 9),
+        density, _, bkg_scaling, _ = optimize_density_and_bkg_scaling(self.data_pattern.limit(0.3, 9),
+                                                                      self.bkg_pattern.limit(0.3, 9),
                                                                       self.composition,
                                                                       initial_density=0.03,
                                                                       initial_bkg_scaling=0.3,
@@ -208,8 +208,8 @@ class CalcEggertTest(unittest.TestCase):
 
         chi2, density, density_err, bkg_scaling, bkg_scaling_err, diamond_content, diamond_content_err = \
             optimize_soller_dac(
-            self.data_spectrum.limit(0.3, 9),
-            self.bkg_spectrum.limit(0.3, 9),
+            self.data_pattern.limit(0.3, 9),
+            self.bkg_pattern.limit(0.3, 9),
             self.composition,
             wavelength=0.37,
             initial_density=0.025,
