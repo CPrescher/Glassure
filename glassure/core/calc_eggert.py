@@ -183,7 +183,7 @@ def calculate_fr(iq_spectrum, r=None, use_modification_fcn=False):
         modification = 1
 
     fr = 2.0 / np.pi * simps(modification * q * (iq) * \
-                             np.array(np.sin(np.mat(q).T * np.mat(r))).T, q)
+                             np.array(np.sin(np.outer(q.T, r))).T, q)
 
     return Pattern(r, fr)
 
@@ -235,7 +235,7 @@ def optimize_iq(iq_spectrum, r_cutoff, iterations, atomic_density, j, s_inf=1, u
 
         delta_fr = fr_int + 4 * np.pi * r * atomic_density
 
-        in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+        in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
         integral = np.trapz(in_integral, r) / attenuation_factor
         iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 
@@ -299,7 +299,7 @@ def calculate_chi2_map(data_spectrum, bkg_spectrum, composition,
 
                 delta_fr = fr_int + 4 * np.pi * r * density
 
-                in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+                in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
                 integral = np.trapz(in_integral, r)
                 iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 
@@ -358,7 +358,7 @@ def optimize_density_and_bkg_scaling(data_spectrum, bkg_spectrum, composition,
         delta_fr = fr_int + 4 * np.pi * r * density
 
         for iteration in range(iterations):
-            in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+            in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
             integral = np.trapz(in_integral, r)
             iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 
@@ -455,7 +455,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
         delta_fr = fr_int + 4 * np.pi * r * density
 
         for iteration in range(iterations):
-            in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+            in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
             integral = np.trapz(in_integral, r)
             iq_optimized = iq_int - 1. / q * (iq_int / (s_inf + j) + 1) * integral
 

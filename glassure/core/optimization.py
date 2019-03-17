@@ -61,7 +61,7 @@ def optimize_sq(sq_spectrum, r_cutoff, iterations, atomic_density, use_modificat
 
         delta_fr = fr_int + 4 * np.pi * r * atomic_density
 
-        in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+        in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
         integral = np.trapz(in_integral, r) / attenuation_factor
         sq_optimized = sq_int * (1 - 1. / q * integral)
 
@@ -319,7 +319,7 @@ def optimize_soller_dac(data_spectrum, bkg_spectrum, composition, initial_densit
         delta_fr = fr_int + 4 * np.pi * r * density
 
         for iteration in range(iterations):
-            in_integral = np.array(np.sin(np.mat(q).T * np.mat(r))) * delta_fr
+            in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
             integral = np.trapz(in_integral, r)
             iq_optimized = iq_int - 1. / q * (iq_int + 1) * integral
 
