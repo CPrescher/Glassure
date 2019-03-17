@@ -13,7 +13,7 @@ __all__ = ['calculate_normalization_factor_raw', 'calculate_normalization_factor
 
 
 def calculate_normalization_factor_raw(sample_pattern, atomic_density, f_squared_mean, f_mean_squared,
-                                       incoherent_scattering, attenuation_factor=0.001):
+                                       incoherent_scattering=None, attenuation_factor=0.001):
     """
     Calculates the normalization factor for a sample pattern given all the parameters. If you do not have them
     already calculated please consider using calculate_normalization_factor, which has an easier interface since it
@@ -23,13 +23,15 @@ def calculate_normalization_factor_raw(sample_pattern, atomic_density, f_squared
     :param atomic_density:      density in atoms per cubic Angstrom
     :param f_squared_mean:      <f^2>
     :param f_mean_squared:      <f>^2
-    :param incoherent_scattering: compton scattering from sample
+    :param incoherent_scattering: compton scattering from sample, if set to None, it will not be used
     :param attenuation_factor:  attenuation factor used in the exponential, in order to correct for the q cutoff
 
     :return:                    normalization factor
     """
     q, intensity = sample_pattern.data
     # calculate values for integrals
+    if incoherent_scattering is None:
+        incoherent_scattering = np.zeros_like(q)
     n1 = q ** 2 * ((f_squared_mean + incoherent_scattering) * np.exp(-attenuation_factor * q ** 2)) / \
          f_mean_squared
     n2 = q ** 2 * intensity * np.exp(-attenuation_factor * q ** 2) / f_mean_squared
@@ -39,7 +41,8 @@ def calculate_normalization_factor_raw(sample_pattern, atomic_density, f_squared
     return n
 
 
-def calculate_normalization_factor(sample_pattern, density, composition, attenuation_factor=0.001):
+def calculate_normalization_factor(sample_pattern, density, composition, attenuation_factor=0.001,
+                                   use_incoherent_scattering=True):
     """
     Calculates the normalization factor for a background subtracted sample pattern based on density and composition.
 
@@ -47,6 +50,7 @@ def calculate_normalization_factor(sample_pattern, density, composition, attenua
     :param density:             density in g/cm^3
     :param composition:         composition as a dictionary with the elements as keys and the abundances as values
     :param attenuation_factor:  attenuation factor used in the exponential, in order to correct for the q cutoff
+    :use_incoherent_scattering: whether to use incoherent scattering, in some cases it is already subtracted
 
     :return: normalization factor
     """
@@ -54,14 +58,17 @@ def calculate_normalization_factor(sample_pattern, density, composition, attenua
 
     f_squared_mean = calculate_f_squared_mean(composition, q)
     f_mean_squared = calculate_f_mean_squared(composition, q)
-    incoherent_scattering = calculate_incoherent_scattering(composition, q)
+    if use_incoherent_scattering:
+        incoherent_scattering = calculate_incoherent_scattering(composition, q)
+    else:
+        incoherent_scattering = None
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
 
     return calculate_normalization_factor_raw(sample_pattern, atomic_density, f_squared_mean, f_mean_squared,
                                               incoherent_scattering, attenuation_factor)
 
 
-def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="squared"):
+def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="squared", use_incoherent_scattering=True):
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
 
@@ -71,10 +78,11 @@ def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="sq
 
     where n and Multiple Scattering are free parameters
 
-    :param sample_pattern: background subtracted sample pattern with A^-1 as x unit
-    :param composition:     composition as a dictionary with the elements as keys and the abundances as values
-    :param q_cutoff:        q value above which the fitting will be performed, default = 3
-    :param method:          specifies whether q^2 ("squared") or q (linear) should be used
+    :param sample_pattern:      background subtracted sample pattern with A^-1 as x unit
+    :param composition:         composition as a dictionary with the elements as keys and the abundances as values
+    :param q_cutoff:            q value above which the fitting will be performed, default = 3
+    :param method:              specifies whether q^2 ("squared") or q (linear) should be used
+    :use_incoherent_scattering: whether to use incoherent scattering, in some cases it is already subtracted
 
     :return: normalization factor
     """
@@ -87,7 +95,9 @@ def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="sq
     else:
         raise NotImplementedError("{} is not an allowed method for fit_normalization_factor".format(method))
 
-    theory = (calculate_incoherent_scattering(composition, q) + calculate_f_squared_mean(composition, q)) * x
+    theory = calculate_f_squared_mean(composition, q) * x
+    if use_incoherent_scattering:
+        theory += x * calculate_incoherent_scattering(composition, q)
 
     params = lmfit.Parameters()
     params.add("n", value=1, min=0)
@@ -102,7 +112,7 @@ def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="sq
     return out.params['n'].value
 
 
-def calculate_sq_raw(sample_pattern, f_squared_mean, f_mean_squared, incoherent_scattering, normalization_factor,
+def calculate_sq_raw(sample_pattern, f_squared_mean, f_mean_squared, incoherent_scattering=None, normalization_factor=1,
                      method='FZ'):
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
@@ -115,7 +125,7 @@ def calculate_sq_raw(sample_pattern, f_squared_mean, f_mean_squared, incoherent_
     :param f_squared_mean:        <f^2>
     :param f_mean_squared:        <f>^2
     :param incoherent_scattering: compton scattering from sample
-    :param normalization_factor:  previously calculated normalization factor
+    :param normalization_factor:  previously calculated normalization factor, if None, it will not be subtracted
     :param method:                describing the method to calculate the structure factor, possible values are
                                     - 'AL' - Ashcroft-Langreth
                                     - 'FZ' - Faber-Ziman
@@ -123,6 +133,9 @@ def calculate_sq_raw(sample_pattern, f_squared_mean, f_mean_squared, incoherent_
     :return: S(Q) pattern
     """
     q, intensity = sample_pattern.data
+    if incoherent_scattering is None:
+        incoherent_scattering = np.zeros_like(q)
+
     if method == 'FZ':
         sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean + f_mean_squared) / \
              f_mean_squared
@@ -134,7 +147,7 @@ def calculate_sq_raw(sample_pattern, f_squared_mean, f_mean_squared, incoherent_
 
 
 def calculate_sq(sample_pattern, density, composition, attenuation_factor=0.001, method='FZ',
-                 normalization_method='int'):
+                 normalization_method='int', use_incoherent_scattering=True):
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
 
@@ -155,15 +168,21 @@ def calculate_sq(sample_pattern, density, composition, attenuation_factor=0.001,
     :param normalization_method: determines the method used for estimating the normalization method. possible values are
                                  'int' for an integral or 'fit' for fitting the high q region form factors.
 
+    :use_incoherent_scattering: whether to use incoherent scattering, in some cases it is already subtracted
+
     :return: S(Q) pattern
     """
     q, intensity = sample_pattern.data
     f_squared_mean = calculate_f_squared_mean(composition, q)
     f_mean_squared = calculate_f_mean_squared(composition, q)
-    incoherent_scattering = calculate_incoherent_scattering(composition, q)
+    if use_incoherent_scattering:
+        incoherent_scattering = calculate_incoherent_scattering(composition, q)
+    else:
+        incoherent_scattering = None
+
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
     if normalization_method == 'fit':
-        normalization_factor = fit_normalization_factor(sample_pattern, composition)
+        normalization_factor = fit_normalization_factor(sample_pattern, composition, use_incoherent_scattering)
     else:
         normalization_factor = calculate_normalization_factor_raw(sample_pattern,
                                                                   atomic_density,
@@ -183,7 +202,7 @@ def calculate_sq_from_gr(gr_pattern, q, density, composition, use_modification_f
     """
     Performs a back Fourier transform from the pair distribution function g(r)
 
-    :param gr_pattern:     g(r) pattern
+    :param gr_pattern:      g(r) pattern
     :param q:               numpy array of q values for which S(Q) should be calculated
     :param density:         density of the sample in g/cm^3
     :param composition:     composition as a dictionary with the elements as keys and the abundances as values
@@ -219,13 +238,15 @@ def calculate_fr(sq_pattern, r=None, use_modification_fcn=False, method='integra
 
     can be used to address issues with a low q_max. This will broaden the sharp peaks in g(r)
 
-    :param sq_pattern:             Structure factor S(Q) with lim_inf S(Q) = 1 and unit(q)=A^-1
+    :param sq_pattern:              Structure factor S(Q) with lim_inf S(Q) = 1 and unit(q)=A^-1
     :param r:                       numpy array giving the r-values for which F(r) will be calculated,
                                     default is 0 to 10 with 0.01 as a step. units should be in Angstrom.
     :param use_modification_fcn:    boolean flag whether to use the Lorch modification function
     :param method:                  determines the method use for calculating fr, possible values are:
                                             - 'integral' solves the Fourier integral, by calculating the integral
                                             - 'fft' solves the Fourier integral by using fast fourier transformation
+    :param extend:                  boolean flag determining whether the input sq_pattern will be extended to 0 by
+                                    adding zeros to the left of the pattern. Default is True
 
     :return: F(r) pattern
     """
