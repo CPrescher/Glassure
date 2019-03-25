@@ -211,7 +211,7 @@ def calculate_fr(sq_pattern, r=None, use_modification_fcn=False, method='integra
     :param r:                       numpy array giving the r-values for which F(r) will be calculated,
                                     default is 0 to 10 with 0.01 as a step. units should be in Angstrom.
     :param use_modification_fcn:    boolean flag whether to use the Lorch modification function
-    :param method:                  determines the method use for calculating fr, possible values are:
+    :param method:                  determines the method used for calculating fr, possible values are:
                                             - 'integral' solves the Fourier integral, by calculating the integral
                                             - 'fft' solves the Fourier integral by using fast fourier transformation
 
