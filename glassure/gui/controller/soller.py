@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 from ..widgets.glassure import GlassureWidget
 from ..model.glassure import GlassureModel

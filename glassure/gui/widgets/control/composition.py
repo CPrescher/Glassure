@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 from ...qt import QtCore, QtGui, QtWidgets, Signal
 from ....core.scattering_factors import scattering_factor_param

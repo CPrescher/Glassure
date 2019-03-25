@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 from glassure.gui.controller.glassure import GlassureController
 from glassure.tests.gui_tests.utility import click_button, QtTest
 

@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 from ...qt import QtWidgets
 
 def open_file_dialog(parent_widget, caption, directory, filter=None):

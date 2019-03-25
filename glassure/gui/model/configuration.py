@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 from colorsys import hsv_to_rgb
 from copy import deepcopy
 

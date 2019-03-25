@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 from glassure.gui.qt import QtCore, QTest
 from glassure.gui.controller.glassure import GlassureController
 from .utility import prepare_file_loading, QtTest

@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 from mock import MagicMock
 
 from glassure.gui.controller.glassure import GlassureController
