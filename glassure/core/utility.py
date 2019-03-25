@@ -79,7 +79,7 @@ def calculate_weighting_factor(composition, element_1, element_2, q):
         f[element] = calculate_coherent_scattering_factor(element, q)
         c[element] = val / num_atoms
 
-    f_sum_squared = zeros_like(q)
+    f_sum_squared = np.zeros_like(q)
     for element, conc in c.items():
         f_sum_squared += f[element] * conc
     f_sum_squared = f_sum_squared ** 2
