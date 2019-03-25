@@ -13,7 +13,8 @@ from . import scattering_factors
 __all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_incoherent_scattering',
            'extrapolate_to_zero_linear', 'extrapolate_to_zero_poly', 'extrapolate_to_zero_spline',
            'convert_density_to_atoms_per_cubic_angstrom',
-           'convert_two_theta_to_q_space', 'convert_two_theta_to_q_space_raw']
+           'convert_two_theta_to_q_space', 'convert_two_theta_to_q_space_raw',
+           'calculate_weighting_factor']
 
 
 def calculate_f_mean_squared(composition, q):
@@ -56,6 +57,34 @@ def calculate_incoherent_scattering(composition, q):
     for key, value in norm_elemental_abundances.items():
         res += value * calculate_incoherent_scattered_intensity(key, q)
     return res
+
+
+def calculate_weighting_factor(composition, element_1, element_2, q):
+    """
+    Calculates the weighting factor for an element-element contribution in a given composition (e.g. for Si-O in SiO2)
+    :param composition: dictionary with elements as key string and abundances as relative numbers
+    :param element_1: string giving element 1
+    :param element_2: string giving element 2
+    :param q: Q value or numpy array with a unit of A^-1
+    """
+    if element_1 == element_2:
+        factor = 1
+    else:
+        factor = 2
+
+    num_atoms = sum([val for _, val in composition.items()])
+    f = {}  # form factors
+    c = {}  # concentrations
+    for element, val in composition.items():
+        f[element] = calculate_coherent_scattering_factor(element, q)
+        c[element] = val / num_atoms
+
+    f_sum_squared = zeros_like(q)
+    for element, conc in c.items():
+        f_sum_squared += f[element] * conc
+    f_sum_squared = f_sum_squared ** 2
+
+    return factor * c[element_1] * c[element_2] * f[element_1] * f[element_2] / f_sum_squared
 
 
 def normalize_composition(composition):
