@@ -1,0 +1,56 @@
+# Config file for automatic testing at travis-ci.org
+language: python
+
+python:
+  - 2.7
+  - 3.6
+  
+cache:
+  pip: true
+  directories:
+    - /home/travis/miniconda2
+    - /home/travis/miniconda3
+  
+before_install:
+  # install anaconda
+  - echo $TRAVIS_PYTHON_VERSION
+  - if [ "$TRAVIS_PYTHON_VERSION" == "2.7" ]; then
+      if [ ! -d "/home/travis/miniconda2/bin" ]; then
+        rm -rf /home/travis/miniconda2;
+        wget http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+        chmod +x miniconda.sh;
+        ./miniconda.sh -b;
+      fi
+    fi
+  - if [ "$TRAVIS_PYTHON_VERSION" == "3.6" ]; then
+      if [ ! -d "/home/travis/miniconda3/bin" ]; then
+        rm -rf /home/travis/miniconda3;
+        wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+        chmod +x miniconda.sh;
+        ./miniconda.sh -b;
+      fi
+    fi
+    
+  - if [ "$TRAVIS_PYTHON_VERSION" == "2.7" ]; then
+      export PATH=/home/travis/miniconda2/bin:$PATH;
+    else
+      export PATH=/home/travis/miniconda3/bin:$PATH;
+    fi
+    
+  - conda update --yes conda
+  - export PYTHONPATH=$PWD/glassure:$PYTHONPATH
+
+  #start x-server
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+
+install:
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy pyqt pytest pytest-cov pandas mock
+  - pip install pyqtgraph lmfit coveralls coverage
+
+script:
+  - coverage run --source glassure -m py.test
+  - coverage report -m
+
+after_success:
+  coveralls
