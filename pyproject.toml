@@ -42,8 +42,9 @@ numpy = "^1.24.2"
 scipy = "^1.10.1"
 lmfit = "^1.2.0"
 pandas = "^2.0.0"
-pyqt5 = "^5.15.9"
 pyqtgraph = "^0.13.3"
+pyqt6 = "^6.5.0"
+qtpy = "^2.3.1"
 
 [tool.poetry.group.dev.dependencies]
 mock = "^5.0.1"
