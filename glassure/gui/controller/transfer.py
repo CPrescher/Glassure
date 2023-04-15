@@ -38,7 +38,7 @@ class TransferFunctionController(object):
         filename = str(QtGui.QFileDialog.getOpenFileName(self.widget,
                                                          caption="Load Sample Pattern (in Container)"))
 
-        if filename is not '':
+        if filename != '':
             self.model.load_transfer_sample_pattern(filename)
             self.working_directory = os.path.dirname(filename)
             self.transfer_widget.sample_filename_lbl.setText(os.path.basename(filename))
@@ -47,7 +47,7 @@ class TransferFunctionController(object):
         filename = str(QtGui.QFileDialog.getOpenFileName(self.widget,
                                                          caption="Load Sample Pattern (in Container)"))
 
-        if filename is not '':
+        if filename != '':
             self.model.load_transfer_sample_bkg_pattern(filename)
             self.working_directory = os.path.dirname(filename)
             self.transfer_widget.sample_bkg_filename_lbl.setText(os.path.basename(filename))
@@ -56,7 +56,7 @@ class TransferFunctionController(object):
         filename = str(QtGui.QFileDialog.getOpenFileName(self.widget,
                                                          caption="Load Sample Pattern (in Container)"))
 
-        if filename is not '':
+        if filename != '':
             self.model.load_transfer_std_pattern(filename)
             self.working_directory = os.path.dirname(filename)
             self.transfer_widget.std_filename_lbl.setText(os.path.basename(filename))
@@ -65,7 +65,7 @@ class TransferFunctionController(object):
         filename = str(QtGui.QFileDialog.getOpenFileName(self.widget,
                                                          caption="Load Sample Pattern (in Container)"))
 
-        if filename is not '':
+        if filename != '':
             self.model.load_transfer_std_bkg_pattern(filename)
             self.working_directory = os.path.dirname(filename)
             self.transfer_widget.std_bkg_filename_lbl.setText(os.path.basename(filename))

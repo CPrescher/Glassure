@@ -94,7 +94,7 @@ class GlassureController(object):
         filename = open_file_dialog(self.main_widget, caption="Load Pattern",
                                     directory=self.settings.value('working_directory'))
 
-        if filename is not '':
+        if filename != '':
             self.model.load_data(filename)
             self.settings.setValue('working_directory', os.path.dirname(filename))
             self.main_widget.left_control_widget.data_widget.file_widget.data_filename_lbl.setText(
@@ -127,18 +127,18 @@ class GlassureController(object):
         self.model.background_scaling = value
 
     def update_bkg_scale_step(self):
-        value = np.float(self.main_widget.bkg_scale_step_txt.text())
+        value = float(self.main_widget.bkg_scale_step_txt.text())
         self.main_widget.bkg_scale_sb.setSingleStep(value)
 
     def update_bkg_offset_step(self):
-        value = np.float(self.main_widget.bkg_offset_step_txt.text())
+        value = float(self.main_widget.bkg_offset_step_txt.text())
         self.main_widget.bkg_offset_sb.setSingleStep(value)
 
     def smooth_changed(self, value):
         self.model.set_smooth(value)
 
     def update_smooth_step(self):
-        value = np.float(self.main_widget.smooth_step_txt.text())
+        value = float(self.main_widget.smooth_step_txt.text())
         self.main_widget.smooth_sb.setSingleStep(value)
 
     def add_element_btn_clicked(self):
@@ -214,7 +214,7 @@ class GlassureController(object):
                                     "Save S(Q) Data.",
                                     sq_filename,
                                     ('Data (*.txt)'))
-        if filename is not '':
+        if filename != '':
             self.model.sq_pattern.save(filename)
             self.settings.setValue('sq_directory', os.path.dirname(filename))
 
@@ -228,6 +228,6 @@ class GlassureController(object):
                                     "Save g(r) Data.",
                                     gr_filename,
                                     ('Data (*.txt)'))
-        if filename is not '':
+        if filename != '':
             self.model.gr_pattern.save(filename)
             self.settings.setValue('gr_directory', os.path.dirname(filename))

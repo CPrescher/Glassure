@@ -38,10 +38,10 @@ def calculate_incoherent_scattered_intensity(element, q):
     fs_coherent = calculate_coherent_scattering_factor(element, q)
     intensity_coherent = fs_coherent ** 2
     s = q / (4 * np.pi)
-    Z = np.float(scattering_intensity_param['Z'][element])
-    M = np.float(scattering_intensity_param['M'][element])
-    K = np.float(scattering_intensity_param['K'][element])
-    L = np.float(scattering_intensity_param['L'][element])
+    Z = float(scattering_intensity_param['Z'][element])
+    M = float(scattering_intensity_param['M'][element])
+    K = float(scattering_intensity_param['K'][element])
+    L = float(scattering_intensity_param['L'][element])
     intensity_incoherent = (Z - intensity_coherent / Z) * (1 - M * (np.exp(-K * s) - np.exp(-L * s)))
     return intensity_incoherent
 
