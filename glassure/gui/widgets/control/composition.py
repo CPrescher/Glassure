@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtCore, QtGui, QtWidgets, Signal
+from qtpy import QtCore, QtGui, QtWidgets
 from ....core.scattering_factors import scattering_factor_param
 
+Signal = QtCore.Signal
 
 class CompositionWidget(QtWidgets.QWidget):
     composition_changed = Signal(dict, float)

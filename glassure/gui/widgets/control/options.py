@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtCore, QtGui, QtWidgets, Signal
-
+from qtpy import QtCore, QtGui, QtWidgets
 from ..custom import HorizontalLine
 
 
 class OptionsWidget(QtWidgets.QWidget):
-    options_parameters_changed = Signal()
+    options_parameters_changed = QtCore.Signal()
 
     def __init__(self, *args):
         super(OptionsWidget, self).__init__(*args)
@@ -51,7 +50,7 @@ class OptionsWidget(QtWidgets.QWidget):
         self.grid_layout.setSpacing(5)
 
         self.grid_layout.addItem(QtWidgets.QSpacerItem(50, 0, QtWidgets.QSizePolicy.MinimumExpanding,
-                                                             QtWidgets.QSizePolicy.Fixed), 0, 0)
+                                                       QtWidgets.QSizePolicy.Fixed), 0, 0)
         self.grid_layout.addWidget(self.q_range_lbl, 0, 1)
         self.grid_layout.addWidget(self.q_min_txt, 0, 2)
         self.grid_layout.addWidget(QtWidgets.QLabel('-'), 0, 3)

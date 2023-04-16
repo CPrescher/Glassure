@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtWidgets
+from qtpy import QtWidgets
 
 
 def HorizontalLine():

@@ -6,7 +6,7 @@ import sys
 
 from glassure import __version__
 from glassure.gui.controller.glassure import GlassureController
-from glassure.gui.qt import QtWidgets
+from qtpy import QtWidgets
 
 
 def my_exception_hook(exctype, value, traceback):

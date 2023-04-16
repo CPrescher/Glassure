@@ -1,18 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-
-import numpy as np
-
-from ..qt import QtGui, QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets
 import pyqtgraph as pg
-
-# # Switch to using white background and black foreground
-pg.setConfigOption('useOpenGL', False)
-pg.setConfigOption('leftButtonPan', False)
-pg.setConfigOption('background', 'k')
-pg.setConfigOption('foreground', 'w')
-pg.setConfigOption('antialias', True)
 
 from ..widgets.glassure import GlassureWidget
 from ..widgets.custom.file_dialogs import open_file_dialog, save_file_dialog
@@ -22,6 +12,13 @@ from ..model.glassure import GlassureModel
 from .configuration import ConfigurationController
 from .soller import SollerController
 from .transfer import TransferFunctionController
+
+# # Switch to using black background and white foreground
+pg.setConfigOption('useOpenGL', False)
+pg.setConfigOption('leftButtonPan', False)
+pg.setConfigOption('background', 'k')
+pg.setConfigOption('foreground', 'w')
+pg.setConfigOption('antialias', True)
 
 
 class GlassureController(object):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ..qt import QtGui
+from qtpy import QtGui
 
 from ..widgets.glassure import GlassureWidget
 from ..model.glassure import GlassureModel

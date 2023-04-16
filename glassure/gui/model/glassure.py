@@ -2,7 +2,7 @@
 
 import numpy as np
 from lmfit import Parameters, minimize
-from ..qt import QtGui, QtCore, Signal
+from qtpy import QtGui, QtCore
 
 from ...core.pattern import Pattern
 from .density_optimization import DensityOptimizer
@@ -19,12 +19,12 @@ from .configuration import GlassureConfiguration
 
 
 class GlassureModel(QtCore.QObject):
-    configurations_changed = Signal()
-    configuration_selected = Signal(int)
-    data_changed = Signal()
-    sq_changed = Signal(Pattern)
-    fr_changed = Signal(Pattern)
-    gr_changed = Signal(Pattern)
+    configurations_changed = QtCore.Signal()
+    configuration_selected = QtCore.Signal(int)
+    data_changed = QtCore.Signal()
+    sq_changed = QtCore.Signal(Pattern)
+    fr_changed = QtCore.Signal(Pattern)
+    gr_changed = QtCore.Signal(Pattern)
 
     def __init__(self):
         super(GlassureModel, self).__init__()

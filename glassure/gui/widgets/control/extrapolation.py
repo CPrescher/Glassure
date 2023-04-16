@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtCore, QtGui, QtWidgets, Signal
+from qtpy import QtCore, QtGui, QtWidgets
 
 from ..custom import HorizontalLine, HorizontalSpacerItem
 
 
 class ExtrapolationWidget(QtWidgets.QWidget):
-    extrapolation_parameters_changed = Signal()
+    extrapolation_parameters_changed = QtCore.Signal()
 
     def __init__(self, *args):
         super(ExtrapolationWidget, self).__init__(*args)

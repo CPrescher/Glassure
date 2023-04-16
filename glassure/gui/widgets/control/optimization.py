@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtCore, QtGui, QtWidgets, Signal
-
+from qtpy import QtCore, QtGui, QtWidgets
 from ..custom import NumberTextField, LabelAlignRight, HorizontalLine
+
+Signal = QtCore.Signal
 
 
 class OptimizationWidget(QtWidgets.QWidget):
@@ -84,7 +85,6 @@ class OptimizationWidget(QtWidgets.QWidget):
         self.r_cutoff_txt.editingFinished.connect(self.emit_calculation_changed_signal)
         self.optimize_iterations_txt.editingFinished.connect(self.emit_calculation_changed_signal)
         self.attenuation_factor_sb.valueChanged.connect(self.optimization_parameters_changed.emit)
-
 
     def emit_calculation_changed_signal(self):
         if self.r_cutoff_txt.isModified():
