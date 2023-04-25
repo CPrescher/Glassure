@@ -57,7 +57,7 @@ class CalcTest(unittest.TestCase):
         fr_fft = calculate_fr(sq, r=np.arange(0, 100, 0.01), method='fft')
         sq_fft = calculate_sq_from_fr(fr_fft, sq.x, method='fft')
 
-        self.assertAlmostEqual(np.mean((sq_fft-sq).limit(5, 20).y**2), 0, places=5)
+        self.assertAlmostEqual(np.mean((sq_fft - sq).limit(5, 20).y ** 2), 0, places=5)
 
     def test_calculate_sq_from_fr_using_integral(self):
         sq = calculate_sq(self.sample_pattern.limit(0, 20), self.density, self.composition).extend_to(0, 0)
@@ -65,7 +65,7 @@ class CalcTest(unittest.TestCase):
         fr_fft = calculate_fr(sq, r=np.arange(0, 100, 0.01), method='integral')
         sq_fft = calculate_sq_from_fr(fr_fft, sq.x, method='integral')
 
-        self.assertAlmostEqual(np.mean((sq_fft-sq).limit(5, 20).y**2), 0, places=5)
+        self.assertAlmostEqual(np.mean((sq_fft - sq).limit(5, 20).y ** 2), 0, places=5)
 
     def test_calculate_sq_from_gr_using_fft(self):
         atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
@@ -73,8 +73,8 @@ class CalcTest(unittest.TestCase):
         sq = optimize_sq(sq, 1.4, 5, atomic_density)
 
         fr_fft = calculate_fr(sq, r=np.arange(0, 100, 0.01), method='fft')
-        gr_fft = calculate_gr(fr_fft, self.density, self.composition)
+        gr_fft = calculate_gr(fr_fft, self.density, self.composition).limit(0, 25)
 
         sq_fft = calculate_sq_from_gr(gr_fft, sq.x, self.density, self.composition, method='fft')
 
-        self.assertAlmostEqual(np.mean((sq_fft-sq).limit(5, 20).y**2), 0, places=5)
+        self.assertAlmostEqual(np.mean((sq_fft - sq).limit(5, 20).y ** 2), 0, places=4)

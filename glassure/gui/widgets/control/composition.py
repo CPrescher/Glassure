@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from qtpy import QtCore, QtGui, QtWidgets
-from ....core.scattering_factors import scattering_factor_param
+from ....core.scattering_factors import scattering_calculator
 
 Signal = QtCore.Signal
+
 
 class CompositionWidget(QtWidgets.QWidget):
     composition_changed = Signal(dict, float)
@@ -72,7 +73,7 @@ class CompositionWidget(QtWidgets.QWidget):
         element_cb = QtWidgets.QComboBox(self)
         element_cb.setStyle(QtWidgets.QStyleFactory.create('cleanlooks'))
 
-        for ind, ele in enumerate(scattering_factor_param.index):
+        for ind, ele in enumerate(scattering_calculator.elements):
             element_cb.insertItem(ind, ele)
 
         if element is not None:

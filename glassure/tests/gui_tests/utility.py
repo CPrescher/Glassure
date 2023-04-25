@@ -5,7 +5,8 @@ import unittest
 import numpy as np
 from mock import MagicMock
 
-from glassure.gui.qt import QtCore, QTest, QtWidgets
+from qtpy import QtCore, QtWidgets
+from qtpy.QtTest import QTest
 
 unittest_data_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 
@@ -35,7 +36,7 @@ def set_widget_text(widget, txt):
 
 
 def click_checkbox(checkbox_widget):
-    QTest.mouseClick(checkbox_widget, QtCore.Qt.LeftButton, pos=QtCore.QPoint(2, checkbox_widget.height() / 2))
+    QTest.mouseClick(checkbox_widget, QtCore.Qt.LeftButton, pos=QtCore.QPoint(2, int(checkbox_widget.height() / 2)))
 
 
 def click_button(widget):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from qtpy import QtGui
+from qtpy import QtGui, QtWidgets
 
 from ..widgets.glassure import GlassureWidget
 from ..model.glassure import GlassureModel
@@ -137,8 +137,8 @@ class ConfigurationController(object):
         :param ind: configuration ind
         :param button: button to color
         """
-        previous_color = button.palette().color(1)
-        new_color = QtGui.QColorDialog.getColor(previous_color, self.widget)
+        previous_color = button.palette().color(QtGui.QPalette.Button)
+        new_color = QtWidgets.QColorDialog.getColor(previous_color, self.widget)
 
         if not new_color.isValid():
             return
