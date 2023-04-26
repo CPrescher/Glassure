@@ -181,7 +181,7 @@ class ModifiedPlotItem(pg.PlotItem):
         if ev.button() == QtCore.Qt.RightButton or \
                 (ev.button() == QtCore.Qt.LeftButton and
                  ev.modifiers() & QtCore.Qt.ControlModifier):
-            self.vb.scaleBy(2)
+            self.vb.scaleBy((2, 2))
             self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])
         elif ev.button() == QtCore.Qt.LeftButton:
             if self.sceneBoundingRect().contains(ev.pos()):

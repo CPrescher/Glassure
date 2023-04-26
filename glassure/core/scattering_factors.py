@@ -135,15 +135,45 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
         return self.incoherent_intensities.keys()
 
 
-scattering_calculator = ScatteringFactorCalculatorHajdu()
+calculators = {
+    'hajdu': ScatteringFactorCalculatorHajdu(),
+    'brown_hubbell': ScatteringFactorCalculatorBrownHubbell()
+}
+
+sources = calculators.keys()
+
+current_calculator = calculators['hajdu']
+
+
+def set_source(source):
+    """
+    Sets the source of the scattering factor data.
+    :param source: Source of the scattering factor data. Currently supported are 'hajdu' and 'brown_hubbell'.
+    """
+    if source not in calculators.keys():
+        raise SourceNotImplementedException(source)
+    global current_calculator
+    current_calculator = calculators[source]
 
 
 def calculate_coherent_scattering_factor(element, q):
-    return scattering_calculator.get_coherent_scattering_factor(element, q)
+    """
+    Calculates the coherent scattering factor for a given element and q values.
+    :param element: Element symbol
+    :param q: q array
+    :return: coherent scattering factor array
+    """
+    return current_calculator.get_coherent_scattering_factor(element, q)
 
 
 def calculate_incoherent_scattered_intensity(element, q):
-    return scattering_calculator.get_incoherent_intensity(element, q)
+    """
+    Calculates the incoherent scattering intensity for a given element and q values.
+    :param element: Element symbol
+    :param q: q array
+    :return: incoherent scattering intensity array
+    """
+    return current_calculator.get_incoherent_intensity(element, q)
 
 
 class ElementNotImplementedException(Exception):
@@ -152,3 +182,11 @@ class ElementNotImplementedException(Exception):
 
     def __str__(self):
         return repr('Element ' + self.element + ' not known or available.')
+
+
+class SourceNotImplementedException(Exception):
+    def __init__(self, source):
+        self.source = source
+
+    def __str__(self):
+        return repr('Source ' + self.source + ' not known or available.')
