@@ -8,6 +8,8 @@ from ..widgets.glassure import GlassureWidget
 from ..widgets.custom.file_dialogs import open_file_dialog, save_file_dialog
 
 from ..model.glassure import GlassureModel
+from ...core.scattering_factors import set_source as set_scattering_data_source
+from ...core.scattering_factors import get_available_elements
 
 from .configuration import ConfigurationController
 from .soller import SollerController
@@ -55,6 +57,8 @@ class GlassureController(object):
         self.main_widget.smooth_sb.valueChanged.connect(self.smooth_changed)
 
         # updating the composition
+        self.main_widget.left_control_widget.composition_widget.source_cb.currentTextChanged.connect(
+            self.data_source_changed)
         self.main_widget.add_element_btn.clicked.connect(self.add_element_btn_clicked)
         self.main_widget.delete_element_btn.clicked.connect(self.delete_element_btn_clicked)
         self.main_widget.left_control_widget.composition_widget.composition_changed.connect(self.update_model)
@@ -144,6 +148,15 @@ class GlassureController(object):
     def delete_element_btn_clicked(self):
         cur_ind = self.main_widget.left_control_widget.composition_widget.composition_tw.currentRow()
         self.main_widget.left_control_widget.composition_widget.delete_element(cur_ind)
+
+    def data_source_changed(self, text):
+        set_scattering_data_source(text)
+        composition = self.main_widget.get_composition()
+        for element in list(composition.keys()):
+            if element not in get_available_elements():
+                del composition[element]
+        self.main_widget.left_control_widget.composition_widget.set_composition(composition)
+        self.update_model()
 
     def update_model(self):
         composition = self.main_widget.get_composition()

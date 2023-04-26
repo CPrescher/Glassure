@@ -156,6 +156,10 @@ def set_source(source):
     current_calculator = calculators[source]
 
 
+def get_available_elements():
+    return current_calculator.elements
+
+
 def calculate_coherent_scattering_factor(element, q):
     """
     Calculates the coherent scattering factor for a given element and q values.

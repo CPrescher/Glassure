@@ -578,7 +578,7 @@ class GlassureModel(QtCore.QObject):
         self.write_output(output)
 
     def set_diamond_content(self, content_value):
-        if content_value is 0:
+        if content_value == 0:
             self.diamond_bkg_pattern = None
             self.calculate_transforms()
             return
