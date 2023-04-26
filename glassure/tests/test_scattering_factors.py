@@ -69,9 +69,6 @@ def test_consistency_of_incoherent_scattering(form_factor_vitali):
     assert np.abs(np.sum(incoherent_fe - incoherent_vitali_fe)) < 1e-12
 
 
-import matplotlib.pyplot as plt
-
-
 def test_consistency_between_brown_and_hajdu_form_factors():
     hajdu_calculator = ScatteringFactorCalculatorHajdu()
     brown_calculator = ScatteringFactorCalculatorBrownHubbell()
