@@ -2,7 +2,9 @@
 
 import pyqtgraph as pg
 import numpy as np
-from ...qt import QtCore, QtWidgets, QtGui, Signal
+from qtpy import QtCore, QtWidgets
+
+Signal = QtCore.Signal
 
 
 class PatternWidget(QtWidgets.QWidget):
@@ -178,8 +180,8 @@ class ModifiedPlotItem(pg.PlotItem):
     def mouse_click_event(self, ev):
         if ev.button() == QtCore.Qt.RightButton or \
                 (ev.button() == QtCore.Qt.LeftButton and
-                         ev.modifiers() & QtCore.Qt.ControlModifier):
-            self.vb.scaleBy(2)
+                 ev.modifiers() & QtCore.Qt.ControlModifier):
+            self.vb.scaleBy((2, 2))
             self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])
         elif ev.button() == QtCore.Qt.LeftButton:
             if self.sceneBoundingRect().contains(ev.pos()):
@@ -190,7 +192,7 @@ class ModifiedPlotItem(pg.PlotItem):
 
     def mouse_double_click_event(self, ev):
         if (ev.button() == QtCore.Qt.RightButton) or (ev.button() == QtCore.Qt.LeftButton and
-                                                              ev.modifiers() & QtCore.Qt.ControlModifier):
+                                                      ev.modifiers() & QtCore.Qt.ControlModifier):
             self.vb.autoRange()
             self.vb.enableAutoRange()
             self._auto_range = True

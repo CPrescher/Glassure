@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtCore, QtWidgets, QtGui
+from qtpy import QtCore, QtWidgets, QtGui
 
 
 class DiamondWidget(QtWidgets.QWidget):

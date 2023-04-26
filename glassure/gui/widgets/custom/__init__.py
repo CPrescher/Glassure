@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtCore, QtGui, QtWidgets, Signal
+from qtpy import QtCore, QtGui, QtWidgets
 from .box import ExpandableBox
 from .lines import HorizontalLine
 from .pattern import PatternWidget
+
+Signal = QtCore.Signal
 
 
 def VerticalSpacerItem():

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from mock import MagicMock
+from qtpy import QtGui, QtWidgets
 
 from glassure.gui.controller.glassure import GlassureController
-from glassure.gui.qt import QtGui, QtWidgets
 from glassure.tests.gui_tests.utility import set_widget_text, click_checkbox, click_button, QtTest
 
 

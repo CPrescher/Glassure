@@ -5,10 +5,12 @@ from copy import deepcopy
 import numpy as np
 from scipy.integrate import simps
 
-from .scattering_factors import scattering_factor_param, calculate_coherent_scattering_factor, \
-    calculate_incoherent_scattered_intensity
+from .scattering_factors import calculate_coherent_scattering_factor, calculate_incoherent_scattered_intensity, \
+    ScatteringFactorCalculatorHajdu
 from .soller_correction import SollerCorrection
 from .pattern import Pattern
+
+scattering_factor_param = ScatteringFactorCalculatorHajdu().coherent_param
 
 
 def calculate_atomic_number_sum(composition):
@@ -381,7 +383,7 @@ def optimize_density_and_bkg_scaling(data_pattern, bkg_pattern, composition,
     result = minimize(optimization_fcn, params)
 
     return result.params['density'].value, result.params['density'].stderr, \
-           result.params['bkg_scaling'].value, result.params['density'].stderr
+        result.params['bkg_scaling'].value, result.params['density'].stderr
 
 
 def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density, initial_bkg_scaling,
@@ -433,7 +435,7 @@ def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density,
 
         diamond_background = diamond_content * Pattern(q,
                                                        calculate_incoherent_scattering({'C': 1},
-                                                                                        q) / diamond_transfer)
+                                                                                       q) / diamond_transfer)
 
         sample_pattern = data_pattern - bkg_scaling * bkg_pattern
         sample_pattern = sample_pattern - diamond_background
@@ -481,6 +483,6 @@ def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density,
     report_fit(result)
 
     return result.chisqr, \
-           result.params['density'].value, result.params['density'].stderr,\
-           result.params['bkg_scaling'].value, result.params['bkg_scaling'].stderr,\
-           result.params['diamond_content'].value, result.params['diamond_content'].stderr
+        result.params['density'].value, result.params['density'].stderr, \
+        result.params['bkg_scaling'].value, result.params['bkg_scaling'].stderr, \
+        result.params['diamond_content'].value, result.params['diamond_content'].stderr

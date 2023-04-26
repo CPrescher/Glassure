@@ -3,9 +3,9 @@
 import sys
 import os
 
-from ...core import __version__
+from ... import __version__
 
-from ..qt import QtGui, QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore
 
 from .control import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget, DensityOptimizationWidget, \
     ExtrapolationWidget, DiamondWidget, ConfigurationWidget, SollerWidget, TransferFunctionWidget

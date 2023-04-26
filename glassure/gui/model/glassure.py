@@ -2,7 +2,7 @@
 
 import numpy as np
 from lmfit import Parameters, minimize
-from ..qt import QtGui, QtCore, Signal
+from qtpy import QtGui, QtCore
 
 from ...core.pattern import Pattern
 from .density_optimization import DensityOptimizer
@@ -19,12 +19,12 @@ from .configuration import GlassureConfiguration
 
 
 class GlassureModel(QtCore.QObject):
-    configurations_changed = Signal()
-    configuration_selected = Signal(int)
-    data_changed = Signal()
-    sq_changed = Signal(Pattern)
-    fr_changed = Signal(Pattern)
-    gr_changed = Signal(Pattern)
+    configurations_changed = QtCore.Signal()
+    configuration_selected = QtCore.Signal(int)
+    data_changed = QtCore.Signal()
+    sq_changed = QtCore.Signal(Pattern)
+    fr_changed = QtCore.Signal(Pattern)
+    gr_changed = QtCore.Signal(Pattern)
 
     def __init__(self):
         super(GlassureModel, self).__init__()
@@ -426,8 +426,8 @@ class GlassureModel(QtCore.QObject):
             return
 
         if len(self.composition) != 0 and \
-                        self.original_pattern is not None and \
-                        self.background_pattern is not None:
+                self.original_pattern is not None and \
+                self.background_pattern is not None:
             self.calculate_sq()
 
             if self.optimize:
@@ -452,14 +452,14 @@ class GlassureModel(QtCore.QObject):
         if self.use_soller_correction:
             q, intensity = sample_pattern.data
             if self.soller_correction is None or \
-                            self.soller_correction._max_thickness < self.soller_parameters['sample_thickness'] or \
-                            self.soller_correction.wavelength != self.soller_parameters['wavelength'] or \
-                            self.soller_correction._inner_radius != self.soller_parameters['inner_radius'] or \
-                            self.soller_correction._outer_radius != self.soller_parameters['outer_radius'] or \
-                            self.soller_correction._inner_width != self.soller_parameters['inner_width'] or \
-                            self.soller_correction._outer_width != self.soller_parameters['outer_width'] or \
-                            self.soller_correction._inner_length != self.soller_parameters['inner_length'] or \
-                            self.soller_correction._outer_length != self.soller_parameters['outer_length']:
+                    self.soller_correction._max_thickness < self.soller_parameters['sample_thickness'] or \
+                    self.soller_correction.wavelength != self.soller_parameters['wavelength'] or \
+                    self.soller_correction._inner_radius != self.soller_parameters['inner_radius'] or \
+                    self.soller_correction._outer_radius != self.soller_parameters['outer_radius'] or \
+                    self.soller_correction._inner_width != self.soller_parameters['inner_width'] or \
+                    self.soller_correction._outer_width != self.soller_parameters['outer_width'] or \
+                    self.soller_correction._inner_length != self.soller_parameters['inner_length'] or \
+                    self.soller_correction._outer_length != self.soller_parameters['outer_length']:
 
                 if 2 > self.soller_parameters['sample_thickness']:
                     max_thickness = 2
@@ -578,7 +578,7 @@ class GlassureModel(QtCore.QObject):
         self.write_output(output)
 
     def set_diamond_content(self, content_value):
-        if content_value is 0:
+        if content_value == 0:
             self.diamond_bkg_pattern = None
             self.calculate_transforms()
             return
@@ -620,7 +620,7 @@ class GlassureModel(QtCore.QObject):
             sample_pattern = self.transfer_sample_pattern
         else:
             sample_pattern = self.transfer_sample_pattern - self.transfer_sample_bkg_scaling * \
-                                                            self.transfer_sample_bkg_pattern
+                             self.transfer_sample_bkg_pattern
 
         self.current_configuration.transfer_function = calculate_transfer_function(
             std_pattern.limit(q_min, q_max),

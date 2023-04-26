@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 
 
 class DataWidget(QtWidgets.QWidget):

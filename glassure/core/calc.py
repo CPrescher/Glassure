@@ -156,17 +156,18 @@ def calculate_sq(sample_pattern, density, composition, attenuation_factor=0.001,
     where n is the normalization factor and f are the scattering factors. All parameters from the equation are
     calculated from the density, composition and the sample pattern
 
-    :param sample_pattern:     background subtracted sample pattern with A^-1 as x unit
+    :param sample_pattern:      background subtracted sample pattern with A^-1 as x unit
     :param density:             density of the sample in g/cm^3
     :param composition:         composition as a dictionary with the elements as keys and the abundances as values
     :param attenuation_factor:  attenuation factor used in the exponential for the calculation of the normalization
                                 factor
+
     :param method:              describing the method to calculate the structure factor, possible values are
                                     - 'AL' - Ashcroft-Langreth
                                     - 'FZ' - Faber-Ziman
 
-    :param normalization_method: determines the method used for estimating the normalization method. possible values are
-                                 'int' for an integral or 'fit' for fitting the high q region form factors.
+    :param normalization_method:determines the method used for estimating the normalization method. possible values are
+                                'int' for an integral or 'fit' for fitting the high q region form factors.
 
     :use_incoherent_scattering: whether to use incoherent scattering, in some cases it is already subtracted
 

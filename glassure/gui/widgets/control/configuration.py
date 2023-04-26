@@ -2,14 +2,14 @@
 
 from functools import partial
 
-from ...qt import QtCore, QtWidgets, Signal
+from qtpy import QtCore, QtWidgets
 from ..custom import FlatButton, ListTableWidget
 
 
 class ConfigurationWidget(QtWidgets.QWidget):
-    configuration_color_btn_clicked = Signal(int, QtWidgets.QWidget)
-    configuration_show_cb_state_changed = Signal(int, bool)
-    configuration_name_changed = Signal(int, str)
+    configuration_color_btn_clicked = QtCore.Signal(int, QtWidgets.QWidget)
+    configuration_show_cb_state_changed = QtCore.Signal(int, bool)
+    configuration_name_changed = QtCore.Signal(int, str)
 
     def __init__(self, *args):
         super(ConfigurationWidget, self).__init__(*args)

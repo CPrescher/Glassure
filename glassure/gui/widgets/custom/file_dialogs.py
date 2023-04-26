@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ...qt import QtWidgets
+from qtpy import QtWidgets
 
 def open_file_dialog(parent_widget, caption, directory, filter=None):
     filename = QtWidgets.QFileDialog.getOpenFileName(parent_widget, caption=caption,

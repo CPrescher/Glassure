@@ -1,0 +1,10 @@
+Hajdu, F., 1972. Revised parameters of the analytic fits for coherent and incoherent scattered X‐ray intensities of the
+    first 36 atoms. Acta Crystallogr A 28, 250–252.
+    https://doi.org/10.1107/s0567739472000671
+
+Brown, P.J., Fox, A.G., Maslen, E.N., O’Keefe, M.A., Willis, B.T.M., 2004. Intensity of diffracted intensities.
+    Springer Netherlands, Dordrecht, pp. 554–595.
+    https://doi.org/10.1107/97809553602060000600
+Hubbell, J.H., Veigele, W.J., Briggs, E.A., Brown, R.T., Cromer, D.T., Howerton, R.J., 1975. Atomic form factors,
+    incoherent scattering functions, and photon scattering cross sections. J Phys Chem Ref Data 4, 471–538.
+    https://doi.org/10.1063/1.555523

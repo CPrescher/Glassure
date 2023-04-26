@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtCore, QtGui, QtWidgets, Signal
-from ....core.scattering_factors import scattering_factor_param
+from qtpy import QtCore, QtGui, QtWidgets
+from ....core.scattering_factors import calculators, sources
+
+Signal = QtCore.Signal
 
 
 class CompositionWidget(QtWidgets.QWidget):
@@ -15,6 +17,11 @@ class CompositionWidget(QtWidgets.QWidget):
         self._style_widgets()
 
     def _create_widgets(self):
+        self.source_lbl = QtWidgets.QLabel("Source:")
+        self.source_cb = QtWidgets.QComboBox()
+        self.source_cb.addItems(sources)
+        self.source_cb.setCurrentIndex(0)
+
         self.add_element_btn = QtWidgets.QPushButton("Add")
         self.delete_element_btn = QtWidgets.QPushButton("Delete")
 
@@ -30,6 +37,11 @@ class CompositionWidget(QtWidgets.QWidget):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(5)
 
+        self.source_layout = QtWidgets.QHBoxLayout()
+        self.source_layout.setSpacing(5)
+        self.source_layout.addWidget(self.source_lbl)
+        self.source_layout.addWidget(self.source_cb)
+
         self.button_layout = QtWidgets.QHBoxLayout()
         self.button_layout.setSpacing(15)
         self.button_layout.addWidget(self.add_element_btn)
@@ -42,6 +54,7 @@ class CompositionWidget(QtWidgets.QWidget):
         self.density_layout.addWidget(self.density_atomic_units_lbl, 1, 1)
         self.density_layout.addWidget(QtWidgets.QLabel('at/A^3'), 1, 2)
 
+        self.main_layout.addLayout(self.source_layout)
         self.main_layout.addLayout(self.button_layout)
         self.main_layout.addWidget(self.composition_tw)
         self.main_layout.addLayout(self.density_layout)
@@ -49,6 +62,9 @@ class CompositionWidget(QtWidgets.QWidget):
         self.setLayout(self.main_layout)
 
     def _style_widgets(self):
+
+        self.source_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+
         self.density_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
         self.density_atomic_units_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
@@ -71,7 +87,7 @@ class CompositionWidget(QtWidgets.QWidget):
         element_cb = QtWidgets.QComboBox(self)
         element_cb.setStyle(QtWidgets.QStyleFactory.create('cleanlooks'))
 
-        for ind, ele in enumerate(scattering_factor_param.index):
+        for ind, ele in enumerate(calculators[self.source_cb.currentText()].elements):
             element_cb.insertItem(ind, ele)
 
         if element is not None:

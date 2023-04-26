@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 
 import os
-
-import numpy as np
-
-from ..qt import QtGui, QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets
 import pyqtgraph as pg
-
-# # Switch to using white background and black foreground
-pg.setConfigOption('useOpenGL', False)
-pg.setConfigOption('leftButtonPan', False)
-pg.setConfigOption('background', 'k')
-pg.setConfigOption('foreground', 'w')
-pg.setConfigOption('antialias', True)
 
 from ..widgets.glassure import GlassureWidget
 from ..widgets.custom.file_dialogs import open_file_dialog, save_file_dialog
 
 from ..model.glassure import GlassureModel
+from ...core.scattering_factors import set_source as set_scattering_data_source
+from ...core.scattering_factors import get_available_elements
 
 from .configuration import ConfigurationController
 from .soller import SollerController
 from .transfer import TransferFunctionController
+
+# # Switch to using black background and white foreground
+pg.setConfigOption('useOpenGL', False)
+pg.setConfigOption('leftButtonPan', False)
+pg.setConfigOption('background', 'k')
+pg.setConfigOption('foreground', 'w')
+pg.setConfigOption('antialias', True)
 
 
 class GlassureController(object):
@@ -58,6 +57,8 @@ class GlassureController(object):
         self.main_widget.smooth_sb.valueChanged.connect(self.smooth_changed)
 
         # updating the composition
+        self.main_widget.left_control_widget.composition_widget.source_cb.currentTextChanged.connect(
+            self.data_source_changed)
         self.main_widget.add_element_btn.clicked.connect(self.add_element_btn_clicked)
         self.main_widget.delete_element_btn.clicked.connect(self.delete_element_btn_clicked)
         self.main_widget.left_control_widget.composition_widget.composition_changed.connect(self.update_model)
@@ -94,7 +95,7 @@ class GlassureController(object):
         filename = open_file_dialog(self.main_widget, caption="Load Pattern",
                                     directory=self.settings.value('working_directory'))
 
-        if filename is not '':
+        if filename != '':
             self.model.load_data(filename)
             self.settings.setValue('working_directory', os.path.dirname(filename))
             self.main_widget.left_control_widget.data_widget.file_widget.data_filename_lbl.setText(
@@ -127,18 +128,18 @@ class GlassureController(object):
         self.model.background_scaling = value
 
     def update_bkg_scale_step(self):
-        value = np.float(self.main_widget.bkg_scale_step_txt.text())
+        value = float(self.main_widget.bkg_scale_step_txt.text())
         self.main_widget.bkg_scale_sb.setSingleStep(value)
 
     def update_bkg_offset_step(self):
-        value = np.float(self.main_widget.bkg_offset_step_txt.text())
+        value = float(self.main_widget.bkg_offset_step_txt.text())
         self.main_widget.bkg_offset_sb.setSingleStep(value)
 
     def smooth_changed(self, value):
         self.model.set_smooth(value)
 
     def update_smooth_step(self):
-        value = np.float(self.main_widget.smooth_step_txt.text())
+        value = float(self.main_widget.smooth_step_txt.text())
         self.main_widget.smooth_sb.setSingleStep(value)
 
     def add_element_btn_clicked(self):
@@ -147,6 +148,15 @@ class GlassureController(object):
     def delete_element_btn_clicked(self):
         cur_ind = self.main_widget.left_control_widget.composition_widget.composition_tw.currentRow()
         self.main_widget.left_control_widget.composition_widget.delete_element(cur_ind)
+
+    def data_source_changed(self, text):
+        set_scattering_data_source(text)
+        composition = self.main_widget.get_composition()
+        for element in list(composition.keys()):
+            if element not in get_available_elements():
+                del composition[element]
+        self.main_widget.left_control_widget.composition_widget.set_composition(composition)
+        self.update_model()
 
     def update_model(self):
         composition = self.main_widget.get_composition()
@@ -214,7 +224,7 @@ class GlassureController(object):
                                     "Save S(Q) Data.",
                                     sq_filename,
                                     ('Data (*.txt)'))
-        if filename is not '':
+        if filename != '':
             self.model.sq_pattern.save(filename)
             self.settings.setValue('sq_directory', os.path.dirname(filename))
 
@@ -228,6 +238,6 @@ class GlassureController(object):
                                     "Save g(r) Data.",
                                     gr_filename,
                                     ('Data (*.txt)'))
-        if filename is not '':
+        if filename != '':
             self.model.gr_pattern.save(filename)
             self.settings.setValue('gr_directory', os.path.dirname(filename))

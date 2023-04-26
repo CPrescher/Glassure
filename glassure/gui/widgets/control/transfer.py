@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore
 
 from ..custom import FlatButton, HorizontalLine, LabelAlignRight
 

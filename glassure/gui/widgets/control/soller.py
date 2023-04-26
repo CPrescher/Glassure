@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from ...qt import QtGui, QtWidgets, Signal
+from qtpy import QtCore, QtWidgets
 
 from ..custom import HorizontalLine, ValueLabelTxtPair
 
 
 class SollerWidget(QtWidgets.QWidget):
-    soller_parameters_changed = Signal()
+    soller_parameters_changed = QtCore.Signal()
 
     def __init__(self, *args):
         super(SollerWidget, self).__init__(*args)
