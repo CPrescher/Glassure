@@ -1,145 +1,150 @@
 # -*- coding: utf-8 -*-
-
+import pytest
 import numpy as np
 
 from glassure.core import Pattern
-from glassure.gui.controller.glassure import GlassureController
-from .utility import click_button, click_checkbox, QtTest, prepare_file_loading
+from .utility import click_button, click_checkbox,  prepare_file_loading
 
 
-class TransferWidgetTest(QtTest):
+@pytest.fixture
+def setup(main_controller, model):
+    model.q_min = 1.5
+    model.q_max = 10
 
-    def setUp(self):
-        self.controller = GlassureController()
-        self.widget = self.controller.main_widget
-        self.transfer_widget = self.widget.transfer_widget
-        self.model = self.controller.model
+    composition_widget = main_controller.main_widget.left_control_widget.composition_widget
+    composition_widget.add_element('O', 2)
+    composition_widget.add_element('Si', 1)
 
-        self.model.q_min = 1.5
-        self.model.q_max = 10
+    prepare_file_loading('glass_rod_SS.xy')
+    main_controller.load_data()
+    main_controller.load_bkg()
+    model.background_scaling = 0
 
-        self.widget.left_control_widget.composition_widget.add_element('O', 2)
-        self.widget.left_control_widget.composition_widget.add_element('Si', 1)
 
-        prepare_file_loading('glass_rod_SS.xy')
-        self.controller.load_data()
-        self.controller.load_bkg()
-        self.model.background_scaling = 0
+def test_activate_transfer_correction(setup, main_controller, transfer_widget, model):
+    click_checkbox(transfer_widget.activate_cb)
+    assert model.use_transfer_function
 
-    def test_activate_transfer_correction(self):
-        click_checkbox(self.transfer_widget.activate_cb)
-        self.assertTrue(self.model.use_transfer_function)
 
-    def test_loading_sample_data(self):
-        click_button(self.transfer_widget.load_sample_btn)
-        self.assertIsNotNone(self.model.transfer_sample_pattern)
-        self.assertEqual(str(self.transfer_widget.sample_filename_lbl.text()), 'glass_rod_SS.xy')
+def test_loading_sample_data(setup, main_controller, transfer_widget, model):
+    click_button(transfer_widget.load_sample_btn)
+    assert model.transfer_sample_pattern is not None
+    assert str(transfer_widget.sample_filename_lbl.text()) == 'glass_rod_SS.xy'
 
-    def test_loading_sample_bkg_data(self):
-        click_button(self.transfer_widget.load_sample_bkg_btn)
-        self.assertIsNotNone(self.model.transfer_sample_bkg_pattern)
-        self.assertEqual(str(self.transfer_widget.sample_bkg_filename_lbl.text()), 'glass_rod_SS.xy')
 
-    def test_loading_std_data(self):
-        prepare_file_loading('glass_rod_WOS.xy')
-        click_button(self.transfer_widget.load_std_btn)
-        self.assertIsNotNone(self.model.transfer_std_pattern)
-        self.assertEqual(str(self.transfer_widget.std_filename_lbl.text()), 'glass_rod_WOS.xy')
+def test_loading_sample_bkg_data(setup, main_controller, transfer_widget, model):
+    click_button(transfer_widget.load_sample_bkg_btn)
+    assert model.transfer_sample_bkg_pattern is not None
+    assert str(transfer_widget.sample_bkg_filename_lbl.text()) == 'glass_rod_SS.xy'
 
-    def test_loading_std_bkg_data(self):
-        prepare_file_loading('glass_rod_WOS.xy')
-        click_button(self.transfer_widget.load_std_bkg_btn)
-        self.assertIsNotNone(self.model.transfer_std_bkg_pattern)
-        self.assertEqual(str(self.transfer_widget.std_bkg_filename_lbl.text()), 'glass_rod_WOS.xy')
 
-    def test_transfer_function_exists(self):
-        prepare_file_loading('glass_rod_WOS.xy')
-        click_button(self.transfer_widget.load_std_btn)
+def test_loading_std_data(setup, main_controller, transfer_widget, model):
+    prepare_file_loading('glass_rod_WOS.xy')
+    click_button(transfer_widget.load_std_btn)
+    assert model.transfer_std_pattern is not None
+    assert str(transfer_widget.std_filename_lbl.text()) == 'glass_rod_WOS.xy'
 
-        prepare_file_loading('glass_rod_SS.xy')
-        click_button(self.transfer_widget.load_sample_btn)
 
-        self.assertIsNone(self.model.transfer_function)
-        click_checkbox(self.transfer_widget.activate_cb)
-        self.assertIsNotNone(self.model.transfer_function)
+def test_loading_std_bkg_data(setup, main_controller, transfer_widget, model):
+    prepare_file_loading('glass_rod_WOS.xy')
+    click_button(transfer_widget.load_std_bkg_btn)
+    assert model.transfer_std_bkg_pattern is not None
+    assert str(transfer_widget.std_bkg_filename_lbl.text()) == 'glass_rod_WOS.xy'
 
-    def test_transfer_function_modifies_pattern(self):
-        prepare_file_loading('glass_rod_WOS.xy')
-        click_button(self.transfer_widget.load_std_btn)
-        prepare_file_loading('glass_rod_SS.xy')
-        click_button(self.transfer_widget.load_sample_btn)
 
-        _, y_before = self.model.sq_pattern.data
-        click_checkbox(self.transfer_widget.activate_cb)
-        _, y_after = self.model.sq_pattern.data
+def test_transfer_function_exists(setup, main_controller, transfer_widget, model):
+    prepare_file_loading('glass_rod_WOS.xy')
+    click_button(transfer_widget.load_std_btn)
 
-        self.assertFalse(np.array_equal(y_before, y_after))
+    prepare_file_loading('glass_rod_SS.xy')
+    click_button(transfer_widget.load_sample_btn)
 
-    def test_change_sample_bkg_scaling(self):
-        prepare_file_loading('glass_rod_WOS.xy')
-        click_button(self.transfer_widget.load_std_btn)
-        prepare_file_loading('glass_rod_SS.xy')
-        click_button(self.transfer_widget.load_sample_btn)
+    assert model.transfer_function is None
+    click_checkbox(transfer_widget.activate_cb)
+    assert model.transfer_function is not None
 
-        sample_bkg_pattern = Pattern(self.model.transfer_sample_pattern.x,
-                                     np.ones(self.model.transfer_sample_pattern.y.shape))
 
-        self.model.transfer_sample_bkg_pattern = sample_bkg_pattern
-        self.model.transfer_sample_bkg_scaling = 0
-        click_checkbox(self.transfer_widget.activate_cb)
+def test_transfer_function_modifies_pattern(setup, main_controller, transfer_widget, model):
+    prepare_file_loading('glass_rod_WOS.xy')
+    click_button(transfer_widget.load_std_btn)
+    prepare_file_loading('glass_rod_SS.xy')
+    click_button(transfer_widget.load_sample_btn)
 
-        _, y_before = self.model.sq_pattern.data
-        self.transfer_widget.sample_bkg_scaling_sb.setValue(50)
-        self.assertEqual(self.model.transfer_sample_bkg_scaling, 50)
-        _, y_after = self.model.sq_pattern.data
+    _, y_before = model.sq_pattern.data
+    click_checkbox(transfer_widget.activate_cb)
+    _, y_after = model.sq_pattern.data
 
-        self.assertFalse(np.array_equal(y_after, y_before))
+    assert not np.array_equal(y_before, y_after)
 
-    def test_change_std_bkg_scaling(self):
-        prepare_file_loading('glass_rod_WOS.xy')
-        click_button(self.transfer_widget.load_std_btn)
-        prepare_file_loading('glass_rod_SS.xy')
-        click_button(self.transfer_widget.load_sample_btn)
 
-        std_bkg_pattern = Pattern(self.model.transfer_std_pattern.x,
-                                  np.ones(self.model.transfer_std_pattern.y.shape))
+def test_change_sample_bkg_scaling(setup, main_controller, transfer_widget, model):
+    prepare_file_loading('glass_rod_WOS.xy')
+    click_button(transfer_widget.load_std_btn)
+    prepare_file_loading('glass_rod_SS.xy')
+    click_button(transfer_widget.load_sample_btn)
 
-        self.model.transfer_std_bkg_pattern = std_bkg_pattern
-        self.model.transfer_std_bkg_scaling = 0
-        click_checkbox(self.transfer_widget.activate_cb)
+    sample_bkg_pattern = Pattern(model.transfer_sample_pattern.x,
+                                 np.ones(model.transfer_sample_pattern.y.shape))
 
-        _, y_before = self.model.sq_pattern.data
-        self.transfer_widget.std_bkg_scaling_sb.setValue(50)
-        self.assertEqual(self.model.transfer_std_bkg_scaling, 50)
-        _, y_after = self.model.sq_pattern.data
+    model.transfer_sample_bkg_pattern = sample_bkg_pattern
+    model.transfer_sample_bkg_scaling = 0
+    click_checkbox(transfer_widget.activate_cb)
 
-        self.assertFalse(np.array_equal(y_after, y_before))
+    _, y_before = model.sq_pattern.data
+    transfer_widget.sample_bkg_scaling_sb.setValue(50)
+    assert model.transfer_sample_bkg_scaling == 50
+    _, y_after = model.sq_pattern.data
 
-    def test_change_smoothing(self):
-        prepare_file_loading('glass_rod_WOS.xy')
-        click_button(self.transfer_widget.load_std_btn)
-        prepare_file_loading('glass_rod_SS.xy')
-        click_button(self.transfer_widget.load_sample_btn)
+    assert not np.array_equal(y_after, y_before)
 
-        click_checkbox(self.transfer_widget.activate_cb)
 
-        _, y_before = self.model.sq_pattern.data
-        self.transfer_widget.smooth_sb.setValue(10)
-        self.assertEqual(self.model.transfer_function_smoothing, 10)
-        _, y_after = self.model.sq_pattern.data
+def test_change_std_bkg_scaling(setup, main_controller, transfer_widget, model):
+    prepare_file_loading('glass_rod_WOS.xy')
+    click_button(transfer_widget.load_std_btn)
+    prepare_file_loading('glass_rod_SS.xy')
+    click_button(transfer_widget.load_sample_btn)
 
-        self.assertFalse(np.array_equal(y_after, y_before))
+    std_bkg_pattern = Pattern(model.transfer_std_pattern.x,
+                              np.ones(model.transfer_std_pattern.y.shape))
 
-    def test_transfer_function_gets_deactivated(self):
-        prepare_file_loading('glass_rod_WOS.xy')
-        click_button(self.transfer_widget.load_std_btn)
-        prepare_file_loading('glass_rod_SS.xy')
-        click_button(self.transfer_widget.load_sample_btn)
+    model.transfer_std_bkg_pattern = std_bkg_pattern
+    model.transfer_std_bkg_scaling = 0
+    click_checkbox(transfer_widget.activate_cb)
 
-        click_checkbox(self.transfer_widget.activate_cb)
+    _, y_before = model.sq_pattern.data
+    transfer_widget.std_bkg_scaling_sb.setValue(50)
+    assert model.transfer_std_bkg_scaling == 50
+    _, y_after = model.sq_pattern.data
 
-        _, y_before = self.model.sq_pattern.data
-        click_checkbox(self.transfer_widget.activate_cb)
-        _, y_after = self.model.sq_pattern.data
+    assert not np.array_equal(y_after, y_before)
 
-        self.assertFalse(np.array_equal(y_after, y_before))
+
+def test_change_smoothing(setup, main_controller, transfer_widget, model):
+    prepare_file_loading('glass_rod_WOS.xy')
+    click_button(transfer_widget.load_std_btn)
+    prepare_file_loading('glass_rod_SS.xy')
+    click_button(transfer_widget.load_sample_btn)
+
+    click_checkbox(transfer_widget.activate_cb)
+
+    _, y_before = model.sq_pattern.data
+    transfer_widget.smooth_sb.setValue(10)
+    assert model.transfer_function_smoothing == 10
+    _, y_after = model.sq_pattern.data
+
+    assert not np.array_equal(y_after, y_before)
+
+
+def test_transfer_function_gets_deactivated(setup, main_controller, transfer_widget, model):
+    prepare_file_loading('glass_rod_WOS.xy')
+    click_button(transfer_widget.load_std_btn)
+    prepare_file_loading('glass_rod_SS.xy')
+    click_button(transfer_widget.load_sample_btn)
+
+    click_checkbox(transfer_widget.activate_cb)
+
+    _, y_before = model.sq_pattern.data
+    click_checkbox(transfer_widget.activate_cb)
+    _, y_after = model.sq_pattern.data
+
+    assert not np.array_equal(y_after, y_before)
