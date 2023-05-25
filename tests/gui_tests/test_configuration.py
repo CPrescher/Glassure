@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from glassure.gui.controller.glassure import GlassureController
-from glassure.tests.gui_tests.utility import click_button, QtTest
+from .utility import click_button, QtTest
 
 
 class ConfigurationWidgetTest(QtTest):

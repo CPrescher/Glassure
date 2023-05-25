@@ -4,15 +4,15 @@ import os
 import unittest
 import numpy as np
 
-from ..core import Pattern
-from ..core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
+from glassure.core import Pattern
+from glassure.core.calc_eggert import calculate_effective_form_factors, calculate_atomic_number_sum, \
     calculate_incoherent_scattering, calculate_j, calculate_s_inf, calculate_alpha, \
     calculate_coherent_scattering, calculate_sq, calculate_fr, optimize_iq, \
     calculate_chi2_map, optimize_density_and_bkg_scaling, optimize_soller_dac
 
-from ..core import convert_density_to_atoms_per_cubic_angstrom
+from glassure.core import convert_density_to_atoms_per_cubic_angstrom
+from .. import unittest_data_path
 
-unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 sample_path = os.path.join(unittest_data_path, 'Argon_1GPa.chi')
 bkg_path = os.path.join(unittest_data_path, 'Argon_1GPa_bkg.chi')
 

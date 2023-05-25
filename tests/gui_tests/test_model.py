@@ -10,7 +10,6 @@ from glassure.gui.model.glassure import GlassureModel
 from .utility import data_path, QtTest
 
 
-
 class GlassureModelTest(QtTest):
     def setUp(self):
         self.model = GlassureModel()

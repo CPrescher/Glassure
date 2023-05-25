@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from mock import MagicMock
-
 import numpy as np
 
 from glassure.core import Pattern
 from glassure.gui.controller.glassure import GlassureController
-from glassure.tests.gui_tests.utility import click_button, click_checkbox, QtTest, prepare_file_loading
+from .utility import click_button, click_checkbox, QtTest, prepare_file_loading
 
 
 class TransferWidgetTest(QtTest):

@@ -3,7 +3,7 @@
 import unittest
 import numpy as np
 
-from ..core.fitting import i_q_peak, t_r_peak
+from glassure.core.fitting import i_q_peak, t_r_peak
 
 
 class FittingTest(unittest.TestCase):

@@ -6,8 +6,7 @@ import unittest
 import numpy as np
 
 from glassure.gui.controller.glassure import GlassureController
-from glassure.tests.gui_tests.utility import set_widget_text, click_checkbox, click_button, QtTest, prepare_file_loading
-
+from .utility import set_widget_text, click_checkbox, click_button, QtTest, prepare_file_loading
 
 
 class GlassureFunctionalTest(unittest.TestCase):

@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 
 from glassure.gui.controller.glassure import GlassureController
-from glassure.tests.gui_tests.utility import click_checkbox, set_widget_text, QtTest, prepare_file_loading
+from .utility import click_checkbox, set_widget_text, QtTest, prepare_file_loading
 
 
 class ExtrapolationWidgetTest(QtTest):
