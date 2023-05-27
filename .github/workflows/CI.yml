@@ -3,15 +3,21 @@ name: CI - Continuous Integration
 on: [push]
 
 jobs:
-  build:
+  unit-tests:
     runs-on: ubuntu-latest
+
+    #----------------------------------------------
+    #        set up QT environment variables
+    #----------------------------------------------
+    env:
+      QT_QPA_PLATFORM: offscreen
 
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
       #----------------------------------------------
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3s
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
