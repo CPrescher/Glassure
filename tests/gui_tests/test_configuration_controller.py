@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytest
 from mock import MagicMock
 from qtpy import QtGui, QtWidgets
 
@@ -163,9 +162,10 @@ def test_optimization_attenuation_is_updated(main_widget, configuration_widget):
     assert main_widget.optimize_attenuation_sb.value() == 4
 
 
-def test_soller_parameters_are_updated(main_widget, configuration_widget):
+def test_soller_parameters_are_updated(main_widget, configuration_widget, qtbot):
     click_button(configuration_widget.freeze_btn)
-    set_widget_text(main_widget.right_control_widget.soller_widget.wavelength_txt.value_txt, 0.3344)
+    main_widget.right_control_widget.soller_widget.wavelength_txt.set_value(0.3344)
+    main_widget.right_control_widget.soller_widget.wavelength_txt.editingFinished.emit()
 
     configuration_widget.configuration_tw.selectRow(0)
     assert main_widget.right_control_widget.soller_widget.wavelength_txt.get_value() == 0.31

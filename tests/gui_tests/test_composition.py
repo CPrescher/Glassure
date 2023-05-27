@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 
 from qtpy import QtCore
-from glassure.gui.controller.glassure import GlassureController
 from .utility import prepare_file_loading
 
 

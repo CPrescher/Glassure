@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+
+from PySide6.QtCore import Slot
 from qtpy import QtCore, QtWidgets
 import pyqtgraph as pg
 
@@ -158,6 +160,7 @@ class GlassureController(object):
         self.main_widget.left_control_widget.composition_widget.set_composition(composition)
         self.update_model()
 
+    @Slot()
     def update_model(self):
         composition = self.main_widget.get_composition()
         density = self.main_widget.left_control_widget.composition_widget.get_density()
