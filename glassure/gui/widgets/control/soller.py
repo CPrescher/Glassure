@@ -53,16 +53,19 @@ class SollerWidget(QtWidgets.QWidget):
 
     def create_signals(self):
         self.activate_cb.stateChanged.connect(self.param_widget.setVisible)
-        self.activate_cb.stateChanged.connect(self.soller_parameters_changed.emit)
+        self.activate_cb.stateChanged.connect(self.emit_parameters_changed_signal)
 
-        self.thickness_txt.editingFinished.connect(self.soller_parameters_changed.emit)
-        self.wavelength_txt.editingFinished.connect(self.soller_parameters_changed.emit)
-        self.inner_radius_txt.editingFinished.connect(self.soller_parameters_changed.emit)
-        self.outer_radius_txt.editingFinished.connect(self.soller_parameters_changed.emit)
-        self.inner_width_txt.editingFinished.connect(self.soller_parameters_changed.emit)
-        self.outer_width_txt.editingFinished.connect(self.soller_parameters_changed.emit)
-        self.inner_length_txt.editingFinished.connect(self.soller_parameters_changed.emit)
-        self.outer_length_txt.editingFinished.connect(self.soller_parameters_changed.emit)
+        self.thickness_txt.editingFinished.connect(self.emit_parameters_changed_signal)
+        self.wavelength_txt.editingFinished.connect(self.emit_parameters_changed_signal)
+        self.inner_radius_txt.editingFinished.connect(self.emit_parameters_changed_signal)
+        self.outer_radius_txt.editingFinished.connect(self.emit_parameters_changed_signal)
+        self.inner_width_txt.editingFinished.connect(self.emit_parameters_changed_signal)
+        self.outer_width_txt.editingFinished.connect(self.emit_parameters_changed_signal)
+        self.inner_length_txt.editingFinished.connect(self.emit_parameters_changed_signal)
+        self.outer_length_txt.editingFinished.connect(self.emit_parameters_changed_signal)
+
+    def emit_parameters_changed_signal(self, *_, **__):
+        self.soller_parameters_changed.emit()
 
     def get_parameters(self):
         return {"sample_thickness": self.thickness_txt.get_value(),

@@ -9,8 +9,8 @@ from glassure.core.optimization import optimize_sq
 from glassure.core.calc import calculate_normalization_factor, fit_normalization_factor, calculate_fr, \
     calculate_sq_from_fr, calculate_gr, calculate_sq_from_gr
 from glassure.core.utility import convert_density_to_atoms_per_cubic_angstrom
+from .. import unittest_data_path
 
-unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
 sample_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient.xy')
 bkg_path = os.path.join(unittest_data_path, 'Mg2SiO4_ambient_bkg.xy')
 

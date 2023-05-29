@@ -80,19 +80,18 @@ class OptimizationWidget(QtWidgets.QWidget):
 
     def create_signals(self):
         self.activate_cb.stateChanged.connect(self.param_widget.setVisible)
-        self.activate_cb.stateChanged.connect(self.optimization_parameters_changed.emit)
+        self.activate_cb.stateChanged.connect(self.emit_calculation_changed_signal)
 
         self.r_cutoff_txt.editingFinished.connect(self.emit_calculation_changed_signal)
         self.optimize_iterations_txt.editingFinished.connect(self.emit_calculation_changed_signal)
-        self.attenuation_factor_sb.valueChanged.connect(self.optimization_parameters_changed.emit)
+        self.attenuation_factor_sb.valueChanged.connect(self.emit_calculation_changed_signal)
 
     def emit_calculation_changed_signal(self):
         if self.r_cutoff_txt.isModified():
-            self.optimization_parameters_changed.emit()
             self.r_cutoff_txt.setModified(False)
         elif self.optimize_iterations_txt.isModified():
-            self.optimization_parameters_changed.emit()
             self.optimize_iterations_txt.setModified(False)
+        self.optimization_parameters_changed.emit()
 
     def get_parameter(self):
         activate = self.activate_cb.isChecked()

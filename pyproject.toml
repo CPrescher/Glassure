@@ -35,12 +35,15 @@ scipy = "^1.10.1"
 lmfit = "^1.2.0"
 pandas = "^2.0.0"
 pyqtgraph = "^0.13.3"
-pyqt6 = "^6.5.0"
 qtpy = "^2.3.1"
+pyside6 = "^6.5.1"
 
 [tool.poetry.group.dev.dependencies]
 mock = "^5.0.1"
 pytest = "^7.3.1"
+pytest-cov = "^4.1.0"
+pytest-qt = "^4.2.0"
+
 
 [build-system]
 requires = ["poetry-core", "poetry-dynamic-versioning"]

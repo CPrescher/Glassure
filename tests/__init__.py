@@ -1,0 +1,5 @@
+# -*- coding: utf-8 -*-
+
+import os
+
+unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')

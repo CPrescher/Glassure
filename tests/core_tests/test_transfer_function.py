@@ -7,7 +7,8 @@ import numpy as np
 from glassure.core import Pattern
 from glassure.core.transfer_function import calculate_transfer_function
 
-unittest_data_path = os.path.join(os.path.dirname(__file__), 'data')
+from .. import unittest_data_path
+
 sample_path = os.path.join(unittest_data_path, 'glass_rod_SS.xy')
 std_path = os.path.join(unittest_data_path, 'glass_rod_WOS.xy')
 

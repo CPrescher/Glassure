@@ -86,13 +86,16 @@ class ExtrapolationWidget(QtWidgets.QWidget):
 
     def create_signals(self):
         self.activate_cb.stateChanged.connect(self.rb_widget.setVisible)
-        self.activate_cb.stateChanged.connect(self.extrapolation_parameters_changed.emit)
+        self.activate_cb.stateChanged.connect(self.emit_changed_signal)
 
-        self.rb_button_group.buttonReleased.connect(self.extrapolation_parameters_changed)
+        self.rb_button_group.buttonReleased.connect(self.emit_changed_signal)
         self.rb_button_group.buttonReleased.connect(self.update_visibility)
 
         self.q_max_txt.editingFinished.connect(self.q_max_changed)
-        self.replace_cb.stateChanged.connect(self.extrapolation_parameters_changed)
+        self.replace_cb.stateChanged.connect(self.emit_changed_signal)
+
+    def emit_changed_signal(self):
+        self.extrapolation_parameters_changed.emit()
 
     def q_max_changed(self):
         if self.q_max_txt.isModified():

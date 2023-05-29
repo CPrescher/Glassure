@@ -74,7 +74,7 @@ class OptionsWidget(QtWidgets.QWidget):
         self.r_min_txt.editingFinished.connect(self.txt_changed)
         self.r_max_txt.editingFinished.connect(self.txt_changed)
 
-        self.modification_fcn_cb.stateChanged.connect(self.options_parameters_changed.emit)
+        self.modification_fcn_cb.stateChanged.connect(self.options_changed)
 
     def txt_changed(self):
         if self.q_max_txt.isModified() or self.q_min_txt.isModified() or \
@@ -85,6 +85,9 @@ class OptionsWidget(QtWidgets.QWidget):
             self.q_min_txt.setModified(False)
             self.r_min_txt.setModified(False)
             self.r_max_txt.setModified(False)
+
+    def options_changed(self):
+        self.options_parameters_changed.emit()
 
     def get_parameter(self):
         q_min = float(str(self.q_min_txt.text()))

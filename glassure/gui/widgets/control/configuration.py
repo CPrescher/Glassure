@@ -113,7 +113,7 @@ class ConfigurationWidget(QtWidgets.QWidget):
     def configuration_color_btn_click(self, button):
         self.configuration_color_btn_clicked.emit(self.configuration_color_btns.index(button), button)
 
-    def configuration_show_cb_changed(self, checkbox):
+    def configuration_show_cb_changed(self, checkbox, _):
         self.configuration_show_cb_state_changed.emit(self.configuration_show_cbs.index(checkbox), checkbox.isChecked())
 
     def configuration_show_cb_set_checked(self, ind, state):
