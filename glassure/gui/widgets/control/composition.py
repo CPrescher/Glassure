@@ -62,7 +62,6 @@ class CompositionWidget(QtWidgets.QWidget):
         self.setLayout(self.main_layout)
 
     def _style_widgets(self):
-
         self.source_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
         self.density_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
@@ -126,6 +125,12 @@ class CompositionWidget(QtWidgets.QWidget):
             value_item = self.composition_tw.item(row_ind, 1)
             composition[str(cb_item.currentText())] = float(str(value_item.text()))
         return composition
+
+    def get_sf_source(self):
+        return str(self.source_cb.currentText())
+
+    def set_sf_source(self, source):
+        self.source_cb.setCurrentIndex(self.source_cb.findText(source))
 
     def get_density(self):
         return float(str(self.density_txt.text()).replace(",", "."))

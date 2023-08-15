@@ -23,6 +23,7 @@ class GlassureConfiguration(object):
         self.gr_pattern = None
 
         # initialize all parameters
+        self.sf_source = 'hajdu'
         self.composition = {}
 
         self.density = 2.2

@@ -49,6 +49,18 @@ def test_smooth_factor_is_updated(main_controller, main_widget, configuration_wi
     assert main_widget.smooth_sb.value() == 0
 
 
+def test_sf_source_is_updated(main_controller, main_widget, configuration_widget, configuration_controller, qtbot):
+    click_button(configuration_widget.freeze_btn)
+    sf_source_cb = main_widget.left_control_widget.composition_widget.source_cb
+    sf_source_cb.setCurrentIndex(1)
+
+    configuration_controller.update_widget_controls()
+    assert sf_source_cb.currentIndex() == 1
+
+    configuration_widget.configuration_tw.selectRow(0)
+    assert sf_source_cb.currentIndex() == 0
+
+
 def test_composition_is_updated(main_controller, main_widget, configuration_widget, configuration_controller, qtbot):
     click_button(configuration_widget.freeze_btn)
     main_controller.model.current_configuration.composition = {'Fe': 0.5, 'Ni': 0.5}
@@ -255,10 +267,8 @@ def test_changing_configuration_visibility(main_widget, configuration_widget):
 
     click_checkbox(configuration_widget.configuration_show_cbs[1])
 
-    assert not main_widget.pattern_widget.gr_items[1] in \
-               main_widget.pattern_widget.gr_plot.items
-    assert not main_widget.pattern_widget.sq_items[1] in \
-               main_widget.pattern_widget.sq_plot.items
+    assert not main_widget.pattern_widget.gr_items[1] in main_widget.pattern_widget.gr_plot.items
+    assert not main_widget.pattern_widget.sq_items[1] in main_widget.pattern_widget.sq_plot.items
 
 
 def test_changing_configuration_color(main_widget, configuration_widget):

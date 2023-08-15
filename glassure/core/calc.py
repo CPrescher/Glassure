@@ -50,7 +50,7 @@ def calculate_normalization_factor(sample_pattern, density, composition, attenua
     :param density:             density in g/cm^3
     :param composition:         composition as a dictionary with the elements as keys and the abundances as values
     :param attenuation_factor:  attenuation factor used in the exponential, in order to correct for the q cutoff
-    :use_incoherent_scattering: whether to use incoherent scattering, in some cases it is already subtracted
+    :param use_incoherent_scattering: whether to use incoherent scattering, in some cases it is already subtracted
 
     :return: normalization factor
     """
@@ -68,7 +68,8 @@ def calculate_normalization_factor(sample_pattern, density, composition, attenua
                                               incoherent_scattering, attenuation_factor)
 
 
-def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="squared", use_incoherent_scattering=True):
+def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="squared", use_incoherent_scattering=True,
+                             sf_source='hajdu'):
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
 
@@ -82,7 +83,9 @@ def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="sq
     :param composition:         composition as a dictionary with the elements as keys and the abundances as values
     :param q_cutoff:            q value above which the fitting will be performed, default = 3
     :param method:              specifies whether q^2 ("squared") or q (linear) should be used
-    :use_incoherent_scattering: whether to use incoherent scattering, in some cases it is already subtracted
+    :param use_incoherent_scattering:
+                                whether to use incoherent scattering, in some cases it is already subtracted
+    :param sf_source:           source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
 
     :return: normalization factor
     """
@@ -95,9 +98,9 @@ def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="sq
     else:
         raise NotImplementedError("{} is not an allowed method for fit_normalization_factor".format(method))
 
-    theory = calculate_f_squared_mean(composition, q) * x
+    theory = calculate_f_squared_mean(composition, q, sf_source) * x
     if use_incoherent_scattering:
-        theory += x * calculate_incoherent_scattering(composition, q)
+        theory += x * calculate_incoherent_scattering(composition, q, sf_source)
 
     params = lmfit.Parameters()
     params.add("n", value=1, min=0)
@@ -147,7 +150,7 @@ def calculate_sq_raw(sample_pattern, f_squared_mean, f_mean_squared, incoherent_
 
 
 def calculate_sq(sample_pattern, density, composition, attenuation_factor=0.001, method='FZ',
-                 normalization_method='int', use_incoherent_scattering=True):
+                 normalization_method='int', use_incoherent_scattering=True, sf_source='hajdu'):
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
 
@@ -166,18 +169,19 @@ def calculate_sq(sample_pattern, density, composition, attenuation_factor=0.001,
                                     - 'AL' - Ashcroft-Langreth
                                     - 'FZ' - Faber-Ziman
 
-    :param normalization_method:determines the method used for estimating the normalization method. possible values are
+    :param normalization_method: determines the method used for estimating the normalization method. possible values are
                                 'int' for an integral or 'fit' for fitting the high q region form factors.
 
-    :use_incoherent_scattering: whether to use incoherent scattering, in some cases it is already subtracted
+    :param use_incoherent_scattering: whether to use incoherent scattering, in some cases it is already subtracted
+    :param sf_source:           source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
 
     :return: S(Q) pattern
     """
     q, intensity = sample_pattern.data
-    f_squared_mean = calculate_f_squared_mean(composition, q)
-    f_mean_squared = calculate_f_mean_squared(composition, q)
+    f_squared_mean = calculate_f_squared_mean(composition, q, sf_source)
+    f_mean_squared = calculate_f_mean_squared(composition, q, sf_source)
     if use_incoherent_scattering:
-        incoherent_scattering = calculate_incoherent_scattering(composition, q)
+        incoherent_scattering = calculate_incoherent_scattering(composition, q, sf_source)
     else:
         incoherent_scattering = None
 
@@ -295,6 +299,9 @@ def calculate_sq_from_gr(gr_pattern, q, density, composition, method='integral')
     :param q:               numpy array of q values for which S(Q) should be calculated
     :param density:         density of the sample in g/cm^3
     :param composition:     composition as a dictionary with the elements as keys and the abundances as values
+    :param method:          determines the method used for calculating fr, possible values are:
+                                - 'integral' solves the Fourier integral, by calculating the integral
+                                - 'fft' solves the Fourier integral by using fast fourier transformation
 
     :return: S(Q) pattern
     """

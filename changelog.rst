@@ -1,4 +1,11 @@
-1.3.0 (under development)
+1.3.1 (under development)
+-------------------------
+
+New features:
+    - the chosen scattering factor source can now be applied per configuration and are not global anymore
+    - added support for ionic scattering factors when using the brown et al. 2006 scattering factors
+
+1.3.0 (2023/04/26)
 -------------------------
 
 New features:

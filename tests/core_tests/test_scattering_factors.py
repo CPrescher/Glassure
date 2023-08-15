@@ -34,17 +34,18 @@ def form_factor_vitali():
 def test_consistency_of_form_factor(form_factor_vitali):
     q, form_factor_vitali = form_factor_vitali
     # values from vitali's glass program
-    form_factor_si = calculate_coherent_scattering_factor('Si', q)
-    form_factor_O = calculate_coherent_scattering_factor('O', q)
-    form_factor_Mg = calculate_coherent_scattering_factor('Mg', q)
-    form_factor_Fe = calculate_coherent_scattering_factor('Fe', q)
-    form_factor_Ti = calculate_coherent_scattering_factor('Ti', q)
+    calc = ScatteringFactorCalculatorHajdu()
+    form_factor_si = calc.get_coherent_scattering_factor('Si', q)
+    form_factor_o = calc.get_coherent_scattering_factor('O', q)
+    form_factor_mg = calc.get_coherent_scattering_factor('Mg', q)
+    form_factor_fe = calc.get_coherent_scattering_factor('Fe', q)
+    form_factor_ti = calc.get_coherent_scattering_factor('Ti', q)
 
     assert np.abs(np.sum(form_factor_si - form_factor_vitali['Si'])) < 1e-13
-    assert np.abs(np.sum(form_factor_O - form_factor_vitali['O'])) < 1e-13
-    assert np.abs(np.sum(form_factor_Mg - form_factor_vitali['Mg'])) < 1e-13
-    assert np.abs(np.sum(form_factor_Fe - form_factor_vitali['Fe'])) < 1e-12
-    assert np.abs(np.sum(form_factor_Ti - form_factor_vitali['Ti'])) < 1e-12
+    assert np.abs(np.sum(form_factor_o - form_factor_vitali['O'])) < 1e-13
+    assert np.abs(np.sum(form_factor_mg - form_factor_vitali['Mg'])) < 1e-13
+    assert np.abs(np.sum(form_factor_fe - form_factor_vitali['Fe'])) < 1e-12
+    assert np.abs(np.sum(form_factor_ti - form_factor_vitali['Ti'])) < 1e-12
 
 
 def test_consistency_of_incoherent_scattering(form_factor_vitali):
@@ -58,10 +59,11 @@ def test_consistency_of_incoherent_scattering(form_factor_vitali):
     incoherent_vitali_fe = (26 - (form_factor_vitali['Fe'] ** 2) / 26) * (
             1 - 0.6414 * (np.exp(-0.9673 * (q / 4 / np.pi)) - np.exp(-10.4405 * (q / 4 / np.pi))))
 
-    incoherent_si = calculate_incoherent_scattered_intensity('Si', q)
-    incoherent_o = calculate_incoherent_scattered_intensity('O', q)
-    incoherent_mg = calculate_incoherent_scattered_intensity('Mg', q)
-    incoherent_fe = calculate_incoherent_scattered_intensity('Fe', q)
+    calc = ScatteringFactorCalculatorHajdu()
+    incoherent_si = calc.get_incoherent_intensity('Si', q)
+    incoherent_o = calc.get_incoherent_intensity('O', q)
+    incoherent_mg = calc.get_incoherent_intensity('Mg', q)
+    incoherent_fe = calc.get_incoherent_intensity('Fe', q)
 
     assert np.abs(np.sum(incoherent_si - incoherent_vitali_si)) < 1e-12
     assert np.abs(np.sum(incoherent_o - incoherent_vitali_o)) < 1e-12

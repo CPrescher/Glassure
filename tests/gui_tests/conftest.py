@@ -1,5 +1,5 @@
 import pytest
-from glassure.gui.controller.glassure import GlassureController
+from glassure.gui.controller.glassure_controller import GlassureController
 
 
 @pytest.fixture

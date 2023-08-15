@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import re
 from copy import copy
 
 import numpy as np
@@ -12,60 +12,71 @@ from . import scattering_factors
 
 __all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_incoherent_scattering',
            'extrapolate_to_zero_linear', 'extrapolate_to_zero_poly', 'extrapolate_to_zero_spline',
-           'convert_density_to_atoms_per_cubic_angstrom', 'normalize_composition',
-           'convert_two_theta_to_q_space', 'convert_two_theta_to_q_space_raw',
-           'calculate_weighting_factor']
+           'extrapolate_to_zero_step', 'convert_density_to_atoms_per_cubic_angstrom', 'normalize_composition',
+           'convert_two_theta_to_q_space', 'convert_two_theta_to_q_space_raw', 'calculate_weighting_factor']
 
 
-def calculate_f_mean_squared(composition, q):
+def calculate_f_mean_squared(composition: dict, q: np.ndarray,
+                             sf_source='hajdu') -> np.ndarray:
     """
     Calculates the square of the mean form_factor for a given composition over q.
     :param composition: dictionary with elements as key and abundances as relative numbers
     :param q: Q value or numpy array with a unit of A^-1
+    :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
     """
     norm_elemental_abundances = normalize_composition(composition)
 
     res = 0
-    for key, value in norm_elemental_abundances.items():
-        res += value * calculate_coherent_scattering_factor(key, q)
+    for element, amount in norm_elemental_abundances.items():
+        res += amount * calculate_coherent_scattering_factor(element, q, sf_source)
     return res ** 2
 
 
-def calculate_f_squared_mean(composition, q):
+def calculate_f_squared_mean(composition: dict[str, float], q: np.ndarray, sf_source: str = 'hajdu') -> np.ndarray:
     """
     Calculates the mean of the squared form factors for a given composition for a given q vector.
     :param composition: dictionary with elements as key and abundances as relative numbers
     :param q: Q value or numpy array with a unit of A^-1
+    :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
+
+    :return: mean of the squared form factors
     """
     norm_elemental_abundances = normalize_composition(composition)
 
     res = 0
     for key, value in norm_elemental_abundances.items():
-        res += value * calculate_coherent_scattering_factor(key, q) ** 2
+        res += value * calculate_coherent_scattering_factor(key, q, sf_source) ** 2
     return res
 
 
-def calculate_incoherent_scattering(composition, q):
+def calculate_incoherent_scattering(composition: dict[str, float], q: np.ndarray, sf_source: str = 'hajdu') -> np.ndarray:
     """
     Calculates compton/incoherent scattering for a given composition
     :param composition: dictionary with elements as key and abundances as relative numbers
     :param q: Q value or numpy array with a unit of A^-1
+    :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
+
+    :return: incoherent scattering array
     """
     norm_elemental_abundances = normalize_composition(composition)
 
     res = 0
     for key, value in norm_elemental_abundances.items():
-        res += value * calculate_incoherent_scattered_intensity(key, q)
+        res += value * calculate_incoherent_scattered_intensity(key, q, sf_source)
     return res
 
 
-def calculate_weighting_factor(composition, element_1, element_2, q):
+def calculate_weighting_factor(composition: dict[str, float], element_1: str, element_2: str, q: np.ndarray,
+                               sf_source='hajdu'):
     """
     Calculates the weighting factor for an element-element contribution in a given composition (e.g. for Si-O in SiO2)
     :param composition: dictionary with elements as key string and abundances as relative numbers
     :param element_1: string giving element 1
     :param element_2: string giving element 2
     :param q: Q value or numpy array with a unit of A^-1
+    :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
+
+    :return: weighting factor array
     """
     if element_1 == element_2:
         factor = 1
@@ -76,7 +87,7 @@ def calculate_weighting_factor(composition, element_1, element_2, q):
     f = {}  # form factors
     c = {}  # concentrations
     for element, val in composition.items():
-        f[element] = calculate_coherent_scattering_factor(element, q)
+        f[element] = calculate_coherent_scattering_factor(element, q, sf_source)
         c[element] = val / num_atoms
 
     f_sum_squared = np.zeros_like(q)
@@ -91,7 +102,7 @@ def normalize_composition(composition):
     """
     normalizes elemental abundances to 1
     :param composition: dictionary with elements as key and abundances as relative numbers
-    :return: normalized elemental abundances dictionary dictionary
+    :return: normalized elemental abundances dictionary
     """
     sum = 0.0
     for key, val in composition.items():
@@ -116,8 +127,9 @@ def convert_density_to_atoms_per_cubic_angstrom(composition, density):
     # get_smallest abundance
     norm_elemental_abundances = normalize_composition(composition)
     mean_z = 0.0
-    for key, val in norm_elemental_abundances.items():
-        mean_z += val * scattering_factors.atomic_weights['AW'][key]
+    for element, concentration in norm_elemental_abundances.items():
+        element = re.findall('[A-zA-Z]*', element)[0]
+        mean_z += concentration * scattering_factors.atomic_weights['AW'][element]
     return density / mean_z * .602214129
 
 

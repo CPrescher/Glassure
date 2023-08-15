@@ -4,8 +4,8 @@ import pytest
 
 from glassure.core import Pattern
 from glassure.core import calculate_sq
-from glassure.gui.model.glassure import GlassureModel
-from .utility import data_path, QtTest
+from glassure.gui.model.glassure_model import GlassureModel
+from .utility import data_path
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def test_calculate_transforms(setup, model):
     r = np.linspace(0, 10, 1000)
 
     model.background_scaling = background_scaling
-    model.update_parameter(elemental_abundances, density, q_min, q_max, 0, 10, False,
+    model.update_parameter('hajdu', elemental_abundances, density, q_min, q_max, 0, 10, False,
                            None, {}, False, 1.5, 5, 1)
 
     sample_pattern = data_pattern - background_scaling * bkg_pattern

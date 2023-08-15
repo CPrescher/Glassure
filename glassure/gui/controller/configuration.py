@@ -2,8 +2,8 @@
 
 from qtpy import QtGui, QtWidgets
 
-from ..widgets.glassure import GlassureWidget
-from ..model.glassure import GlassureModel
+from ..widgets.glassure_widget import GlassureWidget
+from ..model.glassure_model import GlassureModel
 
 
 class ConfigurationController(object):
@@ -69,6 +69,7 @@ class ConfigurationController(object):
         self.widget.smooth_sb.setValue(self.model.original_pattern.smoothing)
 
         # composition widget
+        self.widget.set_sf_source(self.model.sf_source)
         self.widget.set_composition(self.model.composition)
         self.widget.density_txt.setText(str(self.model.density))
 

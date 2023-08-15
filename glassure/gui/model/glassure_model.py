@@ -108,7 +108,7 @@ class GlassureModel(QtCore.QObject):
 
     @property
     def background_scaling(self):
-        return self.current_configuration._background_pattern.scaling
+        return self.current_configuration.background_pattern.scaling
 
     @background_scaling.setter
     def background_scaling(self, new_value):
@@ -141,6 +141,15 @@ class GlassureModel(QtCore.QObject):
     def gr_pattern(self, new_gr):
         self.current_configuration.gr_pattern = new_gr
         self.gr_changed.emit(new_gr)
+
+    @property
+    def sf_source(self):
+        return self.current_configuration.sf_source
+
+    @sf_source.setter
+    def sf_source(self, new_source):
+        self.current_configuration.sf_source = new_source
+        self.calculate_transforms()
 
     @property
     def composition(self):
@@ -395,11 +404,12 @@ class GlassureModel(QtCore.QObject):
         self.current_configuration.background_pattern.set_smoothing(value)
         self.calculate_transforms()
 
-    def update_parameter(self, composition, density, q_min, q_max, r_min, r_max,
+    def update_parameter(self, sf_source, composition, density, q_min, q_max, r_min, r_max,
                          use_modification_fcn, extrapolation_method, extrapolation_parameters,
                          optimize_active, r_cutoff, optimize_iterations, optimize_attenuation):
 
         self.auto_update = False
+        self.sf_source = sf_source
         self.composition = composition
         self.density = density
 
@@ -482,7 +492,8 @@ class GlassureModel(QtCore.QObject):
 
         self.sq_pattern = calculate_sq(sample_pattern,
                                        density=self.density,
-                                       composition=self.composition
+                                       composition=self.composition,
+                                       sf_source=self.current_configuration.sf_source,
                                        )
 
         if self.extrapolation_method == 'step':

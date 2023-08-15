@@ -14,7 +14,7 @@ Clemens Prescher (clemens.prescher@gmail.com)
 
 ## Requirements
 
-- python 3.8+
+- python 3.9+
 
 It is known to run on Windows, Mac OS X and Linux.
 
