@@ -38,7 +38,6 @@ def test_calculate_transforms(setup, model):
         'Si': 1,
         'O': 4,
     }
-    r = np.linspace(0, 10, 1000)
 
     model.background_scaling = background_scaling
     model.update_parameter('hajdu', elemental_abundances, density, q_min, q_max, 0, 10, False,
@@ -52,6 +51,23 @@ def test_calculate_transforms(setup, model):
 
     assert len(sq_pattern1_x) == len(sq_pattern2_x)
     assert np.sum(np.abs(sq_pattern1_y - sq_pattern2_y)) == 0
+
+
+def test_calculate_transforms_without_bkg(model):
+    model.load_data(data_path('Mg2SiO4_ambient.xy'))
+    density = 1.7
+    elemental_abundances = {
+        'Mg': 2,
+        'Si': 1,
+        'O': 4,
+    }
+    q_min = 0
+    q_max = 10
+    model.update_parameter('hajdu', elemental_abundances, density, q_min, q_max, 0, 10, False,
+                           None, {}, False, 1.5, 5, 1)
+    assert model.sq_pattern is not None
+    assert model.gr_pattern is not None
+    assert model.fr_pattern is not None
 
 
 def test_calculate_spectra(setup, model):

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+import os
 from mock import MagicMock
 from qtpy import QtGui, QtWidgets
 
-from .utility import set_widget_text, click_checkbox, click_button
+from .utility import set_widget_text, click_checkbox, click_button, data_path
 
 
 def test_data_filename_is_updated(main_controller, main_widget, configuration_widget, configuration_controller, qtbot):
@@ -18,16 +19,20 @@ def test_data_filename_is_updated(main_controller, main_widget, configuration_wi
 
 def test_bkg_filename_is_updated(main_controller, main_widget, configuration_widget, configuration_controller, qtbot):
     click_button(configuration_widget.freeze_btn)
-    main_controller.model.current_configuration.background_pattern.name = 'lala'
+    main_controller.model.load_bkg(data_path('Mg2SiO4_ambient_bkg.xy'))
 
     configuration_controller.update_widget_controls()
-    assert str(main_widget.bkg_filename_lbl.text()) == 'lala'
+    assert str(main_widget.bkg_filename_lbl.text()) == 'Mg2SiO4_ambient_bkg'
 
     configuration_widget.configuration_tw.selectRow(0)
-    assert str(main_widget.bkg_filename_lbl.text()) == ''
+    assert str(main_widget.bkg_filename_lbl.text()) == 'None'
+
+    configuration_widget.configuration_tw.selectRow(1)
+    assert str(main_widget.bkg_filename_lbl.text()) == 'Mg2SiO4_ambient_bkg'
 
 
 def test_bkg_scaling_is_updated(main_controller, main_widget, configuration_widget, configuration_controller, qtbot):
+    main_controller.model.load_bkg(data_path('Mg2SiO4_ambient_bkg.xy'))
     click_button(configuration_widget.freeze_btn)
     main_widget.bkg_scaling_sb.setValue(0.3)
 

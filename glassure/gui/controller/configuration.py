@@ -62,10 +62,13 @@ class ConfigurationController(object):
 
         # filenames
         self.widget.data_filename_lbl.setText(self.model.original_pattern.name)
-        self.widget.bkg_filename_lbl.setText(self.model.current_configuration.background_pattern.name)
-
-        # background scaling and smoothing
-        self.widget.bkg_scaling_sb.setValue(self.model.current_configuration.background_pattern.scaling)
+        if self.model.current_configuration.background_pattern is not None:
+            self.widget.bkg_filename_lbl.setText(self.model.current_configuration.background_pattern.name)
+            self.widget.bkg_scaling_sb.setEnabled(True)
+            self.widget.bkg_scaling_sb.setValue(self.model.current_configuration.background_pattern.scaling)
+        else:
+            self.widget.bkg_filename_lbl.setText('None')
+            self.widget.bkg_scaling_sb.setEnabled(False)
         self.widget.smooth_sb.setValue(self.model.original_pattern.smoothing)
 
         # composition widget

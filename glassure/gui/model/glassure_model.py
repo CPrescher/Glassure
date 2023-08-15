@@ -41,7 +41,7 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     def load_bkg(self, filename):
-        self.current_configuration.background_pattern.load(filename)
+        self.current_configuration.background_pattern = Pattern.from_file(filename)
         self.calculate_transforms()
 
     @property
@@ -88,14 +88,15 @@ class GlassureModel(QtCore.QObject):
     def original_pattern(self, new_pattern):
         self.current_configuration.original_pattern = new_pattern
 
-    def get_background_pattern(self):
-        x, y = self.background_pattern.data
-        return Pattern(x, y)
-
     @property
     def background_pattern(self):
         if self.current_configuration.diamond_bkg_pattern is None:
-            return self.current_configuration.background_pattern
+            if self.current_configuration.background_pattern is None:
+                return None
+            else:
+                return self.current_configuration.background_pattern
+        if self.current_configuration.background_pattern is None:
+            return self.current_configuration.diamond_bkg_pattern
         return self.current_configuration.background_pattern + self.current_configuration.diamond_bkg_pattern
 
     @property
@@ -401,7 +402,8 @@ class GlassureModel(QtCore.QObject):
 
     def set_smooth(self, value):
         self.original_pattern.set_smoothing(value)
-        self.current_configuration.background_pattern.set_smoothing(value)
+        if self.background_pattern is not None:
+            self.current_configuration.background_pattern.set_smoothing(value)
         self.calculate_transforms()
 
     def update_parameter(self, sf_source, composition, density, q_min, q_max, r_min, r_max,
@@ -435,9 +437,7 @@ class GlassureModel(QtCore.QObject):
         if not self.auto_update:
             return
 
-        if len(self.composition) != 0 and \
-                self.original_pattern is not None and \
-                self.background_pattern is not None:
+        if len(self.composition) != 0 and self.original_pattern:
             self.calculate_sq()
 
             if self.optimize:
@@ -454,7 +454,10 @@ class GlassureModel(QtCore.QObject):
         self.data_changed.emit()
 
     def calculate_sq(self):
-        sample_pattern = (self.original_pattern - self.background_pattern).limit(self.q_min, self.q_max)
+        if self.background_pattern is not None:
+            sample_pattern = (self.original_pattern - self.background_pattern).limit(self.q_min, self.q_max)
+        else:
+            sample_pattern = self.original_pattern.limit(self.q_min, self.q_max)
 
         if self.use_transfer_function and self.transfer_function is not None:
             sample_pattern.y = sample_pattern.y * self.transfer_function(sample_pattern.x)

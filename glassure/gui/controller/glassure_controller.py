@@ -100,7 +100,7 @@ class GlassureController(object):
             self.model.load_data(filename)
             self.settings.setValue('working_directory', os.path.dirname(filename))
             self.main_widget.left_control_widget.data_widget.file_widget.data_filename_lbl.setText(
-                os.path.basename(filename))
+                self.model.current_configuration.original_pattern.name)
 
     def load_bkg(self):
         filename = open_file_dialog(self.main_widget, "Load background data",
@@ -110,13 +110,13 @@ class GlassureController(object):
             self.model.load_bkg(filename)
             self.settings.setValue('working_directory', os.path.dirname(filename))
             self.main_widget.left_control_widget.data_widget.file_widget.background_filename_lbl.setText(
-                os.path.basename(filename))
+                self.model.current_configuration.background_pattern.name)
 
     def model_changed(self):
         if self.model.original_pattern is not None:
             self.main_widget.pattern_widget.plot_pattern(self.model.original_pattern)
         if self.model.background_pattern is not None:
-            self.main_widget.pattern_widget.plot_bkg(self.model.get_background_pattern())
+            self.main_widget.pattern_widget.plot_bkg(self.model.background_pattern)
         if self.model.sq_pattern is not None:
             self.main_widget.pattern_widget.set_sq_pattern(self.model.sq_pattern, self.model.configuration_ind)
         if self.model.gr_pattern is not None:

@@ -14,7 +14,7 @@ class GlassureConfiguration(object):
         super(GlassureConfiguration, self).__init__()
         # initialize all spectra
         self.original_pattern = Pattern()
-        self.background_pattern = Pattern()
+        self.background_pattern = None
 
         self.diamond_bkg_pattern = None
 
