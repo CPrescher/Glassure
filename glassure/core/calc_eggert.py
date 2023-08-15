@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-
+from typing import Optional
 from copy import deepcopy
 
 import numpy as np
 from scipy.integrate import simps
 
+from . import calculate_gr_raw
 from .scattering_factors import calculate_coherent_scattering_factor, calculate_incoherent_scattered_intensity, \
     ScatteringFactorCalculatorHajdu
 from .soller_correction import SollerCorrection
@@ -13,7 +14,7 @@ from .pattern import Pattern
 scattering_factor_param = ScatteringFactorCalculatorHajdu().coherent_param
 
 
-def calculate_atomic_number_sum(composition):
+def calculate_atomic_number_sum(composition: dict[str, float]):
     """
     Calculates the sum of the atomic number of all elements in the composition
 
@@ -26,7 +27,7 @@ def calculate_atomic_number_sum(composition):
     return z_tot
 
 
-def calculate_effective_form_factors(composition, q):
+def calculate_effective_form_factors(composition: dict[str, float], q: np.ndarray) -> np.ndarray:
     """
     Calculates the effective form factor as defined in Eq. 10 in Eggert et al. (2002)
 
@@ -36,14 +37,14 @@ def calculate_effective_form_factors(composition, q):
     """
     z_tot = calculate_atomic_number_sum(composition)
 
-    f_effective = 0
+    f_effective = np.zeros_like(q)
     for element, n in composition.items():
         f_effective += calculate_coherent_scattering_factor(element, q) * n
 
     return f_effective / float(z_tot)
 
 
-def calculate_incoherent_scattering(composition, q):
+def calculate_incoherent_scattering(composition: dict[str, float], q: np.ndarray) -> np.ndarray:
     """
     Calculates the not normalized incoherent scattering contribution from a specific composition.
 
@@ -51,14 +52,14 @@ def calculate_incoherent_scattering(composition, q):
     :param q: Q value or numpy array with a unit of A^-1
     :return: incoherent scattering numpy array
     """
-    inc = 0
+    inc = np.zeros_like(q)
     for element, n in composition.items():
         inc += calculate_incoherent_scattered_intensity(element, q) * n
 
     return inc
 
 
-def calculate_j(incoherent_scattering, z_tot, f_effective):
+def calculate_j(incoherent_scattering: np.ndarray, z_tot: float, f_effective: np.ndarray) -> np.ndarray:
     """
     Calculates the J parameter as described in equation (35) from Eggert et al. 2002.
 
@@ -70,7 +71,7 @@ def calculate_j(incoherent_scattering, z_tot, f_effective):
     return incoherent_scattering / (z_tot * f_effective) ** 2
 
 
-def calculate_kp(element, f_effective, q):
+def calculate_kp(element: str, f_effective: np.ndarray, q: np.ndarray) -> np.ndarray:
     """
     Calculates the average effective atomic number (averaged over the whole Q range).
 
@@ -84,7 +85,7 @@ def calculate_kp(element, f_effective, q):
     return kp
 
 
-def calculate_s_inf(composition, z_tot, f_effective, q):
+def calculate_s_inf(composition: dict[str, float], z_tot: float, f_effective: np.ndarray, q: np.ndarray) -> float:
     """
     Calculates S_inf as described in equation (19) from Eggert et al. 2002
 
@@ -101,7 +102,8 @@ def calculate_s_inf(composition, z_tot, f_effective, q):
     return sum_kp_squared / z_tot ** 2
 
 
-def calculate_alpha(sample_pattern, z_tot, f_effective, s_inf, j, atomic_density):
+def calculate_alpha(sample_pattern: Pattern, z_tot: float, f_effective: np.ndarray, s_inf: np.ndarray, j: np.ndarray,
+                    atomic_density: float) -> float:
     """
     Calculates the normalization factor alpha after equation (34) from Eggert et al. 2002.
 
@@ -124,40 +126,40 @@ def calculate_alpha(sample_pattern, z_tot, f_effective, s_inf, j, atomic_density
     return alpha
 
 
-def calculate_coherent_scattering(sample_pattern, alpha, N, incoherent_scattering):
+def calculate_coherent_scattering(sample_pattern: Pattern, alpha: float, n: float,
+                                  incoherent_scattering: np.ndarray) -> Pattern:
     """
     Calculates the coherent Scattering Intensity Pattern
 
     :param sample_pattern:  Background subtracted sample pattern
     :param alpha: normalization factor alpha (after equ. (34) from Eggert et al. 2002)
-    :param N: Number of atoms
+    :param n: Number of atoms
     :param incoherent_scattering: incoherent scattering intensity
     :return: Coherent Scattering Pattern
     :rtype: Pattern
     """
 
     q, intensity = sample_pattern.data
-    coherent_intensity = N * (alpha * intensity - incoherent_scattering)
+    coherent_intensity = n * (alpha * intensity - incoherent_scattering)
     return Pattern(q, coherent_intensity)
 
 
-def calculate_sq(coherent_pattern, N, z_tot, f_effective):
+def calculate_sq(coherent_pattern: Pattern, n: float, z_tot: float, f_effective: np.ndarray) -> Pattern:
     """
     Calculates the Structure Factor based on equation (18) in Eggert et al. 2002
     :param coherent_pattern: coherent pattern
-    :param N: number of atoms for structural unit, e.g. 3 for SiO2
-    :param z_tot: sum opf atomic numbers for the material
+    :param n: number of atoms for structural unit, e.g. 3 for SiO2
+    :param z_tot: sum of atomic numbers for the material
     :param f_effective: Q dependent effective form factor
-    :return: S(q) pattern
-    :rtype: Pattern
+    :return: S(q)
     """
     q, coherent_intensity = coherent_pattern.data
-    sq_intensity = coherent_intensity / (N * z_tot ** 2 * f_effective ** 2)
+    sq_intensity = coherent_intensity / (n * z_tot ** 2 * f_effective ** 2)
 
     return Pattern(q, sq_intensity)
 
 
-def calculate_fr(iq_pattern, r=None, use_modification_fcn=False):
+def calculate_fr(iq_pattern: Pattern, r: Optional[np.ndarray] = None, use_modification_fcn: bool = False) -> Pattern:
     """
     Calculates F(r) from a given interference function i(Q) for r values.
     If r is none a range from 0 to 10 with step 0.01 is used.    A Lorch modification function of the form:
@@ -184,8 +186,7 @@ def calculate_fr(iq_pattern, r=None, use_modification_fcn=False):
     else:
         modification = 1
 
-    fr = 2.0 / np.pi * simps(modification * q * (iq) * \
-                             np.array(np.sin(np.outer(q.T, r))).T, q)
+    fr = 2.0 / np.pi * simps(modification * q * iq * np.array(np.sin(np.outer(q.T, r))).T, q)
 
     return Pattern(r, fr)
 
@@ -210,12 +211,12 @@ def optimize_iq(iq_pattern, r_cutoff, iterations, atomic_density, j, s_inf=1, us
     :param s_inf:
         S_inf value (equ. (19) from Eggert et al. 2002, defaults to 1, which is the value for mon-atomic substances
     :param use_modification_fcn:
-        Whether or not to use the Lorch modification function during the Fourier transform.
+        Whether to use the Lorch modification function during the Fourier transform.
         Warning: When using the Lorch modification function usually more iterations are needed to get to the
         wanted result.
     :param attenuation_factor:
-        Sometimes the initial change during back and forward transformations results in a run
-        away, by setting the attenuation factor to higher than one can help for this situation, it basically reduces
+        Sometimes the initial change during back and forward transformations results in a runaway, by setting the
+        attenuation factor to higher than one can help for this situation, it basically reduces
         the amount of change during each iteration.
     :param fcn_callback:
         Function which will be called at an iteration period defined by the callback_period parameter.
@@ -265,7 +266,7 @@ def calculate_chi2_map(data_pattern, bkg_pattern, composition,
     :return: 2-dimensional array of chi2 values
     """
 
-    N = sum([composition[x] for x in composition])
+    n = sum([composition[x] for x in composition])
     q = data_pattern.extend_to(0, 0).x
 
     inc = calculate_incoherent_scattering(composition, q)
@@ -287,8 +288,8 @@ def calculate_chi2_map(data_pattern, bkg_pattern, composition,
 
             alpha = calculate_alpha(sample_pattern, z_tot, f_eff, s_inf, j, density)
 
-            coherent_pattern = calculate_coherent_scattering(sample_pattern, alpha, N, inc)
-            sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
+            coherent_pattern = calculate_coherent_scattering(sample_pattern, alpha, n, inc)
+            sq_pattern = calculate_sq(coherent_pattern, n, z_tot, f_eff)
             iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
 
             delta_fr = np.zeros(r.shape)
@@ -311,9 +312,10 @@ def calculate_chi2_map(data_pattern, bkg_pattern, composition,
     return chi2
 
 
-def optimize_density_and_bkg_scaling(data_pattern, bkg_pattern, composition,
-                                     initial_density, initial_bkg_scaling, r_cutoff, iterations=2,
-                                     use_modification_fcn=False):
+def optimize_density_and_bkg_scaling(data_pattern: Pattern, bkg_pattern: Pattern, composition: dict[str, float],
+                                     initial_density: float, initial_bkg_scaling: float, r_cutoff: float,
+                                     iterations: int = 2, use_modification_fcn: bool = False) \
+        -> tuple[float, float, float, float]:
     """
     This function tries to find the optimum density in background scaling with the given parameters. The equations
     behind the optimization are presented equ (47-50) in the Eggert et al. 2002 paper.
@@ -374,7 +376,7 @@ def optimize_density_and_bkg_scaling(data_pattern, bkg_pattern, composition,
 
         return delta_fr
 
-    from lmfit import Parameters, minimize, report_fit
+    from lmfit import Parameters, minimize
 
     params = Parameters()
     params.add('density', value=initial_density, )
@@ -386,10 +388,12 @@ def optimize_density_and_bkg_scaling(data_pattern, bkg_pattern, composition,
         result.params['bkg_scaling'].value, result.params['density'].stderr
 
 
-def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density, initial_bkg_scaling,
-                        initial_thickness, sample_thickness, wavelength,
-                        initial_carbon_content=1, r_cutoff=2.28, iterations=1,
-                        use_modification_fcn=False, vary=(True, True, True)):
+def optimize_soller_dac(data_pattern: Pattern, bkg_pattern: Pattern, composition: dict[str, float],
+                        initial_density: float, initial_bkg_scaling: float, initial_thickness: float,
+                        sample_thickness: float, wavelength: float, initial_carbon_content: float = 1,
+                        r_cutoff: float = 2.28, iterations: int = 1, use_modification_fcn: bool = False,
+                        vary: tuple[bool, bool, bool] = (True, True, True)) \
+        -> tuple[float, float, float, float, float, float, float]:
     """
     Optimizes density, background scaling and diamond content for a list of sample thickness with a given initial
     gasket thickness in the diamond anvil cell (DAC). The calculation is done by utilizing the soller slit transfer
@@ -411,7 +415,7 @@ def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density,
     :param vary: 3 boolean flags whether to vary: density, bkg_scaling, carbon_content during the optimization
     :return:
     """
-    N = sum([composition[x] for x in composition])
+    n = sum([composition[x] for x in composition])
     q = data_pattern.extend_to(0, 0).x
 
     inc = calculate_incoherent_scattering(composition, q)
@@ -444,8 +448,8 @@ def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density,
 
         alpha = calculate_alpha(sample_pattern, z_tot, f_eff, s_inf, j, density)
 
-        coherent_pattern = calculate_coherent_scattering(sample_pattern, alpha, N, inc)
-        sq_pattern = calculate_sq(coherent_pattern, N, z_tot, f_eff)
+        coherent_pattern = calculate_coherent_scattering(sample_pattern, alpha, n, inc)
+        sq_pattern = calculate_sq(coherent_pattern, n, z_tot, f_eff)
         iq_pattern = Pattern(sq_pattern.x, sq_pattern.y - s_inf)
 
         r = np.arange(0, r_cutoff, 0.02)

@@ -208,19 +208,19 @@ class CalcEggertTest(unittest.TestCase):
 
         chi2, density, density_err, bkg_scaling, bkg_scaling_err, diamond_content, diamond_content_err = \
             optimize_soller_dac(
-            self.data_pattern.limit(0.3, 9),
-            self.bkg_pattern.limit(0.3, 9),
-            self.composition,
-            wavelength=0.37,
-            initial_density=0.025,
-            initial_bkg_scaling=0.55,
-            initial_thickness=initial_thickness,
-            sample_thickness=current_thickness,
-            initial_carbon_content=diamond_content,
-            r_cutoff=2.28,
-            iterations=1,
-            use_modification_fcn=True
-        )
+                self.data_pattern.limit(0.3, 9),
+                self.bkg_pattern.limit(0.3, 9),
+                self.composition,
+                wavelength=0.37,
+                initial_density=0.025,
+                initial_bkg_scaling=0.55,
+                initial_thickness=initial_thickness,
+                sample_thickness=current_thickness,
+                initial_carbon_content=diamond_content,
+                r_cutoff=2.28,
+                iterations=1,
+                use_modification_fcn=True
+            )
 
         self.assertAlmostEqual(diamond_content, 0, places=4)
         self.assertAlmostEqual(bkg_scaling, 0.56, places=2)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from typing import Optional
 import numpy as np
 import lmfit
 
@@ -12,8 +12,9 @@ __all__ = ['calculate_normalization_factor_raw', 'calculate_normalization_factor
            'calculate_fr', 'calculate_gr_raw', 'calculate_gr']
 
 
-def calculate_normalization_factor_raw(sample_pattern, atomic_density, f_squared_mean, f_mean_squared,
-                                       incoherent_scattering=None, attenuation_factor=0.001):
+def calculate_normalization_factor_raw(sample_pattern: Pattern, atomic_density: float, f_squared_mean: np.ndarray,
+                                       f_mean_squared: np.ndarray, incoherent_scattering: Optional[np.ndarray] = None,
+                                       attenuation_factor: float = 0.001) -> float:
     """
     Calculates the normalization factor for a sample pattern given all the parameters. If you do not have them
     already calculated please consider using calculate_normalization_factor, which has an easier interface since it
@@ -32,8 +33,7 @@ def calculate_normalization_factor_raw(sample_pattern, atomic_density, f_squared
     # calculate values for integrals
     if incoherent_scattering is None:
         incoherent_scattering = np.zeros_like(q)
-    n1 = q ** 2 * ((f_squared_mean + incoherent_scattering) * np.exp(-attenuation_factor * q ** 2)) / \
-         f_mean_squared
+    n1 = q ** 2 * ((f_squared_mean + incoherent_scattering) * np.exp(-attenuation_factor * q ** 2)) / f_mean_squared
     n2 = q ** 2 * intensity * np.exp(-attenuation_factor * q ** 2) / f_mean_squared
 
     n = ((-2 * np.pi ** 2 * atomic_density + np.trapz(q, n1)) / np.trapz(q, n2))
@@ -41,8 +41,8 @@ def calculate_normalization_factor_raw(sample_pattern, atomic_density, f_squared
     return n
 
 
-def calculate_normalization_factor(sample_pattern, density, composition, attenuation_factor=0.001,
-                                   use_incoherent_scattering=True):
+def calculate_normalization_factor(sample_pattern: Pattern, density: float, composition: dict[str, float],
+                                   attenuation_factor: float = 0.001, use_incoherent_scattering: bool = True) -> float:
     """
     Calculates the normalization factor for a background subtracted sample pattern based on density and composition.
 
@@ -68,8 +68,9 @@ def calculate_normalization_factor(sample_pattern, density, composition, attenua
                                               incoherent_scattering, attenuation_factor)
 
 
-def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="squared", use_incoherent_scattering=True,
-                             sf_source='hajdu'):
+def fit_normalization_factor(sample_pattern: Pattern, composition: dict[str, float], q_cutoff: float = 3,
+                             method: str = "squared", use_incoherent_scattering: bool = True,
+                             sf_source: str = 'hajdu') -> float:
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
 
@@ -115,8 +116,9 @@ def fit_normalization_factor(sample_pattern, composition, q_cutoff=3, method="sq
     return out.params['n'].value
 
 
-def calculate_sq_raw(sample_pattern, f_squared_mean, f_mean_squared, incoherent_scattering=None, normalization_factor=1,
-                     method='FZ'):
+def calculate_sq_raw(sample_pattern: Pattern, f_squared_mean: np.ndarray, f_mean_squared: np.ndarray,
+                     incoherent_scattering: Optional[np.ndarray] = None, normalization_factor: float = 1,
+                     method: str = 'FZ') -> Pattern:
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
 
@@ -149,8 +151,10 @@ def calculate_sq_raw(sample_pattern, f_squared_mean, f_mean_squared, incoherent_
     return Pattern(q, sq)
 
 
-def calculate_sq(sample_pattern, density, composition, attenuation_factor=0.001, method='FZ',
-                 normalization_method='int', use_incoherent_scattering=True, sf_source='hajdu'):
+def calculate_sq(sample_pattern: Pattern, density: float, composition: dict[str, float],
+                 attenuation_factor: float = 0.001, method: str = 'FZ',
+                 normalization_method: str = 'int', use_incoherent_scattering: bool = True,
+                 sf_source: str = 'hajdu') -> Pattern:
     """
     Calculates the structure factor of a material with the given parameters. Using the equation:
 
@@ -203,7 +207,8 @@ def calculate_sq(sample_pattern, density, composition, attenuation_factor=0.001,
                             method)
 
 
-def calculate_fr(sq_pattern, r=None, use_modification_fcn=False, method='integral'):
+def calculate_fr(sq_pattern: Pattern, r: Optional[np.ndarray] = None, use_modification_fcn: bool = False,
+                 method: str = 'integral') -> Pattern:
     """
     Calculates F(r) from a given S(Q) pattern for r values. If r is none a range from 0 to 10 with step 0.01 is used.
     A Lorch modification function of the form:
@@ -232,8 +237,7 @@ def calculate_fr(sq_pattern, r=None, use_modification_fcn=False, method='integra
         modification = 1
 
     if method == 'integral':
-        fr = 2.0 / np.pi * np.trapz(modification * q * (sq - 1) * \
-                                    np.array(np.sin(np.outer(q.T, r))).T, q)
+        fr = 2.0 / np.pi * np.trapz(modification * q * (sq - 1) * np.array(np.sin(np.outer(q.T, r))).T, q)
     elif method == 'fft':
         q_step = q[1] - q[0]
         r_step = r[1] - r[0]
@@ -253,7 +257,7 @@ def calculate_fr(sq_pattern, r=None, use_modification_fcn=False, method='integra
     return Pattern(r, fr)
 
 
-def calculate_sq_from_fr(fr_pattern, q, method='integral'):
+def calculate_sq_from_fr(fr_pattern: Pattern, q: np.ndarray, method: str = 'integral') -> Pattern:
     """
     Calculates S(Q) from a F(r) pattern for given q values.
 
@@ -291,7 +295,8 @@ def calculate_sq_from_fr(fr_pattern, q, method='integral'):
     return Pattern(q, sq)
 
 
-def calculate_sq_from_gr(gr_pattern, q, density, composition, method='integral'):
+def calculate_sq_from_gr(gr_pattern: Pattern, q: np.ndarray, density: float, composition: dict[str, float],
+                         method: str = 'integral') -> Pattern:
     """
     Performs a back Fourier transform from the pair distribution function g(r)
 
@@ -315,7 +320,7 @@ def calculate_sq_from_gr(gr_pattern, q, density, composition, method='integral')
     return calculate_sq_from_fr(fr_pattern, q, method)
 
 
-def calculate_gr_raw(fr_pattern, atomic_density):
+def calculate_gr_raw(fr_pattern: Pattern, atomic_density: float) -> Pattern:
     """
     Calculates a g(r) pattern from a given F(r) pattern and the atomic density
 
@@ -329,7 +334,7 @@ def calculate_gr_raw(fr_pattern, atomic_density):
     return Pattern(r, g_r)
 
 
-def calculate_gr(fr_pattern, density, composition):
+def calculate_gr(fr_pattern: Pattern, density: float, composition: dict[str, float]) -> Pattern:
     """
     Calculates a g(r) pattern from a given F(r) pattern, the material density and composition.
 

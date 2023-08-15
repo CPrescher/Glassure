@@ -5,6 +5,7 @@ New features:
     - the chosen scattering factor source can now be applied per configuration and are not global anymore
     - added support for ionic scattering factors when using the brown et al. 2006 scattering factors
     - calculations now also work correctly without specifying a background pattern
+    - added typehints to the core calculation functions
 
 Bug fixes:
     - consistent naming for patterns - file endings will now always be omitted
