@@ -44,6 +44,10 @@ class GlassureModel(QtCore.QObject):
         self.current_configuration.background_pattern = Pattern.from_file(filename)
         self.calculate_transforms()
 
+    def reset_bkg(self):
+        self.current_configuration.background_pattern = None
+        self.calculate_transforms()
+
     @property
     def current_configuration(self):
         """

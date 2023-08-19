@@ -31,16 +31,34 @@ class FileWidget(QtWidgets.QWidget):
         self.load_data_btn = QtWidgets.QPushButton("Load Data")
         self.data_filename_lbl = QtWidgets.QLabel("None")
         self.data_filename_lbl.setAlignment(QtCore.Qt.AlignRight)
+
         self.load_background_btn = QtWidgets.QPushButton("Load Bkg")
+        # use icon for reset button
+        pixmapi = getattr(QtWidgets.QStyle, "SP_DialogCancelButton")
+        icon = self.style().standardIcon(pixmapi)
+        self.reset_background_btn = QtWidgets.QPushButton(icon, "")
+
         self.background_filename_lbl = QtWidgets.QLabel("None")
         self.background_filename_lbl.setAlignment(QtCore.Qt.AlignRight)
 
         self.vertical_layout.addWidget(self.load_data_btn)
         self.vertical_layout.addWidget(self.data_filename_lbl)
-        self.vertical_layout.addWidget(self.load_background_btn)
+
+        self.background_btn_layout = QtWidgets.QHBoxLayout()
+
+        self.background_btn_layout.addWidget(self.load_background_btn)
+        self.background_btn_layout.addWidget(self.reset_background_btn)
+
+        self.vertical_layout.addLayout(self.background_btn_layout)
         self.vertical_layout.addWidget(self.background_filename_lbl)
 
         self.setLayout(self.vertical_layout)
+        self.style_widgets()
+
+    def style_widgets(self):
+        self.reset_background_btn.setMaximumWidth(20)
+        self.reset_background_btn.setMaximumHeight(20)
+        self.reset_background_btn.setToolTip("Reset Background")
 
 
 class BackgroundOptionsGroupBox(QtWidgets.QGroupBox):

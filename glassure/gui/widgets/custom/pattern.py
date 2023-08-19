@@ -4,6 +4,8 @@ import pyqtgraph as pg
 import numpy as np
 from qtpy import QtCore, QtWidgets
 
+from glassure.core.pattern import Pattern
+
 Signal = QtCore.Signal
 
 
@@ -104,9 +106,12 @@ class PatternWidget(QtWidgets.QWidget):
         x, y = pattern.data
         self.pattern_item.setData(x=x, y=y)
 
-    def plot_bkg(self, pattern):
-        x, y = pattern.data
-        self.bkg_item.setData(x=x, y=y)
+    def plot_bkg(self, pattern: Pattern | None):
+        if pattern is None:
+            self.bkg_item.setData(x=[], y=[])
+        else:
+            x, y = pattern.data
+            self.bkg_item.setData(x=x, y=y)
 
     def set_sq_pattern(self, pattern, ind):
         x, y = pattern.data

@@ -47,9 +47,7 @@ class CalcTest(unittest.TestCase):
         fr_int = calculate_fr(sq, method='integral')
         fr_fft = calculate_fr(sq, method='fft')
 
-        self.assertAlmostEqual(np.mean((fr_int.y - fr_fft.y) ** 2),
-                               0,
-                               places=5)
+        self.assertAlmostEqual(np.mean((fr_int.y - fr_fft.y) ** 2), 0, places=5)
 
     def test_calculate_sq_from_fr_using_fft(self):
         sq = calculate_sq(self.sample_pattern.limit(0, 20), self.density, self.composition).extend_to(0, 0)

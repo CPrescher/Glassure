@@ -52,6 +52,7 @@ class GlassureController(object):
 
         self.main_widget.load_data_btn.clicked.connect(self.load_data)
         self.main_widget.load_bkg_btn.clicked.connect(self.load_bkg)
+        self.main_widget.reset_bkg_btn.clicked.connect(self.reset_bkg)
 
         # connecting background scaling and smoothing of the original data
         self.main_widget.bkg_scaling_sb.valueChanged.connect(self.bkg_scale_changed)
@@ -111,12 +112,14 @@ class GlassureController(object):
             self.settings.setValue('working_directory', os.path.dirname(filename))
             self.main_widget.left_control_widget.data_widget.file_widget.background_filename_lbl.setText(
                 self.model.current_configuration.background_pattern.name)
+    
+    def reset_bkg(self):
+        self.model.reset_bkg()
 
     def model_changed(self):
         if self.model.original_pattern is not None:
             self.main_widget.pattern_widget.plot_pattern(self.model.original_pattern)
-        if self.model.background_pattern is not None:
-            self.main_widget.pattern_widget.plot_bkg(self.model.background_pattern)
+        self.main_widget.pattern_widget.plot_bkg(self.model.background_pattern)
         if self.model.sq_pattern is not None:
             self.main_widget.pattern_widget.set_sq_pattern(self.model.sq_pattern, self.model.configuration_ind)
         if self.model.gr_pattern is not None:

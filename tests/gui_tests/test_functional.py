@@ -118,3 +118,19 @@ def test_working_with_configurations(main_controller, main_widget, composition_w
     # widgets
 
     assert main_widget.configuration_tw.rowCount() == 2
+
+
+def test_reset_background(main_controller, main_widget, pattern_widget, composition_widget, extrapolation_widget, model):
+    # Edd opens the program and wants to load his data and background file:
+    prepare_file_loading('Mg2SiO4_ambient.xy')
+    main_controller.load_data()
+    prepare_file_loading('Mg2SiO4_ambient_bkg.xy')
+    main_controller.load_bkg()
+    
+    # Suddenly he realizes that he loaded the wrong background file, and wants to reset it
+    click_button(main_widget.reset_bkg_btn)
+
+    assert model.background_pattern is None
+    assert pattern_widget.bkg_item.getData()[0] is None
+    assert pattern_widget.bkg_item.getData()[1] is None
+
