@@ -125,6 +125,15 @@ class GlassureController(object):
         if self.model.gr_pattern is not None:
             self.main_widget.pattern_widget.set_gr_pattern(self.model.gr_pattern, self.model.configuration_ind)
 
+        if self.model.background_pattern is not None:
+            self.main_widget.bkg_filename_lbl.setText(self.model.background_pattern.name)
+            self.main_widget.bkg_scaling_sb.setEnabled(True)
+            self.main_widget.bkg_scaling_sb.setValue(self.model.background_pattern.scaling)
+        else:
+            self.main_widget.bkg_filename_lbl.setText('None')
+            self.main_widget.bkg_scaling_sb.setEnabled(False)
+
+        self.main_widget.smooth_sb.setValue(self.model.original_pattern.smoothing)
         self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl. \
             setText("{:.4f}".format(self.model.atomic_density))
 
