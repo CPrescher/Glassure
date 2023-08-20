@@ -8,13 +8,6 @@ from scipy.ndimage import gaussian_filter1d
 
 
 class Pattern(object):
-    x: np.ndarray | None
-    y: np.ndarray | None
-    name: str
-    offset: float = 0.0
-    _scaling: float = 1.0
-    smoothing: float = 0.0
-    bkg_pattern = None
 
     def __init__(self, x: np.ndarray = None, y: np.ndarray = None, name: str = ''):
         if x is None:
@@ -26,6 +19,10 @@ class Pattern(object):
         else:
             self._y = y
         self.name = name
+        self.offset = 0.0
+        self._scaling = 1.0
+        self.smoothing = 0.0
+        self.bkg_pattern = None
 
     def load(self, filename: str, skiprows: int = 0):
         """
