@@ -1,13 +1,22 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+import os
 
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.ndimage import gaussian_filter1d
-import os
 
 
 class Pattern(object):
-    def __init__(self, x=None, y=None, name=''):
+    x: np.ndarray | None
+    y: np.ndarray | None
+    name: str
+    offset: float = 0.0
+    _scaling: float = 1.0
+    smoothing: float = 0.0
+    bkg_pattern = None
+
+    def __init__(self, x: np.ndarray = None, y: np.ndarray = None, name: str = ''):
         if x is None:
             self._x = np.linspace(0.1, 15, 100)
         else:
@@ -17,12 +26,14 @@ class Pattern(object):
         else:
             self._y = y
         self.name = name
-        self.offset = 0
-        self._scaling = 1
-        self.smoothing = 0
-        self.bkg_pattern = None
 
-    def load(self, filename, skiprows=0):
+    def load(self, filename: str, skiprows: int = 0):
+        """
+        Loads a pattern from a file. The file can be either a .xy or a .chi file. The .chi file will be loaded with
+        skiprows=4 by default.
+        :param filename: path to the file
+        :param skiprows: number of rows to skip when loading the data (header)
+        """
         try:
             if filename.endswith('.chi'):
                 skiprows = 4
@@ -36,7 +47,13 @@ class Pattern(object):
             return -1
 
     @staticmethod
-    def from_file(filename, skip_rows=0):
+    def from_file(filename: str, skip_rows: int = 0) -> Pattern | '-1':
+        """
+        Loads a pattern from a file. The file can be either a .xy or a .chi file. The .chi file will be loaded with
+        skiprows=4 by default.
+        :param filename: path to the file
+        :param skip_rows: number of rows to skip when loading the data (header)
+        """
         try:
             if filename.endswith('.chi'):
                 skip_rows = 4
@@ -50,22 +67,41 @@ class Pattern(object):
             print('Wrong data format for pattern file! - ' + filename)
             return -1
 
-    def save(self, filename, header=''):
+    def save(self, filename:str, header:str=''):
+        """
+        Saves the Pattern to a two-column xy file.
+        :param filename: path to the file
+        :param header: header to be written to the file
+        """
         data = np.dstack((self._x, self._y))
         np.savetxt(filename, data[0], header=header)
 
-    def set_background(self, pattern):
+    def set_background(self, pattern: Pattern):
+        """
+        Sets a background pattern to the current pattern. The background will be subtracted from the current pattern
+        when calling the data property.
+        :param pattern: Pattern to be used as background
+        """
         self.bkg_pattern = pattern
 
     def reset_background(self):
+        """
+        Resets the background pattern to None.
+        """
         self.bkg_pattern = None
 
-    def set_smoothing(self, amount):
+    def set_smoothing(self, amount: float):
+        """
+        Sets the smoothing amount for the pattern. The smoothing will be applied when calling the data property.
+        :param amount: amount of smoothing to be applied
+        """
         self.smoothing = amount
 
-    def rebin(self, bin_size):
+    def rebin(self, bin_size: float) -> Pattern:
         """
         Returns a new pattern which is a rebinned version of the current one.
+        :param bin_size: size of the bins
+        :return: rebinned Pattern
         """
         x, y = self.data
         x_min = np.round(np.min(x) / bin_size) * bin_size
@@ -78,7 +114,12 @@ class Pattern(object):
         return Pattern(new_x, new_y)
 
     @property
-    def data(self):
+    def data(self) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Returns the data of the pattern. If a background pattern is set, the background will be subtracted from the
+        pattern. If smoothing is set, the pattern will be smoothed.
+        :return: tuple of x and y values
+        """
         if self.bkg_pattern is not None:
             # create background function
             x_bkg, y_bkg = self.bkg_pattern.data
@@ -108,50 +149,73 @@ class Pattern(object):
         return x, y
 
     @data.setter
-    def data(self, data):
+    def data(self, data: tuple[np.ndarray, np.ndarray]):
+        """
+        Sets the data of the pattern. Also resets the scaling and offset to 1 and 0 respectively.
+        :param data: tuple of x and y values
+        """
         (x, y) = data
         self._x = x
         self._y = y
-        self.scaling = 1
+        self.scaling = 1.0
         self.offset = 0
 
     @property
-    def original_data(self):
+    def original_data(self) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Returns the original data of the pattern without any background subtraction or smoothing.
+        :return: tuple of x and y values
+        """
         return self._x, self._y * self._scaling + self.offset
 
     @property
-    def x(self):
+    def x(self) -> np.ndarray:
+        """ Returns the x values of the pattern """
         return self._x
 
     @x.setter
-    def x(self, new_value):
+    def x(self, new_value: np.ndarray):
+        """ Sets the x values of the pattern """
         self._x = new_value
 
     @property
-    def y(self):
+    def y(self) -> np.ndarray:
+        """ Returns the y values of the pattern """
         return self._y
 
     @y.setter
-    def y(self, new_y):
+    def y(self, new_y: np.ndarray):
+        """ Sets the y values of the pattern """
         self._y = new_y
 
     @property
-    def scaling(self):
+    def scaling(self) -> float:
+        """ Returns the scaling of the pattern """
         return self._scaling
 
     @scaling.setter
     def scaling(self, value):
+        """ 
+        Sets the scaling of the pattern, if below 0, it will be set to 0 
+        instead.
+        """
         if value < 0:
-            self._scaling = 0
+            self._scaling = 0.0
         else:
             self._scaling = value
 
-    def limit(self, x_min, x_max):
+    def limit(self, x_min: float, x_max:float) -> Pattern:
+        """
+        Limits the pattern to a specific x-range. Does not modify inplace but returns a new limited Pattern
+        :param x_min: lower limit of the x-range
+        :param x_max: upper limit of the x-range
+        :return: limited Pattern
+        """
         x, y = self.data
         return Pattern(x[np.where((x_min < x) & (x < x_max))],
                        y[np.where((x_min < x) & (x < x_max))])
 
-    def extend_to(self, x_value, y_value):
+    def extend_to(self, x_value: float, y_value: float) -> Pattern:
         """
         Extends the current pattern to a specific x_value by filling it with the y_value. Does not modify inplace but
         returns a new filled Pattern
@@ -164,14 +228,14 @@ class Pattern(object):
         x_min = np.min(self.x)
         x_max = np.max(self.x)
         if x_value < x_min:
-            x_fill = np.arange(x_min - x_step, x_value-x_step*0.5, -x_step)[::-1]
+            x_fill = np.arange(x_min - x_step, x_value - x_step * 0.5, -x_step)[::-1]
             y_fill = np.zeros(x_fill.shape)
             y_fill.fill(y_value)
 
             new_x = np.concatenate((x_fill, self.x))
             new_y = np.concatenate((y_fill, self.y))
         elif x_value > x_max:
-            x_fill = np.arange(x_max + x_step, x_value+x_step*0.5, x_step)
+            x_fill = np.arange(x_max + x_step, x_value + x_step * 0.5, x_step)
             y_fill = np.zeros(x_fill.shape)
             y_fill.fill(y_value)
 
@@ -182,14 +246,17 @@ class Pattern(object):
 
         return Pattern(new_x, new_y)
 
-    def plot(self, show=False, *args, **kwargs):
-        import matplotlib.pyplot as plt
-        plt.plot(self.x, self.y, *args, **kwargs)
-        if show:
-            plt.show()
-
     # Operators:
-    def __sub__(self, other):
+    def __sub__(self, other: Pattern) -> Pattern:
+        """
+        Subtracts the other pattern from the current one. If the other pattern
+        has a different shape, the subtraction will be done on the overlapping
+        x-values and the background will be interpolated. If there is no
+        overlapping between the two patterns, a BkgNotInRangeror will be 
+        raised.
+        :param other: Pattern to be subtracted
+        :return: new Pattern
+        """
         orig_x, orig_y = self.data
         other_x, other_y = other.data
 
@@ -210,7 +277,16 @@ class Pattern(object):
         else:
             return Pattern(orig_x, orig_y - other_y)
 
-    def __add__(self, other):
+    def __add__(self, other: Pattern) -> Pattern:
+        """
+        Adds the other pattern to the current one. If the other pattern
+        has a different shape, the addition will be done on the overlapping
+        x-values and the y-values of the other pattern will be interpolated. 
+        If there is no overlapping between the two patterns, a BkgNotInRangeror 
+        will be raised.
+        :param other: Pattern to be added
+        :return: new Pattern
+        """
         orig_x, orig_y = self.data
         other_x, other_y = other.data
 
@@ -230,11 +306,22 @@ class Pattern(object):
         else:
             return Pattern(orig_x, orig_y + other_y)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: float) -> Pattern:
+        """
+        Multiplies the pattern with a scalar.
+        :param other: scalar to multiply with
+        :return: new Pattern
+        """
         orig_x, orig_y = self.data
         return Pattern(np.copy(orig_x), np.copy(orig_y) * other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Pattern) -> bool:
+        """
+        Checks if two patterns are equal. Two patterns are equal if their data
+        is equal.
+        :param other: Pattern to compare with
+        :return: True if equal, False otherwise
+        """
         if not isinstance(other, Pattern):
             return False
         if np.array_equal(self.data, other.data):
@@ -243,7 +330,7 @@ class Pattern(object):
 
 
 class BkgNotInRangeError(Exception):
-    def __init__(self, pattern_name):
+    def __init__(self, pattern_name: str):
         self.pattern_name = pattern_name
 
     def __str__(self):
