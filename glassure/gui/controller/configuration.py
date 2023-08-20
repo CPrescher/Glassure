@@ -30,6 +30,7 @@ class ConfigurationController(object):
 
         self.model.configurations_changed.connect(self.update_configurations_tw)
         self.model.configurations_changed.connect(self.update_pattern_items)
+        self.model.configurations_changed.connect(self.update_widget_controls)
 
         self.model.configuration_selected.connect(self.update_widget_controls)
         self.model.configuration_selected.connect(self.update_pattern_items)
