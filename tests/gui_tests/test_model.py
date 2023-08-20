@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import numpy as np
 import pytest
 
@@ -8,13 +7,31 @@ from glassure.gui.model.glassure_model import GlassureModel
 from .utility import data_path
 
 
+# We use a clean model fixture for the tests, the conftest fixtures is derived
+# from the main controller and also includes feedback with the GUI, which is not needed here.
 @pytest.fixture
-def setup(model):
+def model():
+    return GlassureModel()
+
+
+@pytest.fixture
+def setup(model: GlassureModel):
     model.load_data(data_path('Mg2SiO4_ambient.xy'))
     model.load_bkg(data_path('Mg2SiO4_ambient_bkg.xy'))
 
 
-def test_calculate_transforms(setup, model):
+def test_set_background_scaling(setup, model: GlassureModel):
+    scaling = 0.83133015
+    model.background_scaling = scaling
+    assert model.background_scaling == scaling
+    assert model.background_pattern.scaling == scaling
+
+    original_bkg_pattern = Pattern.from_file(data_path('Mg2SiO4_ambient_bkg.xy'))
+    x, y = (scaling * original_bkg_pattern).data
+    assert np.sum(np.abs(model.background_pattern.data[1] - y)) == 0
+
+
+def test_calculate_transforms(setup, model: GlassureModel):
     data_pattern = Pattern.from_file(data_path('Mg2SiO4_ambient.xy'))
     bkg_pattern = Pattern.from_file(data_path('Mg2SiO4_ambient_bkg.xy'))
 
@@ -50,7 +67,7 @@ def test_calculate_transforms(setup, model):
     sq_pattern2_x, sq_pattern2_y = sq_pattern_core.data
 
     assert len(sq_pattern1_x) == len(sq_pattern2_x)
-    assert np.sum(np.abs(sq_pattern1_y - sq_pattern2_y)) == 0
+    assert np.mean(np.abs(sq_pattern1_y - sq_pattern2_y)) == 0
 
 
 def test_calculate_transforms_without_bkg(model):
