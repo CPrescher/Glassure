@@ -4,6 +4,7 @@ from qtpy.QtCore import Qt
 from glassure.gui.widgets.glassure_widget import GlassureWidget
 from .utility import set_widget_text
 
+
 def test_freeze_configuration(configuration_widget, qtbot):
     assert configuration_widget.configuration_tw.rowCount() == 1
 

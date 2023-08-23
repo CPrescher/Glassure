@@ -56,7 +56,8 @@ class PatternWidget(QtWidgets.QWidget):
 
     def create_items(self):
         self.pattern_item = pg.PlotDataItem(pen=pg.mkPen('w', width=1.5))
-        self.bkg_item = pg.PlotDataItem(pen=pg.mkPen('r', width=1.5, style=QtCore.Qt.DashLine))
+        self.bkg_item = pg.PlotDataItem(pen=pg.mkPen(
+            'r', width=1.5, style=QtCore.Qt.DashLine))
         self.pattern_plot.addItem(self.pattern_item)
         self.pattern_plot.addItem(self.bkg_item)
 
@@ -69,13 +70,15 @@ class PatternWidget(QtWidgets.QWidget):
         self.add_gr_item()
 
     def add_sq_item(self, color='w', show=True):
-        self.sq_items.append(pg.PlotDataItem([], [], pen=pg.mkPen(color=color, width=1.5)))
+        self.sq_items.append(pg.PlotDataItem(
+            [], [], pen=pg.mkPen(color=color, width=1.5)))
         self.sq_show.append(show)
         if show:
             self.sq_plot.addItem(self.sq_items[-1])
 
     def add_gr_item(self, color='w', show=True):
-        self.gr_items.append(pg.PlotDataItem([], [], pen=pg.mkPen(color=color, width=1.5)))
+        self.gr_items.append(pg.PlotDataItem(
+            [], [], pen=pg.mkPen(color=color, width=1.5)))
         self.gr_show.append(show)
         if show:
             self.gr_plot.addItem(self.gr_items[-1])
@@ -196,8 +199,9 @@ class ModifiedPlotItem(pg.PlotItem):
                 self.mouse_left_clicked.emit(x, y)
 
     def mouse_double_click_event(self, ev):
-        if (ev.button() == QtCore.Qt.RightButton) or (ev.button() == QtCore.Qt.LeftButton and
-                                                      ev.modifiers() & QtCore.Qt.ControlModifier):
+        if (ev.button() == QtCore.Qt.RightButton) or \
+                (ev.button() == QtCore.Qt.LeftButton and
+                 ev.modifiers() & QtCore.Qt.ControlModifier):
             self.vb.autoRange()
             self.vb.enableAutoRange()
             self._auto_range = True
@@ -212,7 +216,8 @@ class ModifiedPlotItem(pg.PlotItem):
         dif *= -1
 
         if ev.button() == QtCore.Qt.RightButton or \
-                (ev.button() == QtCore.Qt.LeftButton and ev.modifiers() & QtCore.Qt.ControlModifier):
+                (ev.button() == QtCore.Qt.LeftButton and
+                 ev.modifiers() & QtCore.Qt.ControlModifier):
             # determine the amount of translation
             tr = dif
             tr = self.vb.mapToView(tr) - self.vb.mapToView(pg.Point(0, 0))
@@ -225,16 +230,20 @@ class ModifiedPlotItem(pg.PlotItem):
                 self.range_changed_timer.stop()
                 self.emit_sig_range_changed()
         else:
-            if ev.isFinish():  # This is the final move in the drag; change the view scale now
+            if ev.isFinish():
+                # This is the final move in the drag; change the view scale now
                 self._auto_range = False
                 self.vb.enableAutoRange(enable=False)
                 self.vb.rbScaleBox.hide()
-                ax = QtCore.QRectF(pg.Point(ev.buttonDownPos(ev.button())), pg.Point(pos))
+                ax = QtCore.QRectF(
+                    pg.Point(ev.buttonDownPos(ev.button())), pg.Point(pos))
                 ax = self.vb.childGroup.mapRectFromParent(ax)
                 self.vb.showAxRect(ax)
                 self.vb.axHistoryPointer += 1
-                self.vb.axHistory = self.vb.axHistory[:self.vb.axHistoryPointer] + [ax]
-                self.vb.sigRangeChangedManually.emit(self.vb.state['mouseEnabled'])
+                self.vb.axHistory = self.vb.axHistory[
+                    :self.vb.axHistoryPointer] + [ax]
+                self.vb.sigRangeChangedManually.emit(
+                    self.vb.state['mouseEnabled'])
             else:
                 # update shape of scale box
                 self.vb.updateScaleBox(ev.buttonDownPos(), ev.pos())
@@ -263,10 +272,14 @@ class MousePositionWidget(QtWidgets.QWidget):
         self.y_unit_lbl = QtWidgets.QLabel('y:')
         self.y_value_lbl = QtWidgets.QLabel('0.00')
 
-        self.x_unit_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
-        self.x_value_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
-        self.y_unit_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
-        self.y_value_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.x_unit_lbl.setAlignment(
+            QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.x_value_lbl.setAlignment(
+            QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.y_unit_lbl.setAlignment(
+            QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.y_value_lbl.setAlignment(
+            QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
         self.x_unit_lbl.setFixedWidth(30)
         self.y_unit_lbl.setFixedWidth(30)
@@ -283,8 +296,10 @@ class MousePositionWidget(QtWidgets.QWidget):
         self.horizontal_layout.addWidget(self.x_value_lbl)
         self.horizontal_layout.addWidget(self.y_unit_lbl)
         self.horizontal_layout.addWidget(self.y_value_lbl)
-        self.horizontal_layout.addSpacerItem(QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Expanding,
-                                                                   QtWidgets.QSizePolicy.Fixed))
+        self.horizontal_layout.addSpacerItem(
+            QtWidgets.QSpacerItem(10, 10,
+                                  QtWidgets.QSizePolicy.Expanding,
+                                  QtWidgets.QSizePolicy.Fixed))
 
         self.horizontal_layout.addWidget(self.save_sq_btn)
         self.horizontal_layout.addWidget(self.save_gr_btn)

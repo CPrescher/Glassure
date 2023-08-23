@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 
+from .configuration import GlassureConfiguration
 import numpy as np
 from lmfit import Parameters, minimize
 from qtpy import QtGui, QtCore
 
 from ...core.pattern import Pattern
 from .density_optimization import DensityOptimizer
-from ...core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
+from ...core.utility import calculate_incoherent_scattering,\
+    convert_density_to_atoms_per_cubic_angstrom
 from ...core import calculate_sq, calculate_gr, calculate_fr
 from ...core.optimization import optimize_sq
 from ...core.soller_correction import SollerCorrectionGui
 from ...core.transfer_function import calculate_transfer_function
 
-from ...core.utility import extrapolate_to_zero_linear, extrapolate_to_zero_step, extrapolate_to_zero_spline, \
+from ...core.utility import extrapolate_to_zero_linear, \
+    extrapolate_to_zero_step, extrapolate_to_zero_spline, \
     extrapolate_to_zero_poly
-
-from .configuration import GlassureConfiguration
 
 
 class GlassureModel(QtCore.QObject):
@@ -41,7 +42,8 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     def load_bkg(self, filename):
-        self.current_configuration.background_pattern = Pattern.from_file(filename)
+        self.current_configuration.background_pattern = Pattern.from_file(
+            filename)
         self.calculate_transforms()
 
     def reset_bkg(self):
@@ -61,7 +63,10 @@ class GlassureModel(QtCore.QObject):
         self.configurations_changed.emit()
 
     def remove_configuration(self):
-        # removes the currently selected configuration, unless only one configuration is left
+        """
+        Removes the currently selected configuration, unless only one
+        configuration is left
+        """
         if len(self.configurations) == 1:
             return
 
@@ -80,8 +85,8 @@ class GlassureModel(QtCore.QObject):
     @property
     def atomic_density(self):
         if len(self.current_configuration.composition):
-            return convert_density_to_atoms_per_cubic_angstrom(self.current_configuration.composition,
-                                                               self.density)
+            return convert_density_to_atoms_per_cubic_angstrom(
+                self.current_configuration.composition, self.density)
         return 0
 
     @property
@@ -101,7 +106,8 @@ class GlassureModel(QtCore.QObject):
                 return self.current_configuration.background_pattern
         if self.current_configuration.background_pattern is None:
             return self.current_configuration.diamond_bkg_pattern
-        return self.current_configuration.background_pattern + self.current_configuration.diamond_bkg_pattern
+        return self.current_configuration.background_pattern + \
+            self.current_configuration.diamond_bkg_pattern
 
     @property
     def diamond_bkg_pattern(self):
@@ -410,9 +416,11 @@ class GlassureModel(QtCore.QObject):
             self.current_configuration.background_pattern.set_smoothing(value)
         self.calculate_transforms()
 
-    def update_parameter(self, sf_source, composition, density, q_min, q_max, r_min, r_max,
-                         use_modification_fcn, extrapolation_method, extrapolation_parameters,
-                         optimize_active, r_cutoff, optimize_iterations, optimize_attenuation):
+    def update_parameter(
+            self, sf_source, composition, density, q_min, q_max, r_min, r_max,
+            use_modification_fcn, extrapolation_method,
+            extrapolation_parameters, optimize_active, r_cutoff,
+            optimize_iterations, optimize_attenuation):
 
         self.auto_update = False
         self.sf_source = sf_source
@@ -445,26 +453,30 @@ class GlassureModel(QtCore.QObject):
             self.calculate_sq()
 
             if self.optimize:
-                self.sq_pattern = optimize_sq(self.sq_pattern, self.r_cutoff,
-                                              iterations=self.optimization_iterations,
-                                              atomic_density=convert_density_to_atoms_per_cubic_angstrom(
-                                                  self.composition,
-                                                  self.density),
-                                              use_modification_fcn=False,
-                                              attenuation_factor=self.optimization_attenuation,
-                                              fcn_callback=self.optimization_callback)
+                self.sq_pattern = optimize_sq(
+                    self.sq_pattern, self.r_cutoff,
+                    iterations=self.optimization_iterations,
+                    atomic_density=convert_density_to_atoms_per_cubic_angstrom(
+                        self.composition,
+                        self.density),
+                    use_modification_fcn=False,
+                    attenuation_factor=self.optimization_attenuation,
+                    fcn_callback=self.optimization_callback)
             self.calculate_fr()
             self.calculate_gr()
         self.data_changed.emit()
 
     def calculate_sq(self):
         if self.background_pattern is not None:
-            sample_pattern = (self.original_pattern - self.background_pattern).limit(self.q_min, self.q_max)
+            sample_pattern = (self.original_pattern - self.background_pattern)\
+                .limit(self.q_min, self.q_max)
         else:
-            sample_pattern = self.original_pattern.limit(self.q_min, self.q_max)
+            sample_pattern = self.original_pattern.limit(
+                self.q_min, self.q_max)
 
         if self.use_transfer_function and self.transfer_function is not None:
-            sample_pattern.y = sample_pattern.y * self.transfer_function(sample_pattern.x)
+            sample_pattern.y = sample_pattern.y * \
+                self.transfer_function(sample_pattern.x)
 
         if self.use_soller_correction:
             q, intensity = sample_pattern.data
@@ -494,40 +506,50 @@ class GlassureModel(QtCore.QObject):
                     inner_length=self.soller_parameters['inner_length'],
                     outer_length=self.soller_parameters['outer_length'])
 
-            sample_pattern = Pattern(q, self.soller_correction.transfer_function_sample(
-                self.soller_parameters['sample_thickness']) * intensity)
+            sample_pattern = Pattern(
+                q, self.soller_correction.transfer_function_sample(
+                    self.soller_parameters['sample_thickness']) * intensity)
 
-        self.sq_pattern = calculate_sq(sample_pattern,
-                                       density=self.density,
-                                       composition=self.composition,
-                                       sf_source=self.current_configuration.sf_source,
-                                       )
+        self.sq_pattern = calculate_sq(
+            sample_pattern,
+            density=self.density,
+            composition=self.composition,
+            sf_source=self.current_configuration.sf_source,
+        )
 
         if self.extrapolation_method == 'step':
             self.sq_pattern = extrapolate_to_zero_step(self.sq_pattern)
         if self.extrapolation_method == 'linear':
             self.sq_pattern = extrapolate_to_zero_linear(self.sq_pattern)
         elif self.extrapolation_method == 'spline':
-            self.sq_pattern = extrapolate_to_zero_spline(self.sq_pattern,
-                                                         self.extrapolation_parameters['q_max'],
-                                                         replace=self.extrapolation_parameters['replace'])
+            self.sq_pattern = extrapolate_to_zero_spline(
+                self.sq_pattern,
+                self.extrapolation_parameters['q_max'],
+                replace=self.extrapolation_parameters['replace'])
         elif self.extrapolation_method == 'poly':
-            self.sq_pattern = extrapolate_to_zero_poly(self.sq_pattern,
-                                                       x_max=self.extrapolation_parameters['q_max'],
-                                                       replace=self.extrapolation_parameters['replace'])
+            self.sq_pattern = extrapolate_to_zero_poly(
+                self.sq_pattern,
+                x_max=self.extrapolation_parameters['q_max'],
+                replace=self.extrapolation_parameters['replace'])
 
     def calculate_fr(self):
-        self.fr_pattern = calculate_fr(self.sq_pattern,
-                                       r=np.arange(self.r_min, self.r_max + self.r_step * 0.5, self.r_step),
-                                       use_modification_fcn=self.use_modification_fcn)
+        self.fr_pattern = calculate_fr(
+            self.sq_pattern,
+            r=np.arange(
+                self.r_min, self.r_max + self.r_step * 0.5, self.r_step),
+            use_modification_fcn=self.use_modification_fcn)
 
     def calculate_gr(self):
-        self.gr_pattern = calculate_gr(self.fr_pattern, self.density, self.composition)
+        self.gr_pattern = calculate_gr(
+            self.fr_pattern, self.density, self.composition)
 
-    def optimize_density_and_scaling2(self, density_min, density_max, bkg_min, bkg_max, iterations, output_txt=None):
+    def optimize_density_and_scaling2(self, density_min, density_max, bkg_min,
+                                      bkg_max, iterations, output_txt=None):
         optimizer = DensityOptimizer(
-            original_pattern=self.original_pattern.limit(self.q_min, self.q_max),
-            background_pattern=self.background_pattern.limit(self.q_min, self.q_max),
+            original_pattern=self.original_pattern.limit(
+                self.q_min, self.q_max),
+            background_pattern=self.background_pattern.limit(
+                self.q_min, self.q_max),
             initial_background_scaling=self.background_scaling,
             elemental_abundances=self.composition,
             initial_density=self.density,
@@ -545,11 +567,14 @@ class GlassureModel(QtCore.QObject):
 
         optimizer.optimize(iterations)
 
-    def optimize_density_and_scaling(self, density_min, density_max, bkg_min, bkg_max, iterations,
-                                     callback_fcn=None, output_txt=None):
+    def optimize_density_and_scaling(
+        self, density_min, density_max, bkg_min, bkg_max, iterations,
+            callback_fcn=None, output_txt=None):
         params = Parameters()
-        params.add("density", value=self.density, min=density_min, max=density_max)
-        params.add("background_scaling", value=self.background_scaling, min=bkg_min, max=bkg_max)
+        params.add("density", value=self.density,
+                   min=density_min, max=density_max)
+        params.add("background_scaling",
+                   value=self.background_scaling, min=bkg_min, max=bkg_max)
 
         self.iteration = 0
 
@@ -563,11 +588,14 @@ class GlassureModel(QtCore.QObject):
 
             r, fr = self.fr_pattern.limit(0, self.r_cutoff).data
 
-            output = (-fr - 4 * np.pi * convert_density_to_atoms_per_cubic_angstrom(self.composition, density) *
+            output = (-fr - 4 * np.pi *
+                      convert_density_to_atoms_per_cubic_angstrom(self.composition, density) *
                       r) ** 2
 
             self.write_output(
-                u'{} X: {:.3f} Den: {:.3f}'.format(self.iteration, np.sum(output) / (r[1] - r[0]), density))
+                u'{} X: {:.3f} Den: {:.3f}'.format(
+                    self.iteration, np.sum(output) / (r[1] - r[0]), density)
+            )
             self.iteration += 1
             return output
 
@@ -582,17 +610,21 @@ class GlassureModel(QtCore.QObject):
             new_txt = previous_txt + "\n" + str(msg)
             output_txt.setPlainText(new_txt)
             # QtGui.QApplication.processEvents()
-            output_txt.verticalScrollBar().setValue(output_txt.verticalScrollBar().maximum())
+            output_txt.verticalScrollBar().setValue(
+                output_txt.verticalScrollBar().maximum())
             QtGui.QApplication.processEvents()
-            output_txt.verticalScrollBar().setValue(output_txt.verticalScrollBar().maximum())
+            output_txt.verticalScrollBar().setValue(
+                output_txt.verticalScrollBar().maximum())
             QtGui.QApplication.processEvents()
 
     def write_fit_results(self, params):
         output = '\nFit Results:\n'
-        output += '-Background Scaling:\n  % .3g +/- %.3g\n' % (params['background_scaling'].value,
-                                                                params['background_scaling'].stderr)
-        output += '-Density:\n  % .3g +/- %.3g\n' % (params['density'].value,
-                                                     params['density'].stderr)
+        output += '-Background Scaling:\n  % .3g +/- %.3g\n' % (
+            params['background_scaling'].value,
+            params['background_scaling'].stderr)
+        output += '-Density:\n  % .3g +/- %.3g\n' % (
+            params['density'].value,
+            params['density'].stderr)
         self.write_output(output)
 
     def set_diamond_content(self, content_value):
@@ -624,27 +656,34 @@ class GlassureModel(QtCore.QObject):
         print(result)
 
     def update_transfer_function(self):
-        if self.transfer_std_pattern is None or self.transfer_sample_pattern is None or not self.use_transfer_function:
+        if self.transfer_std_pattern is None or \
+                self.transfer_sample_pattern is None or \
+                not self.use_transfer_function:
             return
-        q_min = np.max([self.transfer_std_pattern.x[0], self.transfer_sample_pattern.x[0]])
-        q_max = np.min([self.transfer_std_pattern.x[-1], self.transfer_sample_pattern.x[-1]])
+        q_min = np.max([self.transfer_std_pattern.x[0],
+                       self.transfer_sample_pattern.x[0]])
+        q_max = np.min([self.transfer_std_pattern.x[-1],
+                       self.transfer_sample_pattern.x[-1]])
 
         if self.transfer_std_bkg_pattern is None:
             std_pattern = self.transfer_std_pattern
         else:
-            std_pattern = self.transfer_std_pattern - self.transfer_std_bkg_scaling * self.transfer_std_bkg_pattern
+            std_pattern = self.transfer_std_pattern - \
+                self.transfer_std_bkg_scaling * self.transfer_std_bkg_pattern
 
         if self.transfer_sample_bkg_pattern is None:
             sample_pattern = self.transfer_sample_pattern
         else:
-            sample_pattern = self.transfer_sample_pattern - self.transfer_sample_bkg_scaling * \
-                             self.transfer_sample_bkg_pattern
+            sample_pattern = self.transfer_sample_pattern - \
+                self.transfer_sample_bkg_scaling * \
+                self.transfer_sample_bkg_pattern
 
-        self.current_configuration.transfer_function = calculate_transfer_function(
-            std_pattern.limit(q_min, q_max),
-            sample_pattern.limit(q_min, q_max),
-            smooth_factor=self.transfer_function_smoothing
-        )
+        self.current_configuration.transfer_function = \
+            calculate_transfer_function(
+                std_pattern.limit(q_min, q_max),
+                sample_pattern.limit(q_min, q_max),
+                smooth_factor=self.transfer_function_smoothing
+            )
         self.calculate_transforms()
 
     def load_transfer_std_pattern(self, filename):
@@ -658,4 +697,3 @@ class GlassureModel(QtCore.QObject):
 
     def load_transfer_sample_bkg_pattern(self, filename):
         self.transfer_sample_bkg_pattern = Pattern.from_file(filename)
-
