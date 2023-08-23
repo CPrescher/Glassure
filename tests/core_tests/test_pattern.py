@@ -67,3 +67,36 @@ def test_extend_to():
 
     assert np.mean(pos_extended_pattern.limit(10.1, 21).y) == 5
     assert pos_extended_pattern.x[-1] == approx(20)
+
+
+def test_to_json():
+    pattern = Pattern(np.arange(10), np.arange(10))
+    pattern.name = 'test'
+    pattern.scaling = 3
+    pattern.smoothing = 2
+    pattern.bkg_pattern = Pattern(np.arange(10), np.arange(10))
+    pattern_json = pattern.to_json()
+    assert pattern_json['x'] == list(pattern.x)
+    assert pattern_json['y'] == list(pattern.y)
+    assert pattern_json['name'] == pattern.name
+    assert pattern_json['scaling'] == pattern.scaling
+    assert pattern_json['smoothing'] == pattern.smoothing
+    assert pattern_json['bkg_pattern'] == pattern.bkg_pattern.to_json()
+
+
+def test_from_json():
+    pattern1 = Pattern(np.arange(10), np.arange(10))
+    pattern1.name = 'test'
+    pattern1.scaling = 3
+    pattern1.smoothing = 2
+    pattern1.bkg_pattern = Pattern(np.arange(10), np.arange(10))
+    pattern_json = pattern1.to_json()
+
+    pattern2 = Pattern.from_json(pattern_json)
+    assert np.array_equal(pattern1.x, pattern2.x)
+    assert np.array_equal(pattern1.y, pattern2.y)
+    assert pattern1.name == pattern2.name
+    assert pattern1.scaling == pattern2.scaling
+    assert pattern1.smoothing == pattern2.smoothing
+    assert np.array_equal(pattern1.bkg_pattern.x, pattern2.bkg_pattern.x)
+    assert np.array_equal(pattern1.bkg_pattern.y, pattern2.bkg_pattern.y)

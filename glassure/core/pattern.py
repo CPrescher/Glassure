@@ -64,7 +64,7 @@ class Pattern(object):
             print('Wrong data format for pattern file! - ' + filename)
             return -1
 
-    def save(self, filename:str, header:str=''):
+    def save(self, filename: str, header: str = ''):
         """
         Saves the Pattern to a two-column xy file.
         :param filename: path to the file
@@ -106,7 +106,8 @@ class Pattern(object):
         new_x = np.arange(x_min, x_max + 0.1 * bin_size, bin_size)
 
         bins = np.hstack((x_min - bin_size * 0.5, new_x + bin_size * 0.5))
-        new_y = (np.histogram(x, bins, weights=y)[0] / np.histogram(x, bins)[0])
+        new_y = (np.histogram(x, bins, weights=y)
+                 [0] / np.histogram(x, bins)[0])
 
         return Pattern(new_x, new_y)
 
@@ -126,7 +127,8 @@ class Pattern(object):
                 f_bkg = interp1d(x_bkg, y_bkg, kind='linear')
 
                 # find overlapping x and y values:
-                ind = np.where((self._x <= np.max(x_bkg)) & (self._x >= np.min(x_bkg)))
+                ind = np.where((self._x <= np.max(x_bkg)) &
+                               (self._x >= np.min(x_bkg)))
                 x = self._x[ind]
                 y = self._y[ind]
 
@@ -201,7 +203,7 @@ class Pattern(object):
         else:
             self._scaling = value
 
-    def limit(self, x_min: float, x_max:float) -> Pattern:
+    def limit(self, x_min: float, x_max: float) -> Pattern:
         """
         Limits the pattern to a specific x-range. Does not modify inplace but returns a new limited Pattern
         :param x_min: lower limit of the x-range
@@ -225,7 +227,8 @@ class Pattern(object):
         x_min = np.min(self.x)
         x_max = np.max(self.x)
         if x_value < x_min:
-            x_fill = np.arange(x_min - x_step, x_value - x_step * 0.5, -x_step)[::-1]
+            x_fill = np.arange(x_min - x_step, x_value -
+                               x_step * 0.5, -x_step)[::-1]
             y_fill = np.zeros(x_fill.shape)
             y_fill.fill(y_value)
 
@@ -243,7 +246,48 @@ class Pattern(object):
 
         return Pattern(new_x, new_y)
 
+    def to_json(self) -> dict:
+        """
+        Returns a dictionary representation of the pattern which can be used to save the pattern to a json file.
+        :return: dictionary representation of the pattern
+        """
+        return {
+            'name': self.name,
+            'x': self.x.tolist(),
+            'y': self.y.tolist(),
+            'scaling': self.scaling,
+            'offset': self.offset,
+            'smoothing': self.smoothing,
+            'bkg_pattern': self.bkg_pattern.to_json() if self.bkg_pattern is
+            not None else None
+        }
+
+    @staticmethod
+    def from_json(json_dict: dict) -> Pattern:
+        """
+        Creates a new Pattern from a dictionary representation of a Pattern.
+        :param json_dict: dictionary representation of a Pattern
+        :return: new Pattern
+        """
+        pattern = Pattern(np.array(json_dict['x']),
+                          np.array(json_dict['y']),
+                          json_dict['name'])
+
+        pattern.scaling = json_dict['scaling']
+        pattern.offset = json_dict['offset']
+        pattern.smoothing = json_dict['smoothing']
+
+        if json_dict['bkg_pattern'] is not None:
+            bkg_pattern = Pattern.from_json(json_dict['bkg_pattern'])
+        else:
+            bkg_pattern = None
+        pattern.bkg_pattern = bkg_pattern
+
+        return pattern
+
+    ###########################################################
     # Operators:
+
     def __sub__(self, other: Pattern) -> Pattern:
         """
         Subtracts the other pattern from the current one. If the other pattern
@@ -263,7 +307,8 @@ class Pattern(object):
             other_fcn = interp1d(other_x, other_x, kind='linear')
 
             # find overlapping x and y values:
-            ind = np.where((orig_x <= np.max(other_x)) & (orig_x >= np.min(other_x)))
+            ind = np.where((orig_x <= np.max(other_x)) &
+                           (orig_x >= np.min(other_x)))
             x = orig_x[ind]
             y = orig_y[ind]
 
@@ -292,7 +337,8 @@ class Pattern(object):
             other_fcn = interp1d(other_x, other_x, kind='linear')
 
             # find overlapping x and y values:
-            ind = np.where((orig_x <= np.max(other_x)) & (orig_x >= np.min(other_x)))
+            ind = np.where((orig_x <= np.max(other_x)) &
+                           (orig_x >= np.min(other_x)))
             x = orig_x[ind]
             y = orig_y[ind]
 
