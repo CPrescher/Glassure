@@ -21,7 +21,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     from sys import platform as _platform
 
-    print("Glassure {}".format(__version__))
+    print("Glassure {}".format(__version__)) 
 
     if _platform != "Darwin":
         app.setStyle('plastique')

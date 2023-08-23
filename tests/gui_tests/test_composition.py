@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from qtpy import QtCore
-from .utility import prepare_file_loading
+from .utility import prepare_file_loading, set_widget_text
 
 
 @pytest.fixture
@@ -107,3 +107,8 @@ def test_changing_data_source_with_unavailable_elements(setup, main_controller, 
     composition_widget.source_cb.setCurrentIndex(0)
     new_composition = composition_widget.get_composition()
     assert {'Mg': 2, 'Si': 1} == new_composition
+
+def test_inserting_density_with_comma_as_decimal_separator(setup, composition_widget):
+    set_widget_text(composition_widget.density_txt, '3,4')
+    assert composition_widget.get_density() == 3.4
+

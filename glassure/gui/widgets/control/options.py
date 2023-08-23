@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from qtpy import QtCore, QtGui, QtWidgets
-from ..custom import HorizontalLine
+from qtpy import QtCore, QtWidgets
+from ..custom import HorizontalLine, FloatLineEdit
 
 
 class OptionsWidget(QtWidgets.QWidget):
@@ -17,40 +17,34 @@ class OptionsWidget(QtWidgets.QWidget):
 
     def create_widgets(self):
         self.q_range_lbl = QtWidgets.QLabel('Q range:')
-        self.q_min_txt = QtWidgets.QLineEdit('0')
-        self.q_max_txt = QtWidgets.QLineEdit('10')
+        self.q_min_txt = FloatLineEdit('0')
+        self.q_max_txt = FloatLineEdit('10')
 
         self.r_range_lbl = QtWidgets.QLabel('r range:')
-        self.r_min_txt = QtWidgets.QLineEdit('0.5')
-        self.r_max_txt = QtWidgets.QLineEdit('10')
+        self.r_min_txt = FloatLineEdit('0.5')
+        self.r_max_txt = FloatLineEdit('10')
 
-        self.modification_fcn_cb = QtWidgets.QCheckBox("Use Modification Function")
+        self.modification_fcn_cb = QtWidgets.QCheckBox(
+            "Use Modification Function")
 
     def style_widgets(self):
-        self.q_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.r_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-
-        self.q_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.q_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-
-        self.r_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.r_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.q_range_lbl.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.r_range_lbl.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
         self.q_min_txt.setMaximumWidth(80)
         self.q_max_txt.setMaximumWidth(80)
-
-        self.q_min_txt.setValidator(QtGui.QDoubleValidator())
-        self.q_max_txt.setValidator(QtGui.QDoubleValidator())
-        self.r_min_txt.setValidator(QtGui.QDoubleValidator())
-        self.r_max_txt.setValidator(QtGui.QDoubleValidator())
 
     def create_layout(self):
         self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(5)
 
-        self.grid_layout.addItem(QtWidgets.QSpacerItem(50, 0, QtWidgets.QSizePolicy.MinimumExpanding,
-                                                       QtWidgets.QSizePolicy.Fixed), 0, 0)
+        self.grid_layout.addItem(
+                QtWidgets.QSpacerItem(50, 0,
+                                      QtWidgets.QSizePolicy.MinimumExpanding,
+                                      QtWidgets.QSizePolicy.Fixed), 0, 0)
         self.grid_layout.addWidget(self.q_range_lbl, 0, 1)
         self.grid_layout.addWidget(self.q_min_txt, 0, 2)
         self.grid_layout.addWidget(QtWidgets.QLabel('-'), 0, 3)
@@ -90,8 +84,8 @@ class OptionsWidget(QtWidgets.QWidget):
         self.options_parameters_changed.emit()
 
     def get_parameter(self):
-        q_min = float(str(self.q_min_txt.text()))
-        q_max = float(str(self.q_max_txt.text()))
-        r_min = float(str(self.r_min_txt.text()))
-        r_max = float(str(self.r_max_txt.text()))
+        q_min = self.q_min_txt.value()
+        q_max = self.q_max_txt.value()
+        r_min = self.r_min_txt.value()
+        r_max = self.r_max_txt.value()
         return q_min, q_max, r_min, r_max

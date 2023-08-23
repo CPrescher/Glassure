@@ -2,7 +2,7 @@
 
 from qtpy import QtCore, QtGui, QtWidgets
 
-from ..custom import HorizontalLine, HorizontalSpacerItem
+from ..custom import HorizontalLine, HorizontalSpacerItem, FloatLineEdit
 
 
 class ExtrapolationWidget(QtWidgets.QWidget):
@@ -30,7 +30,7 @@ class ExtrapolationWidget(QtWidgets.QWidget):
         self.step_extrapolation_rb.setChecked(True)
 
         self.q_max_lbl = QtWidgets.QLabel("Q Max:")
-        self.q_max_txt = QtWidgets.QLineEdit("2")
+        self.q_max_txt = FloatLineEdit("2")
         self.replace_cb = QtWidgets.QCheckBox("replace")
 
         self.rb_button_group = QtWidgets.QButtonGroup()
@@ -40,10 +40,9 @@ class ExtrapolationWidget(QtWidgets.QWidget):
         self.rb_button_group.addButton(self.spline_extrapolation_rb)
 
     def style_widgets(self):
-        self.q_max_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.q_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.q_max_lbl.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.q_max_txt.setMaximumWidth(50)
-        self.q_max_txt.setValidator(QtGui.QDoubleValidator())
 
     def create_layout(self):
         self.vertical_layout = QtWidgets.QVBoxLayout()
@@ -103,8 +102,9 @@ class ExtrapolationWidget(QtWidgets.QWidget):
             self.q_max_txt.setModified(False)
 
     def update_visibility(self):
-        self.parameter_widget.setVisible(self.spline_extrapolation_rb.isChecked() |
-                                         self.poly_extrapolation_rb.isChecked())
+        self.parameter_widget.setVisible(
+                self.spline_extrapolation_rb.isChecked() |
+                self.poly_extrapolation_rb.isChecked())
 
     def txt_changed(self):
         if self.spline_extrapolation_cutoff_txt.isModified() or \
@@ -144,7 +144,8 @@ class ExtrapolationWidget(QtWidgets.QWidget):
         self.update_visibility()
 
     def get_extrapolation_parameters(self):
-        if self.spline_extrapolation_rb.isChecked() or self.poly_extrapolation_rb.isChecked():
+        if self.spline_extrapolation_rb.isChecked() or \
+                self.poly_extrapolation_rb.isChecked():
             return {'q_max': float(str(self.q_max_txt.text())),
                     'replace': self.replace_cb.isChecked()}
         else:

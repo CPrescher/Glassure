@@ -215,7 +215,7 @@ class GlassureController(object):
 
     def optimize_density(self):
         density_min, density_max, bkg_min, bkg_max, iterations = \
-            self.main_widget.left_control_widget.density_optimization_widget.get_parameters()
+            self.main_widget.right_control_widget.density_optimization_widget.get_parameters()
         self.model.optimize_density_and_scaling(
             density_min, density_max, bkg_min, bkg_max, iterations, output_txt=
             self.main_widget.right_control_widget.density_optimization_widget.optimization_output_txt,

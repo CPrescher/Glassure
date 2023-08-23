@@ -12,6 +12,8 @@ Bug fixes:
     - removing a configuration now correctly switches to the correct configuration and updates
       the parameters in the gui
     - renaming configurations is now persistent after removing a configuration
+    - float numbers can now be entered with a comma as decimal separator, it 
+      will be converted to a dot automatically
 
 1.3.0 (2023/04/26)
 -------------------------

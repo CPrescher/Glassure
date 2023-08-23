@@ -7,11 +7,11 @@ from ... import __version__
 
 from qtpy import QtWidgets, QtCore
 
-from .control import CompositionWidget, DataWidget, OptimizationWidget, OptionsWidget, DensityOptimizationWidget, \
-    ExtrapolationWidget, DiamondWidget, ConfigurationWidget, SollerWidget, TransferFunctionWidget
-from .custom import PatternWidget
-
-from .custom import ExpandableBox
+from .control import CompositionWidget, DataWidget, OptimizationWidget, \
+    OptionsWidget, DensityOptimizationWidget, ExtrapolationWidget, \
+    DiamondWidget, ConfigurationWidget, SollerWidget, TransferFunctionWidget
+from .custom.pattern import PatternWidget
+from .custom.box import ExpandableBox
 
 
 class GlassureWidget(QtWidgets.QWidget):
@@ -30,14 +30,16 @@ class GlassureWidget(QtWidgets.QWidget):
         self.left_control_scroll_area.setWidgetResizable(True)
 
         self.left_control_scroll_area.setMaximumWidth(300)
-        self.left_control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.left_control_scroll_area.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
 
         self.right_control_scroll_area = QtWidgets.QScrollArea()
         self.right_control_scroll_area.setWidget(self.right_control_widget)
         self.right_control_scroll_area.setWidgetResizable(True)
 
         self.right_control_scroll_area.setMaximumWidth(300)
-        self.right_control_scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.right_control_scroll_area.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
 
         self.horizontal_layout.addWidget(self.left_control_scroll_area)
         self.horizontal_layout.addWidget(self.pattern_widget)
@@ -132,7 +134,8 @@ class GlassureWidget(QtWidgets.QWidget):
             self.raise_()
 
     def load_stylesheet(self):
-        stylesheet_file = open(os.path.join(module_path(), "DioptasStyle.qss"), 'r')
+        stylesheet_file = open(os.path.join(
+            module_path(), "DioptasStyle.qss"), 'r')
         stylesheet_str = stylesheet_file.read()
         self.setStyleSheet(stylesheet_str)
 
@@ -147,16 +150,20 @@ class LeftControlWidget(QtWidgets.QWidget):
         self.data_widget = DataWidget()
         self.composition_widget = CompositionWidget()
         self.options_widget = OptionsWidget()
-        self.density_optimization_widget = DensityOptimizationWidget()
         self.extrapolation_widget = ExtrapolationWidget()
 
         self.vertical_layout.addWidget(ExpandableBox(self.data_widget, "Data"))
-        self.vertical_layout.addWidget(ExpandableBox(self.composition_widget, "Composition"))
-        self.vertical_layout.addWidget(ExpandableBox(self.options_widget, "Options"))
-        self.vertical_layout.addWidget(ExpandableBox(self.extrapolation_widget, "Extrapolation"))
+        self.vertical_layout.addWidget(ExpandableBox(
+            self.composition_widget, "Composition"))
+        self.vertical_layout.addWidget(
+            ExpandableBox(self.options_widget, "Options"))
+        self.vertical_layout.addWidget(ExpandableBox(
+            self.extrapolation_widget, "Extrapolation"))
 
-        self.vertical_layout.addSpacerItem(QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Fixed,
-                                                                 QtWidgets.QSizePolicy.Expanding))
+        self.vertical_layout.addSpacerItem(
+                QtWidgets.QSpacerItem(20, 50,
+                                      QtWidgets.QSizePolicy.Fixed,
+                                      QtWidgets.QSizePolicy.Expanding))
 
         self.setLayout(self.vertical_layout)
 
@@ -175,15 +182,22 @@ class RightControlWidget(QtWidgets.QWidget):
         self.soller_widget = SollerWidget()
         self.transfer_widget = TransferFunctionWidget()
 
-        self.vertical_layout.addWidget(ExpandableBox(self.configuration_widget, "Configurations"))
-        self.vertical_layout.addWidget(ExpandableBox(self.optimization_widget, "Optimization"))
-        self.vertical_layout.addWidget(ExpandableBox(self.density_optimization_widget, "Density Optimization", True))
-        self.vertical_layout.addWidget(ExpandableBox(self.diamond_widget, "Diamond Correction", True))
-        self.vertical_layout.addWidget(ExpandableBox(self.soller_widget, "Soller Slit Correction", True))
-        self.vertical_layout.addWidget(ExpandableBox(self.transfer_widget, "Transfer Function Correction", True))
+        self.vertical_layout.addWidget(ExpandableBox(
+            self.configuration_widget, "Configurations"))
+        self.vertical_layout.addWidget(ExpandableBox(
+            self.optimization_widget, "Optimization"))
+        self.vertical_layout.addWidget(ExpandableBox(
+            self.density_optimization_widget, "Density Optimization", True))
+        self.vertical_layout.addWidget(ExpandableBox(
+            self.diamond_widget, "Diamond Correction", True))
+        self.vertical_layout.addWidget(ExpandableBox(
+            self.soller_widget, "Soller Slit Correction", True))
+        self.vertical_layout.addWidget(ExpandableBox(
+            self.transfer_widget, "Transfer Function Correction", True))
 
-        self.vertical_layout.addSpacerItem(QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Fixed,
-                                                                 QtWidgets.QSizePolicy.MinimumExpanding))
+        self.vertical_layout.addSpacerItem(
+                QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Fixed,
+                                      QtWidgets.QSizePolicy.MinimumExpanding))
 
         self.setLayout(self.vertical_layout)
 

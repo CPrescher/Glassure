@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
-from qtpy import QtCore, QtWidgets, QtGui
+from qtpy import QtCore, QtWidgets
+from ..custom import FloatLineEdit
 
 
 class DiamondWidget(QtWidgets.QWidget):
@@ -14,14 +14,13 @@ class DiamondWidget(QtWidgets.QWidget):
     def create_widgets(self):
         self.diamond_optimize_btn = QtWidgets.QPushButton("Optimize")
         self.diamond_lbl = QtWidgets.QLabel('Amount:')
-        self.diamond_txt = QtWidgets.QLineEdit('0')
+        self.diamond_txt = FloatLineEdit('0')
 
     def style_widgets(self):
         self.diamond_optimize_btn.setFlat(True)
-        self.diamond_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
-        self.diamond_txt.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.diamond_lbl.setAlignment(
+            QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
-        self.diamond_txt.setValidator(QtGui.QDoubleValidator())
         self.diamond_txt.setMaximumWidth(60)
 
     def create_layout(self):
