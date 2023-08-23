@@ -41,6 +41,9 @@ class ConfigurationController(object):
         self.widget.configuration_widget.configuration_color_btn_clicked.connect(
             self.configuration_color_btn_clicked
         )
+        self.widget.configuration_widget.configuration_name_changed.connect(
+            self.update_configuration_name
+        )
 
     def freeze_configuration(self):
         self.model.add_configuration()
@@ -151,3 +154,7 @@ class ConfigurationController(object):
         self.model.configurations[ind].color = [new_color.red(), new_color.green(), new_color.blue()]
         self.update_pattern_items_color(self.model.configuration_ind)
         button.setStyleSheet('background-color:' + new_color.name())
+
+    def update_configuration_name(self, ind, name):
+        self.model.configurations[ind].name = name
+

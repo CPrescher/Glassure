@@ -4,6 +4,9 @@ from mock import MagicMock
 from qtpy import QtGui, QtWidgets
 
 from .utility import set_widget_text, click_checkbox, click_button, data_path
+from glassure.gui.widgets.glassure_widget import GlassureWidget
+from glassure.gui.model.glassure_model import GlassureModel
+from glassure.gui.widgets.control.configuration import ConfigurationWidget
 
 
 def test_data_filename_is_updated(main_controller, main_widget, configuration_widget, configuration_controller, qtbot):
@@ -297,3 +300,20 @@ def test_changing_configuration_color(main_widget, configuration_widget):
     click_button(configuration_widget.freeze_btn)
     assert main_widget.pattern_widget.gr_items[2].opts['pen'].color().rgb() == new_color.rgb()
     assert main_widget.pattern_widget.sq_items[2].opts['pen'].color().rgb() == new_color.rgb()
+
+
+def test_changing_configuration_name(model: GlassureModel, configuration_widget: ConfigurationWidget):
+    click_button(configuration_widget.freeze_btn)
+    click_button(configuration_widget.freeze_btn)
+
+    new_name = 'new_name'
+    configuration_widget.configuration_tw.item(1, 2).setText(new_name)
+    assert model.configurations[1].name == new_name
+    assert configuration_widget.configuration_tw.item(1, 2).text() == new_name
+
+    configuration_widget.configuration_tw.selectRow(0)
+    click_button(configuration_widget.remove_btn)
+    assert model.configurations[0].name == new_name
+    assert configuration_widget.configuration_tw.item(0, 2).text() == new_name
+
+

@@ -26,6 +26,8 @@ class ConfigurationWidget(QtWidgets.QWidget):
         self.remove_btn = QtWidgets.QPushButton("Remove")
         self.configuration_tw = ListTableWidget(columns=3)
         self.configuration_tw.setObjectName('configuration_tw')
+        self.configuration_tw.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.configuration_tw.cellChanged.connect(self.configuration_label_editingFinished)
 
     def _create_layout(self):
         self._button_layout = QtWidgets.QHBoxLayout()
@@ -126,4 +128,5 @@ class ConfigurationWidget(QtWidgets.QWidget):
 
     def configuration_label_editingFinished(self, row, col):
         label_item = self.configuration_tw.item(row, col)
-        self.configuration_name_changed.emit(row, str(label_item.text()))
+        self.configuration_name_changed.emit(int(row), str(label_item.text()))
+

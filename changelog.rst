@@ -11,6 +11,7 @@ Bug fixes:
     - consistent naming for patterns - file endings will now always be omitted
     - removing a configuration now correctly switches to the correct configuration and updates
       the parameters in the gui
+    - renaming configurations is now persistent after removing a configuration
 
 1.3.0 (2023/04/26)
 -------------------------

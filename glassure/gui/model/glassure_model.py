@@ -658,3 +658,4 @@ class GlassureModel(QtCore.QObject):
 
     def load_transfer_sample_bkg_pattern(self, filename):
         self.transfer_sample_bkg_pattern = Pattern.from_file(filename)
+
