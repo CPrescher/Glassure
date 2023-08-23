@@ -120,7 +120,7 @@ class ConfigurationController(object):
 
     def update_pattern_items(self):
         self.update_data_plot()
-        self.update_pattern_item_count(len(self.model.configurations))
+        self.update_plot_item_count(len(self.model.configurations))
         self.update_pattern_items_data(self.model.configuration_ind)
         self.update_pattern_items_color(self.model.configuration_ind)
 
@@ -128,7 +128,7 @@ class ConfigurationController(object):
         self.widget.pattern_widget.plot_pattern(self.model.original_pattern)
         self.widget.pattern_widget.plot_bkg(self.model.background_pattern)
 
-    def update_pattern_item_count(self, count):
+    def update_plot_item_count(self, count):
         """ Updates the number of plot items in the sq and gr plot """
         while len(self.widget.pattern_widget.sq_items) < count:
             self.widget.pattern_widget.add_sq_item()
