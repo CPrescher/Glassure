@@ -111,10 +111,10 @@ class GlassureConfiguration(object):
             'extrapolation_method': self.extrapolation_method,
             'extrapolation_parameters': self.extrapolation_parameters,
             'use_soller_correction': self.use_soller_correction,
-            'soller_correction': self.soller_correction,
+            'soller_correction': self.soller_correction.tolist() if self.soller_correction is not None else None,
             'soller_parameters': self.soller_parameters,
             'use_transfer_function': self.use_transfer_function,
-            'transfer_function': self.transfer_function,
+            'transfer_function': self.transfer_function.tolist() if self.transfer_function is not None else None,
             'transfer_function_smoothing': self.transfer_function_smoothing,
             'transfer_std_pattern': self.transfer_std_pattern.to_dict() if self.transfer_std_pattern is not None else None,
             'transfer_std_bkg_pattern': self.transfer_std_bkg_pattern.to_dict() if self.transfer_std_bkg_pattern is not None else None,
@@ -185,3 +185,4 @@ def calculate_color(ind):
     v = 0.8
     h = (0.19 * (ind + 2)) % 1
     return np.array(hsv_to_rgb(h, s, v)) * 255
+

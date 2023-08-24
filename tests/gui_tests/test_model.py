@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from .test_configuration import create_alternative_configuration, \
+    compare_config_and_dict
+
 import numpy as np
 import pytest
 
@@ -8,7 +12,8 @@ from .utility import data_path
 
 
 # We use a clean model fixture for the tests, the conftest fixtures is derived
-# from the main controller and also includes feedback with the GUI, which is not needed here.
+# from the main controller and also includes feedback with the GUI, which is
+# not needed here.
 @pytest.fixture
 def model():
     return GlassureModel()
@@ -26,7 +31,8 @@ def test_set_background_scaling(setup, model: GlassureModel):
     assert model.background_scaling == scaling
     assert model.background_pattern.scaling == scaling
 
-    original_bkg_pattern = Pattern.from_file(data_path('Mg2SiO4_ambient_bkg.xy'))
+    original_bkg_pattern = Pattern.from_file(
+        data_path('Mg2SiO4_ambient_bkg.xy'))
     x, y = (scaling * original_bkg_pattern).data
     assert np.sum(np.abs(model.background_pattern.data[1] - y)) == 0
 
@@ -61,7 +67,8 @@ def test_calculate_transforms(setup, model: GlassureModel):
                            None, {}, False, 1.5, 5, 1)
 
     sample_pattern = data_pattern - background_scaling * bkg_pattern
-    sq_pattern_core = calculate_sq(sample_pattern, density, elemental_abundances)
+    sq_pattern_core = calculate_sq(
+        sample_pattern, density, elemental_abundances)
 
     sq_pattern1_x, sq_pattern1_y = model.sq_pattern.data
     sq_pattern2_x, sq_pattern2_y = sq_pattern_core.data
@@ -247,8 +254,40 @@ def test_use_transfer_function(setup, model):
     model.use_transfer_function = True
     test_y = model.original_pattern.limit(0, 14).y * model.transfer_function(
         model.original_pattern.limit(0, 14).x)
-    assert np.std(model.transfer_std_pattern.limit(0, 14).y / test_y) == pytest.approx(0, abs=0.2)
+    assert np.std(model.transfer_std_pattern.limit(
+        0, 14).y / test_y) == pytest.approx(0, abs=0.2)
 
     sq_pattern_with_transfer = model.sq_pattern
 
     assert not np.array_equal(sq_pattern_before.y, sq_pattern_with_transfer.y)
+
+
+def test_to_dict_from_dict_single(setup, model, tmpdir):
+    model.configurations[0] = create_alternative_configuration()
+    model.to_json(tmpdir.join('test.json').strpath)
+    model2 = GlassureModel()
+    model2.read_json(tmpdir.join('test.json').strpath)
+    compare_config_and_dict(
+        model.configurations[0],
+        model2.configurations[0].to_dict()
+    )
+
+
+def test_to_json_from_json_multiple(setup, model: GlassureModel, tmpdir):
+    model.configurations[0] = create_alternative_configuration()
+    model.configurations[0].name = 'Config 1'
+    model.add_configuration()
+    model.configurations[1].name = 'laliea'
+    model.add_configuration()
+    model.configurations[2].name = 'lalalala'
+    model.add_configuration()
+    model.configurations[3].name = 'lalalalalalala'
+    model.to_json(tmpdir.join('test.json').strpath)
+
+    model2 = GlassureModel()
+    model2.read_json(tmpdir.join('test.json').strpath)
+
+    assert model2.configurations[0].name == 'Config 1'
+    assert model2.configurations[1].name == 'laliea'
+    assert model2.configurations[2].name == 'lalalala'
+    assert model2.configurations[3].name == 'lalalalalalala'

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from datetime import date, datetime, timedelta
 from .configuration import GlassureConfiguration
 import numpy as np
+import json
 from lmfit import Parameters, minimize
 from qtpy import QtGui, QtCore
 
@@ -81,6 +83,19 @@ class GlassureModel(QtCore.QObject):
             ind = len(self.configurations) + ind
         self.configuration_ind = ind
         self.configuration_selected.emit(ind)
+
+    def to_json(self, filename):
+        data = [c.to_dict() for c in self.configurations]
+        with open(filename, 'w') as f:
+            json.dump(data, f)
+
+    def read_json(self, filename):
+        with open(filename, 'r') as f:
+            data = json.load(f)
+        self.configurations = [GlassureConfiguration.from_dict(d)
+                               for d in data]
+        self.configuration_ind = 0
+        self.configurations_changed.emit()
 
     @property
     def atomic_density(self):
@@ -697,3 +712,22 @@ class GlassureModel(QtCore.QObject):
 
     def load_transfer_sample_bkg_pattern(self, filename):
         self.transfer_sample_bkg_pattern = Pattern.from_file(filename)
+
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.bool_):
+            return bool(obj)
+        if isinstance(obj, (np.floating, np.complexfloating)):
+            return float(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, np.string_):
+            return str(obj)
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        if isinstance(obj, timedelta):
+            return str(obj)
+        return super(NpEncoder, self).default(obj)

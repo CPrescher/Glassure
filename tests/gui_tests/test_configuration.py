@@ -62,8 +62,7 @@ def create_alternative_configuration():
     config.extrapolation_parameters = {'a': 1, 'b': 2, 'c': 3}
 
     config.use_soller_correction = True
-    config.soller_correction = 0.3
-
+    config.soller_correction = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
     config.soller_parameters = {'a': 3, 'b': 2, 'c': 1}
 
     config.use_transfer_function = False
@@ -112,7 +111,8 @@ def compare_config_and_dict(config: GlassureConfiguration, config_dict: dict):
     assert config_dict['extrapolation_parameters'] == \
         config.extrapolation_parameters
     assert config_dict['use_soller_correction'] == config.use_soller_correction
-    assert config_dict['soller_correction'] == config.soller_correction
+    assert list(config_dict['soller_correction']) ==  \
+        list(config.soller_correction)
     assert config_dict['soller_parameters'] == config.soller_parameters
     assert config_dict['use_transfer_function'] == config.use_transfer_function
     assert config_dict['transfer_function_smoothing'] == \
