@@ -246,7 +246,7 @@ class Pattern(object):
 
         return Pattern(new_x, new_y)
 
-    def to_json(self) -> dict:
+    def to_dict(self) -> dict:
         """
         Returns a dictionary representation of the pattern which can be used to save the pattern to a json file.
         :return: dictionary representation of the pattern
@@ -258,12 +258,12 @@ class Pattern(object):
             'scaling': self.scaling,
             'offset': self.offset,
             'smoothing': self.smoothing,
-            'bkg_pattern': self.bkg_pattern.to_json() if self.bkg_pattern is
+            'bkg_pattern': self.bkg_pattern.to_dict() if self.bkg_pattern is
             not None else None
         }
 
     @staticmethod
-    def from_json(json_dict: dict) -> Pattern:
+    def from_dict(json_dict: dict) -> Pattern:
         """
         Creates a new Pattern from a dictionary representation of a Pattern.
         :param json_dict: dictionary representation of a Pattern
@@ -278,7 +278,7 @@ class Pattern(object):
         pattern.smoothing = json_dict['smoothing']
 
         if json_dict['bkg_pattern'] is not None:
-            bkg_pattern = Pattern.from_json(json_dict['bkg_pattern'])
+            bkg_pattern = Pattern.from_dict(json_dict['bkg_pattern'])
         else:
             bkg_pattern = None
         pattern.bkg_pattern = bkg_pattern

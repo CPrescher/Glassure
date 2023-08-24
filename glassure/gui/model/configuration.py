@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*/:
+from __future__ import annotations
 from colorsys import hsv_to_rgb
 from copy import deepcopy
 
@@ -83,6 +84,100 @@ class GlassureConfiguration(object):
         GlassureConfiguration.num += 1
 
         return new_configuration
+
+    def to_dict(self) -> dict:
+        config_dict = {
+            'original_pattern': self.original_pattern.to_dict(),
+            'background_pattern': self.background_pattern.to_dict() if self.background_pattern is not None else None,
+            'diamond_bkg_pattern': self.diamond_bkg_pattern.to_dict() if self.diamond_bkg_pattern is not None else None,
+            'sq_pattern': self.sq_pattern.to_dict()
+            if self.sq_pattern is not None else None,
+            'fr_pattern': self.fr_pattern.to_dict() if self.fr_pattern is not None else None,
+            'gr_pattern': self.gr_pattern.to_dict() if self.gr_pattern is not None else None,
+            'sf_source': self.sf_source,
+            'composition': self.composition,
+            'density': self.density,
+            'density_error': self.density_error,
+            'q_min': self.q_min,
+            'q_max': self.q_max,
+            'r_min': self.r_min,
+            'r_max': self.r_max,
+            'r_step': self.r_step,
+            'optimize': self.optimize,
+            'optimize_r_cutoff': self.optimize_r_cutoff,
+            'optimize_iterations': self.optimize_iterations,
+            'optimize_attenuation': self.optimize_attenuation,
+            'use_modification_fcn': self.use_modification_fcn,
+            'extrapolation_method': self.extrapolation_method,
+            'extrapolation_parameters': self.extrapolation_parameters,
+            'use_soller_correction': self.use_soller_correction,
+            'soller_correction': self.soller_correction,
+            'soller_parameters': self.soller_parameters,
+            'use_transfer_function': self.use_transfer_function,
+            'transfer_function': self.transfer_function,
+            'transfer_function_smoothing': self.transfer_function_smoothing,
+            'transfer_std_pattern': self.transfer_std_pattern.to_dict() if self.transfer_std_pattern is not None else None,
+            'transfer_std_bkg_pattern': self.transfer_std_bkg_pattern.to_dict() if self.transfer_std_bkg_pattern is not None else None,
+            'transfer_std_bkg_scaling': self.transfer_std_bkg_scaling,
+            'transfer_sample_pattern': self.transfer_sample_pattern.to_dict() if self.transfer_sample_pattern is not None else None,
+            'transfer_sample_bkg_pattern': self.transfer_sample_bkg_pattern.to_dict() if self.transfer_sample_bkg_pattern is not None else None,
+            'transfer_sample_bkg_scaling': self.transfer_sample_bkg_scaling,
+            'name': self.name,
+            'color': self.color.tolist()
+        }
+        return config_dict
+
+    @classmethod
+    def from_dict(cls, config_dict: dict) -> GlassureConfiguration:
+        config = cls()
+        config.original_pattern = Pattern.from_dict(
+            config_dict['original_pattern'])
+        config.background_pattern = Pattern.from_dict(
+            config_dict['background_pattern']) if config_dict['background_pattern'] is not None else None
+        config.diamond_bkg_pattern = Pattern.from_dict(
+            config_dict['diamond_bkg_pattern']) if config_dict['diamond_bkg_pattern'] is not None else None
+        config.sq_pattern = Pattern.from_dict(
+            config_dict['sq_pattern']) if config_dict['sq_pattern'] is not None else None
+        config.fr_pattern = Pattern.from_dict(
+            config_dict['fr_pattern']) if config_dict['fr_pattern'] is not None else None
+        config.gr_pattern = Pattern.from_dict(
+            config_dict['gr_pattern']) if config_dict['gr_pattern'] is not None else None
+        config.sf_source = config_dict['sf_source']
+        config.composition = config_dict['composition']
+        config.density = config_dict['density']
+        config.density_error = config_dict['density_error']
+        config.q_min = config_dict['q_min']
+        config.q_max = config_dict['q_max']
+        config.r_min = config_dict['r_min']
+        config.r_max = config_dict['r_max']
+        config.r_step = config_dict['r_step']
+        config.optimize = config_dict['optimize']
+        config.optimize_r_cutoff = config_dict['optimize_r_cutoff']
+        config.optimize_iterations = config_dict['optimize_iterations']
+        config.optimize_attenuation = config_dict['optimize_attenuation']
+        config.use_modification_fcn = config_dict['use_modification_fcn']
+        config.extrapolation_method = config_dict['extrapolation_method']
+        config.extrapolation_parameters = config_dict['extrapolation_parameters']
+        config.use_soller_correction = config_dict['use_soller_correction']
+        config.soller_correction = np.array(config_dict['soller_correction'])
+        config.soller_parameters = config_dict['soller_parameters']
+        config.use_transfer_function = config_dict['use_transfer_function']
+        config.transfer_function = np.array(config_dict['transfer_function'])
+        config.transfer_function_smoothing = config_dict['transfer_function_smoothing']
+        config.transfer_std_pattern = Pattern.from_dict(
+            config_dict['transfer_std_pattern']) if config_dict['transfer_std_pattern'] is not None else None
+        config.transfer_std_bkg_pattern = Pattern.from_dict(
+            config_dict['transfer_std_bkg_pattern']) if config_dict['transfer_std_bkg_pattern'] is not None else None
+        config.transfer_std_bkg_scaling = config_dict['transfer_std_bkg_scaling']
+        config.transfer_sample_pattern = Pattern.from_dict(
+            config_dict['transfer_sample_pattern']) if config_dict['transfer_sample_pattern'] is not None else None
+        config.transfer_sample_bkg_pattern = Pattern.from_dict(
+            config_dict['transfer_sample_bkg_pattern']) if config_dict['transfer_sample_bkg_pattern'] is not None else None
+        config.transfer_sample_bkg_scaling = config_dict['transfer_sample_bkg_scaling']
+        config.name = config_dict['name']
+        config.color = np.array(config_dict['color'])
+
+        return config
 
 
 def calculate_color(ind):
