@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from qtpy import QtGui, QtWidgets
+import os
+from qtpy import QtGui, QtWidgets, QtCore
 
 from ..widgets.glassure_widget import GlassureWidget
 from ..model.glassure_model import GlassureModel
+from ..widgets.custom.file_dialogs import save_file_dialog, open_file_dialog
 
 
 class ConfigurationController(object):
@@ -16,6 +18,7 @@ class ConfigurationController(object):
 
         self.widget = main_widget
         self.model = glassure_model
+        self.settings = QtCore.QSettings('Glassure', 'Glassure')
 
         self.connect_signals()
 
@@ -44,6 +47,11 @@ class ConfigurationController(object):
             connect(self.configuration_color_btn_clicked)
         self.widget.configuration_widget.configuration_name_changed.\
             connect(self.update_configuration_name)
+
+        self.widget.configuration_widget.save_btn.clicked.connect(
+            self.save_model)
+        self.widget.configuration_widget.load_btn.clicked.connect(
+            self.load_model)
 
     def freeze_configuration(self):
         """
@@ -185,3 +193,25 @@ class ConfigurationController(object):
 
     def update_configuration_name(self, ind, name):
         self.model.configurations[ind].name = name
+
+    def save_model(self):
+        filename = save_file_dialog(
+            self.widget,
+            'Save model',
+            self.settings.value('working_directory'),
+            filter='*.json')
+        if filename == '':
+            return
+        self.settings.setValue('working_directory', os.path.dirname(filename))
+        self.model.to_json(filename)
+
+    def load_model(self):
+        filename = open_file_dialog(
+            self.widget,
+            'Load model',
+            self.settings.value('working_directory'),
+            filter='*.json')
+        if filename == '':
+            return
+        self.settings.setValue('working_directory', os.path.dirname(filename))
+        self.model.read_json(filename)

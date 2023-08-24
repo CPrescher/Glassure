@@ -23,8 +23,14 @@ def data_path(filename):
     return os.path.join(unittest_data_path, filename)
 
 
+def prepare_file_saving(filename):
+    QtWidgets.QFileDialog.getSaveFileName = MagicMock(
+        return_value=data_path(filename))
+
+
 def prepare_file_loading(filename):
-    QtWidgets.QFileDialog.getOpenFileName = MagicMock(return_value=data_path(filename))
+    QtWidgets.QFileDialog.getOpenFileName = MagicMock(
+        return_value=data_path(filename))
 
 
 def set_widget_text(widget, txt):
@@ -36,7 +42,8 @@ def set_widget_text(widget, txt):
 
 
 def click_checkbox(checkbox_widget):
-    QTest.mouseClick(checkbox_widget, QtCore.Qt.LeftButton, pos=QtCore.QPoint(2, int(checkbox_widget.height() / 2)))
+    QTest.mouseClick(checkbox_widget, QtCore.Qt.LeftButton,
+                     pos=QtCore.QPoint(2, int(checkbox_widget.height() / 2)))
 
 
 def click_button(widget):

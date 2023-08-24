@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import os
 from mock import MagicMock
 from numpy.testing import assert_array_equal
 from qtpy import QtGui, QtWidgets
 
-from .utility import set_widget_text, click_checkbox, click_button, data_path
+from .utility import set_widget_text, click_checkbox, click_button, data_path,\
+    prepare_file_saving, prepare_file_loading
 from glassure.gui.widgets.glassure_widget import GlassureWidget
 from glassure.gui.widgets.custom.pattern import PatternWidget
 from glassure.gui.model.glassure_model import GlassureModel
@@ -375,3 +377,15 @@ def test_different_configuration_with_different_patterns(
     x_pattern, y_pattern = model.configurations[0].original_pattern.data
     assert_array_equal(y, y_pattern)
     assert_array_equal(x, x_pattern)
+
+
+def test_save_and_load_model(
+        configuration_widget, configuration_controller, tmpdir):
+    output_path = tmpdir.join('test.json').strpath
+    prepare_file_saving(output_path)
+    click_button(configuration_widget.save_btn)
+    assert os.path.exists(output_path)
+
+    prepare_file_loading(output_path)
+    click_button(configuration_widget.load_btn)
+    assert configuration_widget.configuration_tw.rowCount() == 1
