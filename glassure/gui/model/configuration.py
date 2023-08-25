@@ -8,6 +8,104 @@ import numpy as np
 from ...core.pattern import Pattern
 
 
+class TransformConfiguration(object):
+    def __init__(self):
+        self.sf_source = 'hajdu'
+        self.use_modification_fcn = False
+
+        self.q_min = 0.0
+        self.q_max = 10.0
+
+        self.r_min = 0.5
+        self.r_max = 10
+        self.r_step = 0.01
+
+    def to_dict(self):
+        return {'sf_source': self.sf_source,
+                'use_modification_fcn': self.use_modification_fcn,
+                'q_min': self.q_min,
+                'q_max': self.q_max,
+                'r_min': self.r_min,
+                'r_max': self.r_max,
+                'r_step': self.r_step}
+
+    @classmethod
+    def from_dict(cls, transform_config: dict):
+        config = cls()
+        config.sf_source = transform_config['sf_source']
+        config.use_modification_fcn = transform_config['use_modification_fcn']
+        config.q_min = transform_config['q_min']
+        config.q_max = transform_config['q_max']
+        config.r_min = transform_config['r_min']
+        config.r_max = transform_config['r_max']
+        config.r_step = transform_config['r_step']
+
+        return config
+
+
+class OptimizeConfiguration(object):
+    def __init__(self):
+        self.enable = False
+        self.r_cutoff = 1.4
+        self.iterations = 5
+        self.attenuation = 1
+
+    def to_dict(self):
+        return {'enable': self.enable,
+                'r_cutoff': self.r_cutoff,
+                'iterations': self.iterations,
+                'attenuation': self.attenuation}
+
+    @classmethod
+    def from_dict(cls, optimize_config: dict):
+        config = cls()
+        config.enable = optimize_config['enable']
+        config.r_cutoff = optimize_config['r_cutoff']
+        config.iterations = optimize_config['iterations']
+        config.attenuation = optimize_config['attenuation']
+
+        return config
+
+
+class ExtrapolationConfiguration(object):
+    def __init__(self):
+        self.method = 'step'
+        self.parameters = {'q_max': 2, 'replace': False}
+
+    def to_dict(self):
+        return {'method': self.method,
+                'parameters': self.parameters}
+
+    @classmethod
+    def from_dict(cls, extrapolation_config: dict):
+        config = cls()
+        config.method = extrapolation_config['method']
+        config.parameters = extrapolation_config['parameters']
+
+        return config
+
+
+class Sample(object):
+    def __init__(self):
+        self.composition = {}
+        self.density = 2.2
+        self.density_error = None
+
+    def to_dict(self):
+        return {'composition': self.composition,
+                'density': self.density,
+                'density_error': self.density_error}
+
+    @classmethod
+    def from_dict(cls, sample_config: dict):
+        config = cls()
+        config.composition = sample_config['composition']
+        config.density = sample_config['density']
+        config.density_error = sample_config['density_error']
+
+        return config
+
+
 class GlassureConfiguration(object):
     num = 0
 
@@ -24,30 +122,10 @@ class GlassureConfiguration(object):
         self.gr_pattern = None
 
         # initialize all parameters
-        self.sf_source = 'hajdu'
-        self.composition = {}
-
-        self.density = 2.2
-        self.density_error = None
-
-        self.q_min = 0.0
-        self.q_max = 10.0
-
-        self.r_min = 0.5
-        self.r_max = 10
-        self.r_step = 0.01
-
-        # optimization parameters
-        self.optimize = False
-        self.optimize_r_cutoff = 1.4
-        self.optimize_iterations = 5
-        self.optimize_attenuation = 1
-
-        # initialize all Flags
-        self.use_modification_fcn = False
-
-        self.extrapolation_method = 'step'
-        self.extrapolation_parameters = {'q_max': 2, 'replace': False}
+        self.sample = Sample()
+        self.transform_config = TransformConfiguration()
+        self.optimize_config = OptimizeConfiguration()
+        self.extrapolation_config = ExtrapolationConfiguration()
 
         # soller slit correction parameters
         self.use_soller_correction = False
@@ -94,22 +172,10 @@ class GlassureConfiguration(object):
             if self.sq_pattern is not None else None,
             'fr_pattern': self.fr_pattern.to_dict() if self.fr_pattern is not None else None,
             'gr_pattern': self.gr_pattern.to_dict() if self.gr_pattern is not None else None,
-            'sf_source': self.sf_source,
-            'composition': self.composition,
-            'density': self.density,
-            'density_error': self.density_error,
-            'q_min': self.q_min,
-            'q_max': self.q_max,
-            'r_min': self.r_min,
-            'r_max': self.r_max,
-            'r_step': self.r_step,
-            'optimize': self.optimize,
-            'optimize_r_cutoff': self.optimize_r_cutoff,
-            'optimize_iterations': self.optimize_iterations,
-            'optimize_attenuation': self.optimize_attenuation,
-            'use_modification_fcn': self.use_modification_fcn,
-            'extrapolation_method': self.extrapolation_method,
-            'extrapolation_parameters': self.extrapolation_parameters,
+            'sample': self.sample.to_dict(),
+            'transform_configuration': self.transform_config.to_dict(),
+            'optimize_configuration': self.optimize_config.to_dict(),
+            'extrapolation_configuration': self.extrapolation_config.to_dict(),
             'use_soller_correction': self.use_soller_correction,
             'soller_correction': self.soller_correction.tolist() if self.soller_correction is not None else None,
             'soller_parameters': self.soller_parameters,
@@ -142,22 +208,14 @@ class GlassureConfiguration(object):
             config_dict['fr_pattern']) if config_dict['fr_pattern'] is not None else None
         config.gr_pattern = Pattern.from_dict(
             config_dict['gr_pattern']) if config_dict['gr_pattern'] is not None else None
-        config.sf_source = config_dict['sf_source']
-        config.composition = config_dict['composition']
-        config.density = config_dict['density']
-        config.density_error = config_dict['density_error']
-        config.q_min = config_dict['q_min']
-        config.q_max = config_dict['q_max']
-        config.r_min = config_dict['r_min']
-        config.r_max = config_dict['r_max']
-        config.r_step = config_dict['r_step']
-        config.optimize = config_dict['optimize']
-        config.optimize_r_cutoff = config_dict['optimize_r_cutoff']
-        config.optimize_iterations = config_dict['optimize_iterations']
-        config.optimize_attenuation = config_dict['optimize_attenuation']
-        config.use_modification_fcn = config_dict['use_modification_fcn']
-        config.extrapolation_method = config_dict['extrapolation_method']
-        config.extrapolation_parameters = config_dict['extrapolation_parameters']
+        config.sample = Sample.from_dict(config_dict['sample'])
+        config.transform_config = TransformConfiguration.from_dict(
+            config_dict['transform_configuration'])
+        config.optimize_config = OptimizeConfiguration.from_dict(
+            config_dict['optimize_configuration'])
+        config.extrapolation_config = ExtrapolationConfiguration.from_dict(
+            config_dict['extrapolation_configuration'])
+
         config.use_soller_correction = config_dict['use_soller_correction']
         config.soller_correction = np.array(config_dict['soller_correction'])
         config.soller_parameters = config_dict['soller_parameters']
@@ -185,4 +243,3 @@ def calculate_color(ind):
     v = 0.8
     h = (0.19 * (ind + 2)) % 1
     return np.array(hsv_to_rgb(h, s, v)) * 255
-

@@ -143,7 +143,7 @@ def calculate_sq_raw(sample_pattern: Pattern, f_squared_mean: np.ndarray, f_mean
 
     if method == 'FZ':
         sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean + f_mean_squared) / \
-             f_mean_squared
+            f_mean_squared
     elif method == 'AL':
         sq = (normalization_factor * intensity - incoherent_scattering) / f_squared_mean
     else:
@@ -191,7 +191,10 @@ def calculate_sq(sample_pattern: Pattern, density: float, composition: dict[str,
 
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
     if normalization_method == 'fit':
-        normalization_factor = fit_normalization_factor(sample_pattern, composition, use_incoherent_scattering)
+        normalization_factor = fit_normalization_factor(sample_pattern,
+                                                        composition,
+                                                        use_incoherent_scattering,
+                                                        sf_source=sf_source)
     else:
         normalization_factor = calculate_normalization_factor_raw(sample_pattern,
                                                                   atomic_density,

@@ -99,9 +99,9 @@ class GlassureModel(QtCore.QObject):
 
     @property
     def atomic_density(self):
-        if len(self.current_configuration.composition):
+        if len(self.current_configuration.sample.composition):
             return convert_density_to_atoms_per_cubic_angstrom(
-                self.current_configuration.composition, self.density)
+                self.current_configuration.sample.composition, self.density)
         return 0
 
     @property
@@ -170,143 +170,143 @@ class GlassureModel(QtCore.QObject):
 
     @property
     def sf_source(self):
-        return self.current_configuration.sf_source
+        return self.current_configuration.transform_config.sf_source
 
     @sf_source.setter
     def sf_source(self, new_source):
-        self.current_configuration.sf_source = new_source
+        self.current_configuration.transform_config.sf_source = new_source
         self.calculate_transforms()
 
     @property
     def composition(self):
-        return self.current_configuration.composition
+        return self.current_configuration.sample.composition
 
     @composition.setter
     def composition(self, new_composition):
-        self.current_configuration.composition = new_composition
+        self.current_configuration.sample.composition = new_composition
         self.calculate_transforms()
 
     @property
     def density(self):
-        return self.current_configuration.density
+        return self.current_configuration.sample.density
 
     @density.setter
     def density(self, new_density):
-        self.current_configuration.density = new_density
+        self.current_configuration.sample.density = new_density
         self.calculate_transforms()
 
     @property
     def density_error(self):
-        return self.current_configuration.density_error
+        return self.current_configuration.sample.density_error
 
     @density_error.setter
     def density_error(self, new_density_error):
-        self.current_configuration.density_error = new_density_error
+        self.current_configuration.sample.density_error = new_density_error
 
     @property
     def q_min(self):
-        return self.current_configuration.q_min
+        return self.current_configuration.transform_config.q_min
 
     @q_min.setter
     def q_min(self, new_q_min):
-        self.current_configuration.q_min = new_q_min
+        self.current_configuration.transform_config.q_min = new_q_min
         self.calculate_transforms()
 
     @property
     def q_max(self):
-        return self.current_configuration.q_max
+        return self.current_configuration.transform_config.q_max
 
     @q_max.setter
     def q_max(self, new_q_max):
-        self.current_configuration.q_max = new_q_max
+        self.current_configuration.transform_config.q_max = new_q_max
         self.calculate_transforms()
 
     @property
     def r_min(self):
-        return self.current_configuration.r_min
+        return self.current_configuration.transform_config.r_min
 
     @r_min.setter
     def r_min(self, new_r_min):
-        self.current_configuration.r_min = new_r_min
+        self.current_configuration.transform_config.r_min = new_r_min
         self.calculate_transforms()
 
     @property
     def r_max(self):
-        return self.current_configuration.r_max
+        return self.current_configuration.transform_config.r_max
 
     @r_max.setter
     def r_max(self, new_r_max):
-        self.current_configuration.r_max = new_r_max
+        self.current_configuration.transform_config.r_max = new_r_max
         self.calculate_transforms()
 
     @property
     def r_step(self):
-        return self.current_configuration.r_step
+        return self.current_configuration.transform_config.r_step
 
     @r_step.setter
     def r_step(self, new_r_step):
-        self.current_configuration.r_step = new_r_step
+        self.current_configuration.transform_config.r_step = new_r_step
         self.calculate_transforms()
 
     @property
     def optimize(self):
-        return self.current_configuration.optimize
+        return self.current_configuration.optimize_config.enable
 
     @optimize.setter
     def optimize(self, new_flag):
-        self.current_configuration.optimize = new_flag
+        self.current_configuration.optimize_config.enable = new_flag
         self.calculate_transforms()
 
     @property
     def r_cutoff(self):
-        return self.current_configuration.optimize_r_cutoff
+        return self.current_configuration.optimize_config.r_cutoff
 
     @r_cutoff.setter
     def r_cutoff(self, new_r_cutoff):
-        self.current_configuration.optimize_r_cutoff = new_r_cutoff
+        self.current_configuration.optimize_config.r_cutoff = new_r_cutoff
         self.calculate_transforms()
 
     @property
     def optimization_iterations(self):
-        return self.current_configuration.optimize_iterations
+        return self.current_configuration.optimize_config.iterations
 
     @optimization_iterations.setter
     def optimization_iterations(self, new_value):
-        self.current_configuration.optimize_iterations = new_value
+        self.current_configuration.optimize_config.iterations = new_value
 
     @property
     def optimization_attenuation(self):
-        return self.current_configuration.optimize_attenuation
+        return self.current_configuration.optimize_config.attenuation
 
     @optimization_attenuation.setter
     def optimization_attenuation(self, new_value):
-        self.current_configuration.optimize_attenuation = new_value
+        self.current_configuration.optimize_config.attenuation = new_value
 
     @property
     def use_modification_fcn(self):
-        return self.current_configuration.use_modification_fcn
+        return self.current_configuration.transform_config.use_modification_fcn
 
     @use_modification_fcn.setter
     def use_modification_fcn(self, value):
-        self.current_configuration.use_modification_fcn = value
+        self.current_configuration.transform_config.use_modification_fcn = value
         self.calculate_transforms()
 
     @property
     def extrapolation_method(self):
-        return self.current_configuration.extrapolation_method
+        return self.current_configuration.extrapolation_config.method
 
     @extrapolation_method.setter
     def extrapolation_method(self, value):
-        self.current_configuration.extrapolation_method = value
+        self.current_configuration.extrapolation_config.method = value
         self.calculate_transforms()
 
     @property
     def extrapolation_parameters(self):
-        return self.current_configuration.extrapolation_parameters
+        return self.current_configuration.extrapolation_config.parameters
 
     @extrapolation_parameters.setter
     def extrapolation_parameters(self, value):
-        self.current_configuration.extrapolation_parameters = value
+        self.current_configuration.extrapolation_config.parameters = value
         self.calculate_transforms()
 
     @property
@@ -529,7 +529,7 @@ class GlassureModel(QtCore.QObject):
             sample_pattern,
             density=self.density,
             composition=self.composition,
-            sf_source=self.current_configuration.sf_source,
+            sf_source=self.sf_source,
         )
 
         if self.extrapolation_method == 'step':

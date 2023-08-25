@@ -49,8 +49,8 @@ class ConfigurationWidget(QtWidgets.QWidget):
 
         self._save_load_layout = QtWidgets.QHBoxLayout()
         self._save_load_layout.addStretch()
-        self._save_load_layout.addWidget(self.save_btn)
         self._save_load_layout.addWidget(self.load_btn)
+        self._save_load_layout.addWidget(self.save_btn)
         self._main_layout.addLayout(self._save_load_layout)
 
         self.setLayout(self._main_layout)

@@ -50,7 +50,7 @@ class FileWidget(QtWidgets.QWidget):
         self.background_btn_layout.addWidget(self.load_background_btn)
         self.background_btn_layout.addWidget(self.reset_background_btn)
 
-        self.vertical_layout.addLayout(self.background_btn_layout)
+        self.vertical_layout.addLayout(self.background_btn_layout)             
         self.vertical_layout.addWidget(self.background_filename_lbl)
 
         self.setLayout(self.vertical_layout)

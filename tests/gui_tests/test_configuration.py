@@ -4,7 +4,8 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from glassure.gui.widgets.glassure_widget import GlassureWidget
-from glassure.gui.model.configuration import GlassureConfiguration
+from glassure.gui.model.configuration import GlassureConfiguration, Sample, \
+    OptimizeConfiguration, ExtrapolationConfiguration
 from glassure.core.pattern import Pattern
 from .utility import set_widget_text
 
@@ -43,23 +44,23 @@ def create_alternative_configuration():
     config.diamond_bkg_pattern = Pattern.from_file(
         "tests/data/Mg2SiO4_ambient.xy")
 
-    config.composition = {'Mg': 2, 'Si': 1, 'O': 4}
-    config.q_min = 0.5
-    config.q_max = 20
-    config.density = 3.51
+    config.sample.density = 3.51
+    config.sample.composition = {'Mg': 2, 'Si': 1, 'O': 4}
 
-    config.r_min = 0.01
-    config.r_max = 12
-    config.r_step = 0.02
+    config.transform_config.q_min = 0.5
+    config.transform_config.q_max = 20
+    config.transform_config.r_min = 0.01
+    config.transform_config.r_max = 12
+    config.transform_config.r_step = 0.02
+    config.transform_config.use_modification_fcn = True
 
-    config.optimize = True
-    config.optimize_r_cutoff = 1.6
-    config.optimize_iterations = 10
-    config.optimize_attenuation = 3
+    config.optimize_config.enable = True
+    config.optimize_config.r_cutoff = 1.6
+    config.optimize_config.iterations = 10
+    config.optimize_config.attenuation = 3
 
-    config.use_modification_fcn = True
-    config.extrapolation_method = "Herbert"
-    config.extrapolation_parameters = {'a': 1, 'b': 2, 'c': 3}
+    config.extrapolation_config.method = "Herbert"
+    config.extrapolation_config.parameters = {'a': 1, 'b': 2, 'c': 3}
 
     config.use_soller_correction = True
     config.soller_correction = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -95,21 +96,31 @@ def compare_config_and_dict(config: GlassureConfiguration, config_dict: dict):
         config.background_pattern.to_dict()
     assert config_dict['diamond_bkg_pattern'] == \
         config.diamond_bkg_pattern.to_dict()
-    assert config_dict['composition'] == config.composition
-    assert config_dict['q_min'] == config.q_min
-    assert config_dict['q_max'] == config.q_max
-    assert config_dict['density'] == config.density
-    assert config_dict['r_min'] == config.r_min
-    assert config_dict['r_max'] == config.r_max
-    assert config_dict['r_step'] == config.r_step
-    assert config_dict['optimize'] == config.optimize
-    assert config_dict['optimize_r_cutoff'] == config.optimize_r_cutoff
-    assert config_dict['optimize_iterations'] == config.optimize_iterations
-    assert config_dict['optimize_attenuation'] == config.optimize_attenuation
-    assert config_dict['use_modification_fcn'] == config.use_modification_fcn
-    assert config_dict['extrapolation_method'] == config.extrapolation_method
-    assert config_dict['extrapolation_parameters'] == \
-        config.extrapolation_parameters
+
+    assert config_dict['sq_pattern'] is None
+    assert config_dict['fr_pattern'] is None
+    assert config_dict['gr_pattern'] is None
+
+    assert config_dict['sample']['composition'] == config.sample.composition
+    assert config_dict['sample']['density'] == config.sample.density
+
+    assert config_dict['transform_configuration']['q_min'] == config.transform_config.q_min
+    assert config_dict['transform_configuration']['q_max'] == config.transform_config.q_max
+    assert config_dict['transform_configuration']['r_min'] == config.transform_config.r_min
+    assert config_dict['transform_configuration']['r_max'] == config.transform_config.r_max
+    assert config_dict['transform_configuration']['r_step'] == config.transform_config.r_step
+    assert config_dict['transform_configuration']['use_modification_fcn'] == \
+        config.transform_config.use_modification_fcn
+
+    assert config_dict['extrapolation_configuration']['method'] == config.extrapolation_config.method
+    assert config_dict['extrapolation_configuration']['parameters'] == \
+        config.extrapolation_config.parameters
+
+    assert config_dict['optimize_configuration']['enable'] == config.optimize_config.enable
+    assert config_dict['optimize_configuration']['r_cutoff'] == config.optimize_config.r_cutoff
+    assert config_dict['optimize_configuration']['iterations'] == config.optimize_config.iterations
+    assert config_dict['optimize_configuration']['attenuation'] == config.optimize_config.attenuation
+
     assert config_dict['use_soller_correction'] == config.use_soller_correction
     assert list(config_dict['soller_correction']) ==  \
         list(config.soller_correction)
@@ -133,9 +144,6 @@ def compare_config_and_dict(config: GlassureConfiguration, config_dict: dict):
                        config.transfer_function)
     assert config_dict['name'] == config.name
     assert config_dict['color'] == config.color.tolist()
-    assert config_dict['sq_pattern'] is None
-    assert config_dict['fr_pattern'] is None
-    assert config_dict['gr_pattern'] is None
 
 
 def test_to_dict():
@@ -148,6 +156,7 @@ def test_from_dict():
     config = create_alternative_configuration()
     config_dict = config.to_dict()
     config2 = GlassureConfiguration.from_dict(config_dict)
+    print(config_dict['extrapolation_configuration']['parameters'])
     compare_config_and_dict(config, config2.to_dict())
 
 
