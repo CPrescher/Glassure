@@ -95,6 +95,7 @@ def test_changing_data_source_with_available_elements(setup, main_controller, co
 
 def test_changing_data_source_with_unavailable_elements(setup, main_controller, composition_widget):
     composition_widget.source_cb.setCurrentIndex(1)
+    assert main_controller.model.sf_source == 'brown_hubbell'
     composition = {
         'Si': 1,
         'Mg': 2,
@@ -108,7 +109,7 @@ def test_changing_data_source_with_unavailable_elements(setup, main_controller, 
     new_composition = composition_widget.get_composition()
     assert {'Mg': 2, 'Si': 1} == new_composition
 
+
 def test_inserting_density_with_comma_as_decimal_separator(setup, composition_widget):
     set_widget_text(composition_widget.density_txt, '3,4')
     assert composition_widget.get_density() == 3.4
-

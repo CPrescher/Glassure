@@ -87,7 +87,7 @@ def test_composition_is_updated(
         main_controller, main_widget, configuration_widget,
         configuration_controller, qtbot):
     click_button(configuration_widget.freeze_btn)
-    main_controller.model.current_configuration.composition = {
+    main_controller.model.composition = {
         'Fe': 0.5, 'Ni': 0.5}
 
     configuration_controller.update_widget_controls()

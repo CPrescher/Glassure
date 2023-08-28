@@ -106,6 +106,79 @@ class Sample(object):
         return config
 
 
+class SollerConfiguration(object):
+    def __init__(self):
+        self.enable = False
+        self.correction = None
+        self.parameters = {'sample_thickness': 1.0,  # in mm
+                           'wavelength': 0.31,  # in Angstrom
+                           'inner_radius': 62,  # in mm
+                           'outer_radius': 210,  # in mm
+                           'inner_width': 0.05,  # in mm
+                           'outer_width': 0.2,  # in mm
+                           'inner_length': 8,  # in mm
+                           'outer_length': 6}  # in mm
+
+    def to_dict(self):
+        print(type(self.correction))
+        print(self.correction)
+        return {'enable': self.enable,
+                'correction': self.correction.tolist() if self.correction is not None else None,
+                'parameters': self.parameters}
+
+    @classmethod
+    def from_dict(cls, soller_config: dict):
+        config = cls()
+        config.enable = soller_config['enable']
+        config.correction = np.array(soller_config['correction']) if soller_config['correction'] is not None else None
+        config.parameters = soller_config['parameters']
+
+        return config
+
+
+class TransferConfiguration(object):
+    def __init__(self):
+        self.enable = False
+        self.function = None
+        self.smoothing = 1.0
+        self.std_pattern = None
+        self.std_bkg_pattern = None
+        self.std_bkg_scaling = 1.0
+        self.sample_pattern = None
+        self.sample_bkg_pattern = None
+        self.sample_bkg_scaling = 1.0
+
+    def to_dict(self):
+        return {
+            'enable': self.enable,
+            'smoothing': self.smoothing,
+            'std_pattern': self.std_pattern.to_dict() if self.std_pattern is not None else None,
+            'std_bkg_pattern': self.std_bkg_pattern.to_dict() if self.std_bkg_pattern is not None else None,
+            'std_bkg_scaling': self.std_bkg_scaling,
+            'sample_pattern': self.sample_pattern.to_dict() if self.sample_pattern is not None else None,
+            'sample_bkg_pattern': self.sample_bkg_pattern.to_dict() if self.sample_bkg_pattern is not None else None,
+            'sample_bkg_scaling': self.sample_bkg_scaling,
+        }
+
+    @classmethod
+    def from_dict(cls, transfer_config: dict):
+        config = cls()
+        config.enable = transfer_config['enable']
+        config.smoothing = transfer_config['smoothing']
+        config.std_pattern = Pattern.from_dict(
+            transfer_config['std_pattern']) if transfer_config['std_pattern'] is not None else None
+        config.std_bkg_pattern = Pattern.from_dict(
+            transfer_config['std_bkg_pattern']) if transfer_config['std_bkg_pattern'] is not None else None
+        config.std_bkg_scaling = transfer_config['std_bkg_scaling']
+        config.sample_pattern = Pattern.from_dict(
+            transfer_config['sample_pattern']) if transfer_config['sample_pattern'] is not None else None
+        config.sample_bkg_pattern = Pattern.from_dict(
+            transfer_config['sample_bkg_pattern']) if transfer_config['sample_bkg_pattern'] is not None else None
+        config.sample_bkg_scaling = transfer_config['sample_bkg_scaling']
+
+        return config
+
+
 class GlassureConfiguration(object):
     num = 0
 
@@ -126,30 +199,8 @@ class GlassureConfiguration(object):
         self.transform_config = TransformConfiguration()
         self.optimize_config = OptimizeConfiguration()
         self.extrapolation_config = ExtrapolationConfiguration()
-
-        # soller slit correction parameters
-        self.use_soller_correction = False
-        self.soller_correction = None
-        # default parameters for soller slit ID27, ESRF and GSECARS, APS
-        self.soller_parameters = {'sample_thickness': 1.0,  # in mm
-                                  'wavelength': 0.31,  # in Angstrom
-                                  'inner_radius': 62,  # in mm
-                                  'outer_radius': 210,  # in mm
-                                  'inner_width': 0.05,  # in mm
-                                  'outer_width': 0.2,  # in mm
-                                  'inner_length': 8,  # in mm
-                                  'outer_length': 6}  # in mm
-
-        # transfer function stuff
-        self.use_transfer_function = False
-        self.transfer_function = None
-        self.transfer_function_smoothing = 1.0
-        self.transfer_std_pattern = None
-        self.transfer_std_bkg_pattern = None
-        self.transfer_std_bkg_scaling = 1.0
-        self.transfer_sample_pattern = None
-        self.transfer_sample_bkg_pattern = None
-        self.transfer_sample_bkg_scaling = 1
+        self.soller_config = SollerConfiguration()
+        self.transfer_config = TransferConfiguration()
 
         self.name = 'Config {}'.format(GlassureConfiguration.num)
         self.color = calculate_color(GlassureConfiguration.num)
@@ -168,26 +219,15 @@ class GlassureConfiguration(object):
             'original_pattern': self.original_pattern.to_dict(),
             'background_pattern': self.background_pattern.to_dict() if self.background_pattern is not None else None,
             'diamond_bkg_pattern': self.diamond_bkg_pattern.to_dict() if self.diamond_bkg_pattern is not None else None,
-            'sq_pattern': self.sq_pattern.to_dict()
-            if self.sq_pattern is not None else None,
+            'sq_pattern': self.sq_pattern.to_dict() if self.sq_pattern is not None else None,
             'fr_pattern': self.fr_pattern.to_dict() if self.fr_pattern is not None else None,
             'gr_pattern': self.gr_pattern.to_dict() if self.gr_pattern is not None else None,
             'sample': self.sample.to_dict(),
             'transform_configuration': self.transform_config.to_dict(),
             'optimize_configuration': self.optimize_config.to_dict(),
             'extrapolation_configuration': self.extrapolation_config.to_dict(),
-            'use_soller_correction': self.use_soller_correction,
-            'soller_correction': self.soller_correction.tolist() if self.soller_correction is not None else None,
-            'soller_parameters': self.soller_parameters,
-            'use_transfer_function': self.use_transfer_function,
-            'transfer_function': self.transfer_function.tolist() if self.transfer_function is not None else None,
-            'transfer_function_smoothing': self.transfer_function_smoothing,
-            'transfer_std_pattern': self.transfer_std_pattern.to_dict() if self.transfer_std_pattern is not None else None,
-            'transfer_std_bkg_pattern': self.transfer_std_bkg_pattern.to_dict() if self.transfer_std_bkg_pattern is not None else None,
-            'transfer_std_bkg_scaling': self.transfer_std_bkg_scaling,
-            'transfer_sample_pattern': self.transfer_sample_pattern.to_dict() if self.transfer_sample_pattern is not None else None,
-            'transfer_sample_bkg_pattern': self.transfer_sample_bkg_pattern.to_dict() if self.transfer_sample_bkg_pattern is not None else None,
-            'transfer_sample_bkg_scaling': self.transfer_sample_bkg_scaling,
+            'soller_configuration': self.soller_config.to_dict(),
+            'transfer_configuration': self.transfer_config.to_dict(),
             'name': self.name,
             'color': self.color.tolist()
         }
@@ -208,6 +248,7 @@ class GlassureConfiguration(object):
             config_dict['fr_pattern']) if config_dict['fr_pattern'] is not None else None
         config.gr_pattern = Pattern.from_dict(
             config_dict['gr_pattern']) if config_dict['gr_pattern'] is not None else None
+
         config.sample = Sample.from_dict(config_dict['sample'])
         config.transform_config = TransformConfiguration.from_dict(
             config_dict['transform_configuration'])
@@ -215,23 +256,11 @@ class GlassureConfiguration(object):
             config_dict['optimize_configuration'])
         config.extrapolation_config = ExtrapolationConfiguration.from_dict(
             config_dict['extrapolation_configuration'])
+        config.soller_config = SollerConfiguration.from_dict(
+            config_dict['soller_configuration'])
+        config.transfer_config = TransferConfiguration.from_dict(
+            config_dict['transfer_configuration'])
 
-        config.use_soller_correction = config_dict['use_soller_correction']
-        config.soller_correction = np.array(config_dict['soller_correction'])
-        config.soller_parameters = config_dict['soller_parameters']
-        config.use_transfer_function = config_dict['use_transfer_function']
-        config.transfer_function = np.array(config_dict['transfer_function'])
-        config.transfer_function_smoothing = config_dict['transfer_function_smoothing']
-        config.transfer_std_pattern = Pattern.from_dict(
-            config_dict['transfer_std_pattern']) if config_dict['transfer_std_pattern'] is not None else None
-        config.transfer_std_bkg_pattern = Pattern.from_dict(
-            config_dict['transfer_std_bkg_pattern']) if config_dict['transfer_std_bkg_pattern'] is not None else None
-        config.transfer_std_bkg_scaling = config_dict['transfer_std_bkg_scaling']
-        config.transfer_sample_pattern = Pattern.from_dict(
-            config_dict['transfer_sample_pattern']) if config_dict['transfer_sample_pattern'] is not None else None
-        config.transfer_sample_bkg_pattern = Pattern.from_dict(
-            config_dict['transfer_sample_bkg_pattern']) if config_dict['transfer_sample_bkg_pattern'] is not None else None
-        config.transfer_sample_bkg_scaling = config_dict['transfer_sample_bkg_scaling']
         config.name = config_dict['name']
         config.color = np.array(config_dict['color'])
 

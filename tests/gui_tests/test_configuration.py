@@ -62,28 +62,21 @@ def create_alternative_configuration():
     config.extrapolation_config.method = "Herbert"
     config.extrapolation_config.parameters = {'a': 1, 'b': 2, 'c': 3}
 
-    config.use_soller_correction = True
-    config.soller_correction = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    config.soller_parameters = {'a': 3, 'b': 2, 'c': 1}
+    config.soller_config.enable = True
+    config.soller_config.correction = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    config.soller_config.parameters = {'a': 3, 'b': 2, 'c': 1}
 
-    config.use_transfer_function = False
+    config.transfer_config.enable = False
+    config.transfer_config.function_smoothing = 1.0
+    config.transfer_config.std_pattern = Pattern.from_file("tests/data/glass_rod_WOS.xy")
+    config.transfer_config.std_bkg_pattern = Pattern.from_file("tests/data/glass_rod_WOS.xy")
+    config.transfer_config.std_bkg_pattern.y -= 10
+    config.transfer_config.std_bkg_scaling = 1.0
 
-    config.transfer_function_smoothing = 1.0
-    config.transfer_std_pattern = Pattern.from_file(
-        "tests/data/glass_rod_WOS.xy")
-    config.transfer_std_bkg_pattern = Pattern.from_file(
-        "tests/data/glass_rod_WOS.xy")
-    config.transfer_std_bkg_pattern.y -= 10
-    config.transfer_std_bkg_scaling = 1.0
-
-    config.transfer_sample_pattern = Pattern.from_file(
-        "tests/data/glass_rod_WOS.xy")
-    config.transfer_sample_bkg_pattern = Pattern.from_file(
-        "tests/data/glass_rod_WOS.xy")
-    config.transfer_sample_bkg_pattern.y -= 10
-    config.transfer_sample_bkg_scaling = 1
-    config.transfer_function = config.transfer_std_pattern.y /\
-        config.transfer_sample_pattern.y
+    config.transfer_config.sample_pattern = Pattern.from_file("tests/data/glass_rod_WOS.xy")
+    config.transfer_config.sample_bkg_pattern = Pattern.from_file("tests/data/glass_rod_WOS.xy")
+    config.transfer_config.sample_bkg_pattern.y -= 10
+    config.transfer_config.sample_bkg_scaling = 1
 
     config.name = 'Config {}'.format(GlassureConfiguration.num)
     config.color = np.array([1, 23, 24])
@@ -121,27 +114,20 @@ def compare_config_and_dict(config: GlassureConfiguration, config_dict: dict):
     assert config_dict['optimize_configuration']['iterations'] == config.optimize_config.iterations
     assert config_dict['optimize_configuration']['attenuation'] == config.optimize_config.attenuation
 
-    assert config_dict['use_soller_correction'] == config.use_soller_correction
-    assert list(config_dict['soller_correction']) ==  \
-        list(config.soller_correction)
-    assert config_dict['soller_parameters'] == config.soller_parameters
-    assert config_dict['use_transfer_function'] == config.use_transfer_function
-    assert config_dict['transfer_function_smoothing'] == \
-        config.transfer_function_smoothing
-    assert config_dict['transfer_std_pattern'] == \
-        config.transfer_std_pattern.to_dict()
-    assert config_dict['transfer_std_bkg_pattern'] ==\
-        config.transfer_std_bkg_pattern.to_dict()
-    assert config_dict['transfer_std_bkg_scaling'] == \
-        config.transfer_std_bkg_scaling
-    assert config_dict['transfer_sample_pattern'] == \
-        config.transfer_sample_pattern.to_dict()
-    assert config_dict['transfer_sample_bkg_pattern'] == \
-        config.transfer_sample_bkg_pattern.to_dict()
-    assert config_dict['transfer_sample_bkg_scaling'] == \
-        config.transfer_sample_bkg_scaling
-    assert_array_equal(config_dict['transfer_function'],
-                       config.transfer_function)
+    assert config_dict['soller_configuration']['enable'] == config.soller_config.enable
+    assert list(config_dict['soller_configuration']['correction']) ==  \
+        list(config.soller_config.correction)
+    assert config_dict['soller_configuration']['parameters'] == config.soller_config.parameters
+
+    assert config_dict['transfer_configuration']['enable'] == config.transfer_config.enable
+    assert config_dict['transfer_configuration']['smoothing'] == config.transfer_config.function_smoothing
+    assert config_dict['transfer_configuration']['std_pattern'] == config.transfer_config.std_pattern.to_dict()
+    assert config_dict['transfer_configuration']['std_bkg_pattern'] == config.transfer_config.std_bkg_pattern.to_dict()
+    assert config_dict['transfer_configuration']['std_bkg_scaling'] == config.transfer_config.std_bkg_scaling
+    assert config_dict['transfer_configuration']['sample_pattern'] == config.transfer_config.sample_pattern.to_dict()
+    assert config_dict['transfer_configuration']['sample_bkg_pattern'] == config.transfer_config.sample_bkg_pattern.to_dict()
+    assert config_dict['transfer_configuration']['sample_bkg_scaling'] == config.transfer_config.sample_bkg_scaling
+
     assert config_dict['name'] == config.name
     assert config_dict['color'] == config.color.tolist()
 
@@ -156,7 +142,6 @@ def test_from_dict():
     config = create_alternative_configuration()
     config_dict = config.to_dict()
     config2 = GlassureConfiguration.from_dict(config_dict)
-    print(config_dict['extrapolation_configuration']['parameters'])
     compare_config_and_dict(config, config2.to_dict())
 
 

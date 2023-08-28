@@ -16,8 +16,7 @@ __all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_in
            'convert_two_theta_to_q_space', 'convert_two_theta_to_q_space_raw', 'calculate_weighting_factor']
 
 
-def calculate_f_mean_squared(composition: dict, q: np.ndarray,
-                             sf_source='hajdu') -> np.ndarray:
+def calculate_f_mean_squared(composition: dict, q: np.ndarray, sf_source='hajdu') -> np.ndarray:
     """
     Calculates the square of the mean form_factor for a given composition over q.
     :param composition: dictionary with elements as key and abundances as relative numbers
@@ -49,7 +48,8 @@ def calculate_f_squared_mean(composition: dict[str, float], q: np.ndarray, sf_so
     return res
 
 
-def calculate_incoherent_scattering(composition: dict[str, float], q: np.ndarray, sf_source: str = 'hajdu') -> np.ndarray:
+def calculate_incoherent_scattering(composition: dict[str, float], q: np.ndarray, sf_source: str = 'hajdu') \
+        -> np.ndarray:
     """
     Calculates compton/incoherent scattering for a given composition
     :param composition: dictionary with elements as key and abundances as relative numbers

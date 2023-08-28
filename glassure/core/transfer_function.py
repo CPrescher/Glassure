@@ -5,7 +5,7 @@ from scipy.interpolate import UnivariateSpline
 from .pattern import Pattern
 
 
-def calculate_transfer_function(std_pattern, sample_pattern, smooth_factor=1):
+def calculate_transfer_function(std_pattern: Pattern, sample_pattern: Pattern, smooth_factor=1) -> UnivariateSpline:
     """
 
     :param std_pattern: the Diffraction pattern how it should look like, should be already background subtracted

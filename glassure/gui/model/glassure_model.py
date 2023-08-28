@@ -99,9 +99,9 @@ class GlassureModel(QtCore.QObject):
 
     @property
     def atomic_density(self):
-        if len(self.current_configuration.sample.composition):
+        if len(self.composition):
             return convert_density_to_atoms_per_cubic_angstrom(
-                self.current_configuration.sample.composition, self.density)
+                self.composition, self.density)
         return 0
 
     @property
@@ -311,38 +311,38 @@ class GlassureModel(QtCore.QObject):
 
     @property
     def use_soller_correction(self):
-        return self.current_configuration.use_soller_correction
+        return self.current_configuration.soller_config.enable
 
     @use_soller_correction.setter
     def use_soller_correction(self, value):
-        self.current_configuration.use_soller_correction = value
+        self.current_configuration.soller_config.enable = value
         self.calculate_transforms()
 
     @property
     def soller_correction(self):
-        return self.current_configuration.soller_correction
+        return self.current_configuration.soller_config.correction
 
     @soller_correction.setter
     def soller_correction(self, new_value):
-        self.current_configuration.soller_correction = new_value
+        self.current_configuration.soller_config.correction = new_value
         self.calculate_transforms()
 
     @property
     def soller_parameters(self):
-        return self.current_configuration.soller_parameters
+        return self.current_configuration.soller_config.parameters
 
     @soller_parameters.setter
     def soller_parameters(self, new_parameters):
-        self.current_configuration.soller_parameters = new_parameters
+        self.current_configuration.soller_config.parameters = new_parameters
         self.calculate_transforms()
 
     @property
     def use_transfer_function(self):
-        return self.current_configuration.use_transfer_function
+        return self.current_configuration.transfer_config.enable
 
     @use_transfer_function.setter
     def use_transfer_function(self, new_value):
-        self.current_configuration.use_transfer_function = new_value
+        self.current_configuration.transfer_config.enable = new_value
         if new_value:
             self.update_transfer_function()
         else:
@@ -350,15 +350,15 @@ class GlassureModel(QtCore.QObject):
 
     @property
     def transfer_function(self):
-        return self.current_configuration.transfer_function
+        return self.current_configuration.transfer_config.function
 
     @property
     def transfer_function_smoothing(self):
-        return self.current_configuration.transfer_function_smoothing
+        return self.current_configuration.transfer_config.smoothing
 
     @transfer_function_smoothing.setter
     def transfer_function_smoothing(self, new_value):
-        self.current_configuration.transfer_function_smoothing = new_value
+        self.current_configuration.transfer_config.smoothing = new_value
         self.update_transfer_function()
 
     @property
@@ -366,31 +366,31 @@ class GlassureModel(QtCore.QObject):
         """
         :rtype: Pattern
         """
-        return self.current_configuration.transfer_std_pattern
+        return self.current_configuration.transfer_config.std_pattern
 
     @transfer_std_pattern.setter
     def transfer_std_pattern(self, new_pattern):
-        self.current_configuration.transfer_std_pattern = new_pattern
+        self.current_configuration.transfer_config.std_pattern = new_pattern
 
     @property
     def transfer_std_bkg_pattern(self):
         """
         :rtype Pattern:
         """
-        return self.current_configuration.transfer_std_bkg_pattern
+        return self.current_configuration.transfer_config.std_bkg_pattern
 
     @transfer_std_bkg_pattern.setter
     def transfer_std_bkg_pattern(self, new_pattern):
-        self.current_configuration.transfer_std_bkg_pattern = new_pattern
+        self.current_configuration.transfer_config.std_bkg_pattern = new_pattern
         self.update_transfer_function()
 
     @property
     def transfer_std_bkg_scaling(self):
-        return self.current_configuration.transfer_std_bkg_scaling
+        return self.current_configuration.transfer_config.std_bkg_scaling
 
     @transfer_std_bkg_scaling.setter
     def transfer_std_bkg_scaling(self, new_value):
-        self.current_configuration.transfer_std_bkg_scaling = new_value
+        self.current_configuration.transfer_config.std_bkg_scaling = new_value
         self.update_transfer_function()
 
     @property
@@ -398,31 +398,31 @@ class GlassureModel(QtCore.QObject):
         """
         :rtype: Pattern
         """
-        return self.current_configuration.transfer_sample_pattern
+        return self.current_configuration.transfer_config.sample_pattern
 
     @transfer_sample_pattern.setter
     def transfer_sample_pattern(self, new_pattern):
-        self.current_configuration.transfer_sample_pattern = new_pattern
+        self.current_configuration.transfer_config.sample_pattern = new_pattern
 
     @property
     def transfer_sample_bkg_pattern(self):
         """
         :rtype Pattern:
         """
-        return self.current_configuration.transfer_sample_bkg_pattern
+        return self.current_configuration.transfer_config.sample_bkg_pattern
 
     @transfer_sample_bkg_pattern.setter
     def transfer_sample_bkg_pattern(self, new_pattern):
-        self.current_configuration.transfer_sample_bkg_pattern = new_pattern
+        self.current_configuration.transfer_config.sample_bkg_pattern = new_pattern
         self.update_transfer_function()
 
     @property
     def transfer_sample_bkg_scaling(self):
-        return self.current_configuration.transfer_sample_bkg_scaling
+        return self.current_configuration.transfer_config.sample_bkg_scaling
 
     @transfer_sample_bkg_scaling.setter
     def transfer_sample_bkg_scaling(self, new_value):
-        self.current_configuration.transfer_sample_bkg_scaling = new_value
+        self.current_configuration.transfer_config.sample_bkg_scaling = new_value
         self.update_transfer_function()
 
     def set_smooth(self, value):
@@ -549,9 +549,7 @@ class GlassureModel(QtCore.QObject):
 
     def calculate_fr(self):
         self.fr_pattern = calculate_fr(
-            self.sq_pattern,
-            r=np.arange(
-                self.r_min, self.r_max + self.r_step * 0.5, self.r_step),
+            self.sq_pattern, r=np.arange(self.r_min, self.r_max + self.r_step * 0.5, self.r_step),
             use_modification_fcn=self.use_modification_fcn)
 
     def calculate_gr(self):
@@ -693,7 +691,7 @@ class GlassureModel(QtCore.QObject):
                 self.transfer_sample_bkg_scaling * \
                 self.transfer_sample_bkg_pattern
 
-        self.current_configuration.transfer_function = \
+        self.current_configuration.transfer_config.function = \
             calculate_transfer_function(
                 std_pattern.limit(q_min, q_max),
                 sample_pattern.limit(q_min, q_max),
