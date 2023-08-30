@@ -5,9 +5,9 @@ from numpy.testing import assert_array_equal
 
 from glassure.gui.widgets.glassure_widget import GlassureWidget
 from glassure.gui.model.configuration import GlassureConfiguration, Sample, \
-    OptimizeConfiguration, ExtrapolationConfiguration
+    OptimizeConfiguration, ExtrapolationConfiguration, TransformConfiguration
 from glassure.core.pattern import Pattern
-from .utility import set_widget_text
+from .utility import set_widget_text, data_path
 
 
 def test_freeze_configuration(configuration_widget, qtbot):
@@ -38,11 +38,9 @@ def test_remove_configuration(configuration_widget, qtbot):
 
 def create_alternative_configuration():
     config = GlassureConfiguration()
-    config.original_pattern.load("tests/data/Mg2SiO4_ambient.xy")
-    config.background_pattern = Pattern.from_file(
-        "tests/data/Mg2SiO4_ambient_bkg.xy")
-    config.diamond_bkg_pattern = Pattern.from_file(
-        "tests/data/Mg2SiO4_ambient.xy")
+    config.original_pattern.load(data_path("Mg2SiO4_ambient.xy"))
+    config.background_pattern = Pattern.from_file(data_path("Mg2SiO4_ambient_bkg.xy"))
+    config.diamond_bkg_pattern = Pattern.from_file(data_path("Mg2SiO4_ambient.xy"))
 
     config.sample.density = 3.51
     config.sample.composition = {'Mg': 2, 'Si': 1, 'O': 4}
@@ -68,13 +66,13 @@ def create_alternative_configuration():
 
     config.transfer_config.enable = False
     config.transfer_config.function_smoothing = 1.0
-    config.transfer_config.std_pattern = Pattern.from_file("tests/data/glass_rod_WOS.xy")
-    config.transfer_config.std_bkg_pattern = Pattern.from_file("tests/data/glass_rod_WOS.xy")
+    config.transfer_config.std_pattern = Pattern.from_file(data_path("glass_rod_WOS.xy"))
+    config.transfer_config.std_bkg_pattern = Pattern.from_file(data_path("glass_rod_WOS.xy"))
     config.transfer_config.std_bkg_pattern.y -= 10
     config.transfer_config.std_bkg_scaling = 1.0
 
-    config.transfer_config.sample_pattern = Pattern.from_file("tests/data/glass_rod_WOS.xy")
-    config.transfer_config.sample_bkg_pattern = Pattern.from_file("tests/data/glass_rod_WOS.xy")
+    config.transfer_config.sample_pattern = Pattern.from_file(data_path("glass_rod_WOS.xy"))
+    config.transfer_config.sample_bkg_pattern = Pattern.from_file(data_path("glass_rod_WOS.xy"))
     config.transfer_config.sample_bkg_pattern.y -= 10
     config.transfer_config.sample_bkg_scaling = 1
 
@@ -85,10 +83,8 @@ def create_alternative_configuration():
 
 def compare_config_and_dict(config: GlassureConfiguration, config_dict: dict):
     assert config_dict['original_pattern'] == config.original_pattern.to_dict()
-    assert config_dict['background_pattern'] == \
-        config.background_pattern.to_dict()
-    assert config_dict['diamond_bkg_pattern'] == \
-        config.diamond_bkg_pattern.to_dict()
+    assert config_dict['background_pattern'] == config.background_pattern.to_dict()
+    assert config_dict['diamond_bkg_pattern'] == config.diamond_bkg_pattern.to_dict()
 
     assert config_dict['sq_pattern'] is None
     assert config_dict['fr_pattern'] is None
@@ -103,11 +99,11 @@ def compare_config_and_dict(config: GlassureConfiguration, config_dict: dict):
     assert config_dict['transform_configuration']['r_max'] == config.transform_config.r_max
     assert config_dict['transform_configuration']['r_step'] == config.transform_config.r_step
     assert config_dict['transform_configuration']['use_modification_fcn'] == \
-        config.transform_config.use_modification_fcn
+           config.transform_config.use_modification_fcn
 
     assert config_dict['extrapolation_configuration']['method'] == config.extrapolation_config.method
     assert config_dict['extrapolation_configuration']['parameters'] == \
-        config.extrapolation_config.parameters
+           config.extrapolation_config.parameters
 
     assert config_dict['optimize_configuration']['enable'] == config.optimize_config.enable
     assert config_dict['optimize_configuration']['r_cutoff'] == config.optimize_config.r_cutoff
@@ -115,8 +111,7 @@ def compare_config_and_dict(config: GlassureConfiguration, config_dict: dict):
     assert config_dict['optimize_configuration']['attenuation'] == config.optimize_config.attenuation
 
     assert config_dict['soller_configuration']['enable'] == config.soller_config.enable
-    assert list(config_dict['soller_configuration']['correction']) ==  \
-        list(config.soller_config.correction)
+    assert list(config_dict['soller_configuration']['correction']) == list(config.soller_config.correction)
     assert config_dict['soller_configuration']['parameters'] == config.soller_config.parameters
 
     assert config_dict['transfer_configuration']['enable'] == config.transfer_config.enable
@@ -125,7 +120,8 @@ def compare_config_and_dict(config: GlassureConfiguration, config_dict: dict):
     assert config_dict['transfer_configuration']['std_bkg_pattern'] == config.transfer_config.std_bkg_pattern.to_dict()
     assert config_dict['transfer_configuration']['std_bkg_scaling'] == config.transfer_config.std_bkg_scaling
     assert config_dict['transfer_configuration']['sample_pattern'] == config.transfer_config.sample_pattern.to_dict()
-    assert config_dict['transfer_configuration']['sample_bkg_pattern'] == config.transfer_config.sample_bkg_pattern.to_dict()
+    assert config_dict['transfer_configuration'][
+               'sample_bkg_pattern'] == config.transfer_config.sample_bkg_pattern.to_dict()
     assert config_dict['transfer_configuration']['sample_bkg_scaling'] == config.transfer_config.sample_bkg_scaling
 
     assert config_dict['name'] == config.name
@@ -148,7 +144,6 @@ def test_from_dict():
 def test_remove_configuration_changes_to_correct_configuration(
         main_widget: GlassureWidget, configuration_widget, model,
         qtbot):
-
     assert configuration_widget.configuration_tw.rowCount() == 1
     qtbot.mouseClick(configuration_widget.freeze_btn, Qt.LeftButton)
     set_widget_text(main_widget.q_max_txt, '13')
@@ -180,3 +175,15 @@ def test_remove_configuration_changes_to_correct_configuration(
     assert model.configuration_ind == 0
     assert model.q_max == 13
     assert main_widget.q_max_txt.text() == '13.0'
+
+
+def test_convert_transform_configuration_to_and_from_dict():
+    transform_config1 = TransformConfiguration()
+    transform_dict1 = transform_config1.to_dict()
+    transform_dict1['q_min'] = 0.0
+    transform_dict1['q_max'] = 10
+    transform_dict1['r_min'] = 0.5
+    transform_dict1['sq_method'] = 'FZ'
+    transform_config2 = TransformConfiguration.from_dict(transform_dict1)
+    transform_dict2 = transform_config2.to_dict()
+    assert transform_dict1 == transform_dict2

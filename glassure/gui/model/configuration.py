@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*/:
 from __future__ import annotations
+from enum import StrEnum
 from colorsys import hsv_to_rgb
 from copy import deepcopy
 
@@ -10,19 +11,23 @@ from ...core.pattern import Pattern
 
 class TransformConfiguration(object):
     def __init__(self):
-        self.sf_source = 'hajdu'
-        self.use_modification_fcn = False
+        self.sf_source: str = 'hajdu'
+        self.use_modification_fcn: bool = False
+        self.sq_method: SqMethod = SqMethod.FZ
+        self.normalization_method = NormalizationMethod.Integral
 
-        self.q_min = 0.0
-        self.q_max = 10.0
+        self.q_min: float = 0.0
+        self.q_max: float = 10.0
 
-        self.r_min = 0.5
-        self.r_max = 10
-        self.r_step = 0.01
+        self.r_min: float = 0.5
+        self.r_max: float = 10
+        self.r_step: float = 0.01
 
     def to_dict(self):
         return {'sf_source': self.sf_source,
                 'use_modification_fcn': self.use_modification_fcn,
+                'sq_method': self.sq_method.value,
+                'normalization_method': self.normalization_method.value,
                 'q_min': self.q_min,
                 'q_max': self.q_max,
                 'r_min': self.r_min,
@@ -30,16 +35,19 @@ class TransformConfiguration(object):
                 'r_step': self.r_step}
 
     @classmethod
-    def from_dict(cls, transform_config: dict):
+    def from_dict(cls, transform_config: dict) -> TransformConfiguration:
         config = cls()
-        config.sf_source = transform_config['sf_source']
-        config.use_modification_fcn = transform_config['use_modification_fcn']
-        config.q_min = transform_config['q_min']
-        config.q_max = transform_config['q_max']
-        config.r_min = transform_config['r_min']
-        config.r_max = transform_config['r_max']
-        config.r_step = transform_config['r_step']
-
+        for key in transform_config.keys():
+            if not hasattr(config, key):
+                continue
+            match key:
+                # only for the nested objects special initialization is needed
+                case 'sq_method':
+                    setattr(config, key, SqMethod(transform_config[key]))
+                case 'normalization_method':
+                    setattr(config, key, NormalizationMethod(transform_config[key]))
+                case _:
+                    setattr(config, key, transform_config[key])
         return config
 
 
@@ -51,19 +59,15 @@ class OptimizeConfiguration(object):
         self.attenuation = 1
 
     def to_dict(self):
-        return {'enable': self.enable,
-                'r_cutoff': self.r_cutoff,
-                'iterations': self.iterations,
-                'attenuation': self.attenuation}
+        return vars(self)
 
     @classmethod
     def from_dict(cls, optimize_config: dict):
         config = cls()
-        config.enable = optimize_config['enable']
-        config.r_cutoff = optimize_config['r_cutoff']
-        config.iterations = optimize_config['iterations']
-        config.attenuation = optimize_config['attenuation']
-
+        for key in optimize_config.keys():
+            if not hasattr(config, key):
+                continue
+            setattr(config, key, optimize_config[key])
         return config
 
 
@@ -120,8 +124,6 @@ class SollerConfiguration(object):
                            'outer_length': 6}  # in mm
 
     def to_dict(self):
-        print(type(self.correction))
-        print(self.correction)
         return {'enable': self.enable,
                 'correction': self.correction.tolist() if self.correction is not None else None,
                 'parameters': self.parameters}
@@ -265,6 +267,22 @@ class GlassureConfiguration(object):
         config.color = np.array(config_dict['color'])
 
         return config
+
+
+class SqMethod(StrEnum):
+    """
+    Enum class for the different methods to calculate the structure factor.
+    """
+    FZ = 'FZ'
+    AL = 'AL'
+
+
+class NormalizationMethod(StrEnum):
+    """
+    Enum class for the different methods to perform an intensity normalization.
+    """
+    Integral = 'integral'
+    Fit = 'fit'
 
 
 def calculate_color(ind):

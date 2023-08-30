@@ -143,7 +143,7 @@ def calculate_sq_raw(sample_pattern: Pattern, f_squared_mean: np.ndarray, f_mean
 
     if method == 'FZ':
         sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean + f_mean_squared) / \
-            f_mean_squared
+             f_mean_squared
     elif method == 'AL':
         sq = (normalization_factor * intensity - incoherent_scattering) / f_squared_mean
     else:

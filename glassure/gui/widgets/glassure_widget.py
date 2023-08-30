@@ -161,9 +161,9 @@ class LeftControlWidget(QtWidgets.QWidget):
             self.extrapolation_widget, "Extrapolation"))
 
         self.vertical_layout.addSpacerItem(
-                QtWidgets.QSpacerItem(20, 50,
-                                      QtWidgets.QSizePolicy.Fixed,
-                                      QtWidgets.QSizePolicy.Expanding))
+            QtWidgets.QSpacerItem(20, 50,
+                                  QtWidgets.QSizePolicy.Fixed,
+                                  QtWidgets.QSizePolicy.Expanding))
 
         self.setLayout(self.vertical_layout)
 
@@ -196,8 +196,8 @@ class RightControlWidget(QtWidgets.QWidget):
             self.transfer_widget, "Transfer Function Correction", True))
 
         self.vertical_layout.addSpacerItem(
-                QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Fixed,
-                                      QtWidgets.QSizePolicy.MinimumExpanding))
+            QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Fixed,
+                                  QtWidgets.QSizePolicy.MinimumExpanding))
 
         self.setLayout(self.vertical_layout)
 

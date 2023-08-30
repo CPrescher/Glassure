@@ -9,7 +9,7 @@ from qtpy import QtGui, QtCore
 
 from ...core.pattern import Pattern
 from .density_optimization import DensityOptimizer
-from ...core.utility import calculate_incoherent_scattering,\
+from ...core.utility import calculate_incoherent_scattering, \
     convert_density_to_atoms_per_cubic_angstrom
 from ...core import calculate_sq, calculate_gr, calculate_fr
 from ...core.optimization import optimize_sq
@@ -44,8 +44,7 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     def load_bkg(self, filename):
-        self.current_configuration.background_pattern = Pattern.from_file(
-            filename)
+        self.current_configuration.background_pattern = Pattern.from_file(filename)
         self.calculate_transforms()
 
     def reset_bkg(self):
@@ -292,6 +291,24 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     @property
+    def sq_method(self):
+        return self.current_configuration.transform_config.sq_method
+
+    @sq_method.setter
+    def sq_method(self, value):
+        self.current_configuration.transform_config.sq_method = value
+        self.calculate_transforms()
+
+    @property
+    def normalization_method(self):
+        return self.current_configuration.transform_config.normalization_method
+
+    @normalization_method.setter
+    def normalization_method(self, value):
+        self.current_configuration.transform_config.normalization_method = value
+        self.calculate_transforms()
+
+    @property
     def extrapolation_method(self):
         return self.current_configuration.extrapolation_config.method
 
@@ -483,7 +500,7 @@ class GlassureModel(QtCore.QObject):
 
     def calculate_sq(self):
         if self.background_pattern is not None:
-            sample_pattern = (self.original_pattern - self.background_pattern)\
+            sample_pattern = (self.original_pattern - self.background_pattern) \
                 .limit(self.q_min, self.q_max)
         else:
             sample_pattern = self.original_pattern.limit(
@@ -491,7 +508,7 @@ class GlassureModel(QtCore.QObject):
 
         if self.use_transfer_function and self.transfer_function is not None:
             sample_pattern.y = sample_pattern.y * \
-                self.transfer_function(sample_pattern.x)
+                               self.transfer_function(sample_pattern.x)
 
         if self.use_soller_correction:
             q, intensity = sample_pattern.data
@@ -529,6 +546,8 @@ class GlassureModel(QtCore.QObject):
             sample_pattern,
             density=self.density,
             composition=self.composition,
+            normalization_method=self.normalization_method,
+            method=self.sq_method,
             sf_source=self.sf_source,
         )
 
@@ -581,7 +600,7 @@ class GlassureModel(QtCore.QObject):
         optimizer.optimize(iterations)
 
     def optimize_density_and_scaling(
-        self, density_min, density_max, bkg_min, bkg_max, iterations,
+            self, density_min, density_max, bkg_min, bkg_max, iterations,
             callback_fcn=None, output_txt=None):
         params = Parameters()
         params.add("density", value=self.density,
@@ -673,23 +692,20 @@ class GlassureModel(QtCore.QObject):
                 self.transfer_sample_pattern is None or \
                 not self.use_transfer_function:
             return
-        q_min = np.max([self.transfer_std_pattern.x[0],
-                       self.transfer_sample_pattern.x[0]])
-        q_max = np.min([self.transfer_std_pattern.x[-1],
-                       self.transfer_sample_pattern.x[-1]])
+        q_min = np.max([self.transfer_std_pattern.x[0], self.transfer_sample_pattern.x[0]])
+        q_max = np.min([self.transfer_std_pattern.x[-1], self.transfer_sample_pattern.x[-1]])
 
         if self.transfer_std_bkg_pattern is None:
             std_pattern = self.transfer_std_pattern
         else:
-            std_pattern = self.transfer_std_pattern - \
-                self.transfer_std_bkg_scaling * self.transfer_std_bkg_pattern
+            std_pattern = self.transfer_std_pattern - self.transfer_std_bkg_scaling * self.transfer_std_bkg_pattern
 
         if self.transfer_sample_bkg_pattern is None:
             sample_pattern = self.transfer_sample_pattern
         else:
             sample_pattern = self.transfer_sample_pattern - \
-                self.transfer_sample_bkg_scaling * \
-                self.transfer_sample_bkg_pattern
+                             self.transfer_sample_bkg_scaling * \
+                             self.transfer_sample_bkg_pattern
 
         self.current_configuration.transfer_config.function = \
             calculate_transfer_function(

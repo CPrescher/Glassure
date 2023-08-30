@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from .test_configuration import create_alternative_configuration, \
-    compare_config_and_dict
-
 import numpy as np
 import pytest
+
+from glassure.gui.model.configuration import SqMethod, NormalizationMethod
+from .test_configuration import create_alternative_configuration, \
+    compare_config_and_dict
 
 from glassure.core import Pattern
 from glassure.core import calculate_sq
@@ -80,14 +81,10 @@ def test_calculate_transforms(setup, model: GlassureModel):
 def test_calculate_transforms_without_bkg(model):
     model.load_data(data_path('Mg2SiO4_ambient.xy'))
     density = 1.7
-    elemental_abundances = {
-        'Mg': 2,
-        'Si': 1,
-        'O': 4,
-    }
+    composition = {'Mg': 2, 'Si': 1, 'O': 4}
     q_min = 0
     q_max = 10
-    model.update_parameter('hajdu', elemental_abundances, density, q_min, q_max, 0, 10, False,
+    model.update_parameter('hajdu', composition, density, q_min, q_max, 0, 10, False,
                            None, {}, False, 1.5, 5, 1)
     assert model.sq_pattern is not None
     assert model.gr_pattern is not None
@@ -156,6 +153,24 @@ def test_use_modification_fcn(setup, model):
     model.use_modification_fcn = True
     fr2 = model.fr_pattern
     assert not np.allclose(fr1.y, fr2.y)
+
+
+def test_changing_sq_method(setup, model):
+    model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
+
+    sq1 = model.sq_pattern
+    model.sq_method = SqMethod.AL
+    sq2 = model.sq_pattern
+    assert not np.allclose(sq1.y, sq2.y)
+
+
+def test_changing_normalization_method(setup, model):
+    model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
+
+    sq1 = model.sq_pattern
+    model.normalization_method = NormalizationMethod.Fit
+    sq2 = model.sq_pattern
+    assert not np.allclose(sq1.y, sq2.y)
 
 
 def test_optimize_sq(setup, model):
@@ -252,10 +267,8 @@ def test_use_transfer_function(setup, model):
     model.load_transfer_std_pattern(std_path)
 
     model.use_transfer_function = True
-    test_y = model.original_pattern.limit(0, 14).y * model.transfer_function(
-        model.original_pattern.limit(0, 14).x)
-    assert np.std(model.transfer_std_pattern.limit(
-        0, 14).y / test_y) == pytest.approx(0, abs=0.2)
+    test_y = model.original_pattern.limit(0, 14).y * model.transfer_function(model.original_pattern.limit(0, 14).x)
+    assert np.std(model.transfer_std_pattern.limit(0, 14).y / test_y) == pytest.approx(0, abs=0.2)
 
     sq_pattern_with_transfer = model.sq_pattern
 

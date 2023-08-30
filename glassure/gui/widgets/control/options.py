@@ -16,6 +16,7 @@ class OptionsWidget(QtWidgets.QWidget):
         self.create_signals()
 
     def create_widgets(self):
+        self.calculation_ranges_gb = QtWidgets.QGroupBox("Calculation Ranges")
         self.q_range_lbl = QtWidgets.QLabel('Q range:')
         self.q_min_txt = FloatLineEdit('0')
         self.q_max_txt = FloatLineEdit('10')
@@ -24,43 +25,69 @@ class OptionsWidget(QtWidgets.QWidget):
         self.r_min_txt = FloatLineEdit('0.5')
         self.r_max_txt = FloatLineEdit('10')
 
-        self.modification_fcn_cb = QtWidgets.QCheckBox(
-            "Use Modification Function")
+        self.modification_fcn_cb = QtWidgets.QCheckBox("Use Modification Function")
+
+        self.normalization_method_gb = QtWidgets.QGroupBox("Normalization Method")
+        self.normalization_method_integral = QtWidgets.QRadioButton("Integral")
+        self.normalization_method_integral.setChecked(True)
+        self.normalization_method_fft = QtWidgets.QRadioButton("FFT")
+        self.normalization_method_fft.setChecked(False)
+
+        self.sq_method_gb = QtWidgets.QGroupBox("Structure Factor Method")
+        self.sq_method_FZ = QtWidgets.QRadioButton("Faber-Ziman")
+        self.sq_method_FZ.setChecked(True)
+        self.sq_method_AL = QtWidgets.QRadioButton("Ashcroft-Langreth")
+        self.sq_method_AL.setChecked(False)
 
     def style_widgets(self):
-        self.q_range_lbl.setAlignment(
-            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.r_range_lbl.setAlignment(
-            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.q_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.r_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
-        self.q_min_txt.setMaximumWidth(80)
-        self.q_max_txt.setMaximumWidth(80)
+        self.modification_fcn_cb.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.sq_method_FZ.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.sq_method_AL.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.normalization_method_integral.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.normalization_method_fft.setLayoutDirection(QtCore.Qt.RightToLeft)
 
     def create_layout(self):
-        self.grid_layout = QtWidgets.QGridLayout()
-        self.grid_layout.setContentsMargins(0, 0, 0, 0)
-        self.grid_layout.setSpacing(5)
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.main_layout.setSpacing(5)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.grid_layout.addItem(
-                QtWidgets.QSpacerItem(50, 0,
-                                      QtWidgets.QSizePolicy.MinimumExpanding,
-                                      QtWidgets.QSizePolicy.Fixed), 0, 0)
-        self.grid_layout.addWidget(self.q_range_lbl, 0, 1)
-        self.grid_layout.addWidget(self.q_min_txt, 0, 2)
-        self.grid_layout.addWidget(QtWidgets.QLabel('-'), 0, 3)
-        self.grid_layout.addWidget(self.q_max_txt, 0, 4)
-        self.grid_layout.addWidget(QtWidgets.QLabel('A<sup>-1</sup>'), 0, 5)
+        self._calculation_ranges_layout = QtWidgets.QGridLayout()
+        self._calculation_ranges_layout.setSpacing(5)
 
-        self.grid_layout.addWidget(self.r_range_lbl, 1, 1)
-        self.grid_layout.addWidget(self.r_min_txt, 1, 2)
-        self.grid_layout.addWidget(QtWidgets.QLabel('-'), 1, 3)
-        self.grid_layout.addWidget(self.r_max_txt, 1, 4)
-        self.grid_layout.addWidget(QtWidgets.QLabel('A'), 1, 5)
+        self._calculation_ranges_layout.addWidget(self.q_range_lbl, 0, 1)
+        self._calculation_ranges_layout.addWidget(self.q_min_txt, 0, 2)
+        self._calculation_ranges_layout.addWidget(QtWidgets.QLabel('-'), 0, 3)
+        self._calculation_ranges_layout.addWidget(self.q_max_txt, 0, 4)
+        self._calculation_ranges_layout.addWidget(QtWidgets.QLabel('A<sup>-1</sup>'), 0, 5)
 
-        self.grid_layout.addWidget(HorizontalLine(), 2, 0, 1, 6)
-        self.grid_layout.addWidget(self.modification_fcn_cb, 3, 1, 1, 6)
+        self._calculation_ranges_layout.addWidget(self.r_range_lbl, 1, 1)
+        self._calculation_ranges_layout.addWidget(self.r_min_txt, 1, 2)
+        self._calculation_ranges_layout.addWidget(QtWidgets.QLabel('-'), 1, 3)
+        self._calculation_ranges_layout.addWidget(self.r_max_txt, 1, 4)
+        self._calculation_ranges_layout.addWidget(QtWidgets.QLabel('A'), 1, 5)
+        self.calculation_ranges_gb.setLayout(self._calculation_ranges_layout)
+        self.main_layout.addWidget(self.calculation_ranges_gb)
 
-        self.setLayout(self.grid_layout)
+        self.main_layout.addWidget(self.modification_fcn_cb)
+
+        self._normalization_method_gb_layout = QtWidgets.QVBoxLayout()
+        self._normalization_method_gb_layout.setSpacing(5)
+        self._normalization_method_gb_layout.addWidget(self.normalization_method_integral)
+        self._normalization_method_gb_layout.addWidget(self.normalization_method_fft)
+        self.normalization_method_gb.setLayout(self._normalization_method_gb_layout)
+        self.main_layout.addWidget(self.normalization_method_gb)
+
+        self._sq_method_gb_layout = QtWidgets.QVBoxLayout()
+        self._sq_method_gb_layout.setSpacing(5)
+        self._sq_method_gb_layout.addWidget(self.sq_method_FZ)
+        self._sq_method_gb_layout.addWidget(self.sq_method_AL)
+        self.sq_method_gb.setLayout(self._sq_method_gb_layout)
+        self.main_layout.addWidget(self.sq_method_gb)
+
+        self.setLayout(self.main_layout)
 
     def create_signals(self):
         self.q_max_txt.editingFinished.connect(self.txt_changed)
