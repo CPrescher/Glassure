@@ -115,3 +115,44 @@ class ValueLabelTxtPair(QtWidgets.QWidget):
 
     def setText(self, new_str):
         self.value_txt.setText(new_str)
+
+
+class DragSlider(QtWidgets.QSlider):
+    dragChanged = Signal(int)
+
+    def __init__(self, parent=None):
+        super(DragSlider, self).__init__(parent)
+
+        self.setRange(-100, 100)
+        self.setSingleStep(1)
+        self.setPageStep(0)
+
+        self._value = 0
+
+        self.setOrientation(QtCore.Qt.Horizontal)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.send_value)
+
+        self.sliderPressed.connect(self.start_drag)
+        self.sliderReleased.connect(self.stop_drag)
+        super(DragSlider, self).valueChanged.connect(self._update_value)
+
+    def _update_value(self, value):
+        self._value = value
+
+    def reset_value(self):
+        self._value = 0
+
+    def start_drag(self):
+        if not self.timer.isActive():
+            self.timer.start(100)
+
+    def send_value(self):
+        self.dragChanged.emit(self._value)
+
+    def stop_drag(self):
+        self.timer.stop()
+        self.blockSignals(True)
+        self.setValue(0)
+        self.blockSignals(False)

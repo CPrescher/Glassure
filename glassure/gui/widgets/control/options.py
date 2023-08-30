@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from qtpy import QtCore, QtWidgets
-from ..custom import HorizontalLine, FloatLineEdit
+from ..custom import HorizontalLine, FloatLineEdit, DragSlider
+import numpy as np
 from ...model.configuration import NormalizationMethod, SqMethod
 
 
@@ -21,6 +22,7 @@ class OptionsWidget(QtWidgets.QWidget):
         self.q_range_lbl = QtWidgets.QLabel('Q:')
         self.q_min_txt = FloatLineEdit('0')
         self.q_max_txt = FloatLineEdit('10')
+        self.q_max_slider = DragSlider()
 
         self.r_range_lbl = QtWidgets.QLabel('r:')
         self.r_min_txt = FloatLineEdit('0.5')
@@ -64,11 +66,13 @@ class OptionsWidget(QtWidgets.QWidget):
         self._calculation_ranges_layout.addWidget(self.q_max_txt, 0, 4)
         self._calculation_ranges_layout.addWidget(QtWidgets.QLabel('A<sup>-1</sup>'), 0, 5)
 
-        self._calculation_ranges_layout.addWidget(self.r_range_lbl, 1, 1)
-        self._calculation_ranges_layout.addWidget(self.r_min_txt, 1, 2)
-        self._calculation_ranges_layout.addWidget(QtWidgets.QLabel('-'), 1, 3)
-        self._calculation_ranges_layout.addWidget(self.r_max_txt, 1, 4)
-        self._calculation_ranges_layout.addWidget(QtWidgets.QLabel('A'), 1, 5)
+        self._calculation_ranges_layout.addWidget(self.q_max_slider, 1, 4, 1, 1)
+
+        self._calculation_ranges_layout.addWidget(self.r_range_lbl, 2, 1)
+        self._calculation_ranges_layout.addWidget(self.r_min_txt, 2, 2)
+        self._calculation_ranges_layout.addWidget(QtWidgets.QLabel('-'), 2, 3)
+        self._calculation_ranges_layout.addWidget(self.r_max_txt, 2, 4)
+        self._calculation_ranges_layout.addWidget(QtWidgets.QLabel('A'), 2, 5)
         self.calculation_ranges_gb.setLayout(self._calculation_ranges_layout)
         self.main_layout.addWidget(self.calculation_ranges_gb)
 
@@ -97,6 +101,7 @@ class OptionsWidget(QtWidgets.QWidget):
     def create_signals(self):
         self.q_max_txt.editingFinished.connect(self.txt_changed)
         self.q_min_txt.editingFinished.connect(self.txt_changed)
+        self.q_max_slider.dragChanged.connect(self.q_max_slider_changed)
         self.r_min_txt.editingFinished.connect(self.txt_changed)
         self.r_max_txt.editingFinished.connect(self.txt_changed)
 
@@ -116,6 +121,12 @@ class OptionsWidget(QtWidgets.QWidget):
             self.q_min_txt.setModified(False)
             self.r_min_txt.setModified(False)
             self.r_max_txt.setModified(False)
+
+    def q_max_slider_changed(self):
+        q_max = float(self.q_max_txt.text())
+        factor = np.tan(self.q_max_slider.value()) + 1
+        self.q_max_txt.setText(f"{factor * q_max:.2f}")
+        self.options_changed()
 
     def options_changed(self):
         self.options_parameters_changed.emit()
