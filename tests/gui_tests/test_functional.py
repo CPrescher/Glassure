@@ -64,9 +64,28 @@ def test_normal_workflow(main_controller, main_widget, pattern_widget, compositi
     prev_sq_data = pattern_widget.sq_items[0].getData()
     prev_gr_data = pattern_widget.gr_items[0].getData()
 
-    click_checkbox(main_widget.use_modification_cb)
+    click_checkbox(main_widget.use_modification_cb, left=False)
 
     assert np.array_equal(prev_sq_data, pattern_widget.sq_items[0].getData())
+    assert not np.array_equal(prev_gr_data, pattern_widget.gr_items[0].getData())
+
+    # this looks nice, but what if we use a different normalization method?
+
+    prev_sq_data = pattern_widget.sq_items[0].getData()
+    prev_gr_data = pattern_widget.gr_items[0].getData()
+
+    click_checkbox(main_widget.left_control_widget.options_widget.normalization_method_fit, left=False)
+
+    assert not np.array_equal(prev_sq_data, pattern_widget.sq_items[0].getData())
+    assert not np.array_equal(prev_gr_data, pattern_widget.gr_items[0].getData())
+
+    # he does not like the current formalism and changes it to AL
+    prev_sq_data = pattern_widget.sq_items[0].getData()
+    prev_gr_data = pattern_widget.gr_items[0].getData()
+
+    click_checkbox(main_widget.left_control_widget.options_widget.sq_method_AL, left=False)
+
+    assert not np.array_equal(prev_sq_data, pattern_widget.sq_items[0].getData())
     assert not np.array_equal(prev_gr_data, pattern_widget.gr_items[0].getData())
 
     # the data unfortunately is not measured up to a Q of 0 A^-1, however the missing data below 1 A^-1 is already
@@ -133,4 +152,3 @@ def test_reset_background(main_controller, main_widget, pattern_widget, composit
     assert model.background_pattern is None
     assert pattern_widget.bkg_item.getData()[0] is None
     assert pattern_widget.bkg_item.getData()[1] is None
-

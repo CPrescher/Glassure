@@ -41,9 +41,13 @@ def set_widget_text(widget, txt):
     QtWidgets.QApplication.processEvents()
 
 
-def click_checkbox(checkbox_widget):
+def click_checkbox(checkbox_widget, left=True):
+    if left:
+        mouse_x = 2
+    else:
+        mouse_x = checkbox_widget.width() - 2
     QTest.mouseClick(checkbox_widget, QtCore.Qt.LeftButton,
-                     pos=QtCore.QPoint(2, int(checkbox_widget.height() / 2)))
+                     pos=QtCore.QPoint(mouse_x, int(checkbox_widget.height() / 2)))
 
 
 def click_button(widget):

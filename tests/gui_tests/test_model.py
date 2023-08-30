@@ -65,7 +65,7 @@ def test_calculate_transforms(setup, model: GlassureModel):
 
     model.background_scaling = background_scaling
     model.update_parameter('hajdu', elemental_abundances, density, q_min, q_max, 0, 10, False,
-                           None, {}, False, 1.5, 5, 1)
+                           'int', 'FZ', None, {}, False, 1.5, 5, 1)
 
     sample_pattern = data_pattern - background_scaling * bkg_pattern
     sq_pattern_core = calculate_sq(
@@ -85,7 +85,7 @@ def test_calculate_transforms_without_bkg(model):
     q_min = 0
     q_max = 10
     model.update_parameter('hajdu', composition, density, q_min, q_max, 0, 10, False,
-                           None, {}, False, 1.5, 5, 1)
+                           'fit', 'FZ', None, {}, False, 1.5, 5, 1)
     assert model.sq_pattern is not None
     assert model.gr_pattern is not None
     assert model.fr_pattern is not None

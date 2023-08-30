@@ -183,6 +183,9 @@ class GlassureController(object):
         q_min, q_max, r_min, r_max = self.main_widget.get_parameter()
 
         use_modification_fcn = self.main_widget.use_modification_cb.isChecked()
+        normalization_method = self.main_widget.left_control_widget.options_widget.get_normalization_method()
+        sq_method = self.main_widget.left_control_widget.options_widget.get_sq_method()
+
         extrapolation_method = self.main_widget.get_extrapolation_method()
         extrapolation_parameters = self.main_widget.get_extrapolation_parameters()
 
@@ -194,6 +197,8 @@ class GlassureController(object):
                                     q_min, q_max,
                                     r_min, r_max,
                                     use_modification_fcn,
+                                    normalization_method,
+                                    sq_method,
                                     extrapolation_method,
                                     extrapolation_parameters,
                                     optimize_active,

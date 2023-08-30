@@ -136,7 +136,7 @@ def test_optimization_iterations_is_updated(main_widget, configuration_widget):
 
 def test_use_modification_function_is_updated(main_widget, configuration_widget):
     click_button(configuration_widget.freeze_btn)
-    click_checkbox(main_widget.use_modification_cb)
+    click_checkbox(main_widget.use_modification_cb, left=False)
 
     configuration_widget.configuration_tw.selectRow(0)
     assert not main_widget.use_modification_cb.isChecked()
@@ -345,7 +345,7 @@ def test_different_configuration_with_different_patterns(
         configuration_widget: ConfigurationWidget):
     model.load_data(data_path('Mg2SiO4_ambient.xy'))
     click_button(configuration_widget.freeze_btn)
-    model.load_data(data_path('/Argon_1GPa.chi'))
+    model.load_data(data_path('Argon_1GPa.chi'))
 
     x, y = pattern_widget.pattern_item.getData()
     x_pattern, y_pattern = model.configurations[1].original_pattern.data

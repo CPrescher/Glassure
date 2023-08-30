@@ -153,12 +153,9 @@ class LeftControlWidget(QtWidgets.QWidget):
         self.extrapolation_widget = ExtrapolationWidget()
 
         self.vertical_layout.addWidget(ExpandableBox(self.data_widget, "Data"))
-        self.vertical_layout.addWidget(ExpandableBox(
-            self.composition_widget, "Composition"))
-        self.vertical_layout.addWidget(
-            ExpandableBox(self.options_widget, "Options"))
-        self.vertical_layout.addWidget(ExpandableBox(
-            self.extrapolation_widget, "Extrapolation"))
+        self.vertical_layout.addWidget(ExpandableBox(self.composition_widget, "Composition"))
+        self.vertical_layout.addWidget(ExpandableBox(self.options_widget, "Options"))
+        self.vertical_layout.addWidget(ExpandableBox(self.extrapolation_widget, "Extrapolation"))
 
         self.vertical_layout.addSpacerItem(
             QtWidgets.QSpacerItem(20, 50,

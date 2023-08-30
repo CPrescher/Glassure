@@ -2,6 +2,7 @@
 
 from qtpy import QtCore, QtWidgets
 from ..custom import HorizontalLine, FloatLineEdit
+from ...model.configuration import NormalizationMethod, SqMethod
 
 
 class OptionsWidget(QtWidgets.QWidget):
@@ -16,24 +17,24 @@ class OptionsWidget(QtWidgets.QWidget):
         self.create_signals()
 
     def create_widgets(self):
-        self.calculation_ranges_gb = QtWidgets.QGroupBox("Calculation Ranges")
-        self.q_range_lbl = QtWidgets.QLabel('Q range:')
+        self.calculation_ranges_gb = QtWidgets.QGroupBox("Ranges")
+        self.q_range_lbl = QtWidgets.QLabel('Q:')
         self.q_min_txt = FloatLineEdit('0')
         self.q_max_txt = FloatLineEdit('10')
 
-        self.r_range_lbl = QtWidgets.QLabel('r range:')
+        self.r_range_lbl = QtWidgets.QLabel('r:')
         self.r_min_txt = FloatLineEdit('0.5')
         self.r_max_txt = FloatLineEdit('10')
 
         self.modification_fcn_cb = QtWidgets.QCheckBox("Use Modification Function")
 
-        self.normalization_method_gb = QtWidgets.QGroupBox("Normalization Method")
+        self.normalization_method_gb = QtWidgets.QGroupBox("Normalization")
         self.normalization_method_integral = QtWidgets.QRadioButton("Integral")
         self.normalization_method_integral.setChecked(True)
-        self.normalization_method_fft = QtWidgets.QRadioButton("FFT")
-        self.normalization_method_fft.setChecked(False)
+        self.normalization_method_fit = QtWidgets.QRadioButton("Fit")
+        self.normalization_method_fit.setChecked(False)
 
-        self.sq_method_gb = QtWidgets.QGroupBox("Structure Factor Method")
+        self.sq_method_gb = QtWidgets.QGroupBox("S(Q) Method")
         self.sq_method_FZ = QtWidgets.QRadioButton("Faber-Ziman")
         self.sq_method_FZ.setChecked(True)
         self.sq_method_AL = QtWidgets.QRadioButton("Ashcroft-Langreth")
@@ -47,7 +48,7 @@ class OptionsWidget(QtWidgets.QWidget):
         self.sq_method_FZ.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.sq_method_AL.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.normalization_method_integral.setLayoutDirection(QtCore.Qt.RightToLeft)
-        self.normalization_method_fft.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.normalization_method_fit.setLayoutDirection(QtCore.Qt.RightToLeft)
 
     def create_layout(self):
         self.main_layout = QtWidgets.QVBoxLayout()
@@ -71,21 +72,25 @@ class OptionsWidget(QtWidgets.QWidget):
         self.calculation_ranges_gb.setLayout(self._calculation_ranges_layout)
         self.main_layout.addWidget(self.calculation_ranges_gb)
 
-        self.main_layout.addWidget(self.modification_fcn_cb)
+        self.choice_layout = QtWidgets.QHBoxLayout()
+        self.choice_layout.setSpacing(5)
 
         self._normalization_method_gb_layout = QtWidgets.QVBoxLayout()
         self._normalization_method_gb_layout.setSpacing(5)
         self._normalization_method_gb_layout.addWidget(self.normalization_method_integral)
-        self._normalization_method_gb_layout.addWidget(self.normalization_method_fft)
+        self._normalization_method_gb_layout.addWidget(self.normalization_method_fit)
         self.normalization_method_gb.setLayout(self._normalization_method_gb_layout)
-        self.main_layout.addWidget(self.normalization_method_gb)
+        self.choice_layout.addWidget(self.normalization_method_gb)
 
         self._sq_method_gb_layout = QtWidgets.QVBoxLayout()
         self._sq_method_gb_layout.setSpacing(5)
         self._sq_method_gb_layout.addWidget(self.sq_method_FZ)
         self._sq_method_gb_layout.addWidget(self.sq_method_AL)
         self.sq_method_gb.setLayout(self._sq_method_gb_layout)
-        self.main_layout.addWidget(self.sq_method_gb)
+        self.choice_layout.addWidget(self.sq_method_gb)
+
+        self.main_layout.addLayout(self.choice_layout)
+        self.main_layout.addWidget(self.modification_fcn_cb)
 
         self.setLayout(self.main_layout)
 
@@ -96,6 +101,11 @@ class OptionsWidget(QtWidgets.QWidget):
         self.r_max_txt.editingFinished.connect(self.txt_changed)
 
         self.modification_fcn_cb.stateChanged.connect(self.options_changed)
+        self.sq_method_FZ.toggled.connect(self.options_changed)
+        self.sq_method_AL.toggled.connect(self.options_changed)
+
+        self.normalization_method_integral.toggled.connect(self.options_changed)
+        self.normalization_method_fit.toggled.connect(self.options_changed)
 
     def txt_changed(self):
         if self.q_max_txt.isModified() or self.q_min_txt.isModified() or \
@@ -116,3 +126,19 @@ class OptionsWidget(QtWidgets.QWidget):
         r_min = self.r_min_txt.value()
         r_max = self.r_max_txt.value()
         return q_min, q_max, r_min, r_max
+
+    def get_normalization_method(self):
+        if self.normalization_method_integral.isChecked():
+            return NormalizationMethod.Integral
+        elif self.normalization_method_fit.isChecked():
+            return NormalizationMethod.Fit
+        else:
+            return None
+
+    def get_sq_method(self):
+        if self.sq_method_FZ.isChecked():
+            return SqMethod.FZ
+        elif self.sq_method_AL.isChecked():
+            return SqMethod.AL
+        else:
+            return None

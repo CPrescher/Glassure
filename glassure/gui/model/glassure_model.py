@@ -450,7 +450,7 @@ class GlassureModel(QtCore.QObject):
 
     def update_parameter(
             self, sf_source, composition, density, q_min, q_max, r_min, r_max,
-            use_modification_fcn, extrapolation_method,
+            use_modification_fcn, normalization_method, sq_method, extrapolation_method,
             extrapolation_parameters, optimize_active, r_cutoff,
             optimize_iterations, optimize_attenuation):
 
@@ -466,6 +466,9 @@ class GlassureModel(QtCore.QObject):
         self.r_max = r_max
 
         self.use_modification_fcn = use_modification_fcn
+        self.normalization_method = normalization_method
+        self.sq_method = sq_method
+
         self.extrapolation_method = extrapolation_method
         self.extrapolation_parameters = extrapolation_parameters
 
