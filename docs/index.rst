@@ -9,13 +9,31 @@ and Paris-Edinburgh Presses).
 
 The software is maintained by Clemens Prescher from the University of Freiburg, Germany.
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Contents:
+.. autoclass:: glassure.core.pattern.Pattern
+    :members:
 
-   introduction.md
-   installation.md
-   notebooks/index
+.. toctree::
+    :maxdepth: 1
+    :caption: Contents:
+
+    introduction.md
+    installation.md
+    gui.md
+    api.md
+    theory.md
+
+    notebooks/index
+
+.. raw:: html
+
+    <hr>
+
+.. toctree::
+    :maxdepth: 1
+    :caption: API Documentation
+
+    apidoc/glassure.core.rst
+
 
 
 

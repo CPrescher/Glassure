@@ -8,8 +8,21 @@ from scipy.ndimage import gaussian_filter1d
 
 
 class Pattern(object):
+    """
+    A Pattern is a set of x and y values.
+    It can be loaded from a file or created from scratch and can be modified by
+    different methods.
+    It builds the basis for all calculations in glassure.
+
+    :param x: x values of the pattern
+    :param y: y values of the pattern
+    :param name: name of the pattern
+    """
 
     def __init__(self, x: np.ndarray = None, y: np.ndarray = None, name: str = ''):
+        """
+        Creates a new Pattern object, x and y should have the same shape.
+        """
         if x is None:
             self._x = np.linspace(0.1, 15, 100)
         else:
@@ -28,6 +41,7 @@ class Pattern(object):
         """
         Loads a pattern from a file. The file can be either a .xy or a .chi file. The .chi file will be loaded with
         skiprows=4 by default.
+
         :param filename: path to the file
         :param skiprows: number of rows to skip when loading the data (header)
         """
@@ -48,6 +62,7 @@ class Pattern(object):
         """
         Loads a pattern from a file. The file can be either a .xy or a .chi file. The .chi file will be loaded with
         skiprows=4 by default.
+
         :param filename: path to the file
         :param skip_rows: number of rows to skip when loading the data (header)
         """
@@ -67,6 +82,7 @@ class Pattern(object):
     def save(self, filename: str, header: str = ''):
         """
         Saves the Pattern to a two-column xy file.
+
         :param filename: path to the file
         :param header: header to be written to the file
         """
@@ -77,6 +93,7 @@ class Pattern(object):
         """
         Sets a background pattern to the current pattern. The background will be subtracted from the current pattern
         when calling the data property.
+
         :param pattern: Pattern to be used as background
         """
         self.bkg_pattern = pattern
@@ -90,14 +107,16 @@ class Pattern(object):
     def set_smoothing(self, amount: float):
         """
         Sets the smoothing amount for the pattern. The smoothing will be applied when calling the data property.
+
         :param amount: amount of smoothing to be applied
         """
         self.smoothing = amount
 
     def rebin(self, bin_size: float) -> Pattern:
         """
-        Returns a new pattern which is a rebinned version of the current one.
-        :param bin_size: size of the bins
+        Returns a new pattern, which is a rebinned version of the current one.
+
+        :param bin_size: Size of the bins
         :return: rebinned Pattern
         """
         x, y = self.data
@@ -116,7 +135,8 @@ class Pattern(object):
         """
         Returns the data of the pattern. If a background pattern is set, the background will be subtracted from the
         pattern. If smoothing is set, the pattern will be smoothed.
-        :return: tuple of x and y values
+
+        :return: Tuple of x and y values
         """
         if self.bkg_pattern is not None:
             # create background function
@@ -151,6 +171,7 @@ class Pattern(object):
     def data(self, data: tuple[np.ndarray, np.ndarray]):
         """
         Sets the data of the pattern. Also resets the scaling and offset to 1 and 0 respectively.
+
         :param data: tuple of x and y values
         """
         (x, y) = data
@@ -163,6 +184,7 @@ class Pattern(object):
     def original_data(self) -> tuple[np.ndarray, np.ndarray]:
         """
         Returns the original data of the pattern without any background subtraction or smoothing.
+
         :return: tuple of x and y values
         """
         return self._x, self._y * self._scaling + self.offset
@@ -206,6 +228,7 @@ class Pattern(object):
     def limit(self, x_min: float, x_max: float) -> Pattern:
         """
         Limits the pattern to a specific x-range. Does not modify inplace but returns a new limited Pattern
+
         :param x_min: lower limit of the x-range
         :param x_max: upper limit of the x-range
         :return: limited Pattern
@@ -218,8 +241,9 @@ class Pattern(object):
         """
         Extends the current pattern to a specific x_value by filling it with the y_value. Does not modify inplace but
         returns a new filled Pattern
-        :param x_value: Point to which extend the pattern should be smaller than the lowest x-value in the pattern or
-                        vice versa
+
+        :param x_value: Point to which extending the pattern should be smaller than the lowest x-value in the pattern or
+        vice versa
         :param y_value: number to fill the pattern with
         :return: extended Pattern
         """
@@ -249,6 +273,7 @@ class Pattern(object):
     def to_dict(self) -> dict:
         """
         Returns a dictionary representation of the pattern which can be used to save the pattern to a json file.
+
         :return: dictionary representation of the pattern
         """
         return {
@@ -259,13 +284,14 @@ class Pattern(object):
             'offset': self.offset,
             'smoothing': self.smoothing,
             'bkg_pattern': self.bkg_pattern.to_dict() if self.bkg_pattern is
-            not None else None
+                                                         not None else None
         }
 
     @staticmethod
     def from_dict(json_dict: dict) -> Pattern:
         """
         Creates a new Pattern from a dictionary representation of a Pattern.
+
         :param json_dict: dictionary representation of a Pattern
         :return: new Pattern
         """
@@ -293,8 +319,9 @@ class Pattern(object):
         Subtracts the other pattern from the current one. If the other pattern
         has a different shape, the subtraction will be done on the overlapping
         x-values and the background will be interpolated. If there is no
-        overlapping between the two patterns, a BkgNotInRangeror will be 
+        overlapping between the two patterns, a BkgNotInRangeError will be
         raised.
+
         :param other: Pattern to be subtracted
         :return: new Pattern
         """
@@ -326,6 +353,7 @@ class Pattern(object):
         x-values and the y-values of the other pattern will be interpolated. 
         If there is no overlapping between the two patterns, a BkgNotInRangeror 
         will be raised.
+
         :param other: Pattern to be added
         :return: new Pattern
         """
@@ -352,6 +380,7 @@ class Pattern(object):
     def __rmul__(self, other: float) -> Pattern:
         """
         Multiplies the pattern with a scalar.
+
         :param other: scalar to multiply with
         :return: new Pattern
         """
@@ -362,6 +391,7 @@ class Pattern(object):
         """
         Checks if two patterns are equal. Two patterns are equal if their data
         is equal.
+
         :param other: Pattern to compare with
         :return: True if equal, False otherwise
         """

@@ -2,6 +2,8 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
+import os
+import sys
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -11,6 +13,7 @@ copyright = '2023, Clemens Prescher'
 author = 'Clemens Prescher'
 release = '1.3.0'
 
+sys.path.insert(0, os.path.abspath('..'))
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
@@ -19,7 +22,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.mathjax',
-    'sphinx.ext.napoleon',
     'nbsphinx',
 ]
 

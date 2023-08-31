@@ -147,6 +147,7 @@ def calculate_coherent_scattering(sample_pattern: Pattern, alpha: float, n: floa
 def calculate_sq(coherent_pattern: Pattern, n: float, z_tot: float, f_effective: np.ndarray) -> Pattern:
     """
     Calculates the Structure Factor based on equation (18) in Eggert et al. 2002
+
     :param coherent_pattern: coherent pattern
     :param n: number of atoms for structural unit, e.g. 3 for SiO2
     :param z_tot: sum of atomic numbers for the material

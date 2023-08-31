@@ -49,6 +49,7 @@ class ScatteringFactorCalculatorHajdu(ScatteringFactorCalculator):
     def get_coherent_scattering_factor(self, element: str, q):
         """
         Calculates the coherent scattering factor for a given element and q values.
+
         :param element: Element symbol
         :param q: q array
         :return: coherent scattering factor array
@@ -69,6 +70,7 @@ class ScatteringFactorCalculatorHajdu(ScatteringFactorCalculator):
     def get_incoherent_intensity(self, element: str, q):
         """
         Calculates the incoherent scattering intensity for a given element and q values.
+
         :param element: Element symbol
         :param q: q array
         :return: incoherent scattering intensity array
@@ -85,6 +87,9 @@ class ScatteringFactorCalculatorHajdu(ScatteringFactorCalculator):
 
     @property
     def elements(self):
+        """
+        Returns a list of available elements.
+        """
         return self.coherent_param.index.values
 
 
@@ -104,6 +109,7 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
     def get_coherent_scattering_factor(self, element: str, q):
         """
         Calculates the coherent scattering factor for a given element and q values.
+
         :param element: Element symbol
         :param q: q array
         :return: coherent scattering factor array
@@ -124,6 +130,7 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
     def get_incoherent_intensity(self, element: str, q):
         """
         Calculates the incoherent scattering intensity for a given element and q values.
+
         :param element: Element symbol
         :param q: q array
         :return: incoherent scattering intensity array
@@ -138,6 +145,9 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
 
     @property
     def elements(self):
+        """
+        Returns a list of available elements.
+        """
         return self.coherent_params.index.values
 
 
@@ -159,12 +169,16 @@ def get_calculator(source: str) -> ScatteringFactorCalculator:
 
 
 def get_available_elements(source: str) -> list[str]:
+    """
+    Returns a list of available elements for a given source. Possible sources are 'hajdu' and 'brown_hubbell'.
+    """
     return get_calculator(source).elements
 
 
 def calculate_coherent_scattering_factor(element: str, q: np.array, source: str = 'hajdu') -> np.array:
     """
     Calculates the coherent scattering factor for a given element and q values.
+
     :param element: Element symbol
     :param q: q array in A^-1
     :param source: Source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
@@ -176,6 +190,7 @@ def calculate_coherent_scattering_factor(element: str, q: np.array, source: str 
 def calculate_incoherent_scattered_intensity(element: str, q: np.array, source: str = 'hajdu') -> np.array:
     """
     Calculates the incoherent scattering intensity for a given element and q values.
+
     :param element: Element symbol
     :param q: q array
     :param source: Source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.

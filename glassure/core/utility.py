@@ -18,7 +18,8 @@ __all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_in
 
 def calculate_f_mean_squared(composition: dict, q: np.ndarray, sf_source='hajdu') -> np.ndarray:
     """
-    Calculates the square of the mean form_factor for a given composition over q.
+    Calculates the square of the mean form factor for a given composition over q.
+
     :param composition: dictionary with elements as key and abundances as relative numbers
     :param q: Q value or numpy array with a unit of A^-1
     :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
@@ -34,6 +35,7 @@ def calculate_f_mean_squared(composition: dict, q: np.ndarray, sf_source='hajdu'
 def calculate_f_squared_mean(composition: dict[str, float], q: np.ndarray, sf_source: str = 'hajdu') -> np.ndarray:
     """
     Calculates the mean of the squared form factors for a given composition for a given q vector.
+
     :param composition: dictionary with elements as key and abundances as relative numbers
     :param q: Q value or numpy array with a unit of A^-1
     :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
@@ -52,6 +54,7 @@ def calculate_incoherent_scattering(composition: dict[str, float], q: np.ndarray
         -> np.ndarray:
     """
     Calculates compton/incoherent scattering for a given composition
+
     :param composition: dictionary with elements as key and abundances as relative numbers
     :param q: Q value or numpy array with a unit of A^-1
     :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
@@ -70,6 +73,7 @@ def calculate_weighting_factor(composition: dict[str, float], element_1: str, el
                                sf_source='hajdu'):
     """
     Calculates the weighting factor for an element-element contribution in a given composition (e.g. for Si-O in SiO2)
+
     :param composition: dictionary with elements as key string and abundances as relative numbers
     :param element_1: string giving element 1
     :param element_2: string giving element 2
@@ -101,6 +105,7 @@ def calculate_weighting_factor(composition: dict[str, float], element_1: str, el
 def normalize_composition(composition):
     """
     normalizes elemental abundances to 1
+
     :param composition: dictionary with elements as key and abundances as relative numbers
     :return: normalized elemental abundances dictionary
     """
@@ -119,6 +124,7 @@ def normalize_composition(composition):
 def convert_density_to_atoms_per_cubic_angstrom(composition, density):
     """
     Converts densities given in g/cm3 into atoms per A^3
+
     :param composition: dictionary with elements as key and abundances as relative numbers
     :param density: density in g/cm^3
     :return: density in atoms/A^3

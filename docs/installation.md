@@ -18,8 +18,9 @@ glassure
 in the command line.
 
 ### Development version for contributing
-Python uses poetry for dependency management. To install poetry, follow the instructions on their 
-[website](https://python-poetry.org/docs/#installation). Then, clone the forked repository and install the dependencies:
+Glassure uses poetry for dependency management.
+To install poetry, follow the instructions on their [website](https://python-poetry.org/docs/#installation).
+Then, clone the forked repository and install the dependencies:
 ```bash
 poetry install
 ```
@@ -38,9 +39,10 @@ and then run:
 glassure
 ```
 
-Further documentation can be found on the poetry [website](https://python-poetry.org/docs/basic-usage/).
+Further documentation on how to use poetry can be found on the poetry
+[website](https://python-poetry.org/docs/basic-usage/).
 
-### Executable
+## Executable
 
-Currently, there are no executables or direct installers available. If you want to create one, please contact me 
-(clemens.prescher@gmail.com).
+Currently, there are no executables or direct installers available.
+If you really need this for your setup, please contact me (clemens.prescher@gmail.com).
