@@ -9,4 +9,5 @@ It uses the same functions available in the calculation engine.
 
 For an introduction to the graphical user interface, see [GUI](gui.md).
 
-For an introduction to the calculation API, see [API](api.md).
+For an Quickstart to the calculation API, see [API - Quickstart](api.ipynb), and for the documentation of all functions,
+see the [Glassure Core Documentation](apidoc/glassure.core.rst).

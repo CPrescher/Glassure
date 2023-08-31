@@ -6,7 +6,7 @@ import numpy as np
 from glassure.core.utility import normalize_composition, convert_density_to_atoms_per_cubic_angstrom, \
     calculate_f_mean_squared, calculate_f_squared_mean, calculate_incoherent_scattering, \
     extrapolate_to_zero_linear, extrapolate_to_zero_poly, extrapolate_to_zero_spline, \
-    convert_two_theta_to_q_space, convert_two_theta_to_q_space_raw
+    convert_two_theta_to_q_space, convert_two_theta_to_q_space_raw, calculate_s0
 from glassure.core import Pattern
 
 
@@ -56,6 +56,16 @@ class UtilityTest(unittest.TestCase):
         f_squared_mean_hand = 1 / 3. * si_f ** 2 + 2 / 3. * o_f ** 2
 
         self.assertTrue(np.array_equal(f_squared_mean, f_squared_mean_hand))
+
+    def test_calculate_S0(self):
+        S0 = calculate_s0({'Si': 1, 'O': 2})
+        self.assertLess(S0, 0)
+
+        S0 = calculate_s0({'Ge': 1, 'O': 2})
+        self.assertLess(S0, -0.4)
+
+        S0 = calculate_s0({'H': 2, 'O': 1}, sf_source='brown_hubbell')
+        self.assertLess(S0, -0.8)
 
     def test_calculate_incoherent_scattering(self):
         q = np.linspace(0, 10)

@@ -13,7 +13,6 @@ from .utility import convert_density_to_atoms_per_cubic_angstrom, calculate_inco
 from .utility import extrapolate_to_zero_poly
 from .soller_correction import SollerCorrection
 
-
 __all__ = ['optimize_sq', 'optimize_density', 'optimize_incoherent_container_scattering',
            'optimize_soller_dac']
 
@@ -34,18 +33,17 @@ def optimize_sq(sq_pattern, r_cutoff, iterations, atomic_density, use_modificati
     :param atomic_density:
         density in atoms/A^3
     :param use_modification_fcn:
-        Whether or not to use the Lorch modification function during the Fourier transform.
-        Warning: When using the Lorch modification function usually more iterations are needed to get to the
+        Whether to use the Lorch modification function during the Fourier transform.
+        Warning: When using the Lorch modification function, usually more iterations are needed to get to the
         wanted result.
     :param attenuation_factor:
-        Sometimes the initial change during back and forward transformations results in a run
-        away, by setting the attenuation factor to higher than one can help for this situation, it basically reduces
-        the amount of change during each iteration.
+        Sometimes the initial change during back and forward transformations results in a runaway, by setting the
+        attenuation factor reduces the amount of change during each iteration.
     :param fcn_callback:
         Function which will be called at an iteration period defined by the callback_period parameter.
-        The function should take 3 arguments: sq_pattern, fr_pattern and gr_pattern. Additionally the function
-        should return a boolean value, where True continues the optimization and False will stop the optimization
-        procedure
+        The function should take three arguments: sq_pattern, fr_pattern and gr_pattern.
+        Additionally, the function should return a boolean value, where True continues the optimization and False will
+        stop the optimization.
     :param callback_period:
         determines how frequently the fcn_callback will be called.
 
@@ -95,16 +93,15 @@ def optimize_density(data_pattern, background_pattern, initial_background_scalin
     :param iterations:          number of iterations of S(Q) (see optimize_sq(...) prior to calculating chi2
     :param r_cutoff:            cutoff value below which there is no signal expected (below the first peak in g(r))
     :param use_modification_fcn:
-                                Whether or not to use the Lorch modification function during the Fourier transform.
-                                Warning: When using the Lorch modification function usually more iterations are needed
-                                to get to the wanted result. Default is False.
+                                Whether to use the Lorch modification function during the Fourier transform.
+                                Warning: When using the Lorch modification function, more iterations are needed
+                                to get to the wanted result.
     :param extrapolation_cutoff:
                                 Determines up to which q value the S(Q) will be extrapolated to zero. The default
-                                (None), will use the minimum q value plus 0.2 A^-1
-    :param r_step:              Step size for the r-space for calculating f(r) during each iteration. Defaults to
-                                0.01.
-    :param fcn_callback:        Function which will be called after each iteration. The function should take 4
-                                arguments: iteration number, chi2, density, and background scaling. Additionally the
+                                (None) will use the minimum q value plus 0.2 A^-1
+    :param r_step:              Step size for the r-space for calculating f(r) during each iteration.
+    :param fcn_callback:        Function which will be called after each iteration. The function should take four
+                                arguments: iteration number, chi2, density, and background scaling. Additionally, the
                                 function should return a boolean value, where True continues the optimization and False
                                 will stop the optimization procedure
 
@@ -145,8 +142,8 @@ def optimize_density(data_pattern, background_pattern, initial_background_scalin
     lmfit.minimize(optimization_fcn, params, args=(extrapolation_cutoff, r, r_cutoff, use_modification_fcn))
     lmfit.report_fit(params)
 
-    return params['density'].value, params['density'].stderr, \
-           params['background_scaling'].value, params['background_scaling'].stderr
+    return params['density'].value, params['density'].stderr, params['background_scaling'].value, \
+        params['background_scaling'].stderr
 
 
 def optimize_incoherent_container_scattering(sample_pattern, sample_density, sample_composition, container_composition,
@@ -160,8 +157,7 @@ def optimize_incoherent_container_scattering(sample_pattern, sample_density, sam
 
     The function tries to achieve this by varying the amount of incoherent scattering from the container and minimizing
     on the intensities of g(r) below a chosen r_cutoff. The r_cutoff parameter should be chosen to be below the first
-    peak in g(r) -- usually somewhere between 1 and 1.5 for e.g. silicates and depending on you q_max for the data
-    collection.
+    peak in g(r) -- usually somewhere between 1 and 1.5 for e.g. silicates and depending on the q_max of the S(Q)
 
     :param sample_pattern:     Background subtracted data pattern
     :param sample_density:      density of the sample in g/cm^3
@@ -279,7 +275,6 @@ def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density,
     soller = SollerCorrection(tth, initial_thickness)
     sample_transfer, diamond_transfer = soller.transfer_function_dac(sample_thickness, initial_thickness)
 
-
     def optimization_fcn(params):
         diamond_content = params['diamond_content'].value
         bkg_scaling = params['bkg_scaling'].value
@@ -301,7 +296,7 @@ def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density,
             normalization_factor = fit_normalization_factor(sample_pattern, composition)
         else:
             normalization_factor = calculate_normalization_factor_raw(sample_pattern, density, f_squared_mean,
-                                                                  f_mean_squared, incoherent_scattering)
+                                                                      f_mean_squared, incoherent_scattering)
 
         sq_pattern = calculate_sq_raw(sample_pattern=sample_pattern,
                                       f_squared_mean=f_squared_mean,
@@ -314,7 +309,7 @@ def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density,
 
         q, sq_int = sq_pattern.data
         r, fr_int = fr_pattern.data
-        iq_int = sq_int-1
+        iq_int = sq_int - 1
 
         delta_fr = fr_int + 4 * np.pi * r * density
 
@@ -324,15 +319,14 @@ def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density,
             iq_optimized = iq_int - 1. / q * (iq_int + 1) * integral
 
             iq_pattern = Pattern(q, iq_optimized)
-            fr_pattern = calculate_fr(Pattern(q, iq_optimized+1), r)
+            fr_pattern = calculate_fr(Pattern(q, iq_optimized + 1), r)
 
             q, iq_int = iq_pattern.data
             r, fr_int = fr_pattern.data
 
             delta_fr = fr_int + 4 * np.pi * r * density
 
-        return delta_fr/len(delta_fr)
-
+        return delta_fr / len(delta_fr)
 
     from lmfit import Parameters, minimize, report_fit
 
@@ -347,6 +341,6 @@ def optimize_soller_dac(data_pattern, bkg_pattern, composition, initial_density,
         report_fit(result)
 
     return result.chisqr, \
-           result.params['density'].value, result.params['density'].stderr, \
-           result.params['bkg_scaling'].value, result.params['bkg_scaling'].stderr, \
-           result.params['diamond_content'].value, result.params['diamond_content'].stderr
+        result.params['density'].value, result.params['density'].stderr, \
+        result.params['bkg_scaling'].value, result.params['bkg_scaling'].stderr, \
+        result.params['diamond_content'].value, result.params['diamond_content'].stderr

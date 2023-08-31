@@ -11,7 +11,7 @@ from . import Pattern
 from . import scattering_factors
 
 __all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_incoherent_scattering',
-           'extrapolate_to_zero_linear', 'extrapolate_to_zero_poly', 'extrapolate_to_zero_spline',
+           'extrapolate_to_zero_linear', 'extrapolate_to_zero_poly', 'extrapolate_to_zero_spline', 'calculate_s0',
            'extrapolate_to_zero_step', 'convert_density_to_atoms_per_cubic_angstrom', 'normalize_composition',
            'convert_two_theta_to_q_space', 'convert_two_theta_to_q_space_raw', 'calculate_weighting_factor']
 
@@ -67,6 +67,22 @@ def calculate_incoherent_scattering(composition: dict[str, float], q: np.ndarray
     for key, value in norm_elemental_abundances.items():
         res += value * calculate_incoherent_scattered_intensity(key, q, sf_source)
     return res
+
+
+def calculate_s0(composition: dict[str, float], sf_source: str = 'hajdu') -> float:
+    """
+    Calculates the I0 value for a given composition by extrapolating the coherent scattering factor to zero where I(Q)
+    and the Compton scattering should have zero intensities.
+
+    :param composition: dictionary with elements as keys and abundances as relative numbers
+    :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
+
+    :return: I0 value
+    """
+    f_mean_squared = calculate_f_mean_squared(composition, np.array([0]), sf_source)
+    f_squared_mean = calculate_f_squared_mean(composition, np.array([0]), sf_source)
+
+    return -f_squared_mean / f_mean_squared + 1
 
 
 def calculate_weighting_factor(composition: dict[str, float], element_1: str, element_2: str, q: np.ndarray,
@@ -175,8 +191,8 @@ def extrapolate_to_zero_spline(pattern, x_max, smooth_factor=None, replace=False
     will be set to zero
 
     :param pattern: input pattern
-    :param x_max: defines the the maximum x value within the spline will be fitted to the input pattern, This parameter
-    should be larger than minimum of the pattern x
+    :param x_max: defines the maximum x value within the spline will be fitted to the input pattern, This parameter
+    should be larger than the minimum of the pattern x
     :param smooth_factor: defines the smoothing of the spline extrapolation please see numpy.UnivariateSpline manual for
     explanations
     :param replace: boolean flag whether to replace the data values in the fitted region (default = False)

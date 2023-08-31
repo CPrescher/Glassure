@@ -73,12 +73,10 @@ def fit_normalization_factor(sample_pattern: Pattern, composition: dict[str, flo
                              sf_source: str = 'hajdu') -> float:
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
-
         (Intensity*n-Multiple Scattering) * Q^2
     to
         (Incoherent Scattering + Self Scattering) * Q^2
-
-    where n and Multiple Scattering are free parameters
+    where n and Multiple Scattering are free parameters.
 
     :param sample_pattern:      background subtracted sample pattern with A^-1 as x unit
     :param composition:         composition as a dictionary with the elements as keys and the abundances as values
@@ -213,7 +211,8 @@ def calculate_sq(sample_pattern: Pattern, density: float, composition: dict[str,
 def calculate_fr(sq_pattern: Pattern, r: Optional[np.ndarray] = None, use_modification_fcn: bool = False,
                  method: str = 'integral') -> Pattern:
     """
-    Calculates F(r) from a given S(Q) pattern for r values. If r is none a range from 0 to 10 with step 0.01 is used.
+    Calculates F(r) from a given S(Q) pattern for r values.
+    If r is None, a range from 0 to 10 with step 0.01 is used.
     A Lorch modification function of the form:
 
         m = sin(q*pi/q_max)/(q*pi/q_max)
@@ -231,7 +230,7 @@ def calculate_fr(sq_pattern: Pattern, r: Optional[np.ndarray] = None, use_modifi
     :return: F(r) pattern
     """
     if r is None:
-        r = np.linspace(0, 10, 1001)
+        r = np.linspace(0.01, 10, 1000)
 
     q, sq = sq_pattern.data
     if use_modification_fcn:
