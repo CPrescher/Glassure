@@ -40,14 +40,12 @@ class TransformConfiguration(object):
         for key in transform_config.keys():
             if not hasattr(config, key):
                 continue
-            match key:
-                # only for the nested objects special initialization is needed
-                case 'sq_method':
-                    setattr(config, key, SqMethod(transform_config[key]))
-                case 'normalization_method':
-                    setattr(config, key, NormalizationMethod(transform_config[key]))
-                case _:
-                    setattr(config, key, transform_config[key])
+            if key == 'sq_method':
+                setattr(config, key, SqMethod(transform_config[key]))
+            elif key == 'normalization_method':
+                setattr(config, key, NormalizationMethod(transform_config[key]))
+            else:
+                setattr(config, key, transform_config[key])
         return config
 
 
