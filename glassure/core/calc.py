@@ -107,12 +107,12 @@ def fit_normalization_factor(sample_pattern: Pattern, composition: dict[str, flo
     params.add("n", value=1, min=0)
     params.add("multiple", value=1, min=0)
 
-    def optimization_fcn(params, q, sample_intensity, theory_intensity):
+    def optimization_fcn(params, x, sample_intensity, theory_intensity):
         n = params['n'].value
         multiple = params['multiple'].value
         return ((sample_intensity * n - multiple) * x - theory_intensity) ** 2
 
-    out = lmfit.minimize(optimization_fcn, params, args=(q, intensity, theory))
+    out = lmfit.minimize(optimization_fcn, params, args=(x, intensity, theory))
     return out.params['n'].value
 
 
@@ -262,7 +262,7 @@ def calculate_fr(sq_pattern: Pattern, r: Optional[np.ndarray] = None, use_modifi
 
 def calculate_sq_from_fr(fr_pattern: Pattern, q: np.ndarray, method: str = 'integral') -> Pattern:
     """
-    Calculates S(Q) from a F(r) pattern for given q values.
+    Calculates S(Q) from an F(r) pattern for given q values.
 
     :param fr_pattern:              input F(r) pattern
     :param q:                       numpy array giving the q-values for which S(q) will be calculated,
