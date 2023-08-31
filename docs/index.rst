@@ -9,9 +9,6 @@ and Paris-Edinburgh Presses).
 
 The software is maintained by Clemens Prescher from the University of Freiburg, Germany.
 
-.. autoclass:: glassure.core.pattern.Pattern
-    :members:
-
 .. toctree::
     :maxdepth: 1
     :caption: Contents:
