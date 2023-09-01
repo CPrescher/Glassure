@@ -124,7 +124,7 @@ class OptionsWidget(QtWidgets.QWidget):
 
     def q_max_slider_changed(self):
         q_max = float(self.q_max_txt.text())
-        factor = np.tan(self.q_max_slider.value()) + 1
+        factor = np.tan(self.q_max_slider.value() / 75) / 150 + 1
         self.q_max_txt.setText(f"{factor * q_max:.2f}")
         self.options_changed()
 
