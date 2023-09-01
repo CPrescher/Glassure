@@ -107,10 +107,7 @@ class OptionsWidget(QtWidgets.QWidget):
 
         self.modification_fcn_cb.stateChanged.connect(self.options_changed)
         self.sq_method_FZ.toggled.connect(self.options_changed)
-        self.sq_method_AL.toggled.connect(self.options_changed)
-
         self.normalization_method_integral.toggled.connect(self.options_changed)
-        self.normalization_method_fit.toggled.connect(self.options_changed)
 
     def txt_changed(self):
         if self.q_max_txt.isModified() or self.q_min_txt.isModified() or \
@@ -163,6 +160,7 @@ class OptionsWidget(QtWidgets.QWidget):
         return config
 
     def update_transform_configuration(self, config: TransformConfiguration):
+        self.blockSignals(True)
         self.q_min_txt.setText(f"{config.q_min:.2f}")
         self.q_max_txt.setText(f"{config.q_max:.2f}")
         self.r_min_txt.setText(f"{config.r_min:.2f}")
@@ -173,18 +171,11 @@ class OptionsWidget(QtWidgets.QWidget):
         self.modification_fcn_cb.blockSignals(False)
 
         if config.normalization_method == NormalizationMethod.Integral:
-            self.normalization_method_integral.blockSignals(True)
             self.normalization_method_integral.setChecked(True)
-            self.normalization_method_integral.blockSignals(False)
         elif config.normalization_method == NormalizationMethod.Fit:
-            self.normalization_method_fit.blockSignals(True)
             self.normalization_method_fit.setChecked(True)
-            self.normalization_method_fit.blockSignals(False)
         if config.sq_method == SqMethod.FZ:
-            self.sq_method_FZ.blockSignals(True)
             self.sq_method_FZ.setChecked(True)
-            self.sq_method_FZ.blockSignals(False)
         elif config.sq_method == SqMethod.AL:
-            self.sq_method_AL.blockSignals(True)
             self.sq_method_AL.setChecked(True)
-            self.sq_method_AL.blockSignals(False)
+        self.blockSignals(False)
