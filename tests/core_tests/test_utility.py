@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import unittest
 import numpy as np
 
 from glassure.core.utility import normalize_composition, convert_density_to_atoms_per_cubic_angstrom, \
     calculate_f_mean_squared, calculate_f_squared_mean, calculate_incoherent_scattering, \
-    extrapolate_to_zero_linear, extrapolate_to_zero_poly, extrapolate_to_zero_spline, \
+    extrapolate_to_zero_linear, extrapolate_to_zero_poly, extrapolate_to_zero_spline, extrapolate_to_zero_step, \
     convert_two_theta_to_q_space, convert_two_theta_to_q_space_raw, calculate_s0
 from glassure.core import Pattern
 
@@ -73,6 +72,30 @@ class UtilityTest(unittest.TestCase):
 
         self.assertEqual(len(q), len(incoherent_scattering))
 
+    def test_step_extrapolation(self):
+        x = np.arange(1, 5.05, 0.05)
+        y = -2 + x * 0.2
+        pattern = Pattern(x, y)
+
+        extrapolated_pattern = extrapolate_to_zero_step(pattern)
+        x1, y1 = extrapolated_pattern.data
+
+        self.assertLess(x1[0], x[0])
+        self.assertEqual(y1[0], 0)
+
+    def test_step_extrapolation_with_different_y(self):
+        x = np.arange(1, 5.05, 0.05)
+        y = -2 + x * 0.2
+        pattern = Pattern(x, y)
+
+        extrapolated_pattern = extrapolate_to_zero_step(pattern, -2)
+        x1, y1 = extrapolated_pattern.data
+
+        self.assertLess(x1[0], x[0])
+        self.assertAlmostEqual(y1[x1 < x[0]][-1], -2)
+
+        self.assertEqual(y1[0], -2)
+
     def test_linear_extrapolation(self):
         x = np.arange(1, 5.05, 0.05)
         y = np.ones(len(x))
@@ -89,13 +112,39 @@ class UtilityTest(unittest.TestCase):
         y_linear = y1[x1 < 1]
         self.assertAlmostEqual(np.sum(y_linear - x_linear), 0)
 
-    def test_extrapolate_to_zero_spline(self):
+    def test_linear_extrapolation_with_different_y(self):
         x = np.arange(1, 5.05, 0.05)
         y = -2 + x * 0.2
+        pattern = Pattern(x, y)
+
+        extrapolated_pattern = extrapolate_to_zero_linear(pattern, -2)
+        x1, y1 = extrapolated_pattern.data
+
+        self.assertAlmostEqual(y1[0], x1[0] * 0.2 - 2)
+
+    def test_extrapolate_to_zero_spline(self):
+        x = np.arange(1, 5.05, 0.05)
+        y = x ** 2 * 0.2
 
         pattern = Pattern(x, y)
 
         extrapolated_pattern = extrapolate_to_zero_spline(pattern, 2)
+        x1, y1 = extrapolated_pattern.data
+
+        self.assertLess(x1[0], x[0])
+        self.assertAlmostEqual(y1[0], 0)
+
+    def test_extrapolate_to_zero_spline_with_different_y(self):
+        x = np.arange(1, 5.05, 0.05)
+        y = x ** 2 * 0.2 - 2
+
+        pattern = Pattern(x, y)
+
+        extrapolated_pattern = extrapolate_to_zero_spline(pattern, 2, y0=-2)
+        x1, y1 = extrapolated_pattern.data
+
+        self.assertLess(x1[0], x[0])
+        self.assertAlmostEqual(y1[0], -2)
 
     def test_extrapolate_to_zero_poly(self):
         a = 0.3
@@ -129,16 +178,29 @@ class UtilityTest(unittest.TestCase):
 
         self.assertAlmostEqual(np.sum(y_extrapolate - y_expected), 0)
 
-    def test_convert_two_theta_to_q_space(self):
-        data_theta = np.linspace(0, 25)
-        wavelength = 0.31
-        data_q = convert_two_theta_to_q_space_raw(data_theta, wavelength)
+    def test_extrapolate_to_zero_poly_with_different_y(self):
+        x = np.arange(1, 5.05, 0.05)
+        y = x ** 2 * 0.2 - 0.3
 
-        self.assertLess(np.max(data_q), 10)
-        self.assertAlmostEqual(np.max(data_q), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)
+        pattern = Pattern(x, y)
 
-        pattern_theta = Pattern(data_theta, np.ones(data_theta.shape))
-        pattern_q = convert_two_theta_to_q_space(pattern_theta, wavelength)
+        extrapolated_pattern = extrapolate_to_zero_poly(pattern, 2, y0=-0.2)
+        x1, y1 = extrapolated_pattern.data
 
-        self.assertLess(np.max(pattern_q.x), 10)
-        self.assertAlmostEqual(np.max(pattern_q.x), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)
+        self.assertAlmostEqual(y1[0], -0.2)
+        self.assertAlmostEqual(y1[5], -0.2)
+
+
+def test_convert_two_theta_to_q_space(self):
+    data_theta = np.linspace(0, 25)
+    wavelength = 0.31
+    data_q = convert_two_theta_to_q_space_raw(data_theta, wavelength)
+
+    self.assertLess(np.max(data_q), 10)
+    self.assertAlmostEqual(np.max(data_q), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)
+
+    pattern_theta = Pattern(data_theta, np.ones(data_theta.shape))
+    pattern_q = convert_two_theta_to_q_space(pattern_theta, wavelength)
+
+    self.assertLess(np.max(pattern_q.x), 10)
+    self.assertAlmostEqual(np.max(pattern_q.x), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+from typing import Optional
 from copy import copy
 
 import numpy as np
@@ -155,38 +156,48 @@ def convert_density_to_atoms_per_cubic_angstrom(composition, density):
     return density / mean_z * .602214129
 
 
-def extrapolate_to_zero_step(pattern):
+def extrapolate_to_zero_step(pattern: Pattern, y0=0) -> Pattern:
     """
-    Extrapolates a pattern to (0, 0) by setting everything below the q_min of the pattern to zero
+    Extrapolates a pattern to (0, y0) by setting everything below the q_min of the pattern to y0 (default=0)
+
     :param pattern: input Pattern
+    :param y0: y value at x = 0
+
     :return: extrapolated Pattern
     """
     x, y = pattern.data
     step = x[1] - x[0]
-    low_x = np.sort(np.arange(min(x), 0, -step))
-    low_y = np.zeros(low_x.shape)
+    low_x = np.arange(min(x), 0 - step / 2, -step)[::-1]
+    low_y = np.zeros(low_x.shape) + y0
 
     return Pattern(np.concatenate((low_x, x)),
                    np.concatenate((low_y, y)))
 
 
-def extrapolate_to_zero_linear(pattern):
+def extrapolate_to_zero_linear(pattern: Pattern, y0=0) -> Pattern:
     """
-    Extrapolates a pattern to (0, 0) using a linear function from the most left point in the pattern
+    Extrapolates a pattern to (0, y0) using a linear function from the leftest point in the pattern
+
     :param pattern: input Pattern
-    :return: extrapolated Pattern (includes the original one)
+    :param y0: y value at x = 0
+
+    :return: new extrapolated Pattern (includes the original data)
     """
     x, y = pattern.data
     step = x[1] - x[0]
-    low_x = np.sort(np.arange(min(x), 0, -step))
-    low_y = y[0] / x[0] * low_x
+    low_x = np.arange(min(x), 0 - step / 2, -step)[::-1]
+    low_y = (y[0] - y0) / x[0] * low_x + y0
     return Pattern(np.concatenate((low_x, x)),
                    np.concatenate((low_y, y)))
 
 
-def extrapolate_to_zero_spline(pattern, x_max, smooth_factor=None, replace=False):
+def extrapolate_to_zero_spline(pattern: Pattern,
+                               x_max: float,
+                               smooth_factor: Optional[float] = None,
+                               replace: bool = False,
+                               y0: float = 0) -> Pattern:
     """
-    Extrapolates a pattern to (0, 0) using a spline function.
+    Extrapolates a pattern to (0, y0) using a spline function.
     If the spline hits zero on the y-axis at an x value higher than 0 all values below this intersection
     will be set to zero
 
@@ -196,43 +207,52 @@ def extrapolate_to_zero_spline(pattern, x_max, smooth_factor=None, replace=False
     :param smooth_factor: defines the smoothing of the spline extrapolation please see numpy.UnivariateSpline manual for
     explanations
     :param replace: boolean flag whether to replace the data values in the fitted region (default = False)
+    :param y0: y value at x = 0
+
     :return: extrapolated Pattern (includes the original one)
     """
 
     x, y = pattern.data
     x_step = x[1] - x[0]
-    x_low = np.sort(np.arange(min(x), 0, -x_step))
+    x_low = np.arange(min(x), 0 - x_step / 2, -x_step)[::-1]
 
-    x_inter = np.concatenate(([0], x[x < x_max]))
-    y_inter = np.concatenate(([0], y[x < x_max]))
+    x_intersection = np.concatenate(([0], x[x < x_max]))
+    y_intersection = np.concatenate(([y0], y[x < x_max]))
 
     if replace:
-        x_low = np.concatenate((x_low, x_inter[1:]))
+        x_low = np.concatenate((x_low, x_intersection[1:]))
         ind = x > x_max
         x = x[ind]
         y = y[ind]
 
-    spl = interpolate.UnivariateSpline(x_inter, y_inter, s=smooth_factor)
+    spl = interpolate.UnivariateSpline(x_intersection, y_intersection, s=smooth_factor)
     y_low = spl(x_low)
 
-    ind_below_zero = np.where(y_low < 0)[0]
+    ind_below_zero = np.where(y_low < y0)[0]
 
     if len(ind_below_zero) > 0:
-        y_low[:ind_below_zero[-1]] = 0
+        y_low[:ind_below_zero[-1]] = y0
 
     return Pattern(np.concatenate((x_low, x)),
                    np.concatenate((y_low, y)))
 
 
-def extrapolate_to_zero_poly(pattern, x_max, replace=False):
+def extrapolate_to_zero_poly(pattern: Pattern, x_max: float, replace: bool = False, y0: float = 0) -> Pattern:
     """
-    Extrapolates a pattern to (0, 0) using a 2nd order polynomial:
+    Extrapolates a pattern to (0, y0) using a 2nd order polynomial:
 
-    a*(x-c)+b*(x-c)^2
+    .. math::
+        y = a*(x-c)+b*(x-c)^2 + y0
+
+
+    if the polynomial extrapolation hits the value of y0 (default=0) at an x value higher than zero all y values below
+    this intersection will be set to y0.
 
     :param pattern: input pattern
     :param x_max: defines the maximum x value within the polynomial will be fit
     :param replace: boolean flag whether to replace the data values in the fitted region (default = False)
+    :param y0: y value at x = 0
+
     :return: extrapolated Pattern
     """
 
@@ -252,21 +272,23 @@ def extrapolate_to_zero_poly(pattern, x_max, replace=False):
         b = params['b'].value
         c = params['c'].value
 
-        return (y_fit - (x_fit - c) * a - (x_fit - c) ** 2 * b)
+        return y_fit - (x_fit - c) * a - (x_fit - c) ** 2 * b + y0
 
     result = lmfit.minimize(optimization_fcn, params)
     a = result.params['a'].value
     b = result.params['b'].value
     c = result.params['c'].value
 
-    x_low = np.sort(np.arange(min(x), 0, -x_step))
+    x_low = np.arange(min(x), 0, -x_step)[::-1]
+
     if replace:
         x_low = np.concatenate((x_low, x_fit[1:]))
         ind = x > x_max
         x = x[ind]
         y = y[ind]
-    y_low = a * (x_low - c) + b * (x_low - c) ** 2
-    y_low[x_low < c] = 0
+
+    y_low = a * (x_low - c) + b * (x_low - c) ** 2 - y0
+    y_low[y_low < y0] = y0
 
     return Pattern(np.concatenate((x_low, x)),
                    np.concatenate((y_low, y)))
