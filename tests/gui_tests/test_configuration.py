@@ -164,18 +164,18 @@ def test_remove_configuration_changes_to_correct_configuration(
     assert configuration_widget.configuration_tw.rowCount() == 2
     assert model.configuration_ind == 0
     assert model.q_max == 13
-    assert main_widget.q_max_txt.text() == '13.0'
+    assert main_widget.q_max_txt.text() == '13.00'
 
     configuration_widget.configuration_tw.setCurrentCell(1, 0)
     assert model.configuration_ind == 1
     assert model.q_max == 14
-    assert main_widget.q_max_txt.text() == '14.0'
+    assert main_widget.q_max_txt.text() == '14.00'
 
     qtbot.mouseClick(configuration_widget.remove_btn, Qt.LeftButton)
     assert configuration_widget.configuration_tw.rowCount() == 1
     assert model.configuration_ind == 0
     assert model.q_max == 13
-    assert main_widget.q_max_txt.text() == '13.0'
+    assert main_widget.q_max_txt.text() == '13.00'
 
 
 def test_convert_transform_configuration_to_and_from_dict():

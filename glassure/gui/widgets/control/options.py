@@ -3,7 +3,7 @@
 from qtpy import QtCore, QtWidgets
 from ..custom import HorizontalLine, FloatLineEdit, DragSlider
 import numpy as np
-from ...model.configuration import NormalizationMethod, SqMethod
+from ...model.configuration import NormalizationMethod, SqMethod, TransformConfiguration
 
 
 class OptionsWidget(QtWidgets.QWidget):
@@ -131,7 +131,7 @@ class OptionsWidget(QtWidgets.QWidget):
     def options_changed(self):
         self.options_parameters_changed.emit()
 
-    def get_parameter(self):
+    def get_ranges(self):
         q_min = self.q_min_txt.value()
         q_max = self.q_max_txt.value()
         r_min = self.r_min_txt.value()
@@ -153,3 +153,38 @@ class OptionsWidget(QtWidgets.QWidget):
             return SqMethod.AL
         else:
             return None
+
+    def get_transform_configuration(self) -> TransformConfiguration:
+        config = TransformConfiguration()
+        config.q_min, config.q_max, config.r_min, config.r_max = self.get_ranges()
+        config.normalization_method = self.get_normalization_method()
+        config.sq_method = self.get_sq_method()
+        config.use_modification_fcn = self.modification_fcn_cb.isChecked()
+        return config
+
+    def update_transform_configuration(self, config: TransformConfiguration):
+        self.q_min_txt.setText(f"{config.q_min:.2f}")
+        self.q_max_txt.setText(f"{config.q_max:.2f}")
+        self.r_min_txt.setText(f"{config.r_min:.2f}")
+        self.r_max_txt.setText(f"{config.r_max:.2f}")
+
+        self.modification_fcn_cb.blockSignals(True)
+        self.modification_fcn_cb.setChecked(config.use_modification_fcn)
+        self.modification_fcn_cb.blockSignals(False)
+
+        if config.normalization_method == NormalizationMethod.Integral:
+            self.normalization_method_integral.blockSignals(True)
+            self.normalization_method_integral.setChecked(True)
+            self.normalization_method_integral.blockSignals(False)
+        elif config.normalization_method == NormalizationMethod.Fit:
+            self.normalization_method_fit.blockSignals(True)
+            self.normalization_method_fit.setChecked(True)
+            self.normalization_method_fit.blockSignals(False)
+        if config.sq_method == SqMethod.FZ:
+            self.sq_method_FZ.blockSignals(True)
+            self.sq_method_FZ.setChecked(True)
+            self.sq_method_FZ.blockSignals(False)
+        elif config.sq_method == SqMethod.AL:
+            self.sq_method_AL.blockSignals(True)
+            self.sq_method_AL.setChecked(True)
+            self.sq_method_AL.blockSignals(False)

@@ -108,7 +108,8 @@ class GlassureWidget(QtWidgets.QWidget):
         self.get_sample_config = self.left_control_widget.composition_widget.get_sample_configuration
         self.update_sample_config = self.left_control_widget.composition_widget.update_sample_configuration
 
-        self.get_parameter = self.left_control_widget.options_widget.get_parameter
+        self.get_transform_config = self.left_control_widget.options_widget.get_transform_configuration
+        self.update_transform_config = self.left_control_widget.options_widget.update_transform_configuration
 
         self.get_extrapolation_config = self.left_control_widget.extrapolation_widget.get_configuration
         self.update_extrapolation_config = self.left_control_widget.extrapolation_widget.update_configuration

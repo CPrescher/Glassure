@@ -71,7 +71,6 @@ class GlassureController(object):
             self.update_model)
 
         # optimization controls
-
         optimization_widget = self.main_widget.right_control_widget.optimization_widget
         optimization_widget.plot_progress_cb.stateChanged.connect(self.update_plot_progress)
         optimization_widget.optimization_parameters_changed.connect(self.update_model)
@@ -129,12 +128,14 @@ class GlassureController(object):
         else:
             self.main_widget.bkg_filename_lbl.setText('None')
             self.main_widget.bkg_scaling_sb.setEnabled(False)
-
         self.main_widget.smooth_sb.setValue(self.model.original_pattern.smoothing)
+
         self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl. \
             setText("{:.4f}".format(self.model.atomic_density))
-        self.main_widget.update_extrapolation_config(self.model.extrapolation_config)
+
         self.main_widget.update_sample_config(self.model.sample)
+        self.main_widget.update_transform_config(self.model.transform_config)
+        self.main_widget.update_extrapolation_config(self.model.extrapolation_config)
 
     def bkg_scale_changed(self, value):
         self.model.background_scaling = value
@@ -167,24 +168,14 @@ class GlassureController(object):
     @Slot()
     def update_model(self):
         sample_config = self.main_widget.get_sample_config()
-
-        q_min, q_max, r_min, r_max = self.main_widget.get_parameter()
-
-        use_modification_fcn = self.main_widget.use_modification_cb.isChecked()
-        normalization_method = self.main_widget.left_control_widget.options_widget.get_normalization_method()
-        sq_method = self.main_widget.left_control_widget.options_widget.get_sq_method()
-
+        transform_config = self.main_widget.get_transform_config()
         extrapolation_config = self.main_widget.get_extrapolation_config()
 
         optimize_active, r_cutoff, optimize_iterations, optimize_attenuation = \
             self.main_widget.get_optimization_parameter()
 
         self.model.update_parameter(sample_config,
-                                    q_min, q_max,
-                                    r_min, r_max,
-                                    use_modification_fcn,
-                                    normalization_method,
-                                    sq_method,
+                                    transform_config,
                                     extrapolation_config,
                                     optimize_active,
                                     r_cutoff,

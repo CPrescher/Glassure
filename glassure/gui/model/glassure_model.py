@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date, datetime, timedelta
-from .configuration import GlassureConfiguration, ExtrapolationConfiguration
+from .configuration import GlassureConfiguration, ExtrapolationConfiguration, TransformConfiguration, Sample
 import numpy as np
 import json
 from lmfit import Parameters, minimize
@@ -219,48 +219,57 @@ class GlassureModel(QtCore.QObject):
         self.sample.density_error = new_density_error
 
     @property
+    def transform_config(self) -> TransformConfiguration:
+        return self.current_configuration.transform_config
+
+    @transform_config.setter
+    def transform_config(self, new_transform_config: TransformConfiguration):
+        self.current_configuration.transform_config = new_transform_config
+        self.calculate_transforms()
+
+    @property
     def q_min(self):
-        return self.current_configuration.transform_config.q_min
+        return self.transform_config.q_min
 
     @q_min.setter
     def q_min(self, new_q_min):
-        self.current_configuration.transform_config.q_min = new_q_min
+        self.transform_config.q_min = new_q_min
         self.calculate_transforms()
 
     @property
     def q_max(self):
-        return self.current_configuration.transform_config.q_max
+        return self.transform_config.q_max
 
     @q_max.setter
     def q_max(self, new_q_max):
-        self.current_configuration.transform_config.q_max = new_q_max
+        self.transform_config.q_max = new_q_max
         self.calculate_transforms()
 
     @property
     def r_min(self):
-        return self.current_configuration.transform_config.r_min
+        return self.transform_config.r_min
 
     @r_min.setter
     def r_min(self, new_r_min):
-        self.current_configuration.transform_config.r_min = new_r_min
+        self.transform_config.r_min = new_r_min
         self.calculate_transforms()
 
     @property
     def r_max(self):
-        return self.current_configuration.transform_config.r_max
+        return self.transform_config.r_max
 
     @r_max.setter
     def r_max(self, new_r_max):
-        self.current_configuration.transform_config.r_max = new_r_max
+        self.transform_config.r_max = new_r_max
         self.calculate_transforms()
 
     @property
     def r_step(self):
-        return self.current_configuration.transform_config.r_step
+        return self.transform_config.r_step
 
     @r_step.setter
     def r_step(self, new_r_step):
-        self.current_configuration.transform_config.r_step = new_r_step
+        self.transform_config.r_step = new_r_step
         self.calculate_transforms()
 
     @property
@@ -299,29 +308,29 @@ class GlassureModel(QtCore.QObject):
 
     @property
     def use_modification_fcn(self):
-        return self.current_configuration.transform_config.use_modification_fcn
+        return self.transform_config.use_modification_fcn
 
     @use_modification_fcn.setter
     def use_modification_fcn(self, value):
-        self.current_configuration.transform_config.use_modification_fcn = value
+        self.transform_config.use_modification_fcn = value
         self.calculate_transforms()
 
     @property
     def sq_method(self):
-        return self.current_configuration.transform_config.sq_method
+        return self.transform_config.sq_method
 
     @sq_method.setter
     def sq_method(self, value):
-        self.current_configuration.transform_config.sq_method = value
+        self.transform_config.sq_method = value
         self.calculate_transforms()
 
     @property
     def normalization_method(self):
-        return self.current_configuration.transform_config.normalization_method
+        return self.transform_config.normalization_method
 
     @normalization_method.setter
     def normalization_method(self, value):
-        self.current_configuration.transform_config.normalization_method = value
+        self.transform_config.normalization_method = value
         self.calculate_transforms()
 
     @property
@@ -455,25 +464,20 @@ class GlassureModel(QtCore.QObject):
             self.current_configuration.background_pattern.set_smoothing(value)
         self.calculate_transforms()
 
-    def update_parameter(
-            self, sample_config, q_min, q_max, r_min, r_max,
-            use_modification_fcn, normalization_method, sq_method, extrapolation_config, optimize_active, r_cutoff,
-            optimize_iterations, optimize_attenuation):
+    def update_parameter(self,
+                         sample_config: Sample,
+                         transform_config: TransformConfiguration,
+                         extrapolation_config: ExtrapolationConfiguration,
+                         optimize_active,
+                         r_cutoff,
+                         optimize_iterations,
+                         optimize_attenuation):
 
         self.auto_update = False
         self.sample = sample_config
         validate_composition(self.sample.composition, self.sample.sf_source)
 
-        self.q_min = q_min
-        self.q_max = q_max
-
-        self.r_min = r_min
-        self.r_max = r_max
-
-        self.use_modification_fcn = use_modification_fcn
-        self.normalization_method = normalization_method
-        self.sq_method = sq_method
-
+        self.transform_config = transform_config
         self.extrapolation_config = extrapolation_config
 
         self.optimize = optimize_active

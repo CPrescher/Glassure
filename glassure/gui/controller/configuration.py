@@ -88,19 +88,8 @@ class ConfigurationController(object):
             self.widget.bkg_scaling_sb.setEnabled(False)
         self.widget.smooth_sb.setValue(self.model.original_pattern.smoothing)
 
-        # composition widget
         self.widget.update_sample_config(self.model.sample)
-
-        # parameters widget
-        self.widget.q_min_txt.setText(str(self.model.q_min))
-        self.widget.q_max_txt.setText(str(self.model.q_max))
-
-        self.widget.r_min_txt.setText(str(self.model.r_min))
-        self.widget.r_max_txt.setText(str(self.model.r_max))
-
-        self.widget.use_modification_cb.setChecked(self.model.use_modification_fcn)
-
-        # extrapolations widget
+        self.widget.update_transform_config(self.model.transform_config)
         self.widget.left_control_widget.extrapolation_widget.update_configuration(self.model.extrapolation_config)
 
         # optimizations widget

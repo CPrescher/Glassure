@@ -2,7 +2,8 @@
 import numpy as np
 import pytest
 
-from glassure.gui.model.configuration import SqMethod, NormalizationMethod, ExtrapolationConfiguration, Sample
+from glassure.gui.model.configuration import SqMethod, NormalizationMethod, ExtrapolationConfiguration, Sample, \
+    TransformConfiguration
 from .test_configuration import create_alternative_configuration, compare_config_and_dict
 
 from glassure.core import Pattern
@@ -49,10 +50,9 @@ def test_calculate_transforms(setup, model: GlassureModel):
     bkg_data2_x, bkg_data2_y = bkg_pattern.data
     assert np.sum(np.abs(bkg_data2_y - bkg_data1_y)) == 0
 
-    q_min = 0
-    q_max = 10
-    data_pattern = data_pattern.limit(0, q_max)
-    bkg_pattern = bkg_pattern.limit(0, q_max)
+    transform_config = TransformConfiguration()
+    data_pattern = data_pattern.limit(0, transform_config.q_max)
+    bkg_pattern = bkg_pattern.limit(0, transform_config.q_max)
     background_scaling = 0.83133015
 
     sample_config = Sample()
@@ -65,8 +65,9 @@ def test_calculate_transforms(setup, model: GlassureModel):
     }
 
     model.background_scaling = background_scaling
-    model.update_parameter(sample_config, q_min, q_max, 0, 10, False,
-                           'int', 'FZ', ExtrapolationConfiguration(), False, 1.5, 5, 1)
+    model.update_parameter(sample_config,
+                           transform_config,
+                           ExtrapolationConfiguration(), False, 1.5, 5, 1)
 
     sq_pattern1_x, sq_pattern1_y = model.sq_pattern.data
 
@@ -85,8 +86,10 @@ def test_calculate_transforms_without_bkg(model):
     sample_config.density = 1.7
     sample_config.composition = {'Mg': 2, 'Si': 1, 'O': 4}
 
-    model.update_parameter(sample_config, 0, 10, 0, 10, False,
-                           'fit', 'FZ', ExtrapolationConfiguration(), False, 1.5, 5, 1)
+    model.update_parameter(sample_config,
+                           TransformConfiguration(),
+                           ExtrapolationConfiguration(), False, 1.5, 5, 1)
+
     assert model.sq_pattern is not None
     assert model.gr_pattern is not None
     assert model.fr_pattern is not None
