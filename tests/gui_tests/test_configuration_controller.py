@@ -145,14 +145,17 @@ def test_use_modification_function_is_updated(main_widget, configuration_widget)
     assert main_widget.use_modification_cb.isChecked()
 
 
-def test_extrapolation_method_is_updated(main_widget, configuration_widget, extrapolation_widget):
+def test_extrapolation_method_is_updated(main_widget, configuration_widget, extrapolation_widget, main_controller):
     click_button(configuration_widget.freeze_btn)
+    assert not main_widget.activate_extrapolation_cb.isChecked()
+    click_checkbox(main_widget.activate_extrapolation_cb)  # activate
     click_checkbox(extrapolation_widget.linear_extrapolation_rb)
-    click_button(configuration_widget.freeze_btn)
-    click_checkbox(main_widget.activate_extrapolation_cb)  # deactivate
+
+    assert main_widget.activate_extrapolation_cb.isChecked()
+    assert extrapolation_widget.linear_extrapolation_rb.isChecked()
 
     configuration_widget.configuration_tw.selectRow(0)
-    assert main_widget.activate_extrapolation_cb.isChecked()
+    assert not main_widget.activate_extrapolation_cb.isChecked()
     assert extrapolation_widget.step_extrapolation_rb.isChecked()
 
 

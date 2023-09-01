@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date, datetime, timedelta
-from .configuration import GlassureConfiguration
+from .configuration import GlassureConfiguration, ExtrapolationConfiguration
 import numpy as np
 import json
 from lmfit import Parameters, minimize
@@ -18,7 +18,7 @@ from ...core.transfer_function import calculate_transfer_function
 
 from ...core.utility import extrapolate_to_zero_linear, \
     extrapolate_to_zero_step, extrapolate_to_zero_spline, \
-    extrapolate_to_zero_poly
+    extrapolate_to_zero_poly, calculate_s0
 
 
 class GlassureModel(QtCore.QObject):
@@ -309,21 +309,12 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     @property
-    def extrapolation_method(self):
-        return self.current_configuration.extrapolation_config.method
+    def extrapolation_config(self) -> ExtrapolationConfiguration:
+        return self.current_configuration.extrapolation_config
 
-    @extrapolation_method.setter
-    def extrapolation_method(self, value):
-        self.current_configuration.extrapolation_config.method = value
-        self.calculate_transforms()
-
-    @property
-    def extrapolation_parameters(self):
-        return self.current_configuration.extrapolation_config.parameters
-
-    @extrapolation_parameters.setter
-    def extrapolation_parameters(self, value):
-        self.current_configuration.extrapolation_config.parameters = value
+    @extrapolation_config.setter
+    def extrapolation_config(self, value: ExtrapolationConfiguration):
+        self.current_configuration.extrapolation_config = value
         self.calculate_transforms()
 
     @property
@@ -450,8 +441,7 @@ class GlassureModel(QtCore.QObject):
 
     def update_parameter(
             self, sf_source, composition, density, q_min, q_max, r_min, r_max,
-            use_modification_fcn, normalization_method, sq_method, extrapolation_method,
-            extrapolation_parameters, optimize_active, r_cutoff,
+            use_modification_fcn, normalization_method, sq_method, extrapolation_config, optimize_active, r_cutoff,
             optimize_iterations, optimize_attenuation):
 
         self.auto_update = False
@@ -469,8 +459,7 @@ class GlassureModel(QtCore.QObject):
         self.normalization_method = normalization_method
         self.sq_method = sq_method
 
-        self.extrapolation_method = extrapolation_method
-        self.extrapolation_parameters = extrapolation_parameters
+        self.extrapolation_config = extrapolation_config
 
         self.optimize = optimize_active
         self.r_cutoff = r_cutoff
@@ -553,21 +542,34 @@ class GlassureModel(QtCore.QObject):
             method=self.sq_method,
             sf_source=self.sf_source,
         )
+        self.perform_extrapolation()
 
-        if self.extrapolation_method == 'step':
-            self.sq_pattern = extrapolate_to_zero_step(self.sq_pattern)
-        if self.extrapolation_method == 'linear':
-            self.sq_pattern = extrapolate_to_zero_linear(self.sq_pattern)
-        elif self.extrapolation_method == 'spline':
+    def perform_extrapolation(self):
+        if not self.extrapolation_config.activate:
+            return
+
+        extrapolation_method = self.extrapolation_config.method
+        if self.extrapolation_config.s0_auto:
+            self.extrapolation_config.s0 = calculate_s0(self.composition)
+
+        s0 = self.extrapolation_config.s0
+
+        if extrapolation_method == 'step':
+            self.sq_pattern = extrapolate_to_zero_step(self.sq_pattern, y0=s0)
+        elif extrapolation_method == 'linear':
+            self.sq_pattern = extrapolate_to_zero_linear(self.sq_pattern, y0=s0)
+        elif extrapolation_method == 'spline':
             self.sq_pattern = extrapolate_to_zero_spline(
                 self.sq_pattern,
-                self.extrapolation_parameters['q_max'],
-                replace=self.extrapolation_parameters['replace'])
-        elif self.extrapolation_method == 'poly':
+                self.extrapolation_config.fit_q_max,
+                y0=s0,
+                replace=self.extrapolation_config.fit_replace)
+        elif extrapolation_method == 'poly':
             self.sq_pattern = extrapolate_to_zero_poly(
                 self.sq_pattern,
-                x_max=self.extrapolation_parameters['q_max'],
-                replace=self.extrapolation_parameters['replace'])
+                self.extrapolation_config.fit_q_max,
+                y0=s0,
+                replace=self.extrapolation_config.fit_replace)
 
     def calculate_fr(self):
         self.fr_pattern = calculate_fr(
@@ -595,8 +597,10 @@ class GlassureModel(QtCore.QObject):
             bkg_min=bkg_min,
             bkg_max=bkg_max,
             use_modification_fcn=self.use_modification_fcn,
-            extrapolation_method=self.extrapolation_method,
-            extrapolation_parameters=self.extrapolation_parameters,
+            extrapolation_method=self.extrapolation_config.method,
+            extrapolation_parameters={
+                'q_max': self.extrapolation_config.fit_q_max,
+                'replace': self.extrapolation_config.fit_replace},
             output_txt=output_txt
         )
 

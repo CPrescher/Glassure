@@ -136,6 +136,7 @@ class GlassureController(object):
         self.main_widget.smooth_sb.setValue(self.model.original_pattern.smoothing)
         self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl. \
             setText("{:.4f}".format(self.model.atomic_density))
+        self.main_widget.update_extrapolation_config(self.model.extrapolation_config)
 
     def bkg_scale_changed(self, value):
         self.model.background_scaling = value
@@ -186,8 +187,7 @@ class GlassureController(object):
         normalization_method = self.main_widget.left_control_widget.options_widget.get_normalization_method()
         sq_method = self.main_widget.left_control_widget.options_widget.get_sq_method()
 
-        extrapolation_method = self.main_widget.get_extrapolation_method()
-        extrapolation_parameters = self.main_widget.get_extrapolation_parameters()
+        extrapolation_config = self.main_widget.get_extrapolation_config()
 
         optimize_active, r_cutoff, optimize_iterations, optimize_attenuation = \
             self.main_widget.get_optimization_parameter()
@@ -199,8 +199,7 @@ class GlassureController(object):
                                     use_modification_fcn,
                                     normalization_method,
                                     sq_method,
-                                    extrapolation_method,
-                                    extrapolation_parameters,
+                                    extrapolation_config,
                                     optimize_active,
                                     r_cutoff,
                                     optimize_iterations,

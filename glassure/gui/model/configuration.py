@@ -71,19 +71,23 @@ class OptimizeConfiguration(object):
 
 class ExtrapolationConfiguration(object):
     def __init__(self):
+        self.activate: bool = False
         self.method = 'step'
-        self.parameters = {'q_max': 2, 'replace': False}
+        self.fit_q_max: float = 2.0
+        self.fit_replace: bool = False
+        self.s0: float = 0.0
+        self.s0_auto: bool = True
 
     def to_dict(self):
-        return {'method': self.method,
-                'parameters': self.parameters}
+        return vars(self)
 
     @classmethod
     def from_dict(cls, extrapolation_config: dict):
         config = cls()
-        config.method = extrapolation_config['method']
-        config.parameters = extrapolation_config['parameters']
-
+        for key in extrapolation_config.keys():
+            if not hasattr(config, key):
+                continue
+            setattr(config, key, extrapolation_config[key])
         return config
 
 

@@ -2,11 +2,12 @@
 
 from qtpy import QtCore, QtGui, QtWidgets
 
-from ..custom import HorizontalLine, HorizontalSpacerItem, FloatLineEdit
+from ..custom import HorizontalLine, HorizontalSpacerItem, FloatLineEdit, LabelAlignRight
+from ...model.configuration import ExtrapolationConfiguration
 
 
 class ExtrapolationWidget(QtWidgets.QWidget):
-    extrapolation_parameters_changed = QtCore.Signal()
+    extrapolation_parameters_changed = QtCore.Signal(ExtrapolationConfiguration)
 
     def __init__(self, *args):
         super(ExtrapolationWidget, self).__init__(*args)
@@ -29,9 +30,18 @@ class ExtrapolationWidget(QtWidgets.QWidget):
         self.spline_extrapolation_rb = MyRadioButton("Spline")
         self.step_extrapolation_rb.setChecked(True)
 
-        self.q_max_lbl = QtWidgets.QLabel("Q Max:")
+        self.s0_label = LabelAlignRight("S(Q=0):")
+        self.s0_txt = FloatLineEdit("0")
+        self.s0_auto_cb = QtWidgets.QCheckBox("auto")
+        self.s0_auto_cb.setToolTip("Automatically determines S(Q=0) from the form factors.")
+        self.s0_auto_cb.setChecked(True)
+
+        self.options_gb = QtWidgets.QGroupBox(self)
+        self.q_max_lbl = LabelAlignRight("Fit Q_max:")
         self.q_max_txt = FloatLineEdit("2")
+        self.q_max_unit_lbl = LabelAlignRight("A")
         self.replace_cb = QtWidgets.QCheckBox("replace")
+        self.replace_cb.setToolTip("Replace data with extrapolated data in overlapping region.")
 
         self.rb_button_group = QtWidgets.QButtonGroup()
         self.rb_button_group.addButton(self.step_extrapolation_rb)
@@ -40,9 +50,9 @@ class ExtrapolationWidget(QtWidgets.QWidget):
         self.rb_button_group.addButton(self.spline_extrapolation_rb)
 
     def style_widgets(self):
-        self.q_max_lbl.setAlignment(
-            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.q_max_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.q_max_txt.setMaximumWidth(50)
+        self.s0_txt.setMaximumWidth(50)
 
     def create_layout(self):
         self.vertical_layout = QtWidgets.QVBoxLayout()
@@ -65,59 +75,69 @@ class ExtrapolationWidget(QtWidgets.QWidget):
         self.rb_widget.setLayout(self.rb_layout)
         self.vertical_layout.addWidget(self.rb_widget)
 
-        self.parameter_layout = QtWidgets.QGridLayout()
-        self.parameter_layout.addWidget(HorizontalLine(), 0, 0, 1, 5)
-        self.parameter_layout.setContentsMargins(0, 0, 0, 0)
-        self.parameter_layout.setSpacing(5)
-        self.parameter_layout.addItem(HorizontalSpacerItem(), 0, 0)
+        self.options_layout = QtWidgets.QGridLayout()
+        self.options_layout.setSpacing(5)
+        self.options_layout.setColumnStretch(0, 1)
 
-        self.parameter_layout.addWidget(self.q_max_lbl, 1, 0)
-        self.parameter_layout.addWidget(self.q_max_txt)
+        self.options_layout.addWidget(self.s0_label, 0, 1)
+        self.options_layout.addWidget(self.s0_txt, 0, 2)
+        self.options_layout.addWidget(self.s0_auto_cb, 0, 4)
 
-        self.parameter_layout.addWidget(QtWidgets.QLabel('A'))
-        self.parameter_layout.addWidget(self.replace_cb)
+        self.options_layout.addWidget(self.q_max_lbl, 1, 1)
+        self.options_layout.addWidget(self.q_max_txt, 1, 2)
+        self.options_layout.addWidget(self.q_max_unit_lbl, 1, 3)
+        self.options_layout.addWidget(self.replace_cb, 1, 4)
 
-        self.parameter_widget = QtWidgets.QWidget(self)
-        self.parameter_widget.setLayout(self.parameter_layout)
-        self.vertical_layout.addWidget(self.parameter_widget)
+        self.options_gb.setLayout(self.options_layout)
 
+        self.vertical_layout.addWidget(self.options_gb)
         self.setLayout(self.vertical_layout)
 
     def create_signals(self):
         self.activate_cb.stateChanged.connect(self.rb_widget.setVisible)
+        self.activate_cb.stateChanged.connect(self.options_gb.setVisible)
         self.activate_cb.stateChanged.connect(self.emit_changed_signal)
 
         self.rb_button_group.buttonReleased.connect(self.emit_changed_signal)
         self.rb_button_group.buttonReleased.connect(self.update_visibility)
 
-        self.q_max_txt.editingFinished.connect(self.q_max_changed)
+        self.q_max_txt.editingFinished.connect(self.emit_changed_signal)
         self.replace_cb.stateChanged.connect(self.emit_changed_signal)
 
-    def emit_changed_signal(self):
-        self.extrapolation_parameters_changed.emit()
+        self.s0_txt.editingFinished.connect(self.emit_changed_signal)
+        self.s0_auto_cb.stateChanged.connect(self.emit_changed_signal)
 
-    def q_max_changed(self):
-        if self.q_max_txt.isModified():
-            self.extrapolation_parameters_changed.emit()
-            self.q_max_txt.setModified(False)
+    def emit_changed_signal(self):
+        self.extrapolation_parameters_changed.emit(self.get_configuration())
 
     def update_visibility(self):
-        self.parameter_widget.setVisible(
-                self.spline_extrapolation_rb.isChecked() |
-                self.poly_extrapolation_rb.isChecked())
+        visible_flag = not (self.step_extrapolation_rb.isChecked() | self.linear_extrapolation_rb.isChecked())
+        self.q_max_lbl.setVisible(visible_flag)
+        self.q_max_unit_lbl.setVisible(visible_flag)
+        self.q_max_txt.setVisible(visible_flag)
+        self.replace_cb.setVisible(visible_flag)
 
-    def txt_changed(self):
-        if self.spline_extrapolation_cutoff_txt.isModified() or \
-                self.spline_extrapolation_q_max_txt.isModified():
-            self.extrapolation_parameters_changed.emit()
+    def get_configuration(self) -> ExtrapolationConfiguration:
+        config = ExtrapolationConfiguration()
+        config.activate = self.activate_cb.isChecked()
+        config.method = self.get_method()
+        config.fit_q_max = float(str(self.q_max_txt.text()))
+        config.fit_replace = self.replace_cb.isChecked()
+        config.s0 = float(str(self.s0_txt.text()))
+        config.s0_auto = self.s0_auto_cb.isChecked()
+        return config
 
-            self.spline_extrapolation_cutoff_txt.setModified(False)
-            self.spline_extrapolation_q_max_txt.setModified(False)
+    def update_configuration(self, config: ExtrapolationConfiguration):
+        self.activate_cb.setChecked(config.activate)
+        self.set_extrapolation_method(config.method)
+        self.q_max_txt.setText(f"{config.fit_q_max:.2f}")
+        self.replace_cb.setChecked(config.fit_replace)
+        self.s0_txt.setText(f"{config.s0:.2f}")
+        self.s0_auto_cb.setChecked(config.s0_auto)
+        self.update_visibility()
 
-    def get_extrapolation_method(self):
-        if not self.activate_cb.isChecked():
-            return None
-        elif self.step_extrapolation_rb.isChecked():
+    def get_method(self):
+        if self.step_extrapolation_rb.isChecked():
             return 'step'
         elif self.linear_extrapolation_rb.isChecked():
             return "linear"
@@ -127,11 +147,6 @@ class ExtrapolationWidget(QtWidgets.QWidget):
             return "spline"
 
     def set_extrapolation_method(self, method):
-        if method is None:
-            self.activate_cb.setChecked(False)
-        else:
-            self.activate_cb.setChecked(True)
-
         if method == 'step':
             self.step_extrapolation_rb.setChecked(True)
         elif method == "linear":
@@ -142,18 +157,6 @@ class ExtrapolationWidget(QtWidgets.QWidget):
             self.spline_extrapolation_rb.setChecked(True)
 
         self.update_visibility()
-
-    def get_extrapolation_parameters(self):
-        if self.spline_extrapolation_rb.isChecked() or \
-                self.poly_extrapolation_rb.isChecked():
-            return {'q_max': float(str(self.q_max_txt.text())),
-                    'replace': self.replace_cb.isChecked()}
-        else:
-            return {}
-
-    def set_extrapolation_parameters(self, param):
-        self.q_max_txt.setText(str(param['q_max']))
-        self.replace_cb.setChecked(param['replace'])
 
 
 class MyRadioButton(QtWidgets.QPushButton):

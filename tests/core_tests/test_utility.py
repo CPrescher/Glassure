@@ -191,16 +191,16 @@ class UtilityTest(unittest.TestCase):
         self.assertAlmostEqual(y1[5], -0.2)
 
 
-def test_convert_two_theta_to_q_space(self):
-    data_theta = np.linspace(0, 25)
-    wavelength = 0.31
-    data_q = convert_two_theta_to_q_space_raw(data_theta, wavelength)
+    def test_convert_two_theta_to_q_space(self):
+        data_theta = np.linspace(0, 25)
+        wavelength = 0.31
+        data_q = convert_two_theta_to_q_space_raw(data_theta, wavelength)
 
-    self.assertLess(np.max(data_q), 10)
-    self.assertAlmostEqual(np.max(data_q), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)
+        self.assertLess(np.max(data_q), 10)
+        self.assertAlmostEqual(np.max(data_q), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)
 
-    pattern_theta = Pattern(data_theta, np.ones(data_theta.shape))
-    pattern_q = convert_two_theta_to_q_space(pattern_theta, wavelength)
+        pattern_theta = Pattern(data_theta, np.ones(data_theta.shape))
+        pattern_q = convert_two_theta_to_q_space(pattern_theta, wavelength)
 
-    self.assertLess(np.max(pattern_q.x), 10)
-    self.assertAlmostEqual(np.max(pattern_q.x), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)
+        self.assertLess(np.max(pattern_q.x), 10)
+        self.assertAlmostEqual(np.max(pattern_q.x), 4 * np.pi * np.sin(25. / 360 * np.pi) / wavelength)

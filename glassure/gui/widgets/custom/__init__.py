@@ -13,7 +13,7 @@ def VerticalSpacerItem():
 
 def HorizontalSpacerItem():
     return QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding,
-                                 QtWidgets.QSizePolicy.MinimumExpanding)
+                                 QtWidgets.QSizePolicy.Ex)
 
 
 class CommaDoubleValidator(QtGui.QDoubleValidator):
@@ -127,7 +127,7 @@ class DragSlider(QtWidgets.QSlider):
         self.setSingleStep(1)
         self.setPageStep(0)
 
-        self._value = 0
+        self._drag_value = 0
 
         self.setOrientation(QtCore.Qt.Horizontal)
 
@@ -139,17 +139,17 @@ class DragSlider(QtWidgets.QSlider):
         super(DragSlider, self).valueChanged.connect(self._update_value)
 
     def _update_value(self, value):
-        self._value = value
+        self._drag_value = value
 
     def reset_value(self):
-        self._value = 0
+        self._drag_value = 0
 
     def start_drag(self):
         if not self.timer.isActive():
             self.timer.start(100)
 
     def send_value(self):
-        self.dragChanged.emit(self._value)
+        self.dragChanged.emit(self._drag_value)
 
     def stop_drag(self):
         self.timer.stop()

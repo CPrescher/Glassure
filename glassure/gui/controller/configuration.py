@@ -108,10 +108,7 @@ class ConfigurationController(object):
             self.model.use_modification_fcn)
 
         # extrapolations widget
-        self.widget.set_extrapolation_method(self.model.extrapolation_method)
-        if self.model.extrapolation_method in ('poly', 'spline'):
-            self.widget.set_extrapolation_parameters(
-                self.model.extrapolation_parameters)
+        self.widget.left_control_widget.extrapolation_widget.update_configuration(self.model.extrapolation_config)
 
         # optimizations widget
         self.widget.optimize_activate_cb.setChecked(self.model.optimize)

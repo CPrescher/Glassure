@@ -92,6 +92,7 @@ def test_normal_workflow(main_controller, main_widget, pattern_widget, compositi
     # extrapolated with a step function, he thinks the polynomial option might be a better choice, selects it and
     # sees the change:
 
+    click_checkbox(extrapolation_widget.activate_cb)
     assert pattern_widget.sq_items[0].getData()[0][0] < 0.5
 
     prev_sq_data = pattern_widget.sq_items[0].getData()

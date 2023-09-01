@@ -152,7 +152,7 @@ def optimize_incoherent_container_scattering(sample_pattern, sample_density, sam
     """
     Finds the amount of extra scattering from a sample container which was not included in the
     background measurement. A typical use-case are diamond anvil cell experiments were the background is usually
-    collected for an empty cell with a gasket of a specific thickness. However, during compression the gasket will
+    collected for an empty cell with a gasket of a specific thickness. However, during compression, the gasket will
     shrink in thickness and additional diamond compton (incoherent) scattering will be in the resulting data.
 
     The function tries to achieve this by varying the amount of incoherent scattering from the container and minimizing

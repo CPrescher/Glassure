@@ -83,7 +83,7 @@ def calculate_s0(composition: dict[str, float], sf_source: str = 'hajdu') -> flo
     f_mean_squared = calculate_f_mean_squared(composition, np.array([0]), sf_source)
     f_squared_mean = calculate_f_squared_mean(composition, np.array([0]), sf_source)
 
-    return -f_squared_mean / f_mean_squared + 1
+    return float(-f_squared_mean / f_mean_squared + 1)
 
 
 def calculate_weighting_factor(composition: dict[str, float], element_1: str, element_2: str, q: np.ndarray,

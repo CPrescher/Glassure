@@ -114,10 +114,8 @@ class GlassureWidget(QtWidgets.QWidget):
 
         self.get_parameter = self.left_control_widget.options_widget.get_parameter
 
-        self.set_extrapolation_method = self.left_control_widget.extrapolation_widget.set_extrapolation_method
-        self.get_extrapolation_method = self.left_control_widget.extrapolation_widget.get_extrapolation_method
-        self.set_extrapolation_parameters = self.left_control_widget.extrapolation_widget.set_extrapolation_parameters
-        self.get_extrapolation_parameters = self.left_control_widget.extrapolation_widget.get_extrapolation_parameters
+        self.get_extrapolation_config = self.left_control_widget.extrapolation_widget.get_configuration
+        self.update_extrapolation_config = self.left_control_widget.extrapolation_widget.update_configuration
 
         self.set_optimization_parameter = self.right_control_widget.optimization_widget.set_parameter
         self.get_optimization_parameter = self.right_control_widget.optimization_widget.get_parameter

@@ -58,7 +58,10 @@ def create_alternative_configuration():
     config.optimize_config.attenuation = 3
 
     config.extrapolation_config.method = "Herbert"
-    config.extrapolation_config.parameters = {'a': 1, 'b': 2, 'c': 3}
+    config.extrapolation_config.s0 = 0.3
+    config.extrapolation_config.s0_auto = False
+    config.extrapolation_config.fit_q_max = 2.1
+    config.extrapolation_config.fit_replace = True
 
     config.soller_config.enable = True
     config.soller_config.correction = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -101,9 +104,7 @@ def compare_config_and_dict(config: GlassureConfiguration, config_dict: dict):
     assert config_dict['transform_configuration']['use_modification_fcn'] == \
            config.transform_config.use_modification_fcn
 
-    assert config_dict['extrapolation_configuration']['method'] == config.extrapolation_config.method
-    assert config_dict['extrapolation_configuration']['parameters'] == \
-           config.extrapolation_config.parameters
+    assert config_dict['extrapolation_configuration'] == config.extrapolation_config.to_dict()
 
     assert config_dict['optimize_configuration']['enable'] == config.optimize_config.enable
     assert config_dict['optimize_configuration']['r_cutoff'] == config.optimize_config.r_cutoff

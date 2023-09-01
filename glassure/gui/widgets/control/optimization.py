@@ -36,7 +36,6 @@ class OptimizationWidget(QtWidgets.QWidget):
         self.plot_progress_cb = QtWidgets.QCheckBox('plot progress')
 
     def style_widgets(self):
-
         self.r_cutoff_txt.setMaximumWidth(80)
         self.optimize_iterations_txt.setMaximumWidth(80)
 

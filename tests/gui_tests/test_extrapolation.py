@@ -17,9 +17,6 @@ def setup(main_controller):
 
 
 def test_activating_extrapolation(setup, main_controller, extrapolation_widget, model):
-    if extrapolation_widget.activate_cb.isChecked():
-        click_checkbox(extrapolation_widget.activate_cb)
-
     # without extrapolation S(Q) should have no values below
     q, sq = model.sq_pattern.data
     assert q[0] > 1
@@ -27,12 +24,11 @@ def test_activating_extrapolation(setup, main_controller, extrapolation_widget, 
     # when turning extrapolation on, it should automatically interpolate sq of to zero and recalculate everything
     # by default a Step function should be used
     click_checkbox(extrapolation_widget.activate_cb)
-
     assert extrapolation_widget.activate_cb.isChecked()
 
     q, sq = model.sq_pattern.limit(0, 1).data
     assert q[0] < 0.1
-    assert np.sum(sq) == 0
+    assert np.sum(sq) < 0
 
 
 def test_different_extrapolation_methods(setup, main_controller, extrapolation_widget, model):
@@ -54,9 +50,11 @@ def test_different_extrapolation_methods(setup, main_controller, extrapolation_w
     assert not np.array_equal(prev_sq, after_sq)
 
 
-def test_polynomial_parameters(setup, main_controller, extrapolation_widget, qtbot):
+def test_polynomial_parameters(setup, main_controller, extrapolation_widget):
     model = main_controller.model
 
+
+    click_checkbox(extrapolation_widget.activate_cb)
     click_checkbox(extrapolation_widget.poly_extrapolation_rb)
 
     prev_q, prev_sq = model.sq_pattern.limit(0, 2).data

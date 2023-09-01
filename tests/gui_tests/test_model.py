@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from glassure.gui.model.configuration import SqMethod, NormalizationMethod
+from glassure.gui.model.configuration import SqMethod, NormalizationMethod, ExtrapolationConfiguration
 from .test_configuration import create_alternative_configuration, \
     compare_config_and_dict
 
@@ -65,7 +65,7 @@ def test_calculate_transforms(setup, model: GlassureModel):
 
     model.background_scaling = background_scaling
     model.update_parameter('hajdu', elemental_abundances, density, q_min, q_max, 0, 10, False,
-                           'int', 'FZ', None, {}, False, 1.5, 5, 1)
+                           'int', 'FZ', ExtrapolationConfiguration(), False, 1.5, 5, 1)
 
     sample_pattern = data_pattern - background_scaling * bkg_pattern
     sq_pattern_core = calculate_sq(
@@ -85,7 +85,7 @@ def test_calculate_transforms_without_bkg(model):
     q_min = 0
     q_max = 10
     model.update_parameter('hajdu', composition, density, q_min, q_max, 0, 10, False,
-                           'fit', 'FZ', None, {}, False, 1.5, 5, 1)
+                           'fit', 'FZ', ExtrapolationConfiguration(), False, 1.5, 5, 1)
     assert model.sq_pattern is not None
     assert model.gr_pattern is not None
     assert model.fr_pattern is not None
@@ -109,7 +109,8 @@ def test_changing_comp(setup, model):
 
 def test_changing_q_range(setup, model):
     model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
-    model.extrapolation_method = None
+    model.extrapolation_config.method = None
+    model.calculate_transforms()
     sq = model.sq_pattern
     assert np.min(sq.x) > model.q_min
     assert np.max(sq.x) < model.q_max
