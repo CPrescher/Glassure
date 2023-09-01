@@ -105,12 +105,8 @@ class GlassureWidget(QtWidgets.QWidget):
         self.transfer_active_cb = self.right_control_widget.transfer_widget.activate_cb
 
     def create_function_shortcuts(self):
-        self.set_composition = self.left_control_widget.composition_widget.set_composition
-        self.get_composition = self.left_control_widget.composition_widget.get_composition
-        self.get_sf_source = self.left_control_widget.composition_widget.get_sf_source
-        self.set_sf_source = self.left_control_widget.composition_widget.set_sf_source
-
-        self.get_density = self.left_control_widget.composition_widget.get_density
+        self.get_sample_config = self.left_control_widget.composition_widget.get_sample_configuration
+        self.update_sample_config = self.left_control_widget.composition_widget.update_sample_configuration
 
         self.get_parameter = self.left_control_widget.options_widget.get_parameter
 

@@ -91,24 +91,23 @@ class ExtrapolationConfiguration(object):
         return config
 
 
-class Sample(object):
+class Sample:
     def __init__(self):
+        self.sf_source = 'hajdu'
         self.composition = {}
         self.density = 2.2
         self.density_error = None
 
     def to_dict(self):
-        return {'composition': self.composition,
-                'density': self.density,
-                'density_error': self.density_error}
+        return vars(self)
 
     @classmethod
     def from_dict(cls, sample_config: dict):
         config = cls()
-        config.composition = sample_config['composition']
-        config.density = sample_config['density']
-        config.density_error = sample_config['density_error']
-
+        for key in sample_config.keys():
+            if not hasattr(config, key):
+                continue
+            setattr(config, key, sample_config[key])
         return config
 
 

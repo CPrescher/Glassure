@@ -188,3 +188,37 @@ def test_convert_transform_configuration_to_and_from_dict():
     transform_config2 = TransformConfiguration.from_dict(transform_dict1)
     transform_dict2 = transform_config2.to_dict()
     assert transform_dict1 == transform_dict2
+
+
+def test_multiple_configurations_with_different_composition_and_sf_source(main_widget, model, qtbot):
+    qtbot.mouseClick(main_widget.configuration_widget.freeze_btn, Qt.LeftButton)
+    qtbot.mouseClick(main_widget.configuration_widget.freeze_btn, Qt.LeftButton)
+    qtbot.mouseClick(main_widget.left_control_widget.composition_widget.add_element_btn, Qt.LeftButton)
+    qtbot.mouseClick(main_widget.left_control_widget.composition_widget.add_element_btn, Qt.LeftButton)
+    qtbot.mouseClick(main_widget.left_control_widget.composition_widget.add_element_btn, Qt.LeftButton)
+
+    assert len(model.configurations) == 3
+    assert len(model.composition) == 3
+
+    main_widget.left_control_widget.composition_widget.source_cb.setCurrentIndex(1)
+    assert model.sample.sf_source == 'brown_hubbell'
+    assert model.configurations[0].sample.composition == {}
+    assert model.configurations[1].sample.composition == {}
+    assert len(model.configurations[2].sample.composition) == 3
+
+    main_widget.configuration_widget.select_configuration(1)
+    assert model.configuration_ind == 1
+    assert model.configurations[0].sample.composition == {}
+    assert model.configurations[1].sample.composition == {}
+    assert len(model.configurations[2].sample.composition) == 3
+
+    assert model.sample.sf_source == 'hajdu'
+    assert model.sample.composition == {}
+    main_widget.configuration_widget.select_configuration(0)
+    assert model.configuration_ind == 0
+    assert model.configurations[0].sample.composition == {}
+    assert model.configurations[1].sample.composition == {}
+    assert len(model.configurations[2].sample.composition) == 3
+
+    assert model.sample.sf_source == 'hajdu'
+    assert model.sample.composition == {}

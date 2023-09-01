@@ -9,16 +9,16 @@ from qtpy import QtGui, QtCore
 
 from ...core.pattern import Pattern
 from .density_optimization import DensityOptimizer
-from ...core.utility import calculate_incoherent_scattering, \
-    convert_density_to_atoms_per_cubic_angstrom
+from ...core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
 from ...core import calculate_sq, calculate_gr, calculate_fr
 from ...core.optimization import optimize_sq
 from ...core.soller_correction import SollerCorrectionGui
 from ...core.transfer_function import calculate_transfer_function
 
-from ...core.utility import extrapolate_to_zero_linear, \
-    extrapolate_to_zero_step, extrapolate_to_zero_spline, \
+from ...core.utility import extrapolate_to_zero_linear, extrapolate_to_zero_step, extrapolate_to_zero_spline, \
     extrapolate_to_zero_poly, calculate_s0
+
+from ...core.scattering_factors import get_available_elements
 
 
 class GlassureModel(QtCore.QObject):
@@ -99,8 +99,7 @@ class GlassureModel(QtCore.QObject):
     @property
     def atomic_density(self):
         if len(self.composition):
-            return convert_density_to_atoms_per_cubic_angstrom(
-                self.composition, self.density)
+            return convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
         return 0
 
     @property
@@ -168,39 +167,56 @@ class GlassureModel(QtCore.QObject):
         self.gr_changed.emit(new_gr)
 
     @property
+    def sample(self):
+        return self.current_configuration.sample
+
+    @sample.setter
+    def sample(self, new_sample):
+        self.current_configuration.sample = new_sample
+        self.calculate_transforms()
+
+    def add_element(self):
+        elements = get_available_elements(self.sample.sf_source)
+        for element in elements:
+            if element not in self.sample.composition.keys():
+                self.sample.composition[element] = 1
+                break
+        self.calculate_transforms()
+
+    @property
     def sf_source(self):
-        return self.current_configuration.transform_config.sf_source
+        return self.sample.sf_source
 
     @sf_source.setter
     def sf_source(self, new_source):
-        self.current_configuration.transform_config.sf_source = new_source
+        self.sample.sf_source = new_source
         self.calculate_transforms()
 
     @property
     def composition(self):
-        return self.current_configuration.sample.composition
+        return self.sample.composition
 
     @composition.setter
     def composition(self, new_composition):
-        self.current_configuration.sample.composition = new_composition
+        self.sample.composition = new_composition
         self.calculate_transforms()
 
     @property
     def density(self):
-        return self.current_configuration.sample.density
+        return self.sample.density
 
     @density.setter
     def density(self, new_density):
-        self.current_configuration.sample.density = new_density
+        self.sample.density = new_density
         self.calculate_transforms()
 
     @property
     def density_error(self):
-        return self.current_configuration.sample.density_error
+        return self.sample.density_error
 
     @density_error.setter
     def density_error(self, new_density_error):
-        self.current_configuration.sample.density_error = new_density_error
+        self.sample.density_error = new_density_error
 
     @property
     def q_min(self):
@@ -440,14 +456,13 @@ class GlassureModel(QtCore.QObject):
         self.calculate_transforms()
 
     def update_parameter(
-            self, sf_source, composition, density, q_min, q_max, r_min, r_max,
+            self, sample_config, q_min, q_max, r_min, r_max,
             use_modification_fcn, normalization_method, sq_method, extrapolation_config, optimize_active, r_cutoff,
             optimize_iterations, optimize_attenuation):
 
         self.auto_update = False
-        self.sf_source = sf_source
-        self.composition = composition
-        self.density = density
+        self.sample = sample_config
+        validate_composition(self.sample.composition, self.sample.sf_source)
 
         self.q_min = q_min
         self.q_max = q_max
@@ -752,3 +767,9 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, timedelta):
             return str(obj)
         return super(NpEncoder, self).default(obj)
+
+
+def validate_composition(composition: dict[str, float], sf_source: str):
+    for element in list(composition.keys()):
+        if element not in get_available_elements(sf_source):
+            del composition[element]

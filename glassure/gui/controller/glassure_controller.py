@@ -10,6 +10,7 @@ from ..widgets.glassure_widget import GlassureWidget
 from ..widgets.custom.file_dialogs import open_file_dialog, save_file_dialog
 
 from ..model.glassure_model import GlassureModel
+from ..model.configuration import Sample
 from ...core.scattering_factors import get_available_elements
 
 from .configuration import ConfigurationController
@@ -59,8 +60,7 @@ class GlassureController(object):
         self.main_widget.smooth_sb.valueChanged.connect(self.smooth_changed)
 
         # updating the composition
-        self.main_widget.left_control_widget.composition_widget.source_cb.currentTextChanged.connect(
-            self.data_source_changed)
+        self.main_widget.left_control_widget.composition_widget.composition_changed.connect(self.update_sample)
         self.main_widget.add_element_btn.clicked.connect(self.add_element_btn_clicked)
         self.main_widget.delete_element_btn.clicked.connect(self.delete_element_btn_clicked)
         self.main_widget.left_control_widget.composition_widget.composition_changed.connect(self.update_model)
@@ -72,12 +72,9 @@ class GlassureController(object):
 
         # optimization controls
 
-        self.main_widget.right_control_widget.optimization_widget.plot_progress_cb.stateChanged.connect(
-            self.update_plot_progress
-        )
-        self.main_widget.right_control_widget.optimization_widget.optimization_parameters_changed.connect(
-            self.update_model
-        )
+        optimization_widget = self.main_widget.right_control_widget.optimization_widget
+        optimization_widget.plot_progress_cb.stateChanged.connect(self.update_plot_progress)
+        optimization_widget.optimization_parameters_changed.connect(self.update_model)
 
         self.main_widget.right_control_widget.density_optimization_widget.optimize_btn.clicked.connect(
             self.optimize_density)
@@ -112,7 +109,7 @@ class GlassureController(object):
             self.settings.setValue('working_directory', os.path.dirname(filename))
             self.main_widget.left_control_widget.data_widget.file_widget.background_filename_lbl.setText(
                 self.model.current_configuration.background_pattern.name)
-    
+
     def reset_bkg(self):
         self.model.reset_bkg()
 
@@ -137,6 +134,7 @@ class GlassureController(object):
         self.main_widget.left_control_widget.composition_widget.density_atomic_units_lbl. \
             setText("{:.4f}".format(self.model.atomic_density))
         self.main_widget.update_extrapolation_config(self.model.extrapolation_config)
+        self.main_widget.update_sample_config(self.model.sample)
 
     def bkg_scale_changed(self, value):
         self.model.background_scaling = value
@@ -157,29 +155,18 @@ class GlassureController(object):
         self.main_widget.smooth_sb.setSingleStep(value)
 
     def add_element_btn_clicked(self):
-        self.main_widget.left_control_widget.composition_widget.add_element(element="Si", value=1.0)
+        self.model.add_element()
 
     def delete_element_btn_clicked(self):
         cur_ind = self.main_widget.left_control_widget.composition_widget.composition_tw.currentRow()
         self.main_widget.left_control_widget.composition_widget.delete_element(cur_ind)
 
-    def data_source_changed(self, source: str):
-        self.validate_composition(source)
-        self.update_model()
-
-    def validate_composition(self, source):
-        composition = self.main_widget.get_composition()
-        for element in list(composition.keys()):
-            if element not in get_available_elements(source):
-                del composition[element]
-        self.main_widget.left_control_widget.composition_widget.set_composition(composition)
+    def update_sample(self, sample: Sample):
+        self.model.sample_config = sample
 
     @Slot()
     def update_model(self):
-        composition = self.main_widget.get_composition()
-        sf_source = self.main_widget.get_sf_source()
-
-        density = self.main_widget.left_control_widget.composition_widget.get_density()
+        sample_config = self.main_widget.get_sample_config()
 
         q_min, q_max, r_min, r_max = self.main_widget.get_parameter()
 
@@ -192,8 +179,7 @@ class GlassureController(object):
         optimize_active, r_cutoff, optimize_iterations, optimize_attenuation = \
             self.main_widget.get_optimization_parameter()
 
-        self.model.update_parameter(sf_source,
-                                    composition, density,
+        self.model.update_parameter(sample_config,
                                     q_min, q_max,
                                     r_min, r_max,
                                     use_modification_fcn,

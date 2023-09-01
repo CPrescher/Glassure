@@ -15,7 +15,7 @@ def setup(main_controller):
     main_controller.load_bkg()
 
 
-def test_adding_and_deleting_elements(composition_widget, qtbot):
+def test_adding_and_deleting_elements(composition_widget, model, qtbot):
     qtbot.mouseClick(composition_widget.add_element_btn, QtCore.Qt.LeftButton)
     assert composition_widget.composition_tw.rowCount() == 1
     qtbot.mouseClick(composition_widget.add_element_btn, QtCore.Qt.LeftButton)
@@ -26,10 +26,13 @@ def test_adding_and_deleting_elements(composition_widget, qtbot):
 
     qtbot.mouseClick(composition_widget.delete_element_btn, QtCore.Qt.LeftButton)
     assert composition_widget.composition_tw.rowCount() == 2
+    assert len(model.composition) == 2
     qtbot.mouseClick(composition_widget.delete_element_btn, QtCore.Qt.LeftButton)
     assert composition_widget.composition_tw.rowCount() == 1
+    assert len(model.composition) == 1
     qtbot.mouseClick(composition_widget.delete_element_btn, QtCore.Qt.LeftButton)
     assert composition_widget.composition_tw.rowCount() == 0
+    assert len(model.composition) == 0
     qtbot.mouseClick(composition_widget.delete_element_btn, QtCore.Qt.LeftButton)
     assert composition_widget.composition_tw.rowCount() == 0
 
@@ -104,12 +107,14 @@ def test_changing_data_source_with_unavailable_elements(setup, main_controller, 
 
     composition_widget.set_composition(composition)
     main_controller.update_model()
-
     composition_widget.source_cb.setCurrentIndex(0)
+
+    assert {'Mg': 2, 'Si': 1} == main_controller.model.composition
+
     new_composition = composition_widget.get_composition()
     assert {'Mg': 2, 'Si': 1} == new_composition
 
 
 def test_inserting_density_with_comma_as_decimal_separator(setup, composition_widget):
     set_widget_text(composition_widget.density_txt, '3,4')
-    assert composition_widget.get_density() == 3.4
+    assert composition_widget.density_txt.value() == 3.4

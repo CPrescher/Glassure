@@ -26,15 +26,11 @@ class ConfigurationController(object):
         self.update_widget_controls()
 
     def connect_signals(self):
-        self.widget.freeze_configuration_btn.clicked.connect(
-            self.model.add_configuration)
-        self.widget.remove_configuration_btn.clicked.connect(
-            self.model.remove_configuration)
-        self.widget.configuration_tw.currentCellChanged.connect(
-            self.model.select_configuration)
+        self.widget.freeze_configuration_btn.clicked.connect(self.model.add_configuration)
+        self.widget.remove_configuration_btn.clicked.connect(self.model.remove_configuration)
+        self.widget.configuration_tw.currentCellChanged.connect(self.model.select_configuration)
 
-        self.model.configurations_changed.connect(
-            self.update_configurations_tw)
+        self.model.configurations_changed.connect(self.update_configurations_tw)
         self.model.configurations_changed.connect(self.update_pattern_items)
         self.model.configurations_changed.connect(self.update_widget_controls)
 
@@ -93,9 +89,7 @@ class ConfigurationController(object):
         self.widget.smooth_sb.setValue(self.model.original_pattern.smoothing)
 
         # composition widget
-        self.widget.set_sf_source(self.model.sf_source)
-        self.widget.set_composition(self.model.composition)
-        self.widget.density_txt.setText(str(self.model.density))
+        self.widget.update_sample_config(self.model.sample)
 
         # parameters widget
         self.widget.q_min_txt.setText(str(self.model.q_min))
@@ -104,23 +98,20 @@ class ConfigurationController(object):
         self.widget.r_min_txt.setText(str(self.model.r_min))
         self.widget.r_max_txt.setText(str(self.model.r_max))
 
-        self.widget.use_modification_cb.setChecked(
-            self.model.use_modification_fcn)
+        self.widget.use_modification_cb.setChecked(self.model.use_modification_fcn)
 
         # extrapolations widget
         self.widget.left_control_widget.extrapolation_widget.update_configuration(self.model.extrapolation_config)
 
         # optimizations widget
         self.widget.optimize_activate_cb.setChecked(self.model.optimize)
-        self.widget.set_optimization_parameter(
-            self.model.r_cutoff, self.model.optimization_iterations,
-            self.model.optimization_attenuation)
-        self.widget.right_control_widget.optimization_widget.blockSignals(
-            False)
+        self.widget.set_optimization_parameter(self.model.r_cutoff,
+                                               self.model.optimization_iterations,
+                                               self.model.optimization_attenuation)
+        self.widget.right_control_widget.optimization_widget.blockSignals(False)
 
         # soller widget
-        self.widget.soller_active_cb.setChecked(
-            self.model.use_soller_correction)
+        self.widget.soller_active_cb.setChecked(self.model.use_soller_correction)
         self.widget.set_soller_parameter(self.model.soller_parameters)
 
     def update_pattern_items(self):

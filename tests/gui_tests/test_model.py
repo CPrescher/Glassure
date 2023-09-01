@@ -2,9 +2,8 @@
 import numpy as np
 import pytest
 
-from glassure.gui.model.configuration import SqMethod, NormalizationMethod, ExtrapolationConfiguration
-from .test_configuration import create_alternative_configuration, \
-    compare_config_and_dict
+from glassure.gui.model.configuration import SqMethod, NormalizationMethod, ExtrapolationConfiguration, Sample
+from .test_configuration import create_alternative_configuration, compare_config_and_dict
 
 from glassure.core import Pattern
 from glassure.core import calculate_sq
@@ -54,24 +53,25 @@ def test_calculate_transforms(setup, model: GlassureModel):
     q_max = 10
     data_pattern = data_pattern.limit(0, q_max)
     bkg_pattern = bkg_pattern.limit(0, q_max)
-
-    density = 1.7
     background_scaling = 0.83133015
-    elemental_abundances = {
+
+    sample_config = Sample()
+    sample_config.sf_source = 'hajdu'
+    sample_config.density = 1.7
+    sample_config.composition = {
         'Mg': 2,
         'Si': 1,
         'O': 4,
     }
 
     model.background_scaling = background_scaling
-    model.update_parameter('hajdu', elemental_abundances, density, q_min, q_max, 0, 10, False,
+    model.update_parameter(sample_config, q_min, q_max, 0, 10, False,
                            'int', 'FZ', ExtrapolationConfiguration(), False, 1.5, 5, 1)
 
-    sample_pattern = data_pattern - background_scaling * bkg_pattern
-    sq_pattern_core = calculate_sq(
-        sample_pattern, density, elemental_abundances)
-
     sq_pattern1_x, sq_pattern1_y = model.sq_pattern.data
+
+    sample_pattern = data_pattern - background_scaling * bkg_pattern
+    sq_pattern_core = calculate_sq(sample_pattern, sample_config.density, sample_config.composition)
     sq_pattern2_x, sq_pattern2_y = sq_pattern_core.data
 
     assert len(sq_pattern1_x) == len(sq_pattern2_x)
@@ -80,11 +80,12 @@ def test_calculate_transforms(setup, model: GlassureModel):
 
 def test_calculate_transforms_without_bkg(model):
     model.load_data(data_path('Mg2SiO4_ambient.xy'))
-    density = 1.7
-    composition = {'Mg': 2, 'Si': 1, 'O': 4}
-    q_min = 0
-    q_max = 10
-    model.update_parameter('hajdu', composition, density, q_min, q_max, 0, 10, False,
+    sample_config = Sample()
+    sample_config.sf_source = 'hajdu'
+    sample_config.density = 1.7
+    sample_config.composition = {'Mg': 2, 'Si': 1, 'O': 4}
+
+    model.update_parameter(sample_config, 0, 10, 0, 10, False,
                            'fit', 'FZ', ExtrapolationConfiguration(), False, 1.5, 5, 1)
     assert model.sq_pattern is not None
     assert model.gr_pattern is not None
