@@ -186,7 +186,7 @@ def test_changing_normalization_method(setup, model):
     model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
 
     sq1 = model.sq_pattern
-    model.normalization_method = NormalizationMethod.Fit
+    model.normalization_method = NormalizationMethod.FIT
     sq2 = model.sq_pattern
     assert not np.allclose(sq1.y, sq2.y)
 

@@ -13,8 +13,8 @@ class TransformConfiguration(object):
     def __init__(self):
         self.use_modification_fcn: bool = False
         self.sq_method: SqMethod = SqMethod.FZ
-        self.normalization_method = NormalizationMethod.Integral
-        self.fourier_transform_method = FourierTransformMethod.fft
+        self.normalization_method = NormalizationMethod.INTEGRAL
+        self.fourier_transform_method = FourierTransformMethod.FFT
 
         self.q_min: float = 0.0
         self.q_max: float = 10.0
@@ -24,16 +24,17 @@ class TransformConfiguration(object):
         self.r_step: float = 0.01
 
     def to_dict(self):
-        return {'sf_source': self.sf_source,
-                'use_modification_fcn': self.use_modification_fcn,
-                'sq_method': self.sq_method.value,
-                'normalization_method': self.normalization_method.value,
-                'fourier_transform_method': self.fourier_transform_method.value,
-                'q_min': self.q_min,
-                'q_max': self.q_max,
-                'r_min': self.r_min,
-                'r_max': self.r_max,
-                'r_step': self.r_step}
+        return {
+            'use_modification_fcn': self.use_modification_fcn,
+            'sq_method': self.sq_method.value,
+            'normalization_method': self.normalization_method.value,
+            'fourier_transform_method': self.fourier_transform_method.value,
+            'q_min': self.q_min,
+            'q_max': self.q_max,
+            'r_min': self.r_min,
+            'r_max': self.r_max,
+            'r_step': self.r_step
+        }
 
     @classmethod
     def from_dict(cls, transform_config: dict) -> TransformConfiguration:
@@ -285,16 +286,16 @@ class NormalizationMethod(StrEnum):
     """
     Enum class for the different methods to perform an intensity normalization.
     """
-    Integral = 'integral'
-    Fit = 'fit'
+    INTEGRAL = 'integral'
+    FIT = 'fit'
 
 
 class FourierTransformMethod(StrEnum):
     """
     Enum class for the different methods to perform a Fourier transform.
     """
-    fft = 'fft'
-    integral = 'integral'
+    FFT  = 'fft'
+    INTEGRAL = 'integral'
 
 
 def calculate_color(ind):

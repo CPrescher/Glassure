@@ -3,7 +3,7 @@
 from qtpy import QtCore, QtWidgets
 from ..custom import HorizontalLine, FloatLineEdit, DragSlider
 import numpy as np
-from ...model.configuration import NormalizationMethod, SqMethod, TransformConfiguration
+from ...model.configuration import NormalizationMethod, SqMethod, TransformConfiguration, FourierTransformMethod
 
 
 class OptionsWidget(QtWidgets.QWidget):
@@ -144,9 +144,9 @@ class OptionsWidget(QtWidgets.QWidget):
 
     def get_normalization_method(self):
         if self.normalization_method_integral.isChecked():
-            return NormalizationMethod.Integral
+            return NormalizationMethod.INTEGRAL
         elif self.normalization_method_fit.isChecked():
-            return NormalizationMethod.Fit
+            return NormalizationMethod.FIT
         else:
             return None
 
@@ -160,9 +160,9 @@ class OptionsWidget(QtWidgets.QWidget):
 
     def get_fourier_transform_method(self):
         if self.fft_cb.isChecked():
-            return 'fft'
+            return FourierTransformMethod.FFT
         else:
-            return 'integral'
+            return FourierTransformMethod.INTEGRAL
 
     def set_fourier_transform_method(self, method):
         if method == 'fft':
@@ -191,9 +191,9 @@ class OptionsWidget(QtWidgets.QWidget):
         self.modification_fcn_cb.setChecked(config.use_modification_fcn)
         self.modification_fcn_cb.blockSignals(False)
 
-        if config.normalization_method == NormalizationMethod.Integral:
+        if config.normalization_method == NormalizationMethod.INTEGRAL:
             self.normalization_method_integral.setChecked(True)
-        elif config.normalization_method == NormalizationMethod.Fit:
+        elif config.normalization_method == NormalizationMethod.FIT:
             self.normalization_method_fit.setChecked(True)
         if config.sq_method == SqMethod.FZ:
             self.sq_method_FZ.setChecked(True)
