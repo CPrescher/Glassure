@@ -11,10 +11,10 @@ from ...core.pattern import Pattern
 
 class TransformConfiguration(object):
     def __init__(self):
-        self.sf_source: str = 'hajdu'
         self.use_modification_fcn: bool = False
         self.sq_method: SqMethod = SqMethod.FZ
         self.normalization_method = NormalizationMethod.Integral
+        self.fourier_transform_method = FourierTransformMethod.fft
 
         self.q_min: float = 0.0
         self.q_max: float = 10.0
@@ -28,6 +28,7 @@ class TransformConfiguration(object):
                 'use_modification_fcn': self.use_modification_fcn,
                 'sq_method': self.sq_method.value,
                 'normalization_method': self.normalization_method.value,
+                'fourier_transform_method': self.fourier_transform_method.value,
                 'q_min': self.q_min,
                 'q_max': self.q_max,
                 'r_min': self.r_min,
@@ -44,6 +45,8 @@ class TransformConfiguration(object):
                 setattr(config, key, SqMethod(transform_config[key]))
             elif key == 'normalization_method':
                 setattr(config, key, NormalizationMethod(transform_config[key]))
+            elif key == 'fourier_transform_method':
+                setattr(config, key, FourierTransformMethod(transform_config[key]))
             else:
                 setattr(config, key, transform_config[key])
         return config
@@ -284,6 +287,14 @@ class NormalizationMethod(StrEnum):
     """
     Integral = 'integral'
     Fit = 'fit'
+
+
+class FourierTransformMethod(StrEnum):
+    """
+    Enum class for the different methods to perform a Fourier transform.
+    """
+    fft = 'fft'
+    integral = 'integral'
 
 
 def calculate_color(ind):

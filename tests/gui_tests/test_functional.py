@@ -1,9 +1,19 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from .utility import set_widget_text, click_checkbox, click_button, prepare_file_loading
+from glassure.gui.widgets.control.options import OptionsWidget
+from glassure.gui.widgets.control.composition import CompositionWidget
+from glassure.gui.widgets.control.extrapolation import ExtrapolationWidget
+from glassure.gui.widgets.control.configuration import ConfigurationWidget
+from glassure.gui.widgets.glassure_widget import GlassureWidget
+from glassure.gui.widgets.custom.pattern import PatternWidget
+from glassure.gui.controller.glassure_controller import GlassureController
+from glassure.gui.model.glassure_model import GlassureModel
 
 
-def test_normal_workflow(main_controller, main_widget, pattern_widget, composition_widget, extrapolation_widget, model):
+def test_normal_workflow(main_controller: GlassureController, main_widget: GlassureWidget,
+                         pattern_widget: PatternWidget, composition_widget: CompositionWidget,
+                         extrapolation_widget: ExtrapolationWidget, model: GlassureModel):
     # Edd opens the program and wants to load his data and background file:
 
     prepare_file_loading('Mg2SiO4_ambient.xy')
@@ -120,7 +130,8 @@ def test_normal_workflow(main_controller, main_widget, pattern_widget, compositi
     assert not np.array_equal(prev_sq_data, pattern_widget.sq_items[0].getData())
 
 
-def test_working_with_configurations(main_controller, main_widget, composition_widget):
+def test_working_with_configurations(main_controller: GlassureController, main_widget: GlassureWidget,
+                                     composition_widget: CompositionWidget):
     # Edd starts to mak some analysis
     prepare_file_loading('Mg2SiO4_ambient.xy')
     main_controller.load_data()
@@ -140,16 +151,48 @@ def test_working_with_configurations(main_controller, main_widget, composition_w
     assert main_widget.configuration_tw.rowCount() == 2
 
 
-def test_reset_background(main_controller, main_widget, pattern_widget, composition_widget, extrapolation_widget, model):
+def test_reset_background(main_controller: GlassureController, main_widget: GlassureWidget,
+                          pattern_widget: PatternWidget, composition_widget: CompositionWidget,
+                          extrapolation_widget: ExtrapolationWidget, model: GlassureModel):
     # Edd opens the program and wants to load his data and background file:
     prepare_file_loading('Mg2SiO4_ambient.xy')
     main_controller.load_data()
     prepare_file_loading('Mg2SiO4_ambient_bkg.xy')
     main_controller.load_bkg()
-    
+
     # Suddenly he realizes that he loaded the wrong background file, and wants to reset it
     click_button(main_widget.reset_bkg_btn)
 
     assert model.background_pattern is None
     assert pattern_widget.bkg_item.getData()[0] is None
     assert pattern_widget.bkg_item.getData()[1] is None
+
+
+def test_using_different_fourier_transform_methods(main_controller: GlassureController, main_widget: GlassureWidget,
+                                                   pattern_widget: PatternWidget, composition_widget: CompositionWidget,
+                                                   extrapolation_widget: ExtrapolationWidget, model: GlassureModel):
+    # Edd opens the program and wants to load his data and background file:
+    prepare_file_loading('Mg2SiO4_ambient.xy')
+    main_controller.load_data()
+    prepare_file_loading('Mg2SiO4_ambient_bkg.xy')
+    main_controller.load_bkg()
+
+    # he gives the composition of the sample, and the normalization procedure is automatically done, and he sees
+    # a computed g(r) and s(q)
+
+    composition_widget.add_element('Mg', 2)
+    composition_widget.add_element('Si', 1)
+    composition_widget.add_element('O', 4)
+
+    # he wants to see how the data looks when choosing a different fourier transform method
+    prev_sq_data = pattern_widget.sq_items[0].getData()
+    prev_gr_data = pattern_widget.gr_items[0].getData()
+
+    assert main_widget.left_control_widget.options_widget.fft_cb.isChecked()
+    click_checkbox(main_widget.left_control_widget.options_widget.fft_cb, left=False)
+    assert not main_widget.left_control_widget.options_widget.fft_cb.isChecked()
+
+    assert np.array_equal(prev_sq_data, pattern_widget.sq_items[0].getData())
+    assert not np.array_equal(prev_gr_data, pattern_widget.gr_items[0].getData())
+
+    # he is satisfied with the small changes and will continue to use the fft method

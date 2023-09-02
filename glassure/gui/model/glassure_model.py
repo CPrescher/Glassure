@@ -504,7 +504,8 @@ class GlassureModel(QtCore.QObject):
                         self.density),
                     use_modification_fcn=False,
                     attenuation_factor=self.optimization_attenuation,
-                    fcn_callback=self.optimization_callback)
+                    fcn_callback=self.optimization_callback,
+                    fourier_transform_method=self.transform_config.fourier_transform_method)
             self.calculate_fr()
             self.calculate_gr()
         self.data_changed.emit()
@@ -592,7 +593,9 @@ class GlassureModel(QtCore.QObject):
 
     def calculate_fr(self):
         self.fr_pattern = calculate_fr(
-            self.sq_pattern, r=np.arange(self.r_min, self.r_max + self.r_step * 0.5, self.r_step),
+            self.sq_pattern,
+            r=np.arange(self.r_min, self.r_max + self.r_step * 0.5, self.r_step),
+            method=self.transform_config.fourier_transform_method,
             use_modification_fcn=self.use_modification_fcn)
 
     def calculate_gr(self):

@@ -95,6 +95,19 @@ def test_calculate_transforms_without_bkg(model):
     assert model.fr_pattern is not None
 
 
+def test_changing_fourier_transform_method(setup, model: GlassureModel):
+    model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
+
+    model.transform_config.fourier_transform_method = 'fft'
+    model.calculate_transforms()
+    fr1 = model.fr_pattern
+
+    model.transform_config.fourier_transform_method = 'integral'
+    model.calculate_transforms()
+    fr2 = model.fr_pattern
+    assert not np.allclose(fr1.y, fr2.y)
+
+
 def test_calculate_spectra(setup, model):
     model.composition = {'Mg': 2.0, 'Si': 1.0, 'O': 4.0}
 

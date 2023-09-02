@@ -29,6 +29,9 @@ class OptionsWidget(QtWidgets.QWidget):
         self.r_max_txt = FloatLineEdit('10')
 
         self.modification_fcn_cb = QtWidgets.QCheckBox("Use Modification Function")
+        self.fft_cb = QtWidgets.QCheckBox("Use FFT")
+        self.fft_cb.setToolTip(
+            "Use FFT for Fourier Transform. If not checked, the Fourier integral is solver numerically.")
 
         self.normalization_method_gb = QtWidgets.QGroupBox("Normalization")
         self.normalization_method_integral = QtWidgets.QRadioButton("Integral")
@@ -46,11 +49,13 @@ class OptionsWidget(QtWidgets.QWidget):
         self.q_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.r_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
-        self.modification_fcn_cb.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.sq_method_FZ.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.sq_method_AL.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.normalization_method_integral.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.normalization_method_fit.setLayoutDirection(QtCore.Qt.RightToLeft)
+
+        self.modification_fcn_cb.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.fft_cb.setLayoutDirection(QtCore.Qt.RightToLeft)
 
     def create_layout(self):
         self.main_layout = QtWidgets.QVBoxLayout()
@@ -95,6 +100,7 @@ class OptionsWidget(QtWidgets.QWidget):
 
         self.main_layout.addLayout(self.choice_layout)
         self.main_layout.addWidget(self.modification_fcn_cb)
+        self.main_layout.addWidget(self.fft_cb)
 
         self.setLayout(self.main_layout)
 
@@ -106,6 +112,7 @@ class OptionsWidget(QtWidgets.QWidget):
         self.r_max_txt.editingFinished.connect(self.txt_changed)
 
         self.modification_fcn_cb.stateChanged.connect(self.options_changed)
+        self.fft_cb.stateChanged.connect(self.options_changed)
         self.sq_method_FZ.toggled.connect(self.options_changed)
         self.normalization_method_integral.toggled.connect(self.options_changed)
 
@@ -151,12 +158,26 @@ class OptionsWidget(QtWidgets.QWidget):
         else:
             return None
 
+    def get_fourier_transform_method(self):
+        if self.fft_cb.isChecked():
+            return 'fft'
+        else:
+            return 'integral'
+
+    def set_fourier_transform_method(self, method):
+        if method == 'fft':
+            self.fft_cb.setChecked(True)
+        else:
+            self.fft_cb.setChecked(False)
+
     def get_transform_configuration(self) -> TransformConfiguration:
         config = TransformConfiguration()
         config.q_min, config.q_max, config.r_min, config.r_max = self.get_ranges()
         config.normalization_method = self.get_normalization_method()
         config.sq_method = self.get_sq_method()
         config.use_modification_fcn = self.modification_fcn_cb.isChecked()
+        config.fourier_transform_method = self.get_fourier_transform_method()
+
         return config
 
     def update_transform_configuration(self, config: TransformConfiguration):
@@ -178,4 +199,6 @@ class OptionsWidget(QtWidgets.QWidget):
             self.sq_method_FZ.setChecked(True)
         elif config.sq_method == SqMethod.AL:
             self.sq_method_AL.setChecked(True)
+
+        self.set_fourier_transform_method(config.fourier_transform_method)
         self.blockSignals(False)

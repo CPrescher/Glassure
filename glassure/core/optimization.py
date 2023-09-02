@@ -17,8 +17,9 @@ __all__ = ['optimize_sq', 'optimize_density', 'optimize_incoherent_container_sca
            'optimize_soller_dac']
 
 
-def optimize_sq(sq_pattern, r_cutoff, iterations, atomic_density, use_modification_fcn=False,
-                attenuation_factor=1, fcn_callback=None, callback_period=2):
+def optimize_sq(sq_pattern: Pattern, r_cutoff: float, iterations: int, atomic_density: float,
+                use_modification_fcn: bool = False, attenuation_factor: float = 1,
+                fcn_callback=None, callback_period: int = 2, fourier_transform_method: str = 'fft'):
     """
     Performs an optimization of the structure factor based on an r_cutoff value as described in Eggert et al. 2002 PRB,
     65, 174105. This basically does back and forward transforms between S(Q) and f(r) until the region below the
@@ -46,6 +47,8 @@ def optimize_sq(sq_pattern, r_cutoff, iterations, atomic_density, use_modificati
         stop the optimization.
     :param callback_period:
         determines how frequently the fcn_callback will be called.
+    :param fourier_transform_method:
+        determines which method will be used for the Fourier transform. Possible values are 'fft' and 'integral'
 
     :return:
         optimized S(Q) pattern
@@ -53,7 +56,7 @@ def optimize_sq(sq_pattern, r_cutoff, iterations, atomic_density, use_modificati
     r = np.arange(0, r_cutoff, 0.02)
     sq_pattern = deepcopy(sq_pattern)
     for iteration in range(iterations):
-        fr_pattern = calculate_fr(sq_pattern, r, use_modification_fcn)
+        fr_pattern = calculate_fr(sq_pattern, r, use_modification_fcn, method=fourier_transform_method)
         q, sq_int = sq_pattern.data
         r, fr_int = fr_pattern.data
 
@@ -66,7 +69,9 @@ def optimize_sq(sq_pattern, r_cutoff, iterations, atomic_density, use_modificati
         sq_pattern = Pattern(q, sq_optimized)
 
         if fcn_callback is not None and iteration % callback_period == 0:
-            fr_pattern = calculate_fr(sq_pattern, use_modification_fcn=use_modification_fcn)
+            fr_pattern = calculate_fr(sq_pattern,
+                                      use_modification_fcn=use_modification_fcn,
+                                      method=fourier_transform_method)
             gr_pattern = calculate_gr_raw(fr_pattern, atomic_density)
             fcn_callback(sq_pattern, fr_pattern, gr_pattern)
     return sq_pattern
