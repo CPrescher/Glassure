@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
-from qtpy import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtWidgets
+from ..custom import HorizontalLine, FloatLineEdit, IntegerLineEdit
 
 
 class DensityOptimizationWidget(QtWidgets.QWidget):
@@ -14,40 +14,27 @@ class DensityOptimizationWidget(QtWidgets.QWidget):
 
     def create_widgets(self):
         self.density_range_lbl = QtWidgets.QLabel('Density range:')
-        self.density_min_txt = QtWidgets.QLineEdit('1')
-        self.density_max_txt = QtWidgets.QLineEdit('10')
+        self.density_min_txt = FloatLineEdit('1')
+        self.density_max_txt = FloatLineEdit('10')
 
-        self.bkg_range_lbl = QtWidgets.QLabel('Bkg range:')
-        self.bkg_min_txt = QtWidgets.QLineEdit('0.1')
-        self.bkg_max_txt = QtWidgets.QLineEdit('2')
+        self.bkg_range_lbl = QtWidgets.QLabel("Bkg range:")
+        self.bkg_min_txt = FloatLineEdit('0.1')
+        self.bkg_max_txt = FloatLineEdit('2')
 
         self.optimize_btn = QtWidgets.QPushButton("Optimize")
         self.optimize_iterations_lbl = QtWidgets.QLabel("Iterations:")
-        self.optimize_iterations_txt = QtWidgets.QLineEdit('5')
 
+        self.optimize_iterations_txt = IntegerLineEdit("5")
         self.optimization_output_txt = QtWidgets.QTextEdit()
         self.optimization_output_txt.setReadOnly(True)
 
     def style_widgets(self):
-        self.density_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.bkg_range_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.optimize_iterations_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-
-        self.density_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.density_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-
-        self.bkg_min_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.bkg_max_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-
-        self.optimize_iterations_txt.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-
-        self.density_min_txt.setValidator(QtGui.QDoubleValidator())
-        self.density_max_txt.setValidator(QtGui.QDoubleValidator())
-        self.bkg_min_txt.setValidator(QtGui.QDoubleValidator())
-        self.bkg_max_txt.setValidator(QtGui.QDoubleValidator())
+        center_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
+        self.density_range_lbl.setAlignment(center_right)
+        self.bkg_range_lbl.setAlignment(center_right)
+        self.optimize_iterations_lbl.setAlignment(center_right)
 
         self.optimize_iterations_txt.setMaximumWidth(80)
-        self.optimize_iterations_txt.setValidator(QtGui.QIntValidator())
 
         self.optimize_btn.setFlat(True)
 
@@ -76,9 +63,9 @@ class DensityOptimizationWidget(QtWidgets.QWidget):
         self.setLayout(self.grid_layout)
 
     def get_parameter(self):
-        density_min = float(str(self.density_min_txt.text()))
-        density_max = float(str(self.density_max_txt.text()))
-        bkg_min = float(str(self.bkg_min_txt.text()))
-        bkg_max = float(str(self.bkg_max_txt.text()))
-        iterations = int(str(self.optimize_iterations_txt.text()))
+        density_min = self.density_min_txt.value()
+        density_max = self.density_max_txt.value()
+        bkg_min = self.bkg_min_txt.value()
+        bkg_max = self.bkg_max_txt.value()
+        iterations = self.optimize_iterations_txt.value()
         return density_min, density_max, bkg_min, bkg_max, iterations

@@ -27,8 +27,7 @@ def i_q_peak(q, n, position, sigma, composition, element_1, element_2):
     return n * w / c_2 * np.sin(q * position) / (q * position) * np.exp(-q ** 2 * sigma ** 2 / 2)
 
 
-def t_r_peak(r, n, position, sigma, composition, element_1, element_2, q,
-             use_modification_fcn=False, method='fft'):
+def t_r_peak(r, n, position, sigma, composition, element_1, element_2, q, use_modification_fcn=False, method='fft'):
     """
     Calculates the contribution of one element 1 - element 2 peak in real space to t(r). We assume a gaussian
     broadening. The math is explained in the paper about NXFit (Pickup et al. 2014, J. Appl. Cryst. 47, 1790-1796).
@@ -44,10 +43,10 @@ def t_r_peak(r, n, position, sigma, composition, element_1, element_2, q,
     :param element_1: string giving element 1
     :param element_2: string giving element 1
     :param q: numpy array giving the q-values for which the peak will be calculated in q-space, should correspond to
-              the same values as the experimental data.
-              WARNING: check whether it works correctly, when your q values are not extended to close 0 A^{-1}.
-              WARNING: q array should not contain 0, since this will cause a division by zero and the calculation will
-                       fail.
+                  the same values as the experimental data.
+                  WARNING: check whether it works correctly, when your q values are not extended to close 0 A^{-1}.
+                  WARNING: q-array should not contain 0, since this will cause a division by zero and the calculation
+                  will fail.
     :param use_modification_fcn: boolean flag whether to use the Lorch modification function, during the fourier
                                  transformation.
     :param method: determines the method used for calculating fr, possible values are:

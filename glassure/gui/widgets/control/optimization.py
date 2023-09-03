@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from qtpy import QtCore, QtWidgets
 
-from qtpy import QtCore, QtGui, QtWidgets
-from ..custom import NumberTextField, LabelAlignRight, HorizontalLine
+from ..custom import FloatLineEdit, IntegerLineEdit, LabelAlignRight
+from ..custom.lines import HorizontalLine
 
 Signal = QtCore.Signal
 
@@ -24,10 +25,10 @@ class OptimizationWidget(QtWidgets.QWidget):
         self.activate_cb = QtWidgets.QCheckBox("activate")
 
         self.r_cutoff_lbl = LabelAlignRight('r cutoff:')
-        self.r_cutoff_txt = NumberTextField('1.4')
+        self.r_cutoff_txt = FloatLineEdit('1.4')
 
         self.optimize_iterations_lbl = LabelAlignRight("Iterations:")
-        self.optimize_iterations_txt = NumberTextField('5')
+        self.optimize_iterations_txt = IntegerLineEdit('5')
 
         self.attenuation_factor_lbl = LabelAlignRight("Attenuation:")
         self.attenuation_factor_sb = QtWidgets.QSpinBox()
@@ -35,12 +36,8 @@ class OptimizationWidget(QtWidgets.QWidget):
         self.plot_progress_cb = QtWidgets.QCheckBox('plot progress')
 
     def style_widgets(self):
-
         self.r_cutoff_txt.setMaximumWidth(80)
         self.optimize_iterations_txt.setMaximumWidth(80)
-
-        self.r_cutoff_txt.setValidator(QtGui.QDoubleValidator())
-        self.optimize_iterations_txt.setValidator(QtGui.QIntValidator())
 
         self.attenuation_factor_sb.setRange(1, 1000)
         self.attenuation_factor_sb.setSingleStep(1)
@@ -80,19 +77,22 @@ class OptimizationWidget(QtWidgets.QWidget):
 
     def create_signals(self):
         self.activate_cb.stateChanged.connect(self.param_widget.setVisible)
-        self.activate_cb.stateChanged.connect(self.optimization_parameters_changed.emit)
+        self.activate_cb.stateChanged.connect(
+            self.emit_calculation_changed_signal)
 
-        self.r_cutoff_txt.editingFinished.connect(self.emit_calculation_changed_signal)
-        self.optimize_iterations_txt.editingFinished.connect(self.emit_calculation_changed_signal)
-        self.attenuation_factor_sb.valueChanged.connect(self.optimization_parameters_changed.emit)
+        self.r_cutoff_txt.editingFinished.connect(
+            self.emit_calculation_changed_signal)
+        self.optimize_iterations_txt.editingFinished.connect(
+            self.emit_calculation_changed_signal)
+        self.attenuation_factor_sb.valueChanged.connect(
+            self.emit_calculation_changed_signal)
 
     def emit_calculation_changed_signal(self):
         if self.r_cutoff_txt.isModified():
-            self.optimization_parameters_changed.emit()
             self.r_cutoff_txt.setModified(False)
         elif self.optimize_iterations_txt.isModified():
-            self.optimization_parameters_changed.emit()
             self.optimize_iterations_txt.setModified(False)
+        self.optimization_parameters_changed.emit()
 
     def get_parameter(self):
         activate = self.activate_cb.isChecked()

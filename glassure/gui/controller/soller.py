@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ..widgets.glassure import GlassureWidget
-from ..model.glassure import GlassureModel
+from ..widgets.glassure_widget import GlassureWidget
+from ..model.glassure_model import GlassureModel
 
 
 class SollerController(object):

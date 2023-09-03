@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+from qtpy import QtCore, QtWidgets
 
-from qtpy import QtCore, QtGui, QtWidgets
+from ..custom import FloatLineEdit
 
 
 class DataWidget(QtWidgets.QWidget):
@@ -18,6 +19,7 @@ class DataWidget(QtWidgets.QWidget):
         self._layout.addWidget(self.background_options_gb)
         self._layout.addWidget(self.smooth_gb)
         self._layout.addSpacing(5)
+
         self.setLayout(self._layout)
 
 
@@ -31,16 +33,33 @@ class FileWidget(QtWidgets.QWidget):
         self.load_data_btn = QtWidgets.QPushButton("Load Data")
         self.data_filename_lbl = QtWidgets.QLabel("None")
         self.data_filename_lbl.setAlignment(QtCore.Qt.AlignRight)
+
         self.load_background_btn = QtWidgets.QPushButton("Load Bkg")
+        # use icon for reset button
+        pixmapi = getattr(QtWidgets.QStyle, "SP_DialogCancelButton")
+        icon = self.style().standardIcon(pixmapi)
+        self.reset_background_btn = QtWidgets.QPushButton(icon, "")
+
         self.background_filename_lbl = QtWidgets.QLabel("None")
         self.background_filename_lbl.setAlignment(QtCore.Qt.AlignRight)
 
         self.vertical_layout.addWidget(self.load_data_btn)
         self.vertical_layout.addWidget(self.data_filename_lbl)
-        self.vertical_layout.addWidget(self.load_background_btn)
+
+        self.background_btn_layout = QtWidgets.QHBoxLayout()
+        self.background_btn_layout.addWidget(self.load_background_btn)
+        self.background_btn_layout.addWidget(self.reset_background_btn)
+
+        self.vertical_layout.addLayout(self.background_btn_layout)             
         self.vertical_layout.addWidget(self.background_filename_lbl)
 
         self.setLayout(self.vertical_layout)
+        self.style_widgets()
+
+    def style_widgets(self):
+        self.reset_background_btn.setMaximumWidth(20)
+        self.reset_background_btn.setMaximumHeight(20)
+        self.reset_background_btn.setToolTip("Reset Background")
 
 
 class BackgroundOptionsGroupBox(QtWidgets.QGroupBox):
@@ -55,10 +74,11 @@ class BackgroundOptionsGroupBox(QtWidgets.QGroupBox):
     def create_widgets(self):
         self.scale_lbl = QtWidgets.QLabel("Scale:")
         self.scale_sb = QtWidgets.QDoubleSpinBox()
-        self.scale_step_txt = QtWidgets.QLineEdit("0.01")
+        self.scale_step_txt = FloatLineEdit("0.01")
 
     def style_widgets(self):
-        self.scale_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.scale_lbl.setAlignment(QtCore.Qt.AlignVCenter |
+                                    QtCore.Qt.AlignRight)
 
         self.scale_sb.setValue(1.0)
         self.scale_sb.setSingleStep(0.01)
@@ -68,7 +88,6 @@ class BackgroundOptionsGroupBox(QtWidgets.QGroupBox):
         self.scale_step_txt.setMaximumWidth(60)
         self.scale_sb.setAlignment(QtCore.Qt.AlignRight)
         self.scale_step_txt.setAlignment(QtCore.Qt.AlignRight)
-        self.scale_step_txt.setValidator(QtGui.QDoubleValidator())
 
     def create_layout(self):
         self.grid_layout = QtWidgets.QGridLayout()
@@ -96,16 +115,15 @@ class SmoothGroupBox(QtWidgets.QGroupBox):
         self.grid_layout.setSpacing(5)
 
         self.smooth_lbl = QtWidgets.QLabel("Smooth:")
-        self.smooth_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
+        self.smooth_lbl.setAlignment(QtCore.Qt.AlignVCenter |
+                                     QtCore.Qt.AlignRight)
 
         self.smooth_sb = QtWidgets.QDoubleSpinBox()
         self.smooth_sb.setAlignment(QtCore.Qt.AlignRight)
         self.smooth_sb.setSingleStep(1)
         self.smooth_sb.setMinimumWidth(80)
 
-        self.smooth_step_txt = QtWidgets.QLineEdit("1")
-        self.smooth_step_txt.setAlignment(QtCore.Qt.AlignRight)
-        self.smooth_step_txt.setValidator(QtGui.QDoubleValidator())
+        self.smooth_step_txt = FloatLineEdit("1")
         self.smooth_step_txt.setMaximumWidth(60)
 
         self.smooth_step_txt.editingFinished.connect(self.step_changed)

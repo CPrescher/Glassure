@@ -3,9 +3,9 @@ import os
 
 from qtpy import QtCore
 
-from ..widgets.glassure import GlassureWidget
+from ..widgets.glassure_widget import GlassureWidget
 from ..widgets.custom.file_dialogs import open_file_dialog
-from ..model.glassure import GlassureModel
+from ..model.glassure_model import GlassureModel
 
 
 class TransferFunctionController(object):

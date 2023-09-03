@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
+from qtpy import QtCore, QtWidgets
 
-from qtpy import QtCore, QtGui, QtWidgets
+from ..custom import FloatLineEdit, CommaDoubleValidator
 from ....core.scattering_factors import calculators, sources
+from ...model.configuration import Sample
 
 Signal = QtCore.Signal
 
 
 class CompositionWidget(QtWidgets.QWidget):
-    composition_changed = Signal(dict, float)
+    composition_changed = Signal(Sample)
 
     def __init__(self, *args):
         super(CompositionWidget, self).__init__(*args)
 
         self._create_widgets()
         self._create_layout()
+        self._connect_signals()
         self._style_widgets()
 
     def _create_widgets(self):
@@ -26,11 +29,10 @@ class CompositionWidget(QtWidgets.QWidget):
         self.delete_element_btn = QtWidgets.QPushButton("Delete")
 
         self.density_lbl = QtWidgets.QLabel("Density:")
-        self.density_txt = QtWidgets.QLineEdit("2.2")
+        self.density_txt = FloatLineEdit("2.2")
         self.density_atomic_units_lbl = QtWidgets.QLabel("")
 
         self.composition_tw = QtWidgets.QTableWidget()
-        self.composition_tw.cellChanged.connect(self.emit_composition_changed_signal)
 
     def _create_layout(self):
         self.main_layout = QtWidgets.QVBoxLayout()
@@ -58,19 +60,21 @@ class CompositionWidget(QtWidgets.QWidget):
         self.main_layout.addLayout(self.button_layout)
         self.main_layout.addWidget(self.composition_tw)
         self.main_layout.addLayout(self.density_layout)
-
         self.setLayout(self.main_layout)
 
+    def _connect_signals(self):
+        self.source_cb.currentTextChanged.connect(self.emit_composition_changed_signal)
+        self.density_txt.editingFinished.connect(self.emit_composition_changed_signal)
+
+        self.composition_tw.cellChanged.connect(self.emit_composition_changed_signal)
+
     def _style_widgets(self):
-
         self.source_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
-
         self.density_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
         self.density_atomic_units_lbl.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
-        self.density_txt.setAlignment(QtCore.Qt.AlignRight)
-        self.density_txt.setValidator(QtGui.QDoubleValidator())
         self.density_txt.editingFinished.connect(self.emit_composition_changed_signal)
+
         self.density_txt.setMaximumWidth(100)
 
         self.composition_tw.setColumnCount(2)
@@ -82,8 +86,9 @@ class CompositionWidget(QtWidgets.QWidget):
 
     def add_element(self, element=None, value=None):
         current_rows = self.composition_tw.rowCount()
-        self.composition_tw.setRowCount(current_rows + 1)
         self.composition_tw.blockSignals(True)
+        self.composition_tw.setRowCount(current_rows + 1)
+
         element_cb = QtWidgets.QComboBox(self)
         element_cb.setStyle(QtWidgets.QStyleFactory.create('cleanlooks'))
 
@@ -92,21 +97,34 @@ class CompositionWidget(QtWidgets.QWidget):
 
         if element is not None:
             element_cb.setCurrentIndex(element_cb.findText(element))
+
         self.composition_tw.setCellWidget(current_rows, 0, element_cb)
 
         element_cb.currentIndexChanged.connect(self.emit_composition_changed_signal)
+
         if value is not None:
             value_item = QtWidgets.QTableWidgetItem(str(value))
         else:
             value_item = QtWidgets.QTableWidgetItem(str(1))
+
         value_item.setTextAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
         self.composition_tw.setItem(current_rows, 1, value_item)
         self.composition_tw.blockSignals(False)
         self.emit_composition_changed_signal()
 
     def delete_element(self, ind):
         self.composition_tw.blockSignals(True)
+        # If no row is selected, delete the last row
+        if ind == -1:
+            ind = self.composition_tw.rowCount() - 1
         self.composition_tw.removeRow(ind)
+
+        # Select the next row
+        if ind < self.composition_tw.rowCount():
+            self.composition_tw.selectRow(ind)
+        else:
+            self.composition_tw.selectRow(ind - 1)
         self.composition_tw.blockSignals(False)
         self.emit_composition_changed_signal()
 
@@ -121,17 +139,33 @@ class CompositionWidget(QtWidgets.QWidget):
 
     def get_composition(self):
         composition = {}
+
         for row_ind in range(self.composition_tw.rowCount()):
             cb_item = self.composition_tw.cellWidget(row_ind, 0)
             value_item = self.composition_tw.item(row_ind, 1)
-            composition[str(cb_item.currentText())] = float(str(value_item.text()))
+            composition[str(cb_item.currentText())] = float(str(value_item.text().replace(',', '.')))
+
         return composition
 
-    def get_density(self):
-        return float(str(self.density_txt.text()).replace(",", "."))
+    def get_sample_configuration(self) -> Sample:
+        sample = Sample()
+        sample.composition = self.get_composition()
+        sample.density = self.density_txt.value()
+        sample.sf_source = str(self.source_cb.currentText())
+        return sample
+
+    def set_sf_source(self, source):
+        self.source_cb.blockSignals(True)
+        self.source_cb.setCurrentIndex(self.source_cb.findText(source))
+        self.source_cb.blockSignals(False)
+
+    def update_sample_configuration(self, sample: Sample):
+        self.set_sf_source(sample.sf_source)
+        self.set_composition(sample.composition)
+        self.density_txt.setText(f"{sample.density:.2f}")
 
     def emit_composition_changed_signal(self):
-        self.composition_changed.emit(self.get_composition(), self.get_density())
+        self.composition_changed.emit(self.get_sample_configuration())
 
 
 class TextDoubleDelegate(QtWidgets.QStyledItemDelegate):
@@ -141,7 +175,7 @@ class TextDoubleDelegate(QtWidgets.QStyledItemDelegate):
     def createEditor(self, parent, _, model):
         self.editor = QtWidgets.QLineEdit(parent)
         self.editor.setFrame(False)
-        self.editor.setValidator(QtGui.QDoubleValidator())
+        self.editor.setValidator(CommaDoubleValidator())
         self.editor.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         return self.editor
 

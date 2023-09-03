@@ -1,26 +1,54 @@
 # -*- coding: utf-8 -*-
 
 from qtpy import QtCore, QtGui, QtWidgets
-from .box import ExpandableBox
 from .lines import HorizontalLine
-from .pattern import PatternWidget
 
 Signal = QtCore.Signal
 
 
 def VerticalSpacerItem():
-    return QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+    return QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum,
+                                 QtWidgets.QSizePolicy.Expanding)
 
 
 def HorizontalSpacerItem():
-    return QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
+    return QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding,
+                                 QtWidgets.QSizePolicy.Ex)
 
 
-class NumberTextField(QtWidgets.QLineEdit):
+class CommaDoubleValidator(QtGui.QDoubleValidator):
+    """
+    This class is used to validate the number input of a NumberTextfield
+    widget. It allows the user to input a number with a comma or a dot as
+    decimal separator.
+    """
+
+    def validate(self, text, pos):
+        text = text.replace(",", ".")
+        return super(CommaDoubleValidator, self).validate(text, pos)
+
+
+class FloatLineEdit(QtWidgets.QLineEdit):
     def __init__(self, *args, **kwargs):
-        super(NumberTextField, self).__init__(*args, **kwargs)
-        self.setValidator(QtGui.QDoubleValidator())
+        super(FloatLineEdit, self).__init__(*args, **kwargs)
+        self.setValidator(CommaDoubleValidator())
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+    def text(self):
+        return super(FloatLineEdit, self).text().replace(",", ".")
+
+    def value(self):
+        return float(self.text())
+
+
+class IntegerLineEdit(QtWidgets.QLineEdit):
+    def __init__(self, *args, **kwargs):
+        super(IntegerLineEdit, self).__init__(*args, **kwargs)
+        self.setValidator(QtGui.QIntValidator())
+        self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+    def value(self):
+        return int(self.text())
 
 
 class LabelAlignRight(QtWidgets.QLabel):
@@ -33,6 +61,12 @@ class FlatButton(QtWidgets.QPushButton):
     def __init__(self, *args):
         super(FlatButton, self).__init__(*args)
         self.setFlat(True)
+
+    def text(self):
+        return super(FloatLineEdit, self).text().replace(",", ".")
+
+    def value(self):
+        return float(self.text())
 
 
 class CheckableFlatButton(QtWidgets.QPushButton):
@@ -62,7 +96,7 @@ class ValueLabelTxtPair(QtWidgets.QWidget):
         super(ValueLabelTxtPair, self).__init__(parent)
 
         self.desc_lbl = LabelAlignRight(label_str)
-        self.value_txt = NumberTextField(str(value_init))
+        self.value_txt = FloatLineEdit(str(value_init))
         self.unit_lbl = LabelAlignRight(unit_str)
 
         self.layout = layout
@@ -83,3 +117,42 @@ class ValueLabelTxtPair(QtWidgets.QWidget):
         self.value_txt.setText(new_str)
 
 
+class DragSlider(QtWidgets.QSlider):
+    dragChanged = Signal(int)
+
+    def __init__(self, parent=None):
+        super(DragSlider, self).__init__(parent)
+
+        self.setRange(-100, 100)
+        self.setSingleStep(1)
+        self.setPageStep(0)
+
+        self._drag_value = 0
+
+        self.setOrientation(QtCore.Qt.Horizontal)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.send_value)
+
+        self.sliderPressed.connect(self.start_drag)
+        self.sliderReleased.connect(self.stop_drag)
+        super(DragSlider, self).valueChanged.connect(self._update_value)
+
+    def _update_value(self, value):
+        self._drag_value = value
+
+    def reset_value(self):
+        self._drag_value = 0
+
+    def start_drag(self):
+        if not self.timer.isActive():
+            self.timer.start(100)
+
+    def send_value(self):
+        self.dragChanged.emit(self._drag_value)
+
+    def stop_drag(self):
+        self.timer.stop()
+        self.blockSignals(True)
+        self.setValue(0)
+        self.blockSignals(False)

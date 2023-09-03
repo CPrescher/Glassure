@@ -2,7 +2,7 @@
 
 from functools import partial
 
-from qtpy import QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets, QtGui
 from ..custom import FlatButton, ListTableWidget
 
 
@@ -26,6 +26,18 @@ class ConfigurationWidget(QtWidgets.QWidget):
         self.remove_btn = QtWidgets.QPushButton("Remove")
         self.configuration_tw = ListTableWidget(columns=3)
         self.configuration_tw.setObjectName('configuration_tw')
+        self.configuration_tw.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        # First column will not trigger selection of a row
+        self.configuration_tw.setItemDelegateForColumn(0, QtWidgets.QStyledItemDelegate())
+
+        self.configuration_tw.cellChanged.connect(self.configuration_label_editingFinished)
+
+        pixmap = getattr(QtWidgets.QStyle, "SP_DialogSaveButton")
+        icon = self.style().standardIcon(pixmap)
+        self.save_btn = QtWidgets.QPushButton(icon, "")
+        pixmap = getattr(QtWidgets.QStyle, "SP_DialogOpenButton")
+        icon = self.style().standardIcon(pixmap)
+        self.load_btn = QtWidgets.QPushButton(icon, "")
 
     def _create_layout(self):
         self._button_layout = QtWidgets.QHBoxLayout()
@@ -35,6 +47,12 @@ class ConfigurationWidget(QtWidgets.QWidget):
         self._main_layout = QtWidgets.QVBoxLayout()
         self._main_layout.addLayout(self._button_layout)
         self._main_layout.addWidget(self.configuration_tw)
+
+        self._save_load_layout = QtWidgets.QHBoxLayout()
+        self._save_load_layout.addStretch()
+        self._save_load_layout.addWidget(self.load_btn)
+        self._save_load_layout.addWidget(self.save_btn)
+        self._main_layout.addLayout(self._save_load_layout)
 
         self.setLayout(self._main_layout)
 
@@ -46,14 +64,27 @@ class ConfigurationWidget(QtWidgets.QWidget):
                 max-height: 16;
             }
         """)
+        self.save_btn.setMaximumWidth(23)
+        self.save_btn.setMinimumWidth(23)
+        self.save_btn.setMaximumHeight(23)
+        self.save_btn.setMinimumHeight(23)
+        self.save_btn.setToolTip("Save all configurations into a json file")
+        self.load_btn.setMaximumWidth(23)
+        self.load_btn.setMaximumHeight(23)
+        self.load_btn.setMinimumWidth(23)
+        self.load_btn.setMinimumHeight(23)
+        self.load_btn.setToolTip(
+            "Load multiple configurations from a json file")
+        self._save_load_layout.setContentsMargins(0, 0, 0, 0)
+        self._main_layout.setContentsMargins(0, 0, 0, 0)
 
-    def add_configuration(self, name, color):
+    def add_configuration(self, name, color, show=True):
         self.configuration_tw.blockSignals(True)
         current_rows = self.configuration_tw.rowCount()
         self.configuration_tw.setRowCount(current_rows + 1)
 
         show_cb = QtWidgets.QCheckBox()
-        show_cb.setChecked(True)
+        show_cb.setChecked(show)
         show_cb.stateChanged.connect(partial(self.configuration_show_cb_changed, show_cb))
         show_cb.setStyleSheet("background-color: transparent")
         self.configuration_tw.setCellWidget(current_rows, 0, show_cb)
@@ -96,7 +127,8 @@ class ConfigurationWidget(QtWidgets.QWidget):
         self.configuration_tw.blockSignals(False)
 
         self.configuration_show_cbs.remove(self.configuration_show_cbs[ind])
-        self.configuration_color_btns.remove(self.configuration_color_btns[ind])
+        self.configuration_color_btns.remove(
+            self.configuration_color_btns[ind])
 
         if self.configuration_tw.rowCount() > ind:
             self.select_configuration(ind)
@@ -111,10 +143,12 @@ class ConfigurationWidget(QtWidgets.QWidget):
         self.configuration_color_btns = []
 
     def configuration_color_btn_click(self, button):
-        self.configuration_color_btn_clicked.emit(self.configuration_color_btns.index(button), button)
+        self.configuration_color_btn_clicked.emit(
+            self.configuration_color_btns.index(button), button)
 
-    def configuration_show_cb_changed(self, checkbox):
-        self.configuration_show_cb_state_changed.emit(self.configuration_show_cbs.index(checkbox), checkbox.isChecked())
+    def configuration_show_cb_changed(self, checkbox, _):
+        self.configuration_show_cb_state_changed.emit(self.configuration_show_cbs.index(checkbox),
+                                                      checkbox.isChecked())
 
     def configuration_show_cb_set_checked(self, ind, state):
         checkbox = self.configuration_show_cbs[ind]
@@ -126,4 +160,4 @@ class ConfigurationWidget(QtWidgets.QWidget):
 
     def configuration_label_editingFinished(self, row, col):
         label_item = self.configuration_tw.item(row, col)
-        self.configuration_name_changed.emit(row, str(label_item.text()))
+        self.configuration_name_changed.emit(int(row), str(label_item.text()))
