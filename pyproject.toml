@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "glassure"
-version = "1.3.0.post13.dev0+f777488"
+version = "1.4.0"
 description = "API and GUI for analysis of X-ray total scattering data"
 authors = ["Clemens Prescher <clemens.prescher@gmail.com>"]
 license = "MIT"
@@ -21,7 +21,7 @@ classifiers = [
 glassure = 'glassure.run:main'
 
 [tool.poetry-dynamic-versioning]
-enable = false
+enable = true
 pattern = "default-unprefixed"
 
 [tool.poetry-dynamic-versioning.substitution]
