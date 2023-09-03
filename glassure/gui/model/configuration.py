@@ -211,6 +211,7 @@ class GlassureConfiguration(object):
 
         self.name = 'Config {}'.format(GlassureConfiguration.num)
         self.color = calculate_color(GlassureConfiguration.num)
+        self.show = True
         GlassureConfiguration.num += 1
 
     def copy(self):
@@ -236,40 +237,38 @@ class GlassureConfiguration(object):
             'soller_configuration': self.soller_config.to_dict(),
             'transfer_configuration': self.transfer_config.to_dict(),
             'name': self.name,
-            'color': self.color.tolist()
+            'color': self.color.tolist(),
+            'show': self.show,
         }
         return config_dict
 
     @classmethod
     def from_dict(cls, config_dict: dict) -> GlassureConfiguration:
         config = cls()
-        config.original_pattern = Pattern.from_dict(
-            config_dict['original_pattern'])
-        config.background_pattern = Pattern.from_dict(
-            config_dict['background_pattern']) if config_dict['background_pattern'] is not None else None
-        config.diamond_bkg_pattern = Pattern.from_dict(
-            config_dict['diamond_bkg_pattern']) if config_dict['diamond_bkg_pattern'] is not None else None
-        config.sq_pattern = Pattern.from_dict(
-            config_dict['sq_pattern']) if config_dict['sq_pattern'] is not None else None
-        config.fr_pattern = Pattern.from_dict(
-            config_dict['fr_pattern']) if config_dict['fr_pattern'] is not None else None
-        config.gr_pattern = Pattern.from_dict(
-            config_dict['gr_pattern']) if config_dict['gr_pattern'] is not None else None
+
+        def get_pattern_or_none(pattern_dict):
+            if pattern_dict is None:
+                return None
+            else:
+                return Pattern.from_dict(pattern_dict)
+
+        config.original_pattern = get_pattern_or_none(config_dict['original_pattern'])
+        config.background_pattern = get_pattern_or_none(config_dict['background_pattern'])
+        config.diamond_bkg_pattern = get_pattern_or_none(config_dict['diamond_bkg_pattern'])
+        config.sq_pattern = get_pattern_or_none(config_dict['sq_pattern'])
+        config.fr_pattern = get_pattern_or_none(config_dict['fr_pattern'])
+        config.gr_pattern = get_pattern_or_none(config_dict['gr_pattern'])
 
         config.sample = Sample.from_dict(config_dict['sample'])
-        config.transform_config = TransformConfiguration.from_dict(
-            config_dict['transform_configuration'])
-        config.optimize_config = OptimizeConfiguration.from_dict(
-            config_dict['optimize_configuration'])
-        config.extrapolation_config = ExtrapolationConfiguration.from_dict(
-            config_dict['extrapolation_configuration'])
-        config.soller_config = SollerConfiguration.from_dict(
-            config_dict['soller_configuration'])
-        config.transfer_config = TransferConfiguration.from_dict(
-            config_dict['transfer_configuration'])
+        config.transform_config = TransformConfiguration.from_dict(config_dict['transform_configuration'])
+        config.optimize_config = OptimizeConfiguration.from_dict(config_dict['optimize_configuration'])
+        config.extrapolation_config = ExtrapolationConfiguration.from_dict(config_dict['extrapolation_configuration'])
+        config.soller_config = SollerConfiguration.from_dict(config_dict['soller_configuration'])
+        config.transfer_config = TransferConfiguration.from_dict(config_dict['transfer_configuration'])
 
         config.name = config_dict['name']
         config.color = np.array(config_dict['color'])
+        config.show = config_dict['show'] if 'show' in config_dict.keys() else True
 
         return config
 
@@ -294,7 +293,7 @@ class FourierTransformMethod(StrEnum):
     """
     Enum class for the different methods to perform a Fourier transform.
     """
-    FFT  = 'fft'
+    FFT = 'fft'
     INTEGRAL = 'integral'
 
 

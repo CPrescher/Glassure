@@ -26,10 +26,11 @@ class ConfigurationWidget(QtWidgets.QWidget):
         self.remove_btn = QtWidgets.QPushButton("Remove")
         self.configuration_tw = ListTableWidget(columns=3)
         self.configuration_tw.setObjectName('configuration_tw')
-        self.configuration_tw.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectRows)
-        self.configuration_tw.cellChanged.connect(
-            self.configuration_label_editingFinished)
+        self.configuration_tw.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        # First column will not trigger selection of a row
+        self.configuration_tw.setItemDelegateForColumn(0, QtWidgets.QStyledItemDelegate())
+
+        self.configuration_tw.cellChanged.connect(self.configuration_label_editingFinished)
 
         pixmap = getattr(QtWidgets.QStyle, "SP_DialogSaveButton")
         icon = self.style().standardIcon(pixmap)
@@ -77,30 +78,27 @@ class ConfigurationWidget(QtWidgets.QWidget):
         self._save_load_layout.setContentsMargins(0, 0, 0, 0)
         self._main_layout.setContentsMargins(0, 0, 0, 0)
 
-    def add_configuration(self, name, color):
+    def add_configuration(self, name, color, show=True):
         self.configuration_tw.blockSignals(True)
         current_rows = self.configuration_tw.rowCount()
         self.configuration_tw.setRowCount(current_rows + 1)
 
         show_cb = QtWidgets.QCheckBox()
-        show_cb.setChecked(True)
-        show_cb.stateChanged.connect(
-            partial(self.configuration_show_cb_changed, show_cb))
+        show_cb.setChecked(show)
+        show_cb.stateChanged.connect(partial(self.configuration_show_cb_changed, show_cb))
         show_cb.setStyleSheet("background-color: transparent")
         self.configuration_tw.setCellWidget(current_rows, 0, show_cb)
         self.configuration_show_cbs.append(show_cb)
 
         color_button = FlatButton()
         color_button.setStyleSheet("background-color: " + color)
-        color_button.clicked.connect(
-            partial(self.configuration_color_btn_click, color_button))
+        color_button.clicked.connect(partial(self.configuration_color_btn_click, color_button))
         self.configuration_tw.setCellWidget(current_rows, 1, color_button)
         self.configuration_color_btns.append(color_button)
 
         name_item = QtWidgets.QTableWidgetItem(name)
         name_item.setFlags(name_item.flags() & ~QtCore.Qt.ItemIsEditable)
-        self.configuration_tw.setItem(
-            current_rows, 2, QtWidgets.QTableWidgetItem(name))
+        self.configuration_tw.setItem(current_rows, 2, QtWidgets.QTableWidgetItem(name))
 
         self.configuration_tw.setColumnWidth(0, 20)
         self.configuration_tw.setColumnWidth(1, 25)
@@ -149,8 +147,8 @@ class ConfigurationWidget(QtWidgets.QWidget):
             self.configuration_color_btns.index(button), button)
 
     def configuration_show_cb_changed(self, checkbox, _):
-        self.configuration_show_cb_state_changed.emit(
-            self.configuration_show_cbs.index(checkbox), checkbox.isChecked())
+        self.configuration_show_cb_state_changed.emit(self.configuration_show_cbs.index(checkbox),
+                                                      checkbox.isChecked())
 
     def configuration_show_cb_set_checked(self, ind, state):
         checkbox = self.configuration_show_cbs[ind]

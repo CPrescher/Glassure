@@ -372,3 +372,26 @@ def test_save_and_load_model(configuration_widget, configuration_controller, tmp
     prepare_file_loading(output_path)
     click_button(configuration_widget.load_btn)
     assert configuration_widget.configuration_tw.rowCount() == 1
+
+
+def test_freeze_configuration_and_configuration_visibility(configuration_widget, configuration_controller, model):
+    click_button(configuration_widget.freeze_btn)
+    click_button(configuration_widget.freeze_btn)
+    click_button(configuration_widget.freeze_btn)
+
+    assert model.configurations[0].show
+    assert model.configurations[1].show
+    assert model.configurations[2].show
+
+    click_checkbox(configuration_widget.configuration_show_cbs[1])
+    assert not model.configurations[1].show
+
+    click_button(configuration_widget.freeze_btn)
+    assert not model.configurations[1].show
+    assert not configuration_widget.configuration_show_cbs[1].isChecked()
+
+    click_checkbox(configuration_widget.configuration_show_cbs[1])
+    assert model.configurations[1].show
+
+    click_button(configuration_widget.freeze_btn)
+    assert model.configurations[1].show

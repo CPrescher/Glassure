@@ -70,15 +70,13 @@ class PatternWidget(QtWidgets.QWidget):
         self.add_gr_item()
 
     def add_sq_item(self, color='w', show=True):
-        self.sq_items.append(pg.PlotDataItem(
-            [], [], pen=pg.mkPen(color=color, width=1.5)))
+        self.sq_items.append(pg.PlotDataItem([], [], pen=pg.mkPen(color=color, width=1.5)))
         self.sq_show.append(show)
         if show:
             self.sq_plot.addItem(self.sq_items[-1])
 
     def add_gr_item(self, color='w', show=True):
-        self.gr_items.append(pg.PlotDataItem(
-            [], [], pen=pg.mkPen(color=color, width=1.5)))
+        self.gr_items.append(pg.PlotDataItem([], [], pen=pg.mkPen(color=color, width=1.5)))
         self.gr_show.append(show)
         if show:
             self.gr_plot.addItem(self.gr_items[-1])
@@ -241,7 +239,7 @@ class ModifiedPlotItem(pg.PlotItem):
                 self.vb.showAxRect(ax)
                 self.vb.axHistoryPointer += 1
                 self.vb.axHistory = self.vb.axHistory[
-                    :self.vb.axHistoryPointer] + [ax]
+                                    :self.vb.axHistoryPointer] + [ax]
                 self.vb.sigRangeChangedManually.emit(
                     self.vb.state['mouseEnabled'])
             else:
