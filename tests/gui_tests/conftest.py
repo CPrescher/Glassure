@@ -33,6 +33,11 @@ def configuration_controller(main_controller):
 
 
 @pytest.fixture
+def density_optimization_widget(main_widget):
+    return main_widget.right_control_widget.density_optimization_widget
+
+
+@pytest.fixture
 def composition_widget(main_widget):
     return main_widget.left_control_widget.composition_widget
 

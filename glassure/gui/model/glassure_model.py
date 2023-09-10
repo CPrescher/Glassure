@@ -628,14 +628,11 @@ class GlassureModel(QtCore.QObject):
 
         optimizer.optimize(iterations)
 
-    def optimize_density_and_scaling(
-            self, density_min, density_max, bkg_min, bkg_max, iterations,
-            callback_fcn=None, output_txt=None):
+    def optimize_density_and_scaling(self, density_min, density_max, bkg_min, bkg_max, iterations, callback_fcn=None,
+                                     output_txt=None):
         params = Parameters()
-        params.add("density", value=self.density,
-                   min=density_min, max=density_max)
-        params.add("background_scaling",
-                   value=self.background_scaling, min=bkg_min, max=bkg_max)
+        params.add("density", value=self.density, min=density_min, max=density_max)
+        params.add("background_scaling", value=self.background_scaling, min=bkg_min, max=bkg_max)
 
         self.iteration = 0
 
@@ -644,49 +641,48 @@ class GlassureModel(QtCore.QObject):
             background_scaling = params['background_scaling'].value
 
             self.background_pattern.scaling = background_scaling
+            self.density = density
             self.calculate_transforms()
-            self.optimize_sq(iterations, fcn_callback=callback_fcn)
+            # self.optimize_sq(iterations, fcn_callback=callback_fcn)
 
-            r, fr = self.fr_pattern.limit(0, self.r_cutoff).data
+            r, gr = self.gr_pattern.limit(0, self.r_cutoff * 0.5).data
 
-            output = (-fr - 4 * np.pi *
-                      convert_density_to_atoms_per_cubic_angstrom(self.composition, density) *
-                      r) ** 2
+            output = gr ** 2
 
-            self.write_output(
-                u'{} X: {:.3f} Den: {:.3f}'.format(
-                    self.iteration, np.sum(output) / (r[1] - r[0]), density)
+            self.write_output(u'{} X^2: {:.3f} Bkg_Scaling: {:.2f} Den: {:.3f}'.format(
+                self.iteration, np.sum(output) / len(r), background_scaling, density),
+                output_txt
             )
             self.iteration += 1
             return output
 
-        minimize(optimization_fcn, params)
-        self.write_fit_results(params)
+        res = minimize(optimization_fcn, params, method='least_squares', xtol=1e-3)
+        self.write_fit_results(res.params, output_txt)
+        return res.params
 
     def write_output(self, msg, output_txt=None):
         if output_txt is None:
             print(msg)
         else:
+            print(msg)
             previous_txt = str(output_txt.toPlainText())
             new_txt = previous_txt + "\n" + str(msg)
             output_txt.setPlainText(new_txt)
-            # QtGui.QApplication.processEvents()
-            output_txt.verticalScrollBar().setValue(
-                output_txt.verticalScrollBar().maximum())
-            QtGui.QApplication.processEvents()
-            output_txt.verticalScrollBar().setValue(
-                output_txt.verticalScrollBar().maximum())
-            QtGui.QApplication.processEvents()
+            output_txt.verticalScrollBar().setValue(output_txt.verticalScrollBar().maximum())
+            QtCore.QCoreApplication.processEvents()
+            output_txt.verticalScrollBar().setValue(output_txt.verticalScrollBar().maximum())
+            QtCore.QCoreApplication.processEvents()
 
-    def write_fit_results(self, params):
+    def write_fit_results(self, params, output_txt=None):
         output = '\nFit Results:\n'
-        output += '-Background Scaling:\n  % .3g +/- %.3g\n' % (
-            params['background_scaling'].value,
-            params['background_scaling'].stderr)
-        output += '-Density:\n  % .3g +/- %.3g\n' % (
-            params['density'].value,
-            params['density'].stderr)
-        self.write_output(output)
+        if params['density'].stderr is None:
+            params['density'].stderr = np.nan
+        if params['background_scaling'].stderr is None:
+            params['background_scaling'].stderr = np.nan
+        output += '-Background Scaling:\n  % .3g +/- %.3g\n' % ( \
+            params['background_scaling'].value, params['background_scaling'].stderr)
+        output += '-Density:\n  % .3g +/- %.3g\n' % (params['density'].value, params['density'].stderr)
+        self.write_output(output, output_txt)
 
     def set_diamond_content(self, content_value):
         if content_value == 0:
