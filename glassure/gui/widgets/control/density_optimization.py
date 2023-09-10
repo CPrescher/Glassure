@@ -62,7 +62,7 @@ class DensityOptimizationWidget(QtWidgets.QWidget):
 
         self.setLayout(self.grid_layout)
 
-    def get_parameter(self):
+    def get_parameters(self):
         density_min = self.density_min_txt.value()
         density_max = self.density_max_txt.value()
         bkg_min = self.bkg_min_txt.value()
