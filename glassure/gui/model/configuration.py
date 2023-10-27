@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*/:
 from __future__ import annotations
-from enum import StrEnum
+from enum import Enum
 from colorsys import hsv_to_rgb
 from copy import deepcopy
 
 import numpy as np
 
 from ...core.pattern import Pattern
+from ...core.methods import SqMethod, NormalizationMethod, FourierTransformMethod
 
 
 class TransformConfiguration(object):
@@ -271,30 +272,6 @@ class GlassureConfiguration(object):
         config.show = config_dict['show'] if 'show' in config_dict.keys() else True
 
         return config
-
-
-class SqMethod(StrEnum):
-    """
-    Enum class for the different methods to calculate the structure factor.
-    """
-    FZ = 'FZ'
-    AL = 'AL'
-
-
-class NormalizationMethod(StrEnum):
-    """
-    Enum class for the different methods to perform an intensity normalization.
-    """
-    INTEGRAL = 'integral'
-    FIT = 'fit'
-
-
-class FourierTransformMethod(StrEnum):
-    """
-    Enum class for the different methods to perform a Fourier transform.
-    """
-    FFT = 'fft'
-    INTEGRAL = 'integral'
 
 
 def calculate_color(ind):

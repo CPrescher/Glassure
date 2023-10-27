@@ -3,7 +3,8 @@
 from qtpy import QtCore, QtWidgets
 from ..custom import HorizontalLine, FloatLineEdit, DragSlider
 import numpy as np
-from ...model.configuration import NormalizationMethod, SqMethod, TransformConfiguration, FourierTransformMethod
+from ...model.configuration import TransformConfiguration
+from ....core.methods import SqMethod, NormalizationMethod, FourierTransformMethod
 
 
 class OptionsWidget(QtWidgets.QWidget):
@@ -165,7 +166,7 @@ class OptionsWidget(QtWidgets.QWidget):
             return FourierTransformMethod.INTEGRAL
 
     def set_fourier_transform_method(self, method):
-        if method == 'fft':
+        if method == 'fft' or method == FourierTransformMethod.FFT:
             self.fft_cb.setChecked(True)
         else:
             self.fft_cb.setChecked(False)
