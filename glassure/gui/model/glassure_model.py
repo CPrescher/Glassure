@@ -8,7 +8,6 @@ from lmfit import Parameters, minimize
 from qtpy import QtGui, QtCore
 
 from ...core.pattern import Pattern
-from .density_optimization import DensityOptimizer
 from ...core.utility import calculate_incoherent_scattering, convert_density_to_atoms_per_cubic_angstrom
 from ...core import calculate_sq, calculate_gr, calculate_fr
 from ...core.optimization import optimize_sq
@@ -602,31 +601,6 @@ class GlassureModel(QtCore.QObject):
         self.gr_pattern = calculate_gr(
             self.fr_pattern, self.density, self.composition)
 
-    def optimize_density_and_scaling2(self, density_min, density_max, bkg_min,
-                                      bkg_max, iterations, output_txt=None):
-        optimizer = DensityOptimizer(
-            original_pattern=self.original_pattern.limit(
-                self.q_min, self.q_max),
-            background_pattern=self.background_pattern.limit(
-                self.q_min, self.q_max),
-            initial_background_scaling=self.background_scaling,
-            elemental_abundances=self.composition,
-            initial_density=self.density,
-            r_cutoff=self.r_cutoff,
-            r=np.linspace(self.r_min, self.r_max, 1000),
-            density_min=density_min,
-            density_max=density_max,
-            bkg_min=bkg_min,
-            bkg_max=bkg_max,
-            use_modification_fcn=self.use_modification_fcn,
-            extrapolation_method=self.extrapolation_config.method,
-            extrapolation_parameters={
-                'q_max': self.extrapolation_config.fit_q_max,
-                'replace': self.extrapolation_config.fit_replace},
-            output_txt=output_txt
-        )
-
-        optimizer.optimize(iterations)
 
     def optimize_density_and_scaling(self, density_min, density_max, bkg_min, bkg_max, iterations, callback_fcn=None,
                                      output_txt=None):
