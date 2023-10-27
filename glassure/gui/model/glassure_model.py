@@ -570,7 +570,7 @@ class GlassureModel(QtCore.QObject):
 
         extrapolation_method = self.extrapolation_config.method
         if self.extrapolation_config.s0_auto:
-            self.extrapolation_config.s0 = calculate_s0(self.composition)
+            self.extrapolation_config.s0 = calculate_s0(self.composition, self.sf_source)
 
         s0 = self.extrapolation_config.s0
 

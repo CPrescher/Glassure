@@ -1,3 +1,9 @@
+1.4.1 (under development)
+-------------------------
+
+Bug fixes:
+    - fix error with s0 auto calculation when using brown hubbell form factors.
+
 1.4.0 (2023/09/03)
 ------------------
 

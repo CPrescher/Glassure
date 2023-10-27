@@ -196,3 +196,11 @@ def test_using_different_fourier_transform_methods(main_controller: GlassureCont
     assert not np.array_equal(prev_gr_data, pattern_widget.gr_items[0].getData())
 
     # he is satisfied with the small changes and will continue to use the fft method
+
+
+def test_adding_elements_with_brown_hubbell(main_controller: GlassureController, main_widget: GlassureWidget,
+                                            composition_widget: CompositionWidget, model: GlassureModel):
+    composition_widget.source_cb.setCurrentIndex(1)
+    assert composition_widget.source_cb.currentText() == "brown_hubbell"
+    click_button(composition_widget.add_element_btn)
+    click_checkbox(main_widget.left_control_widget.extrapolation_widget.activate_cb)
