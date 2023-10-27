@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/Luindil/Glassure/badge.svg?branch=develop)](https://coveralls.io/github/Luindil/Glassure?branch=develop)
+[![codecov](https://codecov.io/gh/CPrescher/Glassure/graph/badge.svg?token=H7XYCD78TT)](https://codecov.io/gh/CPrescher/Glassure)
 [![DOI](https://zenodo.org/badge/24698239.svg)](https://zenodo.org/badge/latestdoi/24698239)
 
 # Glassure
