@@ -2,6 +2,7 @@
 
 ### Bug fixes:
 - fix error with s0 auto calculation when using brown hubbell form factors.
+- fix python compatibility for 3.9 and 3.10 
 
 ## 1.4.0 (2023/09/03)
 
