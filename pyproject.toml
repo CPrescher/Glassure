@@ -35,8 +35,10 @@ scipy = "^1.11.2"
 lmfit = "^1.2.0"
 pandas = "^2.1.0"
 pyqtgraph = "^0.13.3"
-qtpy = "^2.3.1"
-pyside6 = "^6.5.1"
+qtpy = "^2.4.1"
+pyside2 = {version = "^5.15.2", python = "<3.10"}
+pyside6 = {version = "^6.6.0", python = ">=3.10"}
+
 
 [tool.poetry.group.dev.dependencies]
 mock = "^5.0.1"
