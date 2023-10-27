@@ -1,2 +1,0 @@
-include versioneer.py
-include glassure/core/_version.py

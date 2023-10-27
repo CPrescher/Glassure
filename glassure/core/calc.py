@@ -7,6 +7,8 @@ from . import Pattern
 from .utility import calculate_incoherent_scattering, calculate_f_squared_mean, calculate_f_mean_squared, \
     convert_density_to_atoms_per_cubic_angstrom
 
+from .methods import SqMethod, NormalizationMethod, FourierTransformMethod
+
 __all__ = ['calculate_normalization_factor_raw', 'calculate_normalization_factor', 'fit_normalization_factor',
            'calculate_sq', 'calculate_sq_raw', 'calculate_sq_from_fr', 'calculate_sq_from_gr',
            'calculate_fr', 'calculate_gr_raw', 'calculate_gr']
@@ -69,7 +71,7 @@ def calculate_normalization_factor(sample_pattern: Pattern, density: float, comp
 
 
 def fit_normalization_factor(sample_pattern: Pattern, composition: dict[str, float], q_cutoff: float = 3,
-                             method: str = "squared", use_incoherent_scattering: bool = True,
+                             method: str = "linear", use_incoherent_scattering: bool = True,
                              sf_source: str = 'hajdu') -> float:
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
@@ -103,7 +105,7 @@ def fit_normalization_factor(sample_pattern: Pattern, composition: dict[str, flo
 
     params = lmfit.Parameters()
     params.add("n", value=1, min=0)
-    params.add("multiple", value=1, min=0)
+    params.add("multiple", value=0, min=0)
 
     def optimization_fcn(params, x, sample_intensity, theory_intensity):
         n = params['n'].value
@@ -139,10 +141,10 @@ def calculate_sq_raw(sample_pattern: Pattern, f_squared_mean: np.ndarray, f_mean
     if incoherent_scattering is None:
         incoherent_scattering = np.zeros_like(q)
 
-    if method == 'FZ':
+    if method == 'FZ' or method == SqMethod.FZ:
         sq = (normalization_factor * intensity - incoherent_scattering - f_squared_mean + f_mean_squared) / \
              f_mean_squared
-    elif method == 'AL':
+    elif method == 'AL' or method == SqMethod.AL:
         sq = (normalization_factor * intensity - incoherent_scattering) / f_squared_mean
     else:
         raise NotImplementedError('{} method is not implemented'.format(method))
@@ -188,7 +190,7 @@ def calculate_sq(sample_pattern: Pattern, density: float, composition: dict[str,
         incoherent_scattering = None
 
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
-    if normalization_method == 'fit':
+    if normalization_method == 'fit' or normalization_method == NormalizationMethod.FIT:
         normalization_factor = fit_normalization_factor(sample_pattern,
                                                         composition,
                                                         use_incoherent_scattering,
@@ -238,9 +240,9 @@ def calculate_fr(sq_pattern: Pattern, r: Optional[np.ndarray] = None, use_modifi
     else:
         modification = 1
 
-    if method == 'integral':
+    if method == 'integral' or method == FourierTransformMethod.INTEGRAL:
         fr = 2.0 / np.pi * np.trapz(modification * q * (sq - 1) * np.array(np.sin(np.outer(q.T, r))).T, q)
-    elif method == 'fft':
+    elif method == 'fft' or method == FourierTransformMethod.FFT:
         q_step = q[1] - q[0]
         r_step = r[1] - r[0]
 

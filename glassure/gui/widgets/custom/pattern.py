@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import annotations
 import pyqtgraph as pg
 import numpy as np
 from qtpy import QtCore, QtWidgets
