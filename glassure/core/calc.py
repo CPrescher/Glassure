@@ -69,7 +69,7 @@ def calculate_normalization_factor(sample_pattern: Pattern, density: float, comp
 
 
 def fit_normalization_factor(sample_pattern: Pattern, composition: dict[str, float], q_cutoff: float = 3,
-                             method: str = "squared", use_incoherent_scattering: bool = True,
+                             method: str = "linear", use_incoherent_scattering: bool = True,
                              sf_source: str = 'hajdu') -> float:
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
@@ -103,7 +103,7 @@ def fit_normalization_factor(sample_pattern: Pattern, composition: dict[str, flo
 
     params = lmfit.Parameters()
     params.add("n", value=1, min=0)
-    params.add("multiple", value=1, min=0)
+    params.add("multiple", value=0, min=0)
 
     def optimization_fcn(params, x, sample_intensity, theory_intensity):
         n = params['n'].value
