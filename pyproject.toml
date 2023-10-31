@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "glassure"
-version = "1.4.1"
+version = "1.4.2"
 description = "API and GUI for analysis of X-ray total scattering data"
 authors = ["Clemens Prescher <clemens.prescher@gmail.com>"]
 license = "MIT"
@@ -35,7 +35,7 @@ scipy = "^1.11.2"
 lmfit = "^1.2.0"
 pandas = "^2.1.0"
 pyqtgraph = "^0.13.3"
-qtpy = "^2.3.1"
+qtpy = "^2.4.1"
 pyside6 = "^6.5.1"
 
 [tool.poetry.group.dev.dependencies]

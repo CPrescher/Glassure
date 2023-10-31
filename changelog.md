@@ -1,3 +1,9 @@
+## 1.4.2 (2023/10/31)
+
+### Bug fixes:
+- not specifically dependent on pyside anymore, glassure should now also work with pyqt6, pyqt5 or pyside2, default
+  is still pyside6
+
 ## 1.4.1 (2023/10/27)
 
 ### Bug fixes:
