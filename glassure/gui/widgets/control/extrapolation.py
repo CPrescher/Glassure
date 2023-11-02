@@ -43,11 +43,11 @@ class ExtrapolationWidget(QtWidgets.QWidget):
         self.replace_cb = QtWidgets.QCheckBox("replace")
         self.replace_cb.setToolTip("Replace data with extrapolated data in overlapping region.")
 
-        self.rb_button_group = QtWidgets.QButtonGroup()
-        self.rb_button_group.addButton(self.step_extrapolation_rb)
-        self.rb_button_group.addButton(self.linear_extrapolation_rb)
-        self.rb_button_group.addButton(self.poly_extrapolation_rb)
-        self.rb_button_group.addButton(self.spline_extrapolation_rb)
+        self.rb_extrapolation_button_group = QtWidgets.QButtonGroup()
+        self.rb_extrapolation_button_group.addButton(self.step_extrapolation_rb)
+        self.rb_extrapolation_button_group.addButton(self.linear_extrapolation_rb)
+        self.rb_extrapolation_button_group.addButton(self.poly_extrapolation_rb)
+        self.rb_extrapolation_button_group.addButton(self.spline_extrapolation_rb)
 
     def style_widgets(self):
         self.q_max_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
@@ -98,8 +98,8 @@ class ExtrapolationWidget(QtWidgets.QWidget):
         self.activate_cb.stateChanged.connect(self.options_gb.setVisible)
         self.activate_cb.stateChanged.connect(self.emit_changed_signal)
 
-        self.rb_button_group.buttonReleased.connect(self.emit_changed_signal)
-        self.rb_button_group.buttonReleased.connect(self.update_visibility)
+        self.rb_extrapolation_button_group.buttonReleased.connect(self.emit_changed_signal)
+        self.rb_extrapolation_button_group.buttonReleased.connect(self.update_visibility)
 
         self.q_max_txt.editingFinished.connect(self.emit_changed_signal)
         self.replace_cb.stateChanged.connect(self.emit_changed_signal)
@@ -128,12 +128,21 @@ class ExtrapolationWidget(QtWidgets.QWidget):
         return config
 
     def update_configuration(self, config: ExtrapolationConfiguration):
-        self.activate_cb.setChecked(config.activate)
         self.set_extrapolation_method(config.method)
         self.q_max_txt.setText(f"{config.fit_q_max:.2f}")
+
+        self.activate_cb.blockSignals(True)
+        self.s0_auto_cb.blockSignals(True)
+        self.replace_cb.blockSignals(True) 
+
+        self.activate_cb.setChecked(config.activate)
         self.replace_cb.setChecked(config.fit_replace)
         self.s0_txt.setText(f"{config.s0:.2f}")
         self.s0_auto_cb.setChecked(config.s0_auto)
+
+        self.activate_cb.blockSignals(False)
+        self.replace_cb.blockSignals(False) 
+        self.s0_auto_cb.blockSignals(False)
         self.update_visibility()
 
     def get_method(self):
@@ -147,6 +156,7 @@ class ExtrapolationWidget(QtWidgets.QWidget):
             return "spline"
 
     def set_extrapolation_method(self, method):
+        self.rb_extrapolation_button_group.blockSignals(True)
         if method == 'step':
             self.step_extrapolation_rb.setChecked(True)
         elif method == "linear":
@@ -155,6 +165,7 @@ class ExtrapolationWidget(QtWidgets.QWidget):
             self.poly_extrapolation_rb.setChecked(True)
         elif method == "spline":
             self.spline_extrapolation_rb.setChecked(True)
+        self.rb_extrapolation_button_group.blockSignals(False)
 
         self.update_visibility()
 

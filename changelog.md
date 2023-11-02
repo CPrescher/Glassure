@@ -1,3 +1,8 @@
+## 1.4.3 (2023/11/02)
+
+### Bugfixes
+- fix recursion error due to recent extrapolation gui changes
+
 ## 1.4.2 (2023/10/31)
 
 ### Bug fixes:
