@@ -331,7 +331,7 @@ class Pattern(object):
         if orig_x.shape != other_x.shape:
             # todo different shape subtraction of spectra seems the fail somehow...
             # the background will be interpolated
-            other_fcn = interp1d(other_x, other_x, kind='linear')
+            other_fcn = interp1d(other_x, other_y, kind='linear')
 
             # find overlapping x and y values:
             ind = np.where((orig_x <= np.max(other_x)) &
@@ -362,7 +362,7 @@ class Pattern(object):
 
         if orig_x.shape != other_x.shape:
             # the background will be interpolated
-            other_fcn = interp1d(other_x, other_x, kind='linear')
+            other_fcn = interp1d(other_x, other_y, kind='linear')
 
             # find overlapping x and y values:
             ind = np.where((orig_x <= np.max(other_x)) &
