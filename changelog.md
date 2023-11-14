@@ -1,3 +1,8 @@
+## 1.4.4 (2023/11/14)
+
+### Bugfixes
+- subtraction and addition of patterns works now correctly when both have different x values
+
 ## 1.4.3 (2023/11/02)
 
 ### Bugfixes

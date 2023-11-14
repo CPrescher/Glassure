@@ -1,11 +1,10 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
+# This workflow installs python, poetry, and builds the package
+# It then uploads the wheels to the artifacts and later to PyPI
 name: CD
 
 on:
-  release:
-    types: [published]
+   release:
+     types: [published]
 
 jobs:
   build_package:
@@ -18,6 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -28,8 +29,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install dependencies
-        run: poetry install
+      - name: Add Dynamic Versioning Plugin
+        run: poetry self add poetry-dynamic-versioning[plugin]
 
       - name: Build Package
         run: poetry build

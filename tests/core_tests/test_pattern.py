@@ -31,6 +31,20 @@ def test_plus_and_minus_operators():
     assert np.array_equal(pattern1._y, np.sin(x) * 1)
 
 
+def test_plus_and_minus_operators_with_different_x():
+    x1 = np.linspace(1, 9, 1000)
+    x2 = np.linspace(0, 10, 998)
+    pattern1 = Pattern(x1, np.sin(x1))
+    pattern2 = Pattern(x2, np.sin(x2))
+
+    pattern3 = pattern1 + pattern2
+    assert np.array_equal(pattern3.x, x1)
+    np.testing.assert_array_almost_equal(pattern3.y, np.sin(x1) * 2, decimal=5)
+
+    pattern3 = pattern1 - pattern2
+    np.testing.assert_array_almost_equal(pattern3._y, np.sin(x1) * 0, decimal=5)
+
+
 def test_multiply_operator():
     x = np.linspace(0, 10, 100)
     pattern = 2 * Pattern(x, np.sin(x))
