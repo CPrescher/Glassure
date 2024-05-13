@@ -17,7 +17,8 @@ def normalize(
 ) -> tuple[float, Pattern]:
     """
     Normalizes the sample data (already background subtracted and corrected) to
-    atomic units using the Kroegh-Moe-Norman integral normalization.
+    atomic units using the Kroegh-Moe-Norman integral normalization. The normalization
+    is performed for the the Faber-Ziman structure factor.
 
     :param sample_pattern:      background subtracted sample pattern
     :param atomic_density:      density in atoms per cubic Angstro
@@ -48,20 +49,20 @@ def normalize(
     return n, Pattern(q, n * intensity - incoherent_scattering)
 
 
-def fit_normalization_factor(
+def normalize_fit(
     sample_pattern: Pattern,
     f_squared_mean: np.ndarray,
     incoherent_scattering: Optional[np.ndarray] = None,
-    q_cutoff: float = 5,
+    q_cutoff: float = 3,
     method: str = "linear",
     multiple_scattering: bool = False,
     correct_diamond: bool = False,
 ) -> tuple[lmfit.Parameters, Pattern]:
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
-        (Intensity*n-Multiple Scattering) * Q^2
+        (Intensity*n-Multiple Scattering)
     to
-        (Incoherent Scattering + Self Scattering) * Q^2
+        (Incoherent Scattering + Self Scattering)
     where n and Multiple Scattering are free parameters.
 
     :param sample_pattern:      background subtracted sample pattern with A^-1 as x unit
@@ -71,13 +72,15 @@ def fit_normalization_factor(
     :param f_squared_mean:      <f^2> - mean squared scattering factor for each q-value of the
                                 sample pattern
     :param q_cutoff:            q value above which the fitting will be performed, default = 4
-    :param method:              specifies whether q^2 ("squared") or q (linear) should be used
+    :param method:              specifies whether q^2 ("squared") or q (linear) should be used for
+                                scaling the fit, this ensures that higher q values are weighted more
 
-    :return:    lmfit parameter object with the fitted parameters (n, multiple, n_diamond), normalized Pattern (incoherent scattering already subtracted)
+    :return:    lmfit parameter object with the fitted parameters (n, multiple, n_diamond),
+                normalized Pattern (incoherent scattering already subtracted)
 
     """
     q, intensity = sample_pattern.data
-    q_ind = np.where(q > q_cutoff)
+    q_ind = np.where(q > q_cutoff)[0]
 
     q_cut = q[q_ind]
     intensity_cut = intensity[q_ind]
@@ -89,9 +92,9 @@ def fit_normalization_factor(
         incoherent_scattering_cut = incoherent_scattering[q_ind]
 
     if method == "squared":
-        scaling = q**2
+        scaling = q_cut**2
     elif method == "linear":
-        scaling = q
+        scaling = q_cut
     else:
         raise NotImplementedError(
             "{} is not an allowed method for fit_normalization_factor".format(method)
@@ -101,7 +104,7 @@ def fit_normalization_factor(
     params.add("n", value=1, min=0)
 
     if multiple_scattering:
-        params.add("multiple", value=0, min=0)
+        params.add("multiple", value=1, min=0)
     else:
         params.add("multiple", value=0, vary=False)
 
@@ -117,19 +120,24 @@ def fit_normalization_factor(
         multiple = params["multiple"].value
         if correct_diamond:
             n_diamond = params["n_diamond"].value
-            compton = incoherent_scattering_cut + diamond_compton * n_diamond
+            compton = incoherent_scattering_cut + diamond_compton[q_ind] * n_diamond
         else:
             compton = incoherent_scattering_cut
 
         theory = f_squared_mean[q_ind] + compton
-
-        return ((n * intensity_cut - multiple - compton - theory) * scaling) ** 2
+        return ((n * intensity_cut - multiple - theory)) ** 2
 
     out = lmfit.minimize(optimization_fcn, params)
 
     # prepare final output
     q_out = sample_pattern.x
-    compton_out = incoherent_scattering + diamond_compton * out.params["n_diamond"].value
-    intensity_out = out.params["n"].value * sample_pattern.y - out.params["multiple"].value - compton_out
+    compton_out = (
+        incoherent_scattering + diamond_compton * out.params["n_diamond"].value
+    )
+    intensity_out = (
+        out.params["n"].value * intensity
+        # - out.params["multiple"].value
+        - compton_out
+    )
 
-    return out.params, Pattern(q_out, intensity_out - compton_out) 
+    return out.params, Pattern(q_out, intensity_out)
