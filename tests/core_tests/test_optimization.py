@@ -6,7 +6,7 @@ import numpy as np
 
 from glassure.core import Pattern, convert_density_to_atoms_per_cubic_angstrom
 from glassure.core.utility import extrapolate_to_zero_poly
-from glassure.core.calc import calculate_sq
+from glassure.core.transform import calculate_sq
 from glassure.core.optimization import optimize_sq, optimize_soller_dac
 from .. import unittest_data_path
 
