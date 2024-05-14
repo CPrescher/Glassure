@@ -54,9 +54,9 @@ def normalize_fit(
     f_squared_mean: np.ndarray,
     incoherent_scattering: Optional[np.ndarray] = None,
     q_cutoff: float = 3,
-    method: str = "linear",
+    method: str = "squared",
     multiple_scattering: bool = False,
-    correct_diamond: bool = False,
+    container_scattering: Optional[np.ndarray] = None,
 ) -> tuple[lmfit.Parameters, Pattern]:
     """
     Estimates the normalization factor n for calculating S(Q) by fitting
@@ -74,8 +74,19 @@ def normalize_fit(
     :param q_cutoff:            q value above which the fitting will be performed, default = 4
     :param method:              specifies whether q^2 ("squared") or q (linear) should be used for
                                 scaling the fit, this ensures that higher q values are weighted more
+    :multiple_scattering:       flag whether multiple scattering should be included in the fit - the
+                                current implementation is just to remove a constant value from the
+                                input data
+    :container_scattering:      extra scattering from the container, if set to None, it will not be used.
+                                Example usecase is extra diamond compton scattering contribution, which
+                                will increase with pressure in soller slit diamond anvil experiments.
+                                The amount of this extra scattering contribution will be fitted and output
+                                as a separate parameter n_container in the result. Length of the array should
+                                be the same as the length of the sample pattern. Any corrections to this
+                                scattering should be done before calling this function (e.g. Klein-Nishima
+                                correction)
 
-    :return:    lmfit parameter object with the fitted parameters (n, multiple, n_diamond),
+    :return:    lmfit parameter object with the fitted parameters (n, multiple, n_countainer),
                 normalized Pattern (incoherent scattering already subtracted)
 
     """
@@ -85,10 +96,23 @@ def normalize_fit(
     q_cut = q[q_ind]
     intensity_cut = intensity[q_ind]
 
+    assert len(q_cut) > 0, "No q values above the cutoff value"
+    assert len(f_squared_mean) == len(
+        q
+    ), """f_squared_mean should have the same length as the
+        sample pattern"""
+
+    f_squared_mean_cut = f_squared_mean[q_ind]
+
     # calculate values for integrals
     if incoherent_scattering is None:
-        incoherent_scattering_cut = np.zeros_like(intensity)
+        incoherent_scattering_cut = 0
     else:
+        assert len(incoherent_scattering) == len(
+            q
+        ), """incoherent scattering should have the same length as the
+        sample pattern"""
+
         incoherent_scattering_cut = incoherent_scattering[q_ind]
 
     if method == "squared":
@@ -100,6 +124,7 @@ def normalize_fit(
             "{} is not an allowed method for fit_normalization_factor".format(method)
         )
 
+    # prepare lmfit parameters
     params = lmfit.Parameters()
     params.add("n", value=1, min=0)
 
@@ -108,36 +133,41 @@ def normalize_fit(
     else:
         params.add("multiple", value=0, vary=False)
 
-    if correct_diamond:
-        params.add("n_diamond", value=10, min=0)
-        diamond_compton = calculate_incoherent_scattered_intensity("C", q)
+    if container_scattering is not None:
+        assert len(container_scattering) == len(
+            q
+        ), """container scattering should have the same length as the sample pattern"""
+        params.add("n_container", value=10, min=0)
+        container_contribution = container_scattering
+        container_contribution_cut = container_contribution[q_ind]
     else:
-        params.add("n_diamond", value=0, vary=False)
-        diamond_compton = 0
+        params.add("n_container", value=0, vary=False)
+        container_contribution = 0
+        container_contribution_cut = 0
 
     def optimization_fcn(params):
         n = params["n"].value
         multiple = params["multiple"].value
-        if correct_diamond:
-            n_diamond = params["n_diamond"].value
-            compton = incoherent_scattering_cut + diamond_compton[q_ind] * n_diamond
+        n_container = params["n_container"].value
+        if container_scattering is not None:
+            compton = (
+                incoherent_scattering_cut + container_contribution_cut * n_container
+            )
         else:
             compton = incoherent_scattering_cut
 
-        theory = f_squared_mean[q_ind] + compton
-        return ((n * intensity_cut - multiple - theory)) ** 2
+        theory = f_squared_mean_cut + compton
+        return ((n * intensity_cut - multiple - theory) * scaling) ** 2
 
     out = lmfit.minimize(optimization_fcn, params)
 
     # prepare final output
     q_out = sample_pattern.x
     compton_out = (
-        incoherent_scattering + diamond_compton * out.params["n_diamond"].value
+        incoherent_scattering + container_contribution * out.params["n_container"].value
     )
     intensity_out = (
-        out.params["n"].value * intensity
-        # - out.params["multiple"].value
-        - compton_out
+        out.params["n"].value * intensity - out.params["multiple"].value - compton_out
     )
 
     return out.params, Pattern(q_out, intensity_out)
