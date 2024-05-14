@@ -8,10 +8,11 @@ def _module_path():
     return os.path.dirname(__file__)
 
 
-from .calc import *
 from .utility import *
 from .optimization import *
 from .soller_correction import *
+from .normalization import *
+from .transform import *
 
 
 def _we_are_frozen():
