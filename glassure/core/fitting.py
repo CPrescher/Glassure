@@ -3,7 +3,7 @@
 import numpy as np
 
 from .utility import calculate_weighting_factor
-from .calc import calculate_fr
+from .transform import calculate_fr
 from .pattern import Pattern
 
 

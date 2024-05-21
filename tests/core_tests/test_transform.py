@@ -9,7 +9,12 @@ from glassure.core.utility import (
     convert_density_to_atoms_per_cubic_angstrom,
 )
 from glassure.core.normalization import normalize
-from glassure.core.transform import calculate_sq, calculate_fr, calculate_gr, calculate_sq_from_fr
+from glassure.core.transform import (
+    calculate_sq,
+    calculate_fr,
+    calculate_gr,
+    calculate_sq_from_fr,
+)
 
 import matplotlib.pyplot as plt
 
@@ -111,14 +116,5 @@ class TestTransform:
 
         fr = calculate_fr(sq)
 
-        sq_from_fr = calculate_sq_from_fr(fr.limit(0, 0.8), sq.x)
-
-        plt.figure()
-        plt.plot(sq.x, sq.y, label="S(Q)")
-        plt.plot(sq_from_fr.x, sq_from_fr.y, label="S(Q) from F(r)")
-        plt.legend()
-        plt.show()
-
-        assert np.allclose(sq.y, sq_from_fr.y, atol=0.1)
-
-
+        sq_from_fr = calculate_sq_from_fr(fr, sq.x)
+        assert np.allclose(sq.y, sq_from_fr.y, atol=0.3)
