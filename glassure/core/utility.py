@@ -1,23 +1,41 @@
 # -*- coding: utf-8 -*-
 import re
-from typing import Optional
+from typing import Optional, Union, Dict
 from copy import copy
 
 import numpy as np
 from scipy import interpolate
 import lmfit
 
-from .scattering_factors import calculate_coherent_scattering_factor, calculate_incoherent_scattered_intensity
+from .scattering_factors import (
+    calculate_coherent_scattering_factor,
+    calculate_incoherent_scattered_intensity,
+)
 from . import Pattern
 from . import scattering_factors
 
-__all__ = ['calculate_f_mean_squared', 'calculate_f_squared_mean', 'calculate_incoherent_scattering',
-           'extrapolate_to_zero_linear', 'extrapolate_to_zero_poly', 'extrapolate_to_zero_spline', 'calculate_s0',
-           'extrapolate_to_zero_step', 'convert_density_to_atoms_per_cubic_angstrom', 'normalize_composition',
-           'convert_two_theta_to_q_space', 'convert_two_theta_to_q_space_raw', 'calculate_weighting_factor']
+__all__ = [
+    "calculate_f_mean_squared",
+    "calculate_f_squared_mean",
+    "calculate_incoherent_scattering",
+    "extrapolate_to_zero_linear",
+    "extrapolate_to_zero_poly",
+    "extrapolate_to_zero_spline",
+    "calculate_s0",
+    "extrapolate_to_zero_step",
+    "convert_density_to_atoms_per_cubic_angstrom",
+    "normalize_composition",
+    "convert_two_theta_to_q_space",
+    "convert_two_theta_to_q_space_raw",
+    "calculate_weighting_factor",
+]
+
+Composition = Dict[str, Union[int, float]]
 
 
-def calculate_f_mean_squared(composition: dict, q: np.ndarray, sf_source='hajdu') -> np.ndarray:
+def calculate_f_mean_squared(
+    composition: Composition, q: np.ndarray, sf_source="hajdu"
+) -> np.ndarray:
     """
     Calculates the square of the mean form factor for a given composition over q.
 
@@ -27,13 +45,15 @@ def calculate_f_mean_squared(composition: dict, q: np.ndarray, sf_source='hajdu'
     """
     norm_elemental_abundances = normalize_composition(composition)
 
-    res = 0
+    res = np.zeros_like(q)
     for element, amount in norm_elemental_abundances.items():
         res += amount * calculate_coherent_scattering_factor(element, q, sf_source)
-    return res ** 2
+    return res**2
 
 
-def calculate_f_squared_mean(composition: dict[str, float], q: np.ndarray, sf_source: str = 'hajdu') -> np.ndarray:
+def calculate_f_squared_mean(
+    composition: Composition, q: np.ndarray, sf_source: str = "hajdu"
+) -> np.ndarray:
     """
     Calculates the mean of the squared form factors for a given composition for a given q vector.
 
@@ -45,14 +65,15 @@ def calculate_f_squared_mean(composition: dict[str, float], q: np.ndarray, sf_so
     """
     norm_elemental_abundances = normalize_composition(composition)
 
-    res = 0
+    res = np.zeros_like(q)
     for key, value in norm_elemental_abundances.items():
         res += value * calculate_coherent_scattering_factor(key, q, sf_source) ** 2
     return res
 
 
-def calculate_incoherent_scattering(composition: dict[str, float], q: np.ndarray, sf_source: str = 'hajdu') \
-        -> np.ndarray:
+def calculate_incoherent_scattering(
+    composition: Composition, q: np.ndarray, sf_source: str = "hajdu"
+) -> np.ndarray:
     """
     Calculates compton/incoherent scattering for a given composition
 
@@ -64,13 +85,13 @@ def calculate_incoherent_scattering(composition: dict[str, float], q: np.ndarray
     """
     norm_elemental_abundances = normalize_composition(composition)
 
-    res = 0
+    res = np.zeros_like(q)
     for key, value in norm_elemental_abundances.items():
         res += value * calculate_incoherent_scattered_intensity(key, q, sf_source)
     return res
 
 
-def calculate_s0(composition: dict[str, float], sf_source: str = 'hajdu') -> float:
+def calculate_s0(composition: Composition, sf_source: str = "hajdu") -> float:
     """
     Calculates the I0 value for a given composition by extrapolating the coherent scattering factor to zero where I(Q)
     and the Compton scattering should have zero intensities.
@@ -86,8 +107,13 @@ def calculate_s0(composition: dict[str, float], sf_source: str = 'hajdu') -> flo
     return float(-f_squared_mean / f_mean_squared + 1)
 
 
-def calculate_weighting_factor(composition: dict[str, float], element_1: str, element_2: str, q: np.ndarray,
-                               sf_source='hajdu'):
+def calculate_weighting_factor(
+    composition: Composition,
+    element_1: str,
+    element_2: str,
+    q: np.ndarray,
+    sf_source="hajdu",
+):
     """
     Calculates the weighting factor for an element-element contribution in a given composition (e.g. for Si-O in SiO2)
 
@@ -114,12 +140,19 @@ def calculate_weighting_factor(composition: dict[str, float], element_1: str, el
     f_sum_squared = np.zeros_like(q)
     for element, conc in c.items():
         f_sum_squared += f[element] * conc
-    f_sum_squared = f_sum_squared ** 2
+    f_sum_squared = f_sum_squared**2
 
-    return factor * c[element_1] * c[element_2] * f[element_1] * f[element_2] / f_sum_squared
+    return (
+        factor
+        * c[element_1]
+        * c[element_2]
+        * f[element_1]
+        * f[element_2]
+        / f_sum_squared
+    )
 
 
-def normalize_composition(composition):
+def normalize_composition(composition: Composition) -> dict[str, float]:
     """
     normalizes elemental abundances to 1
 
@@ -138,7 +171,9 @@ def normalize_composition(composition):
     return result
 
 
-def convert_density_to_atoms_per_cubic_angstrom(composition, density):
+def convert_density_to_atoms_per_cubic_angstrom(
+    composition: Composition, density: float
+) -> float:
     """
     Converts densities given in g/cm3 into atoms per A^3
 
@@ -151,12 +186,12 @@ def convert_density_to_atoms_per_cubic_angstrom(composition, density):
     norm_elemental_abundances = normalize_composition(composition)
     mean_z = 0.0
     for element, concentration in norm_elemental_abundances.items():
-        element = re.findall('[A-zA-Z]*', element)[0]
-        mean_z += concentration * scattering_factors.atomic_weights['AW'][element]
-    return density / mean_z * .602214129
+        element = re.findall("[A-zA-Z]*", element)[0]
+        mean_z += concentration * scattering_factors.atomic_weights["AW"][element]
+    return float(density / mean_z * 0.602214129)
 
 
-def extrapolate_to_zero_step(pattern: Pattern, y0=0) -> Pattern:
+def extrapolate_to_zero_step(pattern: Pattern, y0: float = 0) -> Pattern:
     """
     Extrapolates a pattern to (0, y0) by setting everything below the q_min of the pattern to y0 (default=0)
 
@@ -170,11 +205,10 @@ def extrapolate_to_zero_step(pattern: Pattern, y0=0) -> Pattern:
     low_x = np.arange(min(x), 0 - step / 2, -step)[::-1]
     low_y = np.zeros(low_x.shape) + y0
 
-    return Pattern(np.concatenate((low_x, x)),
-                   np.concatenate((low_y, y)))
+    return Pattern(np.concatenate((low_x, x)), np.concatenate((low_y, y)))
 
 
-def extrapolate_to_zero_linear(pattern: Pattern, y0=0) -> Pattern:
+def extrapolate_to_zero_linear(pattern: Pattern, y0: float = 0) -> Pattern:
     """
     Extrapolates a pattern to (0, y0) using a linear function from the leftest point in the pattern
 
@@ -187,15 +221,16 @@ def extrapolate_to_zero_linear(pattern: Pattern, y0=0) -> Pattern:
     step = x[1] - x[0]
     low_x = np.arange(min(x), 0 - step / 2, -step)[::-1]
     low_y = (y[0] - y0) / x[0] * low_x + y0
-    return Pattern(np.concatenate((low_x, x)),
-                   np.concatenate((low_y, y)))
+    return Pattern(np.concatenate((low_x, x)), np.concatenate((low_y, y)))
 
 
-def extrapolate_to_zero_spline(pattern: Pattern,
-                               x_max: float,
-                               smooth_factor: Optional[float] = None,
-                               replace: bool = False,
-                               y0: float = 0) -> Pattern:
+def extrapolate_to_zero_spline(
+    pattern: Pattern,
+    x_max: float,
+    smooth_factor: Optional[float] = None,
+    replace: bool = False,
+    y0: float = 0,
+) -> Pattern:
     """
     Extrapolates a pattern to (0, y0) using a spline function.
     If the spline hits zero on the y-axis at an x value higher than 0 all values below this intersection
@@ -228,16 +263,20 @@ def extrapolate_to_zero_spline(pattern: Pattern,
     spl = interpolate.UnivariateSpline(x_intersection, y_intersection, s=smooth_factor)
     y_low = spl(x_low)
 
+    if type(y_low) is not np.ndarray:
+        raise ValueError("Spline extrapolation failed")
+
     ind_below_zero = np.where(y_low < y0)[0]
 
     if len(ind_below_zero) > 0:
-        y_low[:ind_below_zero[-1]] = y0
+        y_low[: ind_below_zero[-1]] = y0
 
-    return Pattern(np.concatenate((x_low, x)),
-                   np.concatenate((y_low, y)))
+    return Pattern(np.concatenate((x_low, x)), np.concatenate((y_low, y)))
 
 
-def extrapolate_to_zero_poly(pattern: Pattern, x_max: float, replace: bool = False, y0: float = 0) -> Pattern:
+def extrapolate_to_zero_poly(
+    pattern: Pattern, x_max: float, replace: bool = False, y0: float = 0
+) -> Pattern:
     """
     Extrapolates a pattern to (0, y0) using a 2nd order polynomial:
 
@@ -268,16 +307,19 @@ def extrapolate_to_zero_poly(pattern: Pattern, x_max: float, replace: bool = Fal
     params.add("c", value=1)
 
     def optimization_fcn(params):
-        a = params['a'].value
-        b = params['b'].value
-        c = params['c'].value
+        a = params["a"].value
+        b = params["b"].value
+        c = params["c"].value
 
         return y_fit - (x_fit - c) * a - (x_fit - c) ** 2 * b + y0
 
     result = lmfit.minimize(optimization_fcn, params)
-    a = result.params['a'].value
-    b = result.params['b'].value
-    c = result.params['c'].value
+    if not hasattr(result, "params") or result.params is None:
+        raise ValueError("Polynomial extrapolation failed")
+
+    a = result.params["a"].value
+    b = result.params["b"].value
+    c = result.params["c"].value
 
     x_low = np.arange(min(x), 0, -x_step)[::-1]
 
@@ -290,8 +332,7 @@ def extrapolate_to_zero_poly(pattern: Pattern, x_max: float, replace: bool = Fal
     y_low = a * (x_low - c) + b * (x_low - c) ** 2 - y0
     y_low[y_low < y0] = y0
 
-    return Pattern(np.concatenate((x_low, x)),
-                   np.concatenate((y_low, y)))
+    return Pattern(np.concatenate((x_low, x)), np.concatenate((y_low, y)))
 
 
 def convert_two_theta_to_q_space_raw(two_theta, wavelength):
