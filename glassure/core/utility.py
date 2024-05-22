@@ -47,7 +47,8 @@ def calculate_f_mean_squared(
 
     res = np.zeros_like(q)
     for element, amount in norm_elemental_abundances.items():
-        res += amount * calculate_coherent_scattering_factor(element, q, sf_source)
+        res = res + amount * calculate_coherent_scattering_factor(element, q, sf_source)
+
     return res**2
 
 
@@ -67,7 +68,7 @@ def calculate_f_squared_mean(
 
     res = np.zeros_like(q)
     for key, value in norm_elemental_abundances.items():
-        res += value * calculate_coherent_scattering_factor(key, q, sf_source) ** 2
+        res = res + value * calculate_coherent_scattering_factor(key, q, sf_source) ** 2
     return res
 
 
@@ -104,7 +105,7 @@ def calculate_s0(composition: Composition, sf_source: str = "hajdu") -> float:
     f_mean_squared = calculate_f_mean_squared(composition, np.array([0]), sf_source)
     f_squared_mean = calculate_f_squared_mean(composition, np.array([0]), sf_source)
 
-    return float(-f_squared_mean / f_mean_squared + 1)
+    return -f_squared_mean / f_mean_squared + 1
 
 
 def calculate_weighting_factor(
@@ -188,7 +189,7 @@ def convert_density_to_atoms_per_cubic_angstrom(
     for element, concentration in norm_elemental_abundances.items():
         element = re.findall("[A-zA-Z]*", element)[0]
         mean_z += concentration * scattering_factors.atomic_weights["AW"][element]
-    return float(density / mean_z * 0.602214129)
+    return density / mean_z * 0.602214129
 
 
 def extrapolate_to_zero_step(pattern: Pattern, y0: float = 0) -> Pattern:
@@ -335,17 +336,19 @@ def extrapolate_to_zero_poly(
     return Pattern(np.concatenate((x_low, x)), np.concatenate((y_low, y)))
 
 
-def convert_two_theta_to_q_space_raw(two_theta, wavelength):
+def convert_two_theta_to_q_space_raw(
+    two_theta: Union[float, np.ndarray], wavelength: float
+) -> Union[float, np.ndarray]:
     """
     Converts two theta values into q space
     """
     return 4 * np.pi * np.sin(two_theta / 360.0 * np.pi) / wavelength
 
 
-def convert_two_theta_to_q_space(pattern, wavelength):
+def convert_two_theta_to_q_space(pattern: Pattern, wavelength: float) -> Pattern:
     """
     Returns a new pattern with the x-axis converted from two theta into q space
     """
     q_pattern = copy(pattern)
-    q_pattern._x = convert_two_theta_to_q_space_raw(q_pattern.x, wavelength)
+    q_pattern.x = convert_two_theta_to_q_space_raw(q_pattern.x, wavelength)
     return q_pattern
