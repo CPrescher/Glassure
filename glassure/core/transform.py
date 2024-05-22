@@ -7,14 +7,14 @@ from .methods import FourierTransformMethod
 
 
 def calculate_sq(
-    normalized_pattern: np.ndarray,
+    normalized_pattern: Pattern,
     f_squared_mean: np.ndarray,
     f_mean_squared: np.ndarray,
 ) -> Pattern:
     """
     Calculates the Faber Ziman structure factor, using the equation:
     S(Q) = (n * Intensity - incoherent_scattering - <f>^2-)/<f^2> + 1
-    where n is the normalization factor and f are the scattering factors. 
+    where n is the normalization factor and f are the scattering factors.
     The function takes in the already normalized intensity (incoherent scattering is also subtracted)
 
     :param normalized_pattern:    Pattern with q and (n * Intensity - incoherent scattering) as x and y
@@ -23,11 +23,7 @@ def calculate_sq(
 
     :return: S(Q) pattern
     """
-    sq = (
-        normalized_pattern.y
-        - f_squared_mean
-        + f_mean_squared
-    ) / f_mean_squared
+    sq = (normalized_pattern.y - f_squared_mean + f_mean_squared) / f_mean_squared
     return Pattern(normalized_pattern.x, sq)
 
 
@@ -177,4 +173,3 @@ def calculate_gr(fr_pattern: Pattern, atomic_density: float) -> Pattern:
     r, f_r = fr_pattern.data
     g_r = 1 + f_r / (4.0 * np.pi * r * atomic_density)
     return Pattern(r, g_r)
-

@@ -16,9 +16,6 @@ from glassure.core.transform import (
     calculate_sq_from_fr,
 )
 
-import matplotlib.pyplot as plt
-
-
 from .. import unittest_data_path
 
 data_path = os.path.join(unittest_data_path, "Mg2SiO4_ambient.xy")
