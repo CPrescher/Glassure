@@ -11,24 +11,24 @@ def test_plus_and_minus_operators():
     pattern2 = Pattern(x, np.sin(x))
 
     pattern3 = pattern1 + pattern2
-    assert np.array_equal(pattern3._y, np.sin(x) * 2)
-    assert np.array_equal(pattern2._y, np.sin(x) * 1)
-    assert np.array_equal(pattern1._y, np.sin(x) * 1)
+    assert np.array_equal(pattern3.y, np.sin(x) * 2)
+    assert np.array_equal(pattern2.y, np.sin(x) * 1)
+    assert np.array_equal(pattern1.y, np.sin(x) * 1)
 
     pattern3 = pattern1 + pattern1
-    assert np.array_equal(pattern3._y, np.sin(x) * 2)
-    assert np.array_equal(pattern1._y, np.sin(x) * 1)
-    assert np.array_equal(pattern1._y, np.sin(x) * 1)
+    assert np.array_equal(pattern3.y, np.sin(x) * 2)
+    assert np.array_equal(pattern1.y, np.sin(x) * 1)
+    assert np.array_equal(pattern1.y, np.sin(x) * 1)
 
     pattern3 = pattern2 - pattern1
-    assert np.array_equal(pattern3._y, np.sin(x) * 0)
-    assert np.array_equal(pattern2._y, np.sin(x) * 1)
-    assert np.array_equal(pattern1._y, np.sin(x) * 1)
+    assert np.array_equal(pattern3.y, np.sin(x) * 0)
+    assert np.array_equal(pattern2.y, np.sin(x) * 1)
+    assert np.array_equal(pattern1.y, np.sin(x) * 1)
 
     pattern3 = pattern1 - pattern1
-    assert np.array_equal(pattern3._y, np.sin(x) * 0)
-    assert np.array_equal(pattern1._y, np.sin(x) * 1)
-    assert np.array_equal(pattern1._y, np.sin(x) * 1)
+    assert np.array_equal(pattern3.y, np.sin(x) * 0)
+    assert np.array_equal(pattern1.y, np.sin(x) * 1)
+    assert np.array_equal(pattern1.y, np.sin(x) * 1)
 
 
 def test_plus_and_minus_operators_with_different_x():
@@ -42,14 +42,34 @@ def test_plus_and_minus_operators_with_different_x():
     np.testing.assert_array_almost_equal(pattern3.y, np.sin(x1) * 2, decimal=5)
 
     pattern3 = pattern1 - pattern2
-    np.testing.assert_array_almost_equal(pattern3._y, np.sin(x1) * 0, decimal=5)
+    np.testing.assert_array_almost_equal(pattern3.y, np.sin(x1) * 0, decimal=5)
+
+
+def test_plus_and_minus_operators_with_floats():
+    x = np.linspace(0, 10, 100)
+    pattern = Pattern(np.linspace(0, 10, 100), np.ones_like(x))
+
+    pattern1 = pattern + 1
+    assert np.array_equal(pattern1.y, np.ones_like(x) + 1)
+
+    pattern2 = 1 + pattern
+    assert np.array_equal(pattern2.y, np.ones_like(x) + 1)
+
+    pattern3 = pattern - 1
+    assert np.array_equal(pattern3.y, np.ones_like(x) - 1)
+
+    pattern4 = 1 - pattern
+    assert np.array_equal(pattern4.y, 1 - np.ones_like(x))
 
 
 def test_multiply_operator():
     x = np.linspace(0, 10, 100)
     pattern = 2 * Pattern(x, np.sin(x))
 
-    assert np.array_equal(pattern._y, np.sin(x) * 2)
+    assert np.array_equal(pattern.y, np.sin(x) * 2)
+
+    pattern = Pattern(x, np.sin(x)) * 2
+    assert np.array_equal(pattern.y, np.sin(x) * 2)
 
 
 def test_equality_operator():
@@ -84,33 +104,19 @@ def test_extend_to():
 
 
 def test_to_dict():
-    pattern = Pattern(np.arange(10), np.arange(10))
-    pattern.name = 'test'
-    pattern.scaling = 3
-    pattern.smoothing = 2
-    pattern.bkg_pattern = Pattern(np.arange(10), np.arange(10))
+    pattern = Pattern(np.arange(10), np.arange(10), "test")
     pattern_json = pattern.to_dict()
-    assert pattern_json['x'] == list(pattern.x)
-    assert pattern_json['y'] == list(pattern.y)
-    assert pattern_json['name'] == pattern.name
-    assert pattern_json['scaling'] == pattern.scaling
-    assert pattern_json['smoothing'] == pattern.smoothing
-    assert pattern_json['bkg_pattern'] == pattern.bkg_pattern.to_dict()
+    assert pattern_json["x"] == list(pattern.x)
+    assert pattern_json["y"] == list(pattern.y)
+    assert pattern_json["name"] == pattern.name
 
 
 def test_from_dict():
     pattern1 = Pattern(np.arange(10), np.arange(10))
-    pattern1.name = 'test'
-    pattern1.scaling = 3
-    pattern1.smoothing = 2
-    pattern1.bkg_pattern = Pattern(np.arange(10), np.arange(10))
+    pattern1.name = "test"
     pattern_json = pattern1.to_dict()
 
     pattern2 = Pattern.from_dict(pattern_json)
     assert np.array_equal(pattern1.x, pattern2.x)
     assert np.array_equal(pattern1.y, pattern2.y)
     assert pattern1.name == pattern2.name
-    assert pattern1.scaling == pattern2.scaling
-    assert pattern1.smoothing == pattern2.smoothing
-    assert np.array_equal(pattern1.bkg_pattern.x, pattern2.bkg_pattern.x)
-    assert np.array_equal(pattern1.bkg_pattern.y, pattern2.bkg_pattern.y)
