@@ -43,6 +43,7 @@ pandas = "^2.1.0"
 pyqtgraph = "^0.13.3"
 qtpy = "^2.4.1"
 pyside6 = "^6.5.1"
+pydantic = "^2.7.1"
 
 [tool.poetry.group.dev.dependencies]
 mock = "^5.0.1"

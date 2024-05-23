@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class NormalizationMethod(Enum):
+class NormalizationMethod(str, Enum):
     """
     Enum class for the different methods to perform an intensity normalization.
     """
@@ -10,7 +10,7 @@ class NormalizationMethod(Enum):
     FIT = "fit"
 
 
-class FourierTransformMethod(Enum):
+class FourierTransformMethod(str, Enum):
     """
     Enum class for the different methods to perform a Fourier transform.
     """
@@ -35,3 +35,14 @@ class NormalizationFitScaling(Enum):
 
     LINEAR = "linear"
     QUADRATIC = "quadratic"
+
+
+class ExtrapolationMethod(Enum):
+    """
+    Enum class for the different extrapolation methods of the S(Q) to
+    S(0)
+    """
+    STEP = "step"
+    LINEAR = "linear"
+    POLY = "poly"
+    SPLINE = "spline"
