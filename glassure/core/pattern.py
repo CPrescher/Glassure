@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 import os
+from typing_extensions import Annotated
 from typing import Union, Optional
-
+from pydantic import PlainSerializer, PlainValidator, BaseModel
 import numpy as np
-from pydantic import BaseModel
-from dataclasses import dataclass, field
+import base64
 
+from dataclasses import dataclass
 
+import io
 from scipy.interpolate import interp1d
 from scipy.ndimage import gaussian_filter1d
 
@@ -25,13 +27,13 @@ class Pattern:
     :param name: name of the pattern
     """
 
-    x: Optional[np.ndarray] = None
-    y: Optional[np.ndarray] = None
+    x: Optional[PydanticNpArray] = None
+    y: Optional[PydanticNpArray] = None
     name: str = ""
 
-    def __post__init__(self):
+    def __post_init__(self):
         if self.y is None and self.x is None:
-            self.x = np.linspace(0, 10, 100)
+            self.x = np.linspace(0, 10, 101)
             self.y = np.log(self.x**2) - (self.x * 0.2) ** 2
 
         if len(self.x) != len(self.y):
@@ -321,3 +323,32 @@ class BkgNotInRangeError(Exception):
             "The background range does not overlap with the Pattern range for "
             + self.pattern_name
         )
+
+
+def validate(value):
+    if isinstance(value, list):
+        return np.array(value)
+    if isinstance(value, str):
+        try:
+            v = base64.b64decode(value)
+            numpy_array = np.load(io.BytesIO(v), allow_pickle=False)
+            return numpy_array
+        except Exception as e:
+            raise ValueError(f"Could not decode numpy array: {e}")
+    if isinstance(value, np.ndarray):
+        return value
+    raise TypeError(f"Invalid type for numpy array: {type(value)}")
+
+
+def serialize(value):
+    if isinstance(value, np.ndarray):
+        # Save numpy array to bytes
+        with io.BytesIO() as buffer:
+            np.save(buffer, value, allow_pickle=False)
+            return base64.b64encode(buffer.getvalue()).decode("utf-8")
+    raise TypeError(f"Invalid type for numpy array: {type(value)}")
+
+
+PydanticNpArray = Annotated[
+    np.ndarray, PlainValidator(validate), PlainSerializer(serialize)
+]
