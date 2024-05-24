@@ -15,6 +15,7 @@ from glassure.core.utility import (
     convert_two_theta_to_q_space,
     convert_two_theta_to_q_space_raw,
     calculate_s0,
+    calculate_kn_correction,
 )
 from glassure.core import Pattern
 
@@ -75,6 +76,15 @@ class UtilityTest(unittest.TestCase):
 
         S0 = calculate_s0({"H": 2, "O": 1}, sf_source="brown_hubbell")
         self.assertLess(S0, -0.8)
+
+    def test_calculate_kn_correction(self):
+        q = np.linspace(0.1, 20)
+        wavelength = 0.22  # angstrom
+
+        kn_correction = calculate_kn_correction(q, wavelength)
+
+        self.assertEqual(len(q), len(kn_correction))
+        self.assertGreater(np.mean(kn_correction), 0)
 
     def test_calculate_incoherent_scattering(self):
         q = np.linspace(0, 10)
