@@ -5,6 +5,8 @@ from copy import copy
 
 import numpy as np
 from scipy import interpolate
+import scipy.constants as const
+
 import lmfit
 
 from .scattering_factors import (
@@ -107,6 +109,36 @@ def calculate_s0(composition: Composition, sf_source: str = "hajdu") -> float:
 
     s0 = -f_squared_mean / f_mean_squared + 1
     return s0[0]
+
+
+def calculate_kn_correction(
+    q: Union[np.ndarray, float], wavelength: float
+) -> np.ndarray:
+    """
+    Calculates the Klein-Nishina correction for given q-values and wavelength. This
+    is a correction which should be applied to the incoherent scattering intensity, due
+    to the fact that the Compton scattering is chaning Energy with the scattering angle.
+
+    :param q: Q value or numpy array with a unit of A^-1
+    :param wavelength: wavelength in Angstrom
+
+    :return: Klein-Nishina correction array for the given q-values
+    """
+
+    tth = 2 * np.arcsin(q * wavelength / (4 * np.pi))
+
+    def P(wavelength, tth):
+        return 1 / (
+            1
+            + (const.h / (wavelength * 1e-10 * const.m_e * const.c)) * (1 - np.cos(tth))
+        )
+
+    def KN_correction(p_values, tth):
+        return (p_values**3 - p_values**2 * np.sin(tth) ** 2 + p_values) / (
+            1 + np.cos(tth) ** 2
+        )
+
+    return KN_correction(P(wavelength, tth), tth)
 
 
 def calculate_weighting_factor(
