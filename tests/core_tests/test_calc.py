@@ -96,3 +96,15 @@ def test_process_input_poly_extrapolation():
     res_poly = process_input(input)
 
     assert not np.array_equal(res.sq.y, res_poly.sq.y)
+
+
+def test_process_input_kn_correction():
+    input = prepare_input()
+    res = process_input(input)
+
+    input.config.transform.kn_correction = True
+    input.config.transform.wavelength = 0.22
+
+    res_kn = process_input(input)
+
+    assert not np.array_equal(res.sq.y, res_kn.sq.y)

@@ -11,6 +11,7 @@ from .utility import (
     calculate_f_mean_squared,
     calculate_incoherent_scattering,
     calculate_s0,
+    calculate_kn_correction,
     extrapolate_to_zero_linear,
     extrapolate_to_zero_poly,
     extrapolate_to_zero_spline,
@@ -42,6 +43,16 @@ def process_input(input: Input) -> Pattern:
     f_mean_squared = calculate_f_mean_squared(composition, q)
     incoherent_scattering = calculate_incoherent_scattering(composition, q)
 
+    # klein-nishina correction
+    if transform.kn_correction:
+        if transform.wavelength is None:
+            raise ValueError(
+                "Wavelength must be set when using the Klein-Nishina correction."
+            )
+        inc_correction = calculate_kn_correction(q, transform.wavelength)
+    else:
+        inc_correction = 1
+
     # normalization
     if isinstance(transform.normalization, FitNormalization):
         opt = transform.normalization
@@ -51,13 +62,18 @@ def process_input(input: Input) -> Pattern:
         )
 
         if opt.container_scattering is not None:
-            container_scattering = calculate_incoherent_scattering(
-                opt.container_scattering, q
+            container_scattering = (
+                calculate_incoherent_scattering(opt.container_scattering, q)
+                * inc_correction
             )
         else:
             container_scattering = None
 
-        norm_inc = incoherent_scattering if opt.incoherent_scattering else None
+        norm_inc = (
+            incoherent_scattering * inc_correction
+            if opt.incoherent_scattering
+            else None
+        )
 
         params, norm = normalize_fit(
             sample_pattern=sample,

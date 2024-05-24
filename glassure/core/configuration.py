@@ -75,21 +75,6 @@ class TransformConfig:
     wavelength: Optional[float] = None
 
     fourier_transform_method: FourierTransformMethod = FourierTransformMethod.FFT
-    normalization_config: FitNormalization | IntNormalization = field(
-        default_factory=FitNormalization
-    )
-
-    def __post__init__(self):
-        if self.normalization == NormalizationMethod.FIT:
-            assert isinstance(self.normalization_config, FitNormalization), (
-                "Normalization config must be of type FitNormalizationConfig "
-                + "when normalization method is set to FIT."
-            )
-        elif self.normalization == NormalizationMethod.INT:
-            assert isinstance(self.normalization_config, IntNormalization), (
-                "Normalization config must be of type IntNormalizationConfig "
-                + "when normalization method is set to INT."
-            )
 
 
 @dataclass
