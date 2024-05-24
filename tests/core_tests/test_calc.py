@@ -108,3 +108,28 @@ def test_process_input_kn_correction():
     res_kn = process_input(input)
 
     assert not np.array_equal(res.sq.y, res_kn.sq.y)
+
+
+def test_process_input_with_container_scattering():
+    input = prepare_input()
+    res = process_input(input)
+
+    input.config.transform.normalization.container_scattering = {"C": 1}
+
+    res_container = process_input(input)
+
+    assert not np.array_equal(res.sq.y, res_container.sq.y)
+
+
+def test_process_input_with_container_scattering_and_kn():
+    input = prepare_input()
+    input.config.transform.kn_correction = True
+    input.config.transform.wavelength = 0.22
+
+    res = process_input(input)
+
+    input.config.transform.normalization.container_scattering = {"C": 1}
+
+    res_container = process_input(input)
+
+    assert not np.array_equal(res.sq.y, res_container.sq.y)
