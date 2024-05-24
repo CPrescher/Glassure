@@ -9,10 +9,10 @@ import numpy as np
 from glassure.core.pattern import Pattern
 from glassure.core.configuration import (
     SampleConfig,
-    FitNormalizationConfig,
-    CalculationConfig,
+    FitNormalization,
+    Config,
     Input,
-    create_input_config,
+    create_input,
 )
 
 
@@ -37,7 +37,7 @@ def test_sample_config():
 
 
 def test_fit_normalization_config():
-    c = FitNormalizationConfig()
+    c = FitNormalization()
     c_dict = vars(c)
     assert c_dict == {
         "q_cutoff": 3.0,
@@ -47,7 +47,7 @@ def test_fit_normalization_config():
         "container_scattering": None,
     }
 
-    c = FitNormalizationConfig(
+    c = FitNormalization(
         q_cutoff=2.0,
         method="linear",
         multiple_scattering=True,
@@ -66,7 +66,7 @@ def test_fit_normalization_config():
 
 
 def test_calculation_config():
-    c = CalculationConfig()
+    c = Config()
     c_dict = asdict(c)
     test = json.dumps(c_dict)
 
@@ -91,8 +91,8 @@ def test_create_input_config():
     composition = {"Si": 1, "O": 2}
     density = 2.2
 
-    input_config = create_input_config(pattern, composition, density)
-    transform = input_config.calculation_config.transform
+    input_config = create_input(pattern, composition, density)
+    transform = input_config.config.transform
 
     # check that q limits are set correctly
     assert transform.q_min == approx(1.0)

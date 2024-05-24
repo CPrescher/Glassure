@@ -19,7 +19,7 @@ class FourierTransformMethod(str, Enum):
     INTEGRAL = "integral"
 
 
-class ScatteringFactorSource(Enum):
+class ScatteringFactorSource(str, Enum):
     """
     Enum class for the different sources of the scattering factors.
     """
@@ -28,7 +28,7 @@ class ScatteringFactorSource(Enum):
     BROWN_HUBBELL = "brown_hubbell"
 
 
-class NormalizationFitScaling(Enum):
+class NormalizationFitScaling(str, Enum):
     """
     Enum class for the different scaling methods for the fit.
     """
@@ -37,7 +37,7 @@ class NormalizationFitScaling(Enum):
     QUADRATIC = "quadratic"
 
 
-class ExtrapolationMethod(Enum):
+class ExtrapolationMethod(str, Enum):
     """
     Enum class for the different extrapolation methods of the S(Q) to
     S(0)
