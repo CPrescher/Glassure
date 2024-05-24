@@ -66,9 +66,7 @@ class TransformConfig:
         default_factory=FitNormalization
     )
 
-    extrapolation_config: ExtrapolationConfig = field(
-        default_factory=ExtrapolationConfig
-    )
+    extrapolation: ExtrapolationConfig = field(default_factory=ExtrapolationConfig)
 
     use_modification_fcn: bool = False
     kn_correction: bool = False
@@ -116,6 +114,8 @@ def create_input(
     :param density: The density of the sample in g/cm^3.
     :param bkg: The background pattern. None if no background is present.
     :param bkg_scaling: The scaling factor for the background pattern.
+
+    :return: The input configuration.
     """
     sample_config = SampleConfig(composition=composition, density=density)
     input_config = Input(
