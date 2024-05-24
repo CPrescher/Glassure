@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*/:
 
-from typing import Optional
-from pydantic import BaseModel
+from typing import Optional, Literal
+from pydantic import BaseModel, Field
 from dataclasses import dataclass, field
 
 from .utility import Composition, convert_density_to_atoms_per_cubic_angstrom
@@ -23,7 +23,8 @@ class SampleConfig:
 
 
 @dataclass
-class FitNormalizationConfig:
+class FitNormalization:
+    TYPE: Literal["fit"] = "fit"
     q_cutoff: float = 3.0
     method: str = "squared"
     multiple_scattering: bool = False
@@ -32,7 +33,8 @@ class FitNormalizationConfig:
 
 
 @dataclass
-class IntNormalizationConfig:
+class IntNormalization:
+    TYPE: Literal["integral"] = "integral"
     attenuation_factor: float = 0.001
     incoherent_scattering: bool = True
 
@@ -48,6 +50,7 @@ class OptimizeConfig:
 class ExtrapolationConfig:
     method: ExtrapolationMethod = ExtrapolationMethod.STEP
     overlap: float = 0.2
+    replace: bool = False
 
 
 @dataclass
@@ -59,32 +62,38 @@ class TransformConfig:
     r_max: float = 10.0
     r_step: float = 0.01
 
-    normalization_method: NormalizationMethod = NormalizationMethod.FIT
+    normalization: FitNormalization | IntNormalization = field(
+        default_factory=FitNormalization
+    )
+
     extrapolation_config: ExtrapolationConfig = field(
         default_factory=ExtrapolationConfig
     )
 
     use_modification_fcn: bool = False
+    kn_correction: bool = False
+    wavelength: Optional[float] = None
+
     fourier_transform_method: FourierTransformMethod = FourierTransformMethod.FFT
-    normalization_config: FitNormalizationConfig | IntNormalizationConfig = field(
-        default_factory=FitNormalizationConfig
+    normalization_config: FitNormalization | IntNormalization = field(
+        default_factory=FitNormalization
     )
 
     def __post__init__(self):
-        if self.normalization_method == NormalizationMethod.FIT:
-            assert isinstance(self.normalization_config, FitNormalizationConfig), (
+        if self.normalization == NormalizationMethod.FIT:
+            assert isinstance(self.normalization_config, FitNormalization), (
                 "Normalization config must be of type FitNormalizationConfig "
                 + "when normalization method is set to FIT."
             )
-        elif self.normalization_method == NormalizationMethod.INT:
-            assert isinstance(self.normalization_config, IntNormalizationConfig), (
+        elif self.normalization == NormalizationMethod.INT:
+            assert isinstance(self.normalization_config, IntNormalization), (
                 "Normalization config must be of type IntNormalizationConfig "
                 + "when normalization method is set to INT."
             )
 
 
 @dataclass
-class CalculationConfig:
+class Config:
     sample: SampleConfig = field(default_factory=SampleConfig)
     transform: TransformConfig = field(default_factory=TransformConfig)
     optimize: Optional[OptimizeConfig] = None
@@ -94,18 +103,17 @@ class Input(BaseModel):
     data: Pattern
     bkg: Pattern | None = None
     bkg_scaling: float = 1.0
-    calculation_config: CalculationConfig = CalculationConfig()
+    config: Config = Config()
 
 
 class Result(BaseModel):
     input: Input
-    normalized: Pattern
     sq: Pattern
     fr: Pattern
     gr: Pattern
 
 
-def create_input_config(
+def create_input(
     data: Pattern,
     composition: Composition,
     density: float,
@@ -115,7 +123,7 @@ def create_input_config(
     """
     Helper function to create a starting glassure input configuration.
     Automatically sets the q_min and q_max values to the first and last
-    x-value of the data pattern - thus, the whole pattern gets transformed, 
+    x-value of the data pattern - thus, the whole pattern gets transformed,
     when using this configuration.
 
     :param data: The data pattern.
@@ -129,8 +137,8 @@ def create_input_config(
         data=data,
         bkg=bkg,
         bkg_scaling=bkg_scaling,
-        calculation_config=CalculationConfig(sample=sample_config),
+        config=Config(sample=sample_config),
     )
-    input_config.calculation_config.transform.q_min = data.x[0]
-    input_config.calculation_config.transform.q_max = data.x[-1]
+    input_config.config.transform.q_min = data.x[0]
+    input_config.config.transform.q_max = data.x[-1]
     return input_config

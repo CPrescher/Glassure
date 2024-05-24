@@ -105,7 +105,8 @@ def calculate_s0(composition: Composition, sf_source: str = "hajdu") -> float:
     f_mean_squared = calculate_f_mean_squared(composition, np.array([0]), sf_source)
     f_squared_mean = calculate_f_squared_mean(composition, np.array([0]), sf_source)
 
-    return -f_squared_mean / f_mean_squared + 1
+    s0 = -f_squared_mean / f_mean_squared + 1
+    return s0[0]
 
 
 def calculate_weighting_factor(
@@ -252,8 +253,10 @@ def extrapolate_to_zero_spline(
     x_step = x[1] - x[0]
     x_low = np.arange(min(x), 0 - x_step / 2, -x_step)[::-1]
 
-    x_intersection = np.concatenate(([0], x[x < x_max]))
-    y_intersection = np.concatenate(([y0], y[x < x_max]))
+    x_overlap_ind = np.where(x < x_max)[0]
+
+    x_intersection = np.concatenate(([0], x[x_overlap_ind]))
+    y_intersection = np.concatenate(([y0], y[x_overlap_ind]))
 
     if replace:
         x_low = np.concatenate((x_low, x_intersection[1:]))
