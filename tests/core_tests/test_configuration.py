@@ -40,6 +40,7 @@ def test_fit_normalization_config():
     c = FitNormalization()
     c_dict = vars(c)
     assert c_dict == {
+        "TYPE": "fit",
         "q_cutoff": 3.0,
         "method": "squared",
         "multiple_scattering": False,
@@ -57,6 +58,7 @@ def test_fit_normalization_config():
 
     c_dict = vars(c)
     assert c_dict == {
+        "TYPE": "fit",
         "q_cutoff": 2.0,
         "method": "linear",
         "multiple_scattering": True,
@@ -75,12 +77,9 @@ def test_input_config():
     pattern = Pattern()
 
     input_config = Input(data=pattern)
-
     input_config_dict = input_config.model_dump()
-    # print(input_config_dict)
-
     output = Input(**input_config_dict)
-    print(output)
+
     assert np.array_equal(output.data.x, pattern.x)
     assert np.array_equal(output.data.y, pattern.y)
 
