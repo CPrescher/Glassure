@@ -107,7 +107,7 @@ def process_input(input: Input) -> Pattern:
 
     # extrapolation
     s0 = calculate_s0(composition)
-    extrapolation = transform.extrapolation_config
+    extrapolation = transform.extrapolation
     match extrapolation.method:
         case ExtrapolationMethod.STEP:
             sq = sq.extend_to(0, s0)
