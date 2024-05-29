@@ -72,7 +72,7 @@ def test_process_input_linear_extrapolation():
     input = prepare_input()
     res = process_input(input)
 
-    input.config.transform.extrapolation_config.method = "linear"
+    input.config.transform.extrapolation.method = "linear"
     res_lin = process_input(input)
 
     assert not np.array_equal(res.sq.y, res_lin.sq.y)
@@ -82,7 +82,7 @@ def test_process_input_spline_extrapolation():
     input = prepare_input()
     res = process_input(input)
 
-    input.config.transform.extrapolation_config.method = "spline"
+    input.config.transform.extrapolation.method = "spline"
     res_spline = process_input(input)
 
     assert not np.array_equal(res.sq.y, res_spline.sq.y)
@@ -92,7 +92,7 @@ def test_process_input_poly_extrapolation():
     input = prepare_input()
     res = process_input(input)
 
-    input.config.transform.extrapolation_config.method = "poly"
+    input.config.transform.extrapolation.method = "poly"
     res_poly = process_input(input)
 
     assert not np.array_equal(res.sq.y, res_poly.sq.y)
