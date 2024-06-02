@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*/:
 
 from typing import Optional, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from dataclasses import dataclass, field
 
 from .utility import Composition, convert_density_to_atoms_per_cubic_angstrom
@@ -12,8 +12,8 @@ from .methods import FourierTransformMethod, NormalizationMethod, ExtrapolationM
 @dataclass
 class SampleConfig:
     composition: Composition = field(default_factory=dict)
-    density: float | None = None
-    atomic_density: float | None = None
+    density: Optional[float] = None
+    atomic_density: Optional[float] = None
 
     def __post_init__(self):
         if self.density is not None:
@@ -83,17 +83,17 @@ class Config:
 
 
 class Input(BaseModel):
-    data: Pattern
-    bkg: Pattern | None = None
+    data: Optional[Pattern] = None
+    bkg: Optional[Pattern] = None
     bkg_scaling: float = 1.0
     config: Config = Config()
 
 
 class Result(BaseModel):
     input: Input
-    sq: Pattern
-    fr: Pattern
-    gr: Pattern
+    sq: Optional[Pattern] = None
+    fr: Optional[Pattern] = None
+    gr: Optional[Pattern] = None
 
 
 def create_input(

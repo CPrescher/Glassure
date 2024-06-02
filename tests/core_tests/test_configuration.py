@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from pytest import approx
 import json
-from json import JSONEncoder
 from dataclasses import asdict
 
 import numpy as np
