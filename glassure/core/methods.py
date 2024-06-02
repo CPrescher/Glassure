@@ -42,7 +42,9 @@ class ExtrapolationMethod(str, Enum):
     Enum class for the different extrapolation methods of the S(Q) to
     S(0)
     """
+
     STEP = "step"
     LINEAR = "linear"
     POLY = "poly"
     SPLINE = "spline"
+

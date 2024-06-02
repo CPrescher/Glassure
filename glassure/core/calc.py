@@ -1,8 +1,9 @@
 import numpy as np
+from pydantic import ValidationError
 
 from .configuration import Input, Result, FitNormalization, IntNormalization
 from .pattern import Pattern
-from .methods import NormalizationMethod, ExtrapolationMethod
+from .methods import ExtrapolationMethod
 from .normalization import normalize, normalize_fit
 from .optimization import optimize_sq
 from .transform import calculate_sq, calculate_fr, calculate_gr
@@ -22,6 +23,7 @@ def process_input(input: Input) -> Pattern:
     """
     Process the input configuration and return the result.
     """
+    validate_input(input)
 
     # create some shortcuts
     config = input.config
@@ -173,3 +175,19 @@ def process_input(input: Input) -> Pattern:
     )
 
     return res
+
+
+def validate_input(input: Input):
+    """
+    Validate the input configuration.
+    """
+    if input.data is None or not isinstance(input.data, Pattern):
+        raise ValueError("Input data must be a Pattern object.")
+    if input.bkg is not None and not isinstance(input.bkg, Pattern):
+        raise ValueError("Background data must be a Pattern object.")
+
+    if not input.config.sample.composition:  # empty composition dict
+        raise ValueError("Composition must be set.")
+
+    if not input.config.sample.atomic_density:
+        raise ValueError("Atomic density must be set.")
