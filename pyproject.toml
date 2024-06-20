@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "glassure"
-version = "1.4.4"
+version = "2.0.0-alpha"
 description = "API and GUI for analysis of X-ray total scattering data"
 authors = ["Clemens Prescher <clemens.prescher@gmail.com>"]
 license = "MIT"
@@ -17,9 +17,6 @@ classifiers = [
     'Topic :: Scientific/Engineering :: Information Analysis',
 ]
 
-[tool.poetry.scripts]
-glassure = 'glassure.run:main'
-
 [tool.poetry-dynamic-versioning]
 enable = true
 pattern = "default-unprefixed"
@@ -29,7 +26,7 @@ files = ["glassure/__init__.py"]
 
 
 [tool.poetry.dependencies]
-python = "^3.9, <3.13"
+python = "^3.10"
 numpy = [
   { version = "^1.24.0", python = "<3.10" },
   { version = "^1.26.0", python = ">=3.10" }
@@ -40,16 +37,12 @@ scipy = [
 ]
 lmfit = "^1.2.0"
 pandas = "^2.1.0"
-pyqtgraph = "^0.13.3"
-qtpy = "^2.4.1"
-pyside6 = "^6.5.1"
 pydantic = "^2.7.1"
 
 [tool.poetry.group.dev.dependencies]
 mock = "^5.0.1"
 pytest = "^7.3.1"
 pytest-cov = "^4.1.0"
-pytest-qt = "^4.2.0"
 sphinx = "^7.2.5"
 myst-parser = "^2.0.0"
 nbsphinx = "^0.9.3"

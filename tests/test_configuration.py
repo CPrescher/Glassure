@@ -5,8 +5,8 @@ from dataclasses import asdict
 
 import numpy as np
 
-from glassure.core.pattern import Pattern
-from glassure.core.configuration import (
+from glassure.pattern import Pattern
+from glassure.configuration import (
     SampleConfig,
     FitNormalization,
     Config,

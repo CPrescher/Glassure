@@ -2,7 +2,7 @@
 import unittest
 import numpy as np
 
-from glassure.core.utility import (
+from glassure.utility import (
     normalize_composition,
     convert_density_to_atoms_per_cubic_angstrom,
     calculate_f_mean_squared,
@@ -17,7 +17,7 @@ from glassure.core.utility import (
     calculate_s0,
     calculate_kn_correction,
 )
-from glassure.core import Pattern
+from glassure import Pattern
 
 
 class UtilityTest(unittest.TestCase):
