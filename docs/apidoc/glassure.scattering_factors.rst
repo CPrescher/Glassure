@@ -1,7 +1,7 @@
-glassure.core.scattering\_factors module
+glassure.scattering\_factors module
 ========================================
 
-.. automodule:: glassure.core.scattering_factors
+.. automodule:: glassure.scattering_factors
    :members:
    :undoc-members:
    :exclude-members: ScatteringFactorCalculator

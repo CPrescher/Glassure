@@ -1,7 +1,7 @@
-glassure.core.optimization module
+glassure.optimization module
 =================================
 
-.. automodule:: glassure.core.optimization
+.. automodule:: glassure.optimization
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,7 +1,7 @@
-glassure.core.fitting module
+glassure.pattern module
 ============================
 
-.. automodule:: glassure.core.fitting
+.. automodule:: glassure.pattern
    :members:
    :undoc-members:
    :show-inheritance:

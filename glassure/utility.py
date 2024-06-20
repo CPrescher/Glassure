@@ -271,10 +271,10 @@ def extrapolate_to_zero_spline(
     will be set to zero
 
     :param pattern: input pattern
-    :param x_max: defines the maximum x value within the spline will be fitted to the input pattern, This parameter
-    should be larger than the minimum of the pattern x
+    :param x_max: defines the maximum x value within the spline will be fitted to the input pattern. 
+        this parameter should be larger than the minimum of the pattern x     
     :param smooth_factor: defines the smoothing of the spline extrapolation please see numpy.UnivariateSpline manual for
-    explanations
+        explanations
     :param replace: boolean flag whether to replace the data values in the fitted region (default = False)
     :param y0: y value at x = 0
 

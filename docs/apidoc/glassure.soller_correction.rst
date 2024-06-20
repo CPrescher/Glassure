@@ -1,7 +1,7 @@
-glassure.core.transfer\_function module
+glassure.soller\_correction module
 =======================================
 
-.. automodule:: glassure.core.transfer_function
+.. automodule:: glassure.soller_correction
    :members:
    :undoc-members:
    :show-inheritance:

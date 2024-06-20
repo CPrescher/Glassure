@@ -1,7 +1,7 @@
-glassure.core.pattern module
+glassure.utility module
 ============================
 
-.. automodule:: glassure.core.pattern
+.. automodule:: glassure.utility
    :members:
    :undoc-members:
    :show-inheritance:
