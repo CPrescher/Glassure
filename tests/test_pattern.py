@@ -2,9 +2,9 @@
 import numpy as np
 from pytest import approx
 from pydantic import BaseModel
-from glassure.core.pattern import PydanticNpArray
+from glassure.pattern import PydanticNpArray
 
-from glassure.core import Pattern
+from glassure import Pattern
 
 
 def test_plus_and_minus_operators():

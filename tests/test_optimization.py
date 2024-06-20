@@ -4,16 +4,16 @@ import os
 import unittest
 import numpy as np
 
-from glassure.core import Pattern, convert_density_to_atoms_per_cubic_angstrom
-from glassure.core.utility import (
+from glassure import Pattern, convert_density_to_atoms_per_cubic_angstrom
+from glassure.utility import (
     extrapolate_to_zero_poly,
     calculate_f_mean_squared,
     calculate_f_squared_mean,
     calculate_incoherent_scattering,
 )
-from glassure.core.transform import calculate_sq
-from glassure.core.optimization import optimize_sq
-from .. import unittest_data_path
+from glassure.transform import calculate_sq
+from glassure.optimization import optimize_sq
+from . import unittest_data_path
 
 data_path = os.path.join(unittest_data_path, "Fe81S19.chi")
 background_path = os.path.join(unittest_data_path, "Fe81S19_bkg.chi")

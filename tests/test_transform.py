@@ -1,22 +1,22 @@
 import os
 import numpy as np
 
-from glassure.core import Pattern
-from glassure.core.utility import (
+from glassure import Pattern
+from glassure.utility import (
     calculate_f_squared_mean,
     calculate_f_mean_squared,
     calculate_incoherent_scattering,
     convert_density_to_atoms_per_cubic_angstrom,
 )
-from glassure.core.normalization import normalize
-from glassure.core.transform import (
+from glassure.normalization import normalize
+from glassure.transform import (
     calculate_sq,
     calculate_fr,
     calculate_gr,
     calculate_sq_from_fr,
 )
 
-from .. import unittest_data_path
+from . import unittest_data_path
 
 data_path = os.path.join(unittest_data_path, "Mg2SiO4_ambient.xy")
 bkg_path = os.path.join(unittest_data_path, "Mg2SiO4_ambient_bkg.xy")

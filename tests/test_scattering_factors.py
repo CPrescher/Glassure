@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from glassure.core.scattering_factors import *
+from glassure.scattering_factors import *
 
 
 @pytest.fixture

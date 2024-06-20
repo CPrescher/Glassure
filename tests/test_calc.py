@@ -3,12 +3,12 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-from glassure.core.pattern import Pattern
-from glassure.core.calc import process_input
-from glassure.core.configuration import create_input, OptimizeConfig, IntNormalization
+from glassure.pattern import Pattern
+from glassure.calc import process_input
+from glassure.configuration import create_input, OptimizeConfig, IntNormalization
 
 
-from .. import unittest_data_path
+from . import unittest_data_path
 
 data_path = os.path.join(unittest_data_path, "Mg2SiO4_ambient.xy")
 bkg_path = os.path.join(unittest_data_path, "Mg2SiO4_ambient_bkg.xy")
