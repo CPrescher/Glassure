@@ -1,3 +1,8 @@
+## 1.4.5 (2023/06/20)
+
+### Bugfixes
+- fixes an issue which caused glassure not to start with some pyqt6 versions
+
 ## 1.4.4 (2023/11/14)
 
 ### Bugfixes

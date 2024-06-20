@@ -164,7 +164,6 @@ class GlassureController(object):
     def update_sample(self, sample: Sample):
         self.model.sample_config = sample
 
-    @QtCore.Slot()
     def update_model(self):
         sample_config = self.main_widget.get_sample_config()
         transform_config = self.main_widget.get_transform_config()
