@@ -1,7 +1,7 @@
-glassure.core.calc module
+glassure.transform module
 =========================
 
-.. automodule:: glassure.core.calc
+.. automodule:: glassure.transform
    :members:
    :undoc-members:
    :show-inheritance:
