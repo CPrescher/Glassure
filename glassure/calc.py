@@ -108,7 +108,11 @@ def process_input(input: Input) -> Pattern:
     sq = calculate_sq(norm, f_squared_mean, f_mean_squared)
 
     # extrapolation
-    s0 = calculate_s0(composition)
+    if config.transform.extrapolation.s0 is not None:
+        s0 = config.transform.extrapolation.s0
+    else:
+        s0 = calculate_s0(composition)
+        
     extrapolation = transform.extrapolation
     match extrapolation.method:
         case ExtrapolationMethod.STEP:

@@ -97,6 +97,16 @@ def test_process_input_poly_extrapolation():
 
     assert not np.array_equal(res.sq.y, res_poly.sq.y)
 
+def test_process_extrapolation_with_s0():
+    input = prepare_input()
+    res = process_input(input)
+
+    input.config.transform.extrapolation.method = "linear"
+    input.config.transform.extrapolation.s0 = 0.1
+    res_s0 = process_input(input)
+
+    assert not np.array_equal(res.sq.y, res_s0.sq.y)
+
 
 def test_process_input_kn_correction():
     input = prepare_input()
