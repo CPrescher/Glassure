@@ -49,6 +49,7 @@ class OptimizeConfig:
 @dataclass
 class ExtrapolationConfig:
     method: ExtrapolationMethod = ExtrapolationMethod.STEP
+    s0: Optional[float] = field(default=None)
     overlap: float = 0.2
     replace: bool = False
 
