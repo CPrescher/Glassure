@@ -4,6 +4,7 @@ import numpy as np
 
 from .pattern import Pattern
 from .methods import FourierTransformMethod
+from .utility import Composition, normalize_composition, calculate_Z_sum, calculate_f_effective
 
 
 def calculate_sq(
@@ -25,6 +26,24 @@ def calculate_sq(
     """
     sq = (normalized_pattern.y - f_squared_mean + f_mean_squared) / f_mean_squared
     return Pattern(normalized_pattern.x, sq)
+
+
+def calculate_sq_AL(normalized_pattern: Pattern, composition: Composition) -> Pattern:
+    """
+    Calculates the structure factor S(Q) using the Ashcroft Langreth method.
+    The method is based on the equation:
+    S(Q) = (n * Intensity - incoherent_scattering)
+    where n is the normalization factor and f are the scattering factors.
+    """
+    normalized_composition = normalize_composition(composition)
+    normalized_composition = composition
+    Z_tot = calculate_Z_sum(normalized_composition)
+    f_effective = calculate_f_effective(normalized_composition, normalized_pattern.x)
+
+    sq = normalized_pattern.y / (Z_tot**2 * f_effective**2)
+
+    return Pattern(normalized_pattern.x, sq)
+
 
 
 def calculate_fr(

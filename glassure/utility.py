@@ -74,6 +74,48 @@ def calculate_f_squared_mean(
     return res
 
 
+def calculate_f_effective(
+    composition: Composition, q: np.ndarray, sf_source: str = "hajdu"
+) -> np.ndarray:
+    """
+    Calculates the effective form factor for a given composition for a given q vector.
+
+    :param composition: dictionary with elements as key and abundances as relative numbers
+    :param q: Q value or numpy array with a unit of A^-1
+    :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
+
+    :return: effective form factor
+    """
+    Z_tot = calculate_Z_sum(composition)
+
+    res = np.zeros_like(q)
+    for key, value in composition.items():
+        res = res + value * calculate_coherent_scattering_factor(key, q, sf_source)
+    return res / Z_tot
+
+
+def calculate_K_effective(
+    element: str, q: np.ndarray, f_effective: np.ndarray, sf_source: str = "hajdu"
+) -> np.ndarray:
+    return calculate_coherent_scattering_factor(element, q, sf_source) / f_effective
+
+
+def calculate_S_inf(
+    composition: Composition,
+    q: np.ndarray,
+    f_effective: np.ndarray,
+    Z_sum: float,
+    sf_source: str = "hajdu",
+) -> float:
+    K_p_sum = 0
+    for key, value in composition.items():
+        K_p = calculate_K_effective(key, q, f_effective, sf_source)
+        K_p_average = np.mean(K_p)
+        K_p_sum += value * K_p_average ** 2
+
+    return K_p_sum / Z_sum**2
+
+
 def calculate_incoherent_scattering(
     composition: Composition, q: np.ndarray, sf_source: str = "hajdu"
 ) -> np.ndarray:
@@ -92,6 +134,19 @@ def calculate_incoherent_scattering(
     for key, value in norm_elemental_abundances.items():
         res += value * calculate_incoherent_scattered_intensity(key, q, sf_source)
     return res
+
+
+def calculate_Z_sum(composition: Composition) -> float:
+    """
+    Calculates the sum of the atomic number of the elements in the composition
+
+    :param composition: dictionary with elements as key and abundances as relative numbers
+    :return: sum of atomic numbers
+    """
+    Z_sum = 0.0
+    for key, value in composition.items():
+        Z_sum += value * (scattering_factors.atomic_weights.index.get_loc(key) + 1)
+    return Z_sum
 
 
 def calculate_s0(composition: Composition, sf_source: str = "hajdu") -> float:
@@ -271,8 +326,8 @@ def extrapolate_to_zero_spline(
     will be set to zero
 
     :param pattern: input pattern
-    :param x_max: defines the maximum x value within the spline will be fitted to the input pattern. 
-        this parameter should be larger than the minimum of the pattern x     
+    :param x_max: defines the maximum x value within the spline will be fitted to the input pattern.
+        this parameter should be larger than the minimum of the pattern x
     :param smooth_factor: defines the smoothing of the spline extrapolation please see numpy.UnivariateSpline manual for
         explanations
     :param replace: boolean flag whether to replace the data values in the fitted region (default = False)

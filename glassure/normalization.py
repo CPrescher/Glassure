@@ -1,6 +1,7 @@
 from typing import Optional
 
 import numpy as np
+from scipy.integrate import simpson
 import lmfit
 
 from .pattern import Pattern
@@ -171,3 +172,37 @@ def normalize_fit(
     )
 
     return out.params, Pattern(q_out, intensity_out)
+
+
+def normalize_AL(
+    sample_pattern: Pattern,
+    incoherent_scattering: np.ndarray,
+    density: float,
+    Z_tot: float,
+    f_effective: np.ndarray,
+    S_inf: float,
+) -> tuple[float, Pattern]:
+    """
+    Normalizes the sample data (already background subtracted and corrected) to
+    atomic units using the Ashcroft Langreth method. The normalization
+    is performed for the the Ashcroft Langreth structure factor.
+
+    :param sample_pattern:      background subtracted sample pattern
+    :param composition:         composition of the sample
+    :param density:             density of the sample in atoms per cubic Angstrom
+    :param Z_tot:               total atomic number of the sample
+    :param f_effective:         effective scattering factor for each q value in the pattern
+    :param S_inf:               S_inf parameter for the sample
+
+    :return:                    alpha and the normalized Pattern
+    """
+    q, intensity = sample_pattern.data
+
+    J = incoherent_scattering / (Z_tot**2 * f_effective**2)
+
+    int_1 = simpson((J + S_inf) * q**2, x=q)
+    int_2 = simpson((intensity / f_effective**2) * q**2, x=q)
+
+    alpha = Z_tot**2 * (((-2 * np.pi**2 * density) + int_1) / int_2)
+
+    return alpha, Pattern(q, intensity * alpha - incoherent_scattering)

@@ -11,6 +11,7 @@ from glassure.utility import (
 from glassure.normalization import normalize
 from glassure.transform import (
     calculate_sq,
+    calculate_sq_AL,
     calculate_fr,
     calculate_gr,
     calculate_sq_from_fr,
@@ -61,6 +62,12 @@ class TestTransform:
 
         sq_mean = np.mean(sq.y[sq.x > 15])
         assert np.isclose(sq_mean, 1.0, atol=0.2)
+
+    def test_calculate_sq_AL(self):
+        sq_al = calculate_sq_AL(self.normalized_pattern, self.composition)
+
+        assert len(sq_al.x) == len(self.sample.x)
+        assert len(sq_al.y) == len(self.sample.y)
 
     def test_calculate_fr(self):
         sq = calculate_sq(

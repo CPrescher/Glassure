@@ -14,6 +14,9 @@ from glassure.utility import (
     extrapolate_to_zero_step,
     convert_two_theta_to_q_space,
     convert_two_theta_to_q_space_raw,
+    calculate_Z_sum,
+    calculate_f_effective,
+    calculate_S_inf,
     calculate_s0,
     calculate_kn_correction,
 )
@@ -227,3 +230,24 @@ class UtilityTest(unittest.TestCase):
         self.assertAlmostEqual(
             np.max(pattern_q.x), 4 * np.pi * np.sin(25.0 / 360 * np.pi) / wavelength
         )
+
+    def test_calc_Z_sum(self):
+        composition = {"Si": 1, "O": 2}
+        Z_sum = calculate_Z_sum(composition)
+        self.assertEqual(Z_sum, 14 + 8 * 2)
+
+    def test_calculate_f_effective(self):
+        composition = {"Si": 1, "O": 2}
+        q = np.linspace(0, 10, 1001)
+        f_effective = calculate_f_effective(composition, q)
+
+        self.assertEqual(len(q), len(f_effective))
+        self.assertAlmostEqual(f_effective[0], 1, places=3)
+
+    def test_calculate_S_inf(self):
+        composition = {"Si": 1, "O": 2}
+        q = np.linspace(0, 10, 1001)
+        f_effective = calculate_f_effective(composition, q)
+        Z_sum = calculate_Z_sum(composition)
+        S_inf = calculate_S_inf(composition, q, f_effective, Z_sum)
+        self.assertAlmostEqual(S_inf, 0.3874, places=3)
