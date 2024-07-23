@@ -15,7 +15,6 @@ from .utility import extrapolate_to_zero_poly
 
 __all__ = [
     "optimize_sq",
-    "optimize_density",
 ]
 
 
@@ -91,107 +90,109 @@ def optimize_sq(
     return sq_pattern
 
 
-def optimize_density(
-    data_pattern,
-    background_pattern,
-    initial_background_scaling,
-    composition,
-    initial_density,
-    background_min,
-    background_max,
-    density_min,
-    density_max,
-    iterations,
-    r_cutoff,
-    use_modification_fcn=False,
-    extrapolation_cutoff=None,
-    r_step=0.01,
-    fcn_callback=None,
-):
-    """
-    Performs an optimization of the background scaling and density using a figure of merit function defined by the low
-    r region in F(r) as described in Eggert et al. (2002) PRB, 65, 174105.
+# NEEDS Update to new configuration way of calculating density - this will also ensure, that every possible option is
+# properly used in the density optimization (e.g. Klein Nishima correction or different S(Q) extrapolation methods)
+# def optimize_density(
+#     data_pattern,
+#     background_pattern,
+#     initial_background_scaling,
+#     composition,
+#     initial_density,
+#     background_min,
+#     background_max,
+#     density_min,
+#     density_max,
+#     iterations,
+#     r_cutoff,
+#     use_modification_fcn=False,
+#     extrapolation_cutoff=None,
+#     r_step=0.01,
+#     fcn_callback=None,
+# ):
+#     """
+#     Performs an optimization of the background scaling and density using a figure of merit function defined by the low
+#     r region in F(r) as described in Eggert et al. (2002) PRB, 65, 174105.
 
-    :param data_pattern:       raw data pattern in Q space (A^-1)
-    :param background_pattern: raw background pattern in Q space (A^-1)
-    :param initial_background_scaling:
-                                start value for the background scaling optimization
-    :param composition:         composition of the sample as a dictionary with elements as keys and abundances as values
-    :param initial_density:     start value for the density optimization in g/cm^3
-    :param background_min:      minimum value for the background scaling
-    :param background_max:      maximum value for the background scaling
-    :param density_min:         minimum value for the density
-    :param density_max:         maximum value for the density
-    :param iterations:          number of iterations of S(Q) (see optimize_sq(...) prior to calculating chi2
-    :param r_cutoff:            cutoff value below which there is no signal expected (below the first peak in g(r))
-    :param use_modification_fcn:
-                                Whether to use the Lorch modification function during the Fourier transform.
-                                Warning: When using the Lorch modification function, more iterations are needed
-                                to get to the wanted result.
-    :param extrapolation_cutoff:
-                                Determines up to which q value the S(Q) will be extrapolated to zero. The default
-                                (None) will use the minimum q value plus 0.2 A^-1
-    :param r_step:              Step size for the r-space for calculating f(r) during each iteration.
-    :param fcn_callback:        Function which will be called after each iteration. The function should take four
-                                arguments: iteration number, chi2, density, and background scaling. Additionally, the
-                                function should return a boolean value, where True continues the optimization and False
-                                will stop the optimization procedure
+#     :param data_pattern:       raw data pattern in Q space (A^-1)
+#     :param background_pattern: raw background pattern in Q space (A^-1)
+#     :param initial_background_scaling:
+#                                 start value for the background scaling optimization
+#     :param composition:         composition of the sample as a dictionary with elements as keys and abundances as values
+#     :param initial_density:     start value for the density optimization in g/cm^3
+#     :param background_min:      minimum value for the background scaling
+#     :param background_max:      maximum value for the background scaling
+#     :param density_min:         minimum value for the density
+#     :param density_max:         maximum value for the density
+#     :param iterations:          number of iterations of S(Q) (see optimize_sq(...) prior to calculating chi2
+#     :param r_cutoff:            cutoff value below which there is no signal expected (below the first peak in g(r))
+#     :param use_modification_fcn:
+#                                 Whether to use the Lorch modification function during the Fourier transform.
+#                                 Warning: When using the Lorch modification function, more iterations are needed
+#                                 to get to the wanted result.
+#     :param extrapolation_cutoff:
+#                                 Determines up to which q value the S(Q) will be extrapolated to zero. The default
+#                                 (None) will use the minimum q value plus 0.2 A^-1
+#     :param r_step:              Step size for the r-space for calculating f(r) during each iteration.
+#     :param fcn_callback:        Function which will be called after each iteration. The function should take four
+#                                 arguments: iteration number, chi2, density, and background scaling. Additionally, the
+#                                 function should return a boolean value, where True continues the optimization and False
+#                                 will stop the optimization procedure
 
-    :return: (tuple) - density, density standard error, background scaling, background scaling standard error
-    """
-    params = lmfit.Parameters()
-    params.add("density", value=initial_density, min=density_min, max=density_max)
-    params.add(
-        "background_scaling",
-        value=initial_background_scaling,
-        min=background_min,
-        max=background_max,
-    )
+#     :return: (tuple) - density, density standard error, background scaling, background scaling standard error
+#     """
+#     params = lmfit.Parameters()
+#     params.add("density", value=initial_density, min=density_min, max=density_max)
+#     params.add(
+#         "background_scaling",
+#         value=initial_background_scaling,
+#         min=background_min,
+#         max=background_max,
+#     )
 
-    r = np.arange(0, r_cutoff + r_step / 2.0, r_step)
+#     r = np.arange(0, r_cutoff + r_step / 2.0, r_step)
 
-    def optimization_fcn(params, extrapolation_max, r, r_cutoff, use_modification_fcn):
-        density = params["density"].value
-        atomic_density = convert_density_to_atoms_per_cubic_angstrom(
-            composition, density
-        )
-        background_pattern.scaling = params["background_scaling"].value
+#     def optimization_fcn(params, extrapolation_max, r, r_cutoff, use_modification_fcn):
+#         density = params["density"].value
+#         atomic_density = convert_density_to_atoms_per_cubic_angstrom(
+#             composition, density
+#         )
+#         background_pattern.scaling = params["background_scaling"].value
 
-        sq = calculate_sq(data_pattern - background_pattern, density, composition)
-        extrapolation_max = extrapolation_max or np.min(sq._x[0]) + 0.2
-        sq = extrapolate_to_zero_poly(sq, extrapolation_max)
-        sq_optimized = optimize_sq(
-            sq, r_cutoff, iterations, atomic_density, use_modification_fcn
-        )
-        fr = calculate_fr(sq_optimized, r=r, use_modification_fcn=use_modification_fcn)
+#         sq = calculate_sq(data_pattern - background_pattern, density, composition)
+#         extrapolation_max = extrapolation_max or np.min(sq._x[0]) + 0.2
+#         sq = extrapolate_to_zero_poly(sq, extrapolation_max)
+#         sq_optimized = optimize_sq(
+#             sq, r_cutoff, iterations, atomic_density, use_modification_fcn
+#         )
+#         fr = calculate_fr(sq_optimized, r=r, use_modification_fcn=use_modification_fcn)
 
-        min_r, min_fr = fr.data
+#         min_r, min_fr = fr.data
 
-        output = (min_fr + 4 * np.pi * atomic_density * min_r) ** 2 * r_step
+#         output = (min_fr + 4 * np.pi * atomic_density * min_r) ** 2 * r_step
 
-        if fcn_callback is not None:
-            if not fcn_callback(
-                optimization_fcn.iteration,
-                np.sum(output),
-                density,
-                params["background_scaling"].value,
-            ):
-                return None
-        optimization_fcn.iteration += 1
-        return output
+#         if fcn_callback is not None:
+#             if not fcn_callback(
+#                 optimization_fcn.iteration,
+#                 np.sum(output),
+#                 density,
+#                 params["background_scaling"].value,
+#             ):
+#                 return None
+#         optimization_fcn.iteration += 1
+#         return output
 
-    optimization_fcn.iteration = 1
+#     optimization_fcn.iteration = 1
 
-    lmfit.minimize(
-        optimization_fcn,
-        params,
-        args=(extrapolation_cutoff, r, r_cutoff, use_modification_fcn),
-    )
-    lmfit.report_fit(params)
+#     lmfit.minimize(
+#         optimization_fcn,
+#         params,
+#         args=(extrapolation_cutoff, r, r_cutoff, use_modification_fcn),
+#     )
+#     lmfit.report_fit(params)
 
-    return (
-        params["density"].value,
-        params["density"].stderr,
-        params["background_scaling"].value,
-        params["background_scaling"].stderr,
-    )
+#     return (
+#         params["density"].value,
+#         params["density"].stderr,
+#         params["background_scaling"].value,
+#         params["background_scaling"].stderr,
+#     )
