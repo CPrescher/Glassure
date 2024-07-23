@@ -1,6 +1,7 @@
 from typing import Optional
 
 import numpy as np
+from scipy.integrate import simpson
 
 from .pattern import Pattern
 from .methods import FourierTransformMethod
@@ -65,8 +66,8 @@ def calculate_fr(
         fr = (
             2.0
             / np.pi
-            * np.trapz(
-                modification * q * (sq - 1) * np.array(np.sin(np.outer(q.T, r))).T, q
+            * simpson(
+                modification * q * (sq - 1) * np.array(np.sin(np.outer(q.T, r))).T, x=q
             )
         )
     elif method == "fft" or method == FourierTransformMethod.FFT:
@@ -92,45 +93,35 @@ def calculate_fr(
     return Pattern(r, fr)
 
 
-def calculate_sq_from_fr(
-    fr_pattern: Pattern, q: np.ndarray, method: str = "integral"
-) -> Pattern:
+def calculate_sq_from_fr(fr_pattern: Pattern, q: np.ndarray) -> Pattern:
     """
     Calculates S(Q) from an F(r) pattern for given q values.
 
     :param fr_pattern:              input F(r) pattern
     :param q:                       numpy array giving the q-values for which S(q) will be calculated,
-    :param method:                  determines the method use for calculating fr, possible values are:
-                                            - 'integral' solves the Fourier integral, by calculating the integral
-                                            - 'fft' solves the Fourier integral by using fast fourier transformation
 
     :return: F(r) pattern
     """
     r, fr = fr_pattern.data
+    sq = simpson(fr * np.array(np.sin(np.outer(r.T, q))).T, x=r) / q + 1
 
-    if method == "integral":
-        sq = np.trapz(fr * np.array(np.sin(np.outer(r.T, q))).T, r) / q + 1
+    # there should be a way of doing this with fft, but the current implementation is not working
+    # correctly (it will not reproduce the S(q) pattern after transforming to fr and back accurately)
+    # elif method == "fft":
+    #     q_step = q[1] - q[0]
+    #     r_step = r[1] - r[0]
 
-    elif method == "fft":
-        q_step = q[1] - q[0]
-        r_step = r[1] - r[0]
+    #     n_out = int(np.pi / (r_step * q_step))
 
-        n_out = int(np.pi / (r_step * q_step))
+    #     r_max_for_ifft = 2 * n_out * r_step
+    #     ifft_x_step = 2 * np.pi / r_max_for_ifft
+    #     ifft_x = np.arange(n_out) * ifft_x_step
 
-        r_max_for_ifft = 2 * n_out * r_step
-        ifft_x_step = 2 * np.pi / r_max_for_ifft
-        ifft_x = np.arange(n_out) * ifft_x_step
+    #     y_for_ifft = np.concatenate((fr, np.zeros(2 * n_out - len(r))))
+    #     ifft_result = np.fft.ifft(y_for_ifft) * r_max_for_ifft
+    #     ifft_imag = np.imag(ifft_result)[:n_out]
 
-        y_for_ifft = np.concatenate((fr, np.zeros(2 * n_out - len(r))))
-        ifft_result = np.fft.ifft(y_for_ifft) * r_max_for_ifft
-        ifft_imag = np.imag(ifft_result)[:n_out]
-
-        sq = np.interp(q, ifft_x, ifft_imag) / q + 1
-    else:
-        raise NotImplementedError(
-            "{} is not an allowed method for calculate_sq_from_fr".format(method)
-        )
-
+    #     sq = np.interp(q, ifft_x, ifft_imag) / q + 1
     return Pattern(q, sq)
 
 
@@ -146,9 +137,6 @@ def calculate_sq_from_gr(
     :param gr_pattern:      g(r) pattern
     :param q:               numpy array of q values for which S(Q) should be calculated
     :param atomic_density:  number_density in atoms/A^3
-    :param method:          determines the method used for calculating fr, possible values are:
-                                - 'integral' solves the Fourier integral, by calculating the integral
-                                - 'fft' solves the Fourier integral by using fast fourier transformation
 
     :return: S(Q) pattern
     """
@@ -158,7 +146,7 @@ def calculate_sq_from_gr(
     if np.isnan(gr[0]):
         gr[0] = 0
     fr_pattern = Pattern(r, (gr - 1) * (4.0 * np.pi * r * atomic_density))
-    return calculate_sq_from_fr(fr_pattern, q, method)
+    return calculate_sq_from_fr(fr_pattern, q)
 
 
 def calculate_gr(fr_pattern: Pattern, atomic_density: float) -> Pattern:
