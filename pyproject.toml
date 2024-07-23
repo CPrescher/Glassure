@@ -38,6 +38,7 @@ scipy = [
 lmfit = "^1.2.0"
 pandas = "^2.1.0"
 pydantic = "^2.7.1"
+autodoc-pydantic = "^2.2.0"
 
 [tool.poetry.group.dev.dependencies]
 mock = "^5.0.1"
