@@ -124,26 +124,26 @@ def test_from_dict():
     assert pattern1.name == pattern2.name
 
 
-class TestModel(BaseModel):
+class DummyModel(BaseModel):
     x: PydanticNpArray
 
 
 def test_pydantic_nparray_with_array_input():
     input_array = np.linspace(0, 10, 1000)
-    t = TestModel(x=input_array)
+    t = DummyModel(x=input_array)
     json = t.model_dump()
-    t = TestModel(**json)
+    t = DummyModel(**json)
     assert np.array_equal(t.x, input_array)
 
 def test_pydantic_nparray_with_list_input():
     input_array = np.array([1, 2, 3])
-    t = TestModel(x=input_array.tolist())
+    t = DummyModel(x=input_array.tolist())
     assert np.array_equal(t.x, input_array)
     json = t.model_dump()
-    t = TestModel(**json)
+    t = DummyModel(**json)
     assert np.array_equal(t.x, input_array)
 
 def test_pydantic_nparray_from_json():
     input = {"x": [1, 2, 3]}
-    t = TestModel(**input)
+    t = DummyModel(**input)
     assert np.array_equal(t.x, np.array([1, 2, 3]))

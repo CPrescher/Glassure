@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from pytest import approx
-import json
-from dataclasses import asdict
 
 import numpy as np
 
@@ -68,8 +66,9 @@ def test_fit_normalization_config():
 
 def test_calculation_config():
     c = Config()
-    c_dict = asdict(c)
-    test = json.dumps(c_dict)
+    c_json = c.model_dump_json()
+    assert type(c.model_dump()) == dict
+    assert type(c_json) == str
 
 
 def test_input_config():
