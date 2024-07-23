@@ -27,14 +27,8 @@ files = ["glassure/__init__.py"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-numpy = [
-  { version = "^1.24.0", python = "<3.10" },
-  { version = "^1.26.0", python = ">=3.10" }
-]
-scipy = [
-  { version = "^1.9.3", python = "<3.10" },
-  { version = "^1.11.3", python = ">=3.10" }
-]
+numpy = "^1.26.0" 
+scipy = "^1.11.3"
 lmfit = "^1.2.0"
 pandas = "^2.1.0"
 pydantic = "^2.7.1"
