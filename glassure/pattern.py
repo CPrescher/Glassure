@@ -6,6 +6,7 @@ from typing import Union, Optional
 from pydantic import PlainSerializer, PlainValidator, BaseModel
 import numpy as np
 import base64
+import gzip
 
 from dataclasses import dataclass
 
@@ -331,6 +332,7 @@ def validate(value):
     if isinstance(value, str):
         try:
             v = base64.b64decode(value)
+            v = gzip.decompress(v)
             numpy_array = np.load(io.BytesIO(v), allow_pickle=False)
             return numpy_array
         except Exception as e:
@@ -342,10 +344,13 @@ def validate(value):
 
 def serialize(value):
     if isinstance(value, np.ndarray):
-        # Save numpy array to bytes
+        # Save numpy array to compressed bytyes
         with io.BytesIO() as buffer:
             np.save(buffer, value, allow_pickle=False)
-            return base64.b64encode(buffer.getvalue()).decode("utf-8")
+            binary_data = buffer.getvalue()
+        compressed_data = gzip.compress(binary_data)
+        base_64_data = base64.b64encode(compressed_data).decode("utf-8")
+        return base_64_data
     raise TypeError(f"Invalid type for numpy array: {type(value)}")
 
 
