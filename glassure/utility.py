@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from typing import Optional, Union, Dict
+from collections import defaultdict
 from copy import copy
 
 import numpy as np
@@ -33,6 +34,71 @@ __all__ = [
 ]
 
 Composition = Dict[str, Union[int, float]]
+
+
+def parse_str_to_composition(formula: str) -> Composition:
+    """
+    Parses a chemical formula string into a dictionary with elements as keys and abundances as relative numbers. 
+    Typical examples are 'SiO2'-> {'Si': 1, 'O': 2} or 'Na2Si2O5' -> {'Na': 2, 'Si': 2, 'O': 5}
+
+    :param formula: chemical formula string
+    :return: Composition with elements as keys and abundances as relative numbers
+    """
+    # Remove all whitespace from the formula
+    formula = re.sub(r"\s+", "", formula)
+
+    def parse_segment(segment):
+        element_pattern = r"([A-Z][a-z]*)(\d*\.\d+|\d*)"
+        parsed = defaultdict(float)
+        for element, count in re.findall(element_pattern, segment):
+            parsed[element] += float(count) if count else 1.0
+        return parsed
+
+    def multiply_segment(segment_dict, multiplier):
+        for element in segment_dict:
+            segment_dict[element] *= multiplier
+        return segment_dict
+
+    def process_brackets(formula):
+        bracket_patterns = [
+            r"\(([^\(\)]+)\)(\d*\.\d+|\d*)",  # ()
+            r"\[([^\[\]]+)\](\d*\.\d+|\d*)",  # []
+            r"\{([^\{\}]+)\}(\d*\.\d+|\d*)",  # {}
+        ]
+
+        while any(re.search(pattern, formula) for pattern in bracket_patterns):
+            for pattern in bracket_patterns:
+                while re.search(pattern, formula):
+                    matches = re.findall(pattern, formula)
+                    for sub_formula, count in matches:
+                        parsed_sub_formula = parse_segment(sub_formula)
+                        multiplier = float(count) if count else 1.0
+                        parsed_sub_formula = multiply_segment(
+                            parsed_sub_formula, multiplier
+                        )
+                        sub_formula_string = "".join(
+                            [
+                                f"{el}{parsed_sub_formula[el]}"
+                                for el in parsed_sub_formula
+                            ]
+                        )
+                        formula = formula.replace(
+                            f"({sub_formula}){count}", sub_formula_string, 1
+                        )
+                        formula = formula.replace(
+                            f"[{sub_formula}]{count}", sub_formula_string, 1
+                        )
+                        formula = formula.replace(
+                            f"{{{sub_formula}}}{count}", sub_formula_string, 1
+                        )
+        return formula
+
+    # Process all brackets first
+    formula = process_brackets(formula)
+
+    # Parse the final expanded formula
+    final_parsed = parse_segment(formula)
+    return dict(final_parsed)
 
 
 def calculate_f_mean_squared(
@@ -271,8 +337,8 @@ def extrapolate_to_zero_spline(
     will be set to zero
 
     :param pattern: input pattern
-    :param x_max: defines the maximum x value within the spline will be fitted to the input pattern. 
-        this parameter should be larger than the minimum of the pattern x     
+    :param x_max: defines the maximum x value within the spline will be fitted to the input pattern.
+        this parameter should be larger than the minimum of the pattern x
     :param smooth_factor: defines the smoothing of the spline extrapolation please see numpy.UnivariateSpline manual for
         explanations
     :param replace: boolean flag whether to replace the data values in the fitted region (default = False)

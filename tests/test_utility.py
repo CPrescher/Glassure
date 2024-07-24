@@ -16,6 +16,7 @@ from glassure.utility import (
     convert_two_theta_to_q_space_raw,
     calculate_s0,
     calculate_kn_correction,
+    parse_str_to_composition,
 )
 from glassure import Pattern
 
@@ -227,3 +228,27 @@ class UtilityTest(unittest.TestCase):
         self.assertAlmostEqual(
             np.max(pattern_q.x), 4 * np.pi * np.sin(25.0 / 360 * np.pi) / wavelength
         )
+
+
+    def test_parse_string_to_composition(self):
+        inputs = [
+            "Si O 0.5",
+            "(Mg)(Si O2)2.5",
+            "[Al2O3]3",
+            "\\{Fe3O4\\}2.5",
+            "(H2O)2[NaCl]\\{KOH\\}0.5",
+            "\\{[Co(NH3)4(OH)2]3[Co(CN)6]\\}2"
+        ]
+
+        outputs = [
+            {"Si": 1, "O": 0.5},
+            {"Mg": 1, "Si": 2.5, "O": 5},
+            {"Al": 6, "O": 9},
+            {"Fe": 7.5, "O": 10},
+            {"H": 4.5, "O": 2.5, "Na": 1, "Cl": 1, "K": 0.5},
+            {"Co": 8, "N": 36, "H": 84, "O": 12, "C": 12}
+        ]
+
+        for input, output in zip(inputs, outputs):
+            parsed_formula = parse_str_to_composition(input)
+            self.assertEqual(parsed_formula, output)
