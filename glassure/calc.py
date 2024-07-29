@@ -61,7 +61,7 @@ def create_process_configs(
     return data_config, calculation_config
 
 
-def process(data_config: DataConfig, calculation_config: CalculationConfig) -> Pattern:
+def calculate(data_config: DataConfig, calculation_config: CalculationConfig) -> Pattern:
     """
     Process the input configuration and return the result.
     """
@@ -214,7 +214,7 @@ def process(data_config: DataConfig, calculation_config: CalculationConfig) -> P
     )
 
     res = Result(
-        calculation_config=config,
+        calculation_config=config.model_copy(deep=True),
         sq=sq,
         fr=fr,
         gr=gr,
