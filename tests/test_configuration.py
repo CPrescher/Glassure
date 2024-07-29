@@ -8,23 +8,24 @@ from glassure.configuration import SampleConfig, FitNormalization, CalculationCo
 
 
 def test_sample_config():
-    c = SampleConfig()
-    c_dict = vars(c)
-    assert c_dict == {"composition": {}, "density": None, "atomic_density": None}
-
     c = SampleConfig(composition={"Si": 1, "O": 2}, density=2.2)
 
     assert c.atomic_density == approx(0.0662, abs=1e-4)
 
-    c_dict = vars(c)
+    c_dict = c.model_dump()
     assert c_dict == {
         "composition": {"Si": 1, "O": 2},
         "density": 2.2,
         "atomic_density": approx(0.0662, abs=1e-4),
     }
 
-    c = SampleConfig(composition={"Si": 1, "O": 2}, atomic_density=0.0662)
-    assert c.density == None
+
+def test_sample_density_update():
+    s = SampleConfig(composition={"Si": 1, "O": 2}, density=2.2)
+    atomic_density = s.atomic_density
+    s.density = 2.4
+
+    assert s.atomic_density != atomic_density 
 
 
 def test_fit_normalization_config():

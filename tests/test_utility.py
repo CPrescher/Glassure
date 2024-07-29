@@ -5,6 +5,7 @@ import numpy as np
 from glassure.utility import (
     normalize_composition,
     convert_density_to_atoms_per_cubic_angstrom,
+    convert_density_to_grams_per_cubic_centimeter,
     calculate_f_mean_squared,
     calculate_f_squared_mean,
     calculate_incoherent_scattering,
@@ -37,6 +38,14 @@ class UtilityTest(unittest.TestCase):
         density_au = convert_density_to_atoms_per_cubic_angstrom(composition, density)
 
         self.assertAlmostEqual(density_au, 0.0662, places=4)
+
+
+    def test_convert_density_to_grams_per_cubic_centimeter(self):
+        composition = {"Si": 1, "O": 2}
+        density_au = convert_density_to_atoms_per_cubic_angstrom(composition, 2.2)
+        density = convert_density_to_grams_per_cubic_centimeter(composition, density_au)
+        self.assertAlmostEqual(density, 2.2, places=4)
+
 
     def test_calculate_f_mean_squared(self):
         q = np.linspace(0, 10)
