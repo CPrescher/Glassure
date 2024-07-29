@@ -126,11 +126,20 @@ class TransformConfig(BaseModel):
         + ":class:`IntNormalization`.",
     )
 
-    extrapolation: ExtrapolationConfig = field(default_factory=ExtrapolationConfig)
+    extrapolation: ExtrapolationConfig = Field(
+        default_factory=ExtrapolationConfig, description="Extrapolation configuration model."
+    )
 
-    use_modification_fcn: bool = False
-    kn_correction: bool = False
-    wavelength: Optional[float] = None
+    use_modification_fcn: bool = Field(
+        default=False, description="Whether to use the Lorch modification function."
+    )
+    kn_correction: bool = Field(
+        default=False,
+        description="Whether to apply the Klein-Nishima correction to the Compton scattering of the sample and the"
+        + "container (defined in normalization).",
+    )
+    wavelength: Optional[float] = Field(default=None, description="Wavelength in Angstrom. Needs to be set for the "
+                                                               + "Klein-Nishima correction.")   
 
     fourier_transform_method: FourierTransformMethod = FourierTransformMethod.FFT
 
@@ -154,7 +163,6 @@ class CalculationConfig(BaseModel):
     config_copy = config.model_copy(deep=True)
     config_copy.sample.composition = {"Ge": 1, "O": 2}
     ```
-
     """
 
     sample: SampleConfig = Field(
