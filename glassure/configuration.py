@@ -1,27 +1,42 @@
 # -*- coding: utf-8 -*/:
 
 from typing import Optional, Literal
-from pydantic import BaseModel, Field
-from dataclasses import dataclass, field
+from pydantic import BaseModel, Field, computed_field
 
-from .utility import Composition, convert_density_to_atoms_per_cubic_angstrom
+from .utility import (
+    Composition,
+    convert_density_to_atoms_per_cubic_angstrom,
+    convert_density_to_grams_per_cubic_centimeter,
+)
 from .pattern import Pattern
 from .methods import FourierTransformMethod, NormalizationMethod, ExtrapolationMethod
 
 
 class SampleConfig(BaseModel):
-    composition: Composition = field(default_factory=dict)
-    density: Optional[float] = field(
+    composition: Composition = Field(default_factory=dict)
+    density: Optional[float] = Field(
         default=None,
-    )
-    atomic_density: Optional[float] = field(
-        default=None,
+        description="Density in g/cm^3. Will be automatically updated when the atomic density is set",
     )
 
-    def model_post_init(self, __context):
-        if self.density is not None:
-            self.atomic_density = convert_density_to_atoms_per_cubic_angstrom(
-                self.composition, self.density
+    @computed_field(
+        description="The atomic density in atoms per cubic Angstrom. Will be automatically updated when density is set."
+    )
+    @property
+    def atomic_density(self) -> Optional[float]:
+        if self.composition == {}:  # empty composition
+            return None
+        return convert_density_to_atoms_per_cubic_angstrom(
+            self.composition, self.density
+        )
+
+    @atomic_density.setter
+    def atomic_density(self, value: Optional[float]):
+        if self.composition == {}:
+            self.density = None
+        else:
+            self.density = convert_density_to_grams_per_cubic_centimeter(
+                self.composition, value
             )
 
 
@@ -127,7 +142,8 @@ class TransformConfig(BaseModel):
     )
 
     extrapolation: ExtrapolationConfig = Field(
-        default_factory=ExtrapolationConfig, description="Extrapolation configuration model."
+        default_factory=ExtrapolationConfig,
+        description="Extrapolation configuration model.",
     )
 
     use_modification_fcn: bool = Field(
@@ -138,8 +154,11 @@ class TransformConfig(BaseModel):
         description="Whether to apply the Klein-Nishima correction to the Compton scattering of the sample and the"
         + "container (defined in normalization).",
     )
-    wavelength: Optional[float] = Field(default=None, description="Wavelength in Angstrom. Needs to be set for the "
-                                                               + "Klein-Nishima correction.")   
+    wavelength: Optional[float] = Field(
+        default=None,
+        description="Wavelength in Angstrom. Needs to be set for the "
+        + "Klein-Nishima correction.",
+    )
 
     fourier_transform_method: FourierTransformMethod = FourierTransformMethod.FFT
 

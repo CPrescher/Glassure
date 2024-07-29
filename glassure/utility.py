@@ -38,7 +38,7 @@ Composition = Dict[str, Union[int, float]]
 
 def parse_str_to_composition(formula: str) -> Composition:
     """
-    Parses a chemical formula string into a dictionary with elements as keys and abundances as relative numbers. 
+    Parses a chemical formula string into a dictionary with elements as keys and abundances as relative numbers.
     Typical examples are 'SiO2'-> {'Si': 1, 'O': 2} or 'Na2Si2O5' -> {'Na': 2, 'Si': 2, 'O': 5}
 
     :param formula: chemical formula string
@@ -289,6 +289,26 @@ def convert_density_to_atoms_per_cubic_angstrom(
         element = re.findall("[A-zA-Z]*", element)[0]
         mean_z += concentration * scattering_factors.atomic_weights["AW"][element]
     return density / mean_z * 0.602214129
+
+
+def convert_density_to_grams_per_cubic_centimeter(
+    composition: Composition, atomic_density: float
+) -> float:
+    """
+    Converts densities given in atoms/A^3 into g/cm3
+
+    :param composition: dictionary with elements as key and abundances as relative numbers
+    :param atomic_density: density in atoms/A^3
+    :return: density in g/cm^3
+    """
+
+    # get_smallest abundance
+    norm_elemental_abundances = normalize_composition(composition)
+    mean_z = 0.0
+    for element, concentration in norm_elemental_abundances.items():
+        element = re.findall("[A-zA-Z]*", element)[0]
+        mean_z += concentration * scattering_factors.atomic_weights["AW"][element]
+    return atomic_density * mean_z / 0.602214129
 
 
 def extrapolate_to_zero_step(pattern: Pattern, y0: float = 0) -> Pattern:
