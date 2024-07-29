@@ -27,7 +27,7 @@ from .utility import (
 )
 
 
-def create_process_configs(
+def create_calculate_pdf_configs(
     data: Pattern,
     composition: Composition,
     density: float,
@@ -40,7 +40,7 @@ def create_process_configs(
     x-value of the data pattern - thus, the whole pattern gets transformed,
     when using this configuration.
 
-    These two inputs can then be used with the *process* function in the calc module
+    These two inputs can then be used with the *calculate_pdf* function in the calc module
     to calculate the structure factor S(q), the pair distribution function F(r) and
     the pair correlation function g(r).
 
@@ -61,7 +61,7 @@ def create_process_configs(
     return data_config, calculation_config
 
 
-def calculate(data_config: DataConfig, calculation_config: CalculationConfig) -> Pattern:
+def calculate_pdf(data_config: DataConfig, calculation_config: CalculationConfig) -> Pattern:
     """
     Process the input configuration and return the result.
     """
