@@ -4,13 +4,7 @@ from pytest import approx
 import numpy as np
 
 from glassure.pattern import Pattern
-from glassure.configuration import (
-    SampleConfig,
-    FitNormalization,
-    Config,
-    Input,
-    create_input,
-)
+from glassure.configuration import SampleConfig, FitNormalization, CalculationConfig
 
 
 def test_sample_config():
@@ -65,32 +59,7 @@ def test_fit_normalization_config():
 
 
 def test_calculation_config():
-    c = Config()
+    c = CalculationConfig()
     c_json = c.model_dump_json()
     assert type(c.model_dump()) == dict
     assert type(c_json) == str
-
-
-def test_input_config():
-    pattern = Pattern()
-
-    input_config = Input(data=pattern)
-    input_config_dict = input_config.model_dump()
-    output = Input(**input_config_dict)
-
-    assert np.array_equal(output.data.x, pattern.x)
-    assert np.array_equal(output.data.y, pattern.y)
-
-
-def test_create_input_config():
-    x = np.arange(1, 13, 0.1)
-    pattern = Pattern(x, np.sin(x))
-    composition = {"Si": 1, "O": 2}
-    density = 2.2
-
-    input_config = create_input(pattern, composition, density)
-    transform = input_config.config.transform
-
-    # check that q limits are set correctly
-    assert transform.q_min == approx(1.0)
-    assert transform.q_max == np.max(x)

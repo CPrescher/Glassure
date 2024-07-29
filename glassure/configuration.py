@@ -120,8 +120,10 @@ class TransformConfig(BaseModel):
         description="Step size for the r values in Angstrom for the calculated pair distribution function g(r).",
     )
 
-    normalization: FitNormalization | IntNormalization = field(
-        default_factory=FitNormalization
+    normalization: FitNormalization | IntNormalization = Field(
+        default_factory=FitNormalization,
+        description="Normalization configuration model. Possible values are :class:`FitNormalization` or "
+        + ":class:`IntNormalization`.",
     )
 
     extrapolation: ExtrapolationConfig = field(default_factory=ExtrapolationConfig)
@@ -133,9 +135,27 @@ class TransformConfig(BaseModel):
     fourier_transform_method: FourierTransformMethod = FourierTransformMethod.FFT
 
 
-class Config(BaseModel):
-    """Main configuration model for the glassure data processing. Does not contain any data, but only the information
-    how to process the dataset."""
+class CalculationConfig(BaseModel):
+    """Main  calculation configuration model for the glassure data processing.
+    Does not contain any data, but only the information how to process the dataset.
+
+    To reuse the calculation config for a different calculation with some parameters changed, it is advised to use the
+    model_copy(deep=True) method of the config.
+
+    This will create a deep copy of the configuration object and not
+    overwrite parameters of the original one. (see https://docs.pydantic.dev/latest/concepts/serialization/#model_copy
+    for more information).
+
+    For example:
+    ```
+    config = CalculationConfig()
+    config.sample.composition = {"Si": Si, "O": 2}
+
+    config_copy = config.model_copy(deep=True)
+    config_copy.sample.composition = {"Ge": 1, "O": 2}
+    ```
+
+    """
 
     sample: SampleConfig = Field(
         default_factory=SampleConfig,
@@ -152,50 +172,25 @@ class Config(BaseModel):
     )
 
 
-class Input(BaseModel):
-    """Main input configuration for the glassure data processing. contains data and configuration."""
+class DataConfig(BaseModel):
+    """Configuration for the collected data, containing the data pattern, the background pattern and the bkg scaling
+    parameter."""
 
-    data: Optional[Pattern] = None
-    bkg: Optional[Pattern] = None
-    bkg_scaling: float = 1.0
-    config: Config = Config()
+    data: Pattern = Field(description="The data pattern.")
+    bkg: Optional[Pattern] = Field(default=None, description="The background pattern.")
+    bkg_scaling: float = Field(
+        default=1.0, description="The scaling factor for the background pattern."
+    )
 
 
 class Result(BaseModel):
-    input: Input
-    sq: Optional[Pattern] = None
-    fr: Optional[Pattern] = None
-    gr: Optional[Pattern] = None
-
-
-def create_input(
-    data: Pattern,
-    composition: Composition,
-    density: float,
-    bkg: Pattern = None,
-    bkg_scaling: float = 1,
-) -> Input:
-    """
-    Helper function to create a starting glassure input configuration.
-    Automatically sets the q_min and q_max values to the first and last
-    x-value of the data pattern - thus, the whole pattern gets transformed,
-    when using this configuration.
-
-    :param data: The data pattern.
-    :param composition: The composition of the sample.
-    :param density: The density of the sample in g/cm^3.
-    :param bkg: The background pattern. None if no background is present.
-    :param bkg_scaling: The scaling factor for the background pattern.
-
-    :return: The input configuration.
-    """
-    sample_config = SampleConfig(composition=composition, density=density)
-    input_config = Input(
-        data=data,
-        bkg=bkg,
-        bkg_scaling=bkg_scaling,
-        config=Config(sample=sample_config),
+    calculation_config: CalculationConfig = Field(
+        description="The configuration used for the calculation."
     )
-    input_config.config.transform.q_min = data.x[0]
-    input_config.config.transform.q_max = data.x[-1]
-    return input_config
+    sq: Optional[Pattern] = Field(
+        default=None, description="The calculated structure factor S(q)."
+    )
+    fr: Optional[Pattern] = Field(
+        default=None, description="The calculated pair distribution function F(r)."
+    )
+    gr: Optional[Pattern] = Field(default=None, description="The calculated g(r).")

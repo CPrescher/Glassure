@@ -1,7 +1,15 @@
 import numpy as np
 from pydantic import ValidationError
 
-from .configuration import Input, Result, FitNormalization, IntNormalization
+from .configuration import (
+    Result,
+    FitNormalization,
+    IntNormalization,
+    SampleConfig,
+    DataConfig,
+    CalculationConfig,
+    Composition,
+)
 from .pattern import Pattern
 from .methods import ExtrapolationMethod
 from .normalization import normalize, normalize_fit
@@ -19,22 +27,56 @@ from .utility import (
 )
 
 
-def process_input(input: Input) -> Pattern:
+def create_process_configs(
+    data: Pattern,
+    composition: Composition,
+    density: float,
+    bkg: Pattern = None,
+    bkg_scaling: float = 1,
+) -> tuple[DataConfig, CalculationConfig]:
+    """
+    Helper function to create a starting glassure input configuration.
+    Automatically sets the q_min and q_max values to the first and last
+    x-value of the data pattern - thus, the whole pattern gets transformed,
+    when using this configuration.
+
+    These two inputs can then be used with the *process* function in the calc module
+    to calculate the structure factor S(q), the pair distribution function F(r) and
+    the pair correlation function g(r).
+
+    :param data: The data pattern.
+    :param composition: The composition of the sample.
+    :param density: The density of the sample in g/cm^3.
+    :param bkg: The background pattern. None if no background is present.
+    :param bkg_scaling: The scaling factor for the background pattern.
+
+    :return: DataConfig, CalculationConfig
+    """
+    sample_config = SampleConfig(composition=composition, density=density)
+    calculation_config = CalculationConfig(sample=sample_config)
+    calculation_config.transform.q_min = data.x[0]
+    calculation_config.transform.q_max = data.x[-1]
+
+    data_config = DataConfig(data=data, bkg=bkg, bkg_scaling=bkg_scaling)
+    return data_config, calculation_config
+
+
+def process(data_config: DataConfig, calculation_config: CalculationConfig) -> Pattern:
     """
     Process the input configuration and return the result.
     """
-    validate_input(input)
+    validate_input(data_config, calculation_config)
 
     # create some shortcuts
-    config = input.config
+    config = calculation_config 
     transform = config.transform
     composition = config.sample.composition
 
     # subtract background
-    if input.bkg is not None:
-        sample = input.data - input.bkg * input.bkg_scaling
+    if data_config.bkg is not None:
+        sample = data_config.data - data_config.bkg * data_config.bkg_scaling
     else:
-        sample = input.data
+        sample = data_config.data
 
     # limit the pattern
     sample = sample.limit(transform.q_min, transform.q_max)
@@ -92,7 +134,7 @@ def process_input(input: Input) -> Pattern:
 
         n, norm = normalize(
             sample_pattern=sample,
-            atomic_density=input.config.sample.atomic_density,
+            atomic_density=config.sample.atomic_density,
             f_squared_mean=f_squared_mean,
             f_mean_squared=f_mean_squared,
             incoherent_scattering=norm_inc,
@@ -112,7 +154,7 @@ def process_input(input: Input) -> Pattern:
         s0 = config.transform.extrapolation.s0
     else:
         s0 = calculate_s0(composition)
-        
+
     extrapolation = transform.extrapolation
     match extrapolation.method:
         case ExtrapolationMethod.STEP:
@@ -168,11 +210,11 @@ def process_input(input: Input) -> Pattern:
 
     gr = calculate_gr(
         fr,
-        atomic_density=input.config.sample.atomic_density,
+        atomic_density=config.sample.atomic_density,
     )
 
     res = Result(
-        input=input,
+        calculation_config=config,
         sq=sq,
         fr=fr,
         gr=gr,
@@ -181,17 +223,17 @@ def process_input(input: Input) -> Pattern:
     return res
 
 
-def validate_input(input: Input):
+def validate_input(data_config: DataConfig, calculation_config: CalculationConfig):
     """
     Validate the input configuration.
     """
-    if input.data is None or not isinstance(input.data, Pattern):
+    if data_config.data is None or not isinstance(data_config.data, Pattern):
         raise ValueError("Input data must be a Pattern object.")
-    if input.bkg is not None and not isinstance(input.bkg, Pattern):
+    if data_config.bkg is not None and not isinstance(data_config.bkg, Pattern):
         raise ValueError("Background data must be a Pattern object.")
 
-    if not input.config.sample.composition:  # empty composition dict
+    if not calculation_config.sample.composition:  # empty composition dict
         raise ValueError("Composition must be set.")
 
-    if not input.config.sample.atomic_density:
+    if not calculation_config.sample.atomic_density:
         raise ValueError("Atomic density must be set.")
