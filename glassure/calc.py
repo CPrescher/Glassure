@@ -173,7 +173,7 @@ def calculate_pdf(data_config: DataConfig, calculation_config: CalculationConfig
             )
 
         case ExtrapolationMethod.POLY:
-            sq_cutoff = sq.x[0] + 0.21
+            sq_cutoff = sq.x[0] + extrapolation.overlap
             sq = extrapolate_to_zero_poly(
                 sq,
                 x_max=sq_cutoff,
