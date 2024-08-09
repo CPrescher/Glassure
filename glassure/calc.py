@@ -61,14 +61,16 @@ def create_calculate_pdf_configs(
     return data_config, calculation_config
 
 
-def calculate_pdf(data_config: DataConfig, calculation_config: CalculationConfig) -> Pattern:
+def calculate_pdf(
+    data_config: DataConfig, calculation_config: CalculationConfig
+) -> Pattern:
     """
     Process the input configuration and return the result.
     """
     validate_input(data_config, calculation_config)
 
     # create some shortcuts
-    config = calculation_config 
+    config = calculation_config
     transform = config.transform
     composition = config.sample.composition
 
@@ -83,9 +85,15 @@ def calculate_pdf(data_config: DataConfig, calculation_config: CalculationConfig
 
     # calculate form factor values
     q = sample.x
-    f_squared_mean = calculate_f_squared_mean(composition, q)
-    f_mean_squared = calculate_f_mean_squared(composition, q)
-    incoherent_scattering = calculate_incoherent_scattering(composition, q)
+    f_squared_mean = calculate_f_squared_mean(
+        composition, q, transform.scattering_factor_source
+    )
+    f_mean_squared = calculate_f_mean_squared(
+        composition, q, transform.scattering_factor_source
+    )
+    incoherent_scattering = calculate_incoherent_scattering(
+        composition, q, transform.scattering_factor_source
+    )
 
     # klein-nishina correction
     if transform.kn_correction:
@@ -107,7 +115,9 @@ def calculate_pdf(data_config: DataConfig, calculation_config: CalculationConfig
 
         if opt.container_scattering is not None:
             container_scattering = (
-                calculate_incoherent_scattering(opt.container_scattering, q)
+                calculate_incoherent_scattering(
+                    opt.container_scattering, q, transform.scattering_factor_source
+                )
                 * inc_correction
             )
         else:
@@ -153,7 +163,7 @@ def calculate_pdf(data_config: DataConfig, calculation_config: CalculationConfig
     if config.transform.extrapolation.s0 is not None:
         s0 = config.transform.extrapolation.s0
     else:
-        s0 = calculate_s0(composition)
+        s0 = calculate_s0(composition, transform.scattering_factor_source)
 
     extrapolation = transform.extrapolation
     match extrapolation.method:

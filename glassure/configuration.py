@@ -162,6 +162,14 @@ class TransformConfig(BaseModel):
 
     fourier_transform_method: FourierTransformMethod = FourierTransformMethod.FFT
 
+    scattering_factor_source: str = Field(
+        default="brown_hubbell",
+        description="""Source of the scattering factors. Possible values are: 'brown_hubbell' for scattering factors 
+        from Brown et al., 2006 and Hubbell et al., 1975 or 'haijdu' for scattering factors from Hajdu et al. 
+        (Acta Cryst. (1992). A48, 344-352).
+        """,
+    )
+
 
 class CalculationConfig(BaseModel):
     """Main  calculation configuration model for the glassure data processing.
