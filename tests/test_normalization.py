@@ -69,6 +69,24 @@ class TestNormalization:
         )
         assert params_4["n"].value != params_1["n"].value
 
+    def test_normalize_fit_without_incoherent_scattering(self):
+        params, _ = normalize_fit(
+            self.sample,
+            self.f_squared_mean,
+            None
+        )
+        assert params["n"].value > 0
+
+    def tesT_normalize_fit_without_container_scattering_and_with_container_scattering(self):
+        diamond_scattering = calculate_coherent_scattering_factor("C", self.sample.x)
+        params, _ = normalize_fit(
+            self.sample,
+            self.f_squared_mean,
+            None,
+            container_scattering=diamond_scattering,
+        )
+        assert params["n"].value > 0
+
     def test_compare_normalize_and_normalize_fit(self):
         n_normalize, normalized_pattern_1 = normalize(
             self.sample,

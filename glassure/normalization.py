@@ -106,6 +106,7 @@ def normalize_fit(
 
     # calculate values for integrals
     if incoherent_scattering is None:
+        incoherent_scattering = 0
         incoherent_scattering_cut = 0
     else:
         assert len(incoherent_scattering) == len(
