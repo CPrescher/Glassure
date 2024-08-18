@@ -26,7 +26,7 @@ def prepare_input():
     return data_config, calculation_config
 
 
-def test_process_input_base():
+def test_calculate_pdf_base():
     input = prepare_input()
 
     res = calculate_pdf(*input)
@@ -36,7 +36,7 @@ def test_process_input_base():
     assert len(res.gr.x) > 0
 
 
-def test_process_input_optimize_sq():
+def test_calculate_pdf_optimize_sq():
     data_input, calculation_input = prepare_input()
     res = calculate_pdf(data_input, calculation_input)
 
@@ -46,7 +46,7 @@ def test_process_input_optimize_sq():
     assert not np.array_equal(res.sq.y, res_optimize.sq.y)
 
 
-def test_process_input_norm_int():
+def test_calculate_pdf_norm_int():
     data_input, calculation_input = prepare_input()
     res = calculate_pdf(data_input, calculation_input)
 
@@ -56,7 +56,7 @@ def test_process_input_norm_int():
     assert not np.array_equal(res.sq.y, res_int.sq.y)
 
 
-def test_process_input_modification_fcn():
+def test_calculate_pdf_modification_fcn():
     data_input, calculation_input = prepare_input()
     res = calculate_pdf(data_input, calculation_input)
 
@@ -66,7 +66,7 @@ def test_process_input_modification_fcn():
     assert not np.array_equal(res.fr.y, res_mod.fr.y)
 
 
-def test_process_input_linear_extrapolation():
+def test_calculate_pdf_linear_extrapolation():
     data_input, calculation_input = prepare_input()
     res = calculate_pdf(data_input, calculation_input)
 
@@ -76,7 +76,7 @@ def test_process_input_linear_extrapolation():
     assert not np.array_equal(res.sq.y, res_lin.sq.y)
 
 
-def test_process_input_spline_extrapolation():
+def test_calculate_pdf_spline_extrapolation():
     data_input, calculation_input = prepare_input()
     res = calculate_pdf(data_input, calculation_input)
 
@@ -86,7 +86,7 @@ def test_process_input_spline_extrapolation():
     assert not np.array_equal(res.sq.y, res_spline.sq.y)
 
 
-def test_process_input_poly_extrapolation():
+def test_calculate_pdf_poly_extrapolation():
     data_input, calculation_input = prepare_input()
     res = calculate_pdf(data_input, calculation_input)
 
@@ -107,7 +107,7 @@ def test_process_extrapolation_with_s0():
     assert not np.array_equal(res.sq.y, res_s0.sq.y)
 
 
-def test_process_input_kn_correction():
+def test_calculate_pdf_kn_correction():
     data_input, calculation_input = prepare_input()
     res = calculate_pdf(data_input, calculation_input)
 
@@ -119,7 +119,7 @@ def test_process_input_kn_correction():
     assert not np.array_equal(res.sq.y, res_kn.sq.y)
 
 
-def test_process_input_with_container_scattering():
+def test_calculate_pdf_with_container_scattering():
     data_input, calculation_input = prepare_input()
     res = calculate_pdf(data_input, calculation_input)
 
@@ -130,7 +130,7 @@ def test_process_input_with_container_scattering():
     assert not np.array_equal(res.sq.y, res_container.sq.y)
 
 
-def test_process_input_with_container_scattering_and_kn():
+def test_calculate_pdf_with_container_scattering_and_kn():
     data_input, calculation_input = prepare_input()
     res = calculate_pdf(data_input, calculation_input)
     calculation_input.transform.kn_correction = True
