@@ -19,31 +19,20 @@ data_path = os.path.join(unittest_data_path, "Fe81S19.chi")
 background_path = os.path.join(unittest_data_path, "Fe81S19_bkg.chi")
 
 
-class OptimizationTest(unittest.TestCase):
-    def setUp(self):
-        self.data_pattern = Pattern.from_file(data_path)
-        self.background_pattern = Pattern.from_file(background_path)
-        self.composition = {"Fe": 0.81, "S": 0.19}
-        self.density = 7.9
-        self.atomic_density = convert_density_to_atoms_per_cubic_angstrom(
-            self.composition, self.density
-        )
-        self.f_squared_mean = calculate_f_squared_mean(self.composition, self.data_pattern.x)
-        self.f_mean_squared = calculate_f_mean_squared(self.composition, self.data_pattern.x)
-        self.incoherent_scattering = calculate_incoherent_scattering(
-            self.composition, self.data_pattern.x
-        )
-        self.background_scaling = 0.97
+def test_optimize_sq():
+    data = Pattern.from_file(data_path)
+    background = Pattern.from_file(background_path)
+    composition = {"Fe": 0.81, "S": 0.19}
+    density = 7.9
+    atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
+    f_squared_mean = calculate_f_squared_mean(composition, data.x)
+    f_mean_squared = calculate_f_mean_squared(composition, data.x)
+    incoherent_scattering = calculate_incoherent_scattering(composition, data.x)
+    background_scaling = 0.97
 
-        self.sample_pattern = (
-            self.data_pattern - self.background_scaling * self.background_pattern
-        )
+    sample_pattern = data - background_scaling * background
 
-    def tearDown(self):
-        pass
-
-    def test_optimize_sq(self):
-        sq = calculate_sq(self.sample_pattern, self.f_squared_mean, self.f_mean_squared)
-        sq = extrapolate_to_zero_poly(sq, np.min(sq.x) + 0.3)
-        sq_optimized = optimize_sq(sq, 1.6, 5, self.atomic_density)
-        self.assertFalse(np.allclose(sq.y, sq_optimized.y))
+    sq = calculate_sq(sample_pattern, f_squared_mean, f_mean_squared)
+    sq = extrapolate_to_zero_poly(sq, np.min(sq.x) + 0.3)
+    sq_optimized = optimize_sq(sq, 1.6, 5, atomic_density)
+    assert not np.allclose(sq.y, sq_optimized.y)
