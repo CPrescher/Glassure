@@ -115,5 +115,3 @@ def test_optimize_density_method():
     density_sq, _ = optimize_density(data_config, calculation_config, method="sq")
 
     assert density_gr != density_sq
-
-    print(density_gr, density_sq)
