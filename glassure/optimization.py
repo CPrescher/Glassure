@@ -3,7 +3,7 @@
 from copy import deepcopy
 
 import numpy as np
-import lmfit
+from lmfit import Parameters, minimize
 
 from . import Pattern
 from .transform import calculate_fr, calculate_gr, calculate_sq
@@ -15,6 +15,7 @@ from .utility import extrapolate_to_zero_poly
 
 __all__ = [
     "optimize_sq",
+    "optimize_density",
 ]
 
 
@@ -90,110 +91,94 @@ def optimize_sq(
     return sq_pattern
 
 
-# NEEDS Update to new configuration way of calculating density - this will also ensure, that every possible option is
-# properly used in the density optimization (e.g. Klein Nishima correction or different S(Q) extrapolation methods)
-# def optimize_density(
-#     data_pattern,
-#     background_pattern,
-#     initial_background_scaling,
-#     composition,
-#     initial_density,
-#     background_min,
-#     background_max,
-#     density_min,
-#     density_max,
-#     iterations,
-#     r_cutoff,
-#     use_modification_fcn=False,
-#     extrapolation_cutoff=None,
-#     r_step=0.01,
-#     fcn_callback=None,
-# ):
-#     """
-#     Performs an optimization of the background scaling and density using a figure of merit function defined by the low
-#     r region in F(r) as described in Eggert et al. (2002) PRB, 65, 174105.
+from .calc import calculate_pdf
+from .configuration import DataConfig, CalculationConfig
+from .methods import ExtrapolationMethod
 
-#     :param data_pattern:       raw data pattern in Q space (A^-1)
-#     :param background_pattern: raw background pattern in Q space (A^-1)
-#     :param initial_background_scaling:
-#                                 start value for the background scaling optimization
-#     :param composition:         composition of the sample as a dictionary with elements as keys and abundances as values
-#     :param initial_density:     start value for the density optimization in g/cm^3
-#     :param background_min:      minimum value for the background scaling
-#     :param background_max:      maximum value for the background scaling
-#     :param density_min:         minimum value for the density
-#     :param density_max:         maximum value for the density
-#     :param iterations:          number of iterations of S(Q) (see optimize_sq(...) prior to calculating chi2
-#     :param r_cutoff:            cutoff value below which there is no signal expected (below the first peak in g(r))
-#     :param use_modification_fcn:
-#                                 Whether to use the Lorch modification function during the Fourier transform.
-#                                 Warning: When using the Lorch modification function, more iterations are needed
-#                                 to get to the wanted result.
-#     :param extrapolation_cutoff:
-#                                 Determines up to which q value the S(Q) will be extrapolated to zero. The default
-#                                 (None) will use the minimum q value plus 0.2 A^-1
-#     :param r_step:              Step size for the r-space for calculating f(r) during each iteration.
-#     :param fcn_callback:        Function which will be called after each iteration. The function should take four
-#                                 arguments: iteration number, chi2, density, and background scaling. Additionally, the
-#                                 function should return a boolean value, where True continues the optimization and False
-#                                 will stop the optimization procedure
 
-#     :return: (tuple) - density, density standard error, background scaling, background scaling standard error
-#     """
-#     params = lmfit.Parameters()
-#     params.add("density", value=initial_density, min=density_min, max=density_max)
-#     params.add(
-#         "background_scaling",
-#         value=initial_background_scaling,
-#         min=background_min,
-#         max=background_max,
-#     )
+def optimize_density(
+    data_config: DataConfig,
+    calculation_config: CalculationConfig,
+    method: str = "gr",
+    min_range: tuple[float, float] = (0, 1),
+) -> tuple[float, float]:
+    """
+    Optimizes the density of the sample using the g(r) or S(Q) (chosen by the method parameter). The density in the
+    Sample configuration of the CalculationConfig is taking as starting parameter
 
-#     r = np.arange(0, r_cutoff + r_step / 2.0, r_step)
+    For method='gr' the optimization is based on the g(r) function, and the density is optimized to minimize the
+    low g(r) region to be close to zero. For better results, the g(r) function is calculated with the Lorch
+    modification function. The general procedure is explained in Eggert et al. 2002 PRB, 65, 174105.
 
-#     def optimization_fcn(params, extrapolation_max, r, r_cutoff, use_modification_fcn):
-#         density = params["density"].value
-#         atomic_density = convert_density_to_atoms_per_cubic_angstrom(
-#             composition, density
-#         )
-#         background_pattern.scaling = params["background_scaling"].value
+    For method='sq' the optimization is based on the low Q part of theS(Q) function, and the density is optimized
+    to minimize the difference between the original S(Q) function without any optimization and the optimized S(Q)
+    function. The configuration should have extrapolation enabled for this to work best.
+    For polyatomic systems, finding the density using this procedure is much less susceptible to the Q_max value of
+    the S(Q) than the g(r) based optimization. However, density is not exactly the same for both methods and the
+    method needs to be verified further. (Please us the method='sq' with caution.)
 
-#         sq = calculate_sq(data_pattern - background_pattern, density, composition)
-#         extrapolation_max = extrapolation_max or np.min(sq._x[0]) + 0.2
-#         sq = extrapolate_to_zero_poly(sq, extrapolation_max)
-#         sq_optimized = optimize_sq(
-#             sq, r_cutoff, iterations, atomic_density, use_modification_fcn
-#         )
-#         fr = calculate_fr(sq_optimized, r=r, use_modification_fcn=use_modification_fcn)
+    The best for both methods is to have a reference density to compare it to. Based on this then further calculations
+    of e.g. high pressure or high temperature densities can be performed.
 
-#         min_r, min_fr = fr.data
+    For this procedure to work best, the S(Q) optimization should be enabled in the calculation configuration. The
+    chosen parameters are then used in the find density function.
 
-#         output = (min_fr + 4 * np.pi * atomic_density * min_r) ** 2 * r_step
+    example usage:
+    ```
+    from glassure.calc import create_calculate_pdf_configs
+    from glassure.optimization import find_density
 
-#         if fcn_callback is not None:
-#             if not fcn_callback(
-#                 optimization_fcn.iteration,
-#                 np.sum(output),
-#                 density,
-#                 params["background_scaling"].value,
-#             ):
-#                 return None
-#         optimization_fcn.iteration += 1
-#         return output
+    data_config, calculation_config = create_calculate_pdf_configs(data, composition, density, background)
+    calculation_config.transform.q_min = 1
+    calculation_config.transform.q_max = 16
+    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
+    calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
 
-#     optimization_fcn.iteration = 1
+    density, error = find_density(data_config, calculation_config, method='gr', range=(0.1, 1.2))
+    ```
 
-#     lmfit.minimize(
-#         optimization_fcn,
-#         params,
-#         args=(extrapolation_cutoff, r, r_cutoff, use_modification_fcn),
-#     )
-#     lmfit.report_fit(params)
+    :param data_config:
+        Data configuration
+    :param calculation_config:
+        Calculation configuration
+    :param method:
+        Method to use for the optimization. Possible values are 'gr' and 'sq'.
+    :param min_range:
+        x range of the data to use for the minimization to find the density. For method='gr' this is the r-range of the
+        g(r) function to minimize to be close to zero. For method='sq' this is the Q-range of the S(Q) function to
+        minimize the difference between the original and optimized S(Q) function.
 
-#     return (
-#         params["density"].value,
-#         params["density"].stderr,
-#         params["background_scaling"].value,
-#         params["background_scaling"].stderr,
-#     )
+    :return:
+        a tuple with the density and the standard error
+    """
 
+    params = Parameters()
+    params.add("density", value=calculation_config.sample.density, min=0.0, max=100)
+
+    optim_config = calculation_config.model_copy(deep=True)
+    optim_config.transform.use_modification_fcn = True
+
+    if method == "sq":
+        reference_config = calculation_config.model_copy(deep=True)
+        reference_config.optimize = None
+        reference_result = calculate_pdf(data_config, reference_config)
+
+    def fcn(params):
+        density = params["density"].value
+        optim_config.sample.density = density
+        result = calculate_pdf(data_config, optim_config)
+
+        if method == "gr":
+            residual = np.sum(result.gr.limit(*min_range).y ** 2)
+        elif method == "sq":
+            residual = np.average(
+                (
+                    result.sq.limit(*min_range).y
+                    - reference_result.sq.limit(*min_range).y
+                )
+                ** 2
+            )
+        return residual
+
+    res = minimize(fcn, params)
+    return res.params["density"].value, res.params["density"].stderr

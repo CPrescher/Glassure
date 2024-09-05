@@ -12,16 +12,23 @@ from glassure.utility import (
     calculate_incoherent_scattering,
 )
 from glassure.transform import calculate_sq
-from glassure.optimization import optimize_sq
+from glassure.configuration import OptimizeConfig
+from glassure.optimization import optimize_sq, optimize_density
+from glassure.calc import calculate_pdf, create_calculate_pdf_configs
+from glassure.methods import ExtrapolationMethod
+
 from . import unittest_data_path
 
-data_path = os.path.join(unittest_data_path, "Fe81S19.chi")
-background_path = os.path.join(unittest_data_path, "Fe81S19_bkg.chi")
+data_path_alloy = os.path.join(unittest_data_path, "Fe81S19.chi")
+background_path_alloy = os.path.join(unittest_data_path, "Fe81S19_bkg.chi")
+
+data_path_glass = os.path.join(unittest_data_path, "Mg2SiO4_ambient.xy")
+background_path_glass = os.path.join(unittest_data_path, "Mg2SiO4_ambient_bkg.xy")
 
 
 def test_optimize_sq():
-    data = Pattern.from_file(data_path)
-    background = Pattern.from_file(background_path)
+    data = Pattern.from_file(data_path_alloy)
+    background = Pattern.from_file(background_path_alloy)
     composition = {"Fe": 0.81, "S": 0.19}
     density = 7.9
     atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
@@ -36,3 +43,25 @@ def test_optimize_sq():
     sq = extrapolate_to_zero_poly(sq, np.min(sq.x) + 0.3)
     sq_optimized = optimize_sq(sq, 1.6, 5, atomic_density)
     assert not np.allclose(sq.y, sq_optimized.y)
+
+
+def test_optimize_density():
+    data = Pattern.from_file(data_path_glass)
+    background = Pattern.from_file(background_path_glass)
+    composition = {"Mg": 2, "Si": 1, "O": 4}
+    density = 3.21
+
+    data_config, calculation_config = create_calculate_pdf_configs(
+        data, composition, density, background
+    )
+
+    calculation_config.transform.q_min = 1
+    calculation_config.transform.q_max = 16
+    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
+    calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
+
+    density, density_error = optimize_density(data_config, calculation_config)
+
+    assert density > 0
+    assert density != 3.21
+    assert density_error > 0
