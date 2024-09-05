@@ -65,3 +65,55 @@ def test_optimize_density():
     assert density > 0
     assert density != 3.21
     assert density_error > 0
+
+
+def test_optimize_density_x_range():
+    data = Pattern.from_file(data_path_glass)
+    background = Pattern.from_file(background_path_glass)
+    composition = {"Mg": 2, "Si": 1, "O": 4}
+    density = 3.21
+
+    data_config, calculation_config = create_calculate_pdf_configs(
+        data, composition, density, background
+    )
+
+    calculation_config.transform.q_min = 1
+    calculation_config.transform.q_max = 16
+    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
+    calculation_config.optimize = OptimizeConfig(r_cutoff=1.2)
+
+    density_1, density_error_1 = optimize_density(
+        data_config, calculation_config, min_range=(0.3, 1.0)
+    )
+
+    density_2, density_error_2 = optimize_density(
+        data_config, calculation_config, min_range=(0.3, 0.9)
+    )
+
+    assert density_1 != density_2
+
+
+def test_optimize_density_method():
+    data = Pattern.from_file(data_path_glass)
+    background = Pattern.from_file(background_path_glass)
+    composition = {"Mg": 2, "Si": 1, "O": 4}
+    density = 3.21
+
+    data_config, calculation_config = create_calculate_pdf_configs(
+        data, composition, density, background
+    )
+
+    calculation_config.transform.q_min = 1
+    calculation_config.transform.q_max = 16
+    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
+    calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
+
+    density_gr, _ = optimize_density(
+        data_config, calculation_config, method="gr", min_range=(0.3, 1.0)
+    )
+
+    density_sq, _ = optimize_density(data_config, calculation_config, method="sq")
+
+    assert density_gr != density_sq
+
+    print(density_gr, density_sq)
