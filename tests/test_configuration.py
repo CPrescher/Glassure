@@ -25,7 +25,13 @@ def test_sample_density_update():
     atomic_density = s.atomic_density
     s.density = 2.4
 
-    assert s.atomic_density != atomic_density 
+    assert s.atomic_density != atomic_density
+
+
+def test_sample_config_with_compostion_string():
+    s = SampleConfig(composition="SiO2", density=2.2)
+    assert s.composition == {"Si": 1, "O": 2}
+    assert s.atomic_density == approx(0.0662, abs=1e-4)
 
 
 def test_fit_normalization_config():
@@ -64,3 +70,18 @@ def test_calculation_config():
     c_json = c.model_dump_json()
     assert type(c.model_dump()) == dict
     assert type(c_json) == str
+
+
+def test_fit_normalization_config_with_container_scattering_string():
+    c = FitNormalization(container_scattering="SiO2")
+    assert c.container_scattering == {"Si": 1, "O": 2}
+
+
+def test_fit_normalization_config_with_container_scattering_dict():
+    c = FitNormalization(container_scattering={"Si": 1, "O": 2})
+    assert c.container_scattering == {"Si": 1, "O": 2}
+
+
+def test_fit_normalization_config_with_container_scattering_none():
+    c = FitNormalization(container_scattering=None)
+    assert c.container_scattering is None

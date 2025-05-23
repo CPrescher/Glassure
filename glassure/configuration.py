@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*/:
 
 from typing import Optional, Literal
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, field_validator
 
 from .utility import (
     Composition,
@@ -10,17 +10,27 @@ from .utility import (
 )
 from .pattern import Pattern
 from .methods import FourierTransformMethod, NormalizationMethod, ExtrapolationMethod
+from .utility import parse_str_to_composition
 
 
 class SampleConfig(BaseModel):
-    composition: Composition = Field(default_factory=dict)
+    composition: Composition = Field(
+        default_factory=dict,
+        description=(
+            "Composition of the sample. Can be a dictionary of elements, "
+            "e.g. {'Si': 1, 'O': 2}, and their abundances or a string of the form 'SiO2'."
+        ),
+    )
     density: Optional[float] = Field(
         default=None,
         description="Density in g/cm^3. Will be automatically updated when the atomic density is set",
     )
 
     @computed_field(
-        description="The atomic density in atoms per cubic Angstrom. Will be automatically updated when density is set."
+        description=(
+            "The atomic density in atoms per cubic Angstrom. Will be "
+            "automatically updated when density is set."
+        )
     )
     @property
     def atomic_density(self) -> Optional[float]:
@@ -39,31 +49,62 @@ class SampleConfig(BaseModel):
                 self.composition, value
             )
 
+    @field_validator("composition", mode="before")
+    @classmethod
+    def _validate_composition(cls, v: Composition | str) -> Composition:
+        if isinstance(v, str):
+            return parse_str_to_composition(v)
+        return v
+
 
 class FitNormalization(BaseModel):
     TYPE: Literal["fit"] = Field(default="fit", description="Normalization type")
     q_cutoff: float = Field(
         default=3.0,
-        description="Cutoff q in 1/A for the normalization. Only above this value the normalization is performed.",
+        description=(
+            "Cutoff q in 1/A for the normalization. Only above this value "
+            "the normalization is performed."
+        ),
     )
     method: str = Field(
         default="squared",
-        description='How to scale the values in respect to q during fitting. "linear" or "squared" are possible.',
+        description=(
+            "How to scale the values in respect to q during fitting. "
+            '"linear" or "squared" are possible.'
+        ),
     )
     multiple_scattering: bool = Field(
         default=False,
-        description="Whether to consider multiple scattering - if true, the multiple scattering is approximated by a constant value.",
+        description=(
+            "Whether to consider multiple scattering - if true, the multiple "
+            "scattering is approximated by a constant value."
+        ),
     )
     incoherent_scattering: bool = Field(
         default=True,
-        description="Whether to subtract the incoherent scattering during the normalization.",
+        description=(
+            "Whether to subtract the incoherent scattering during the normalization."
+        ),
     )
     container_scattering: Optional[Composition] = Field(
         default=None,
-        description="""Composition of the container material in the experiment. Only the incoherent scattering of the
-         container is considered. The container scattering is subtracted from the total scattering and the amount is 
-         fitted by just muliplying it with a constant value.""",
+        description=(
+            "Composition of the container material in the experiment. Can be a dictionary of elements, "
+            "e.g. {'Si': 1, 'O': 2}, and their abundances or a string of the form 'SiO2'. Only the "
+            "incoherent scattering of the container is considered. The container "
+            "scattering is subtracted from the total scattering and the amount is "
+            "fitted by just muliplying it with a constant value. If None, no container scattering is considered."
+        ),
     )
+
+    @field_validator("container_scattering", mode="before")
+    @classmethod
+    def _validate_container_scattering(
+        cls, v: Composition | str | None
+    ) -> Optional[Composition]:
+        if isinstance(v, str):
+            return parse_str_to_composition(v)
+        return v
 
 
 class IntNormalization(BaseModel):
@@ -116,7 +157,10 @@ class ExtrapolationConfig(BaseModel):
 class TransformConfig(BaseModel):
     q_min: float = Field(
         default=0.0,
-        description="Minimum q in 1/Angstrom from the data. Below it will be extended to zero.",
+        description=(
+            "Minimum q in 1/Angstrom from the data. Below it will be "
+            "extended to zero."
+        ),
     )
     q_max: float = Field(
         default=10.0, description="Maximum q in 1/Angstrom from the data."
@@ -124,21 +168,32 @@ class TransformConfig(BaseModel):
 
     r_min: float = Field(
         default=0.0,
-        description="Minimum r in Angstrom for the calculated  pair distribution function g(r).",
+        description=(
+            "Minimum r in Angstrom for the calculated pair distribution "
+            "function g(r)."
+        ),
     )
     r_max: float = Field(
         default=10.0,
-        description="Maximum r in Angstrom for the calculated pair distribution function g(r).",
+        description=(
+            "Maximum r in Angstrom for the calculated pair distribution "
+            "function g(r)."
+        ),
     )
     r_step: float = Field(
         default=0.01,
-        description="Step size for the r values in Angstrom for the calculated pair distribution function g(r).",
+        description=(
+            "Step size for the r values in Angstrom for the calculated pair "
+            "distribution function g(r)."
+        ),
     )
 
     normalization: FitNormalization | IntNormalization = Field(
         default_factory=FitNormalization,
-        description="Normalization configuration model. Possible values are :class:`FitNormalization` or "
-        + ":class:`IntNormalization`.",
+        description=(
+            "Normalization configuration model. Possible values are "
+            ":class:`FitNormalization` or :class:`IntNormalization`."
+        ),
     )
 
     extrapolation: ExtrapolationConfig = Field(
@@ -151,23 +206,29 @@ class TransformConfig(BaseModel):
     )
     kn_correction: bool = Field(
         default=False,
-        description="Whether to apply the Klein-Nishima correction to the Compton scattering of the sample and the"
-        + "container (defined in normalization).",
+        description=(
+            "Whether to apply the Klein-Nishima correction to the Compton "
+            "scattering of the sample and the container (defined in normalization)."
+        ),
     )
     wavelength: Optional[float] = Field(
         default=None,
-        description="Wavelength in Angstrom. Needs to be set for the "
-        + "Klein-Nishima correction.",
+        description=(
+            "Wavelength in Angstrom. Needs to be set for the "
+            "Klein-Nishima correction."
+        ),
     )
 
     fourier_transform_method: FourierTransformMethod = FourierTransformMethod.FFT
 
     scattering_factor_source: str = Field(
         default="brown_hubbell",
-        description="""Source of the scattering factors. Possible values are: 'brown_hubbell' for scattering factors 
-        from Brown et al., 2006 and Hubbell et al., 1975 or 'haijdu' for scattering factors from Hajdu et al. 
-        (Acta Cryst. (1992). A48, 344-352).
-        """,
+        description=(
+            "Source of the scattering factors. Possible values are: 'brown_hubbell' "
+            "for scattering factors from Brown et al., 2006 and Hubbell et al., 1975 "
+            "or 'haijdu' for scattering factors from Hajdu et al. "
+            "(Acta Cryst. (1992). A48, 344-352)."
+        ),
     )
 
 
