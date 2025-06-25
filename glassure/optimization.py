@@ -101,6 +101,7 @@ def optimize_density(
     calculation_config: CalculationConfig,
     method: str = "gr",
     min_range: tuple[float, float] = (0, 1),
+    optimization_method: str = "least_squares",
 ) -> tuple[float, float]:
     """
     Optimizes the density of the sample using the g(r) or S(Q) (chosen by the method parameter). The density in the
@@ -147,9 +148,13 @@ def optimize_density(
         x range of the data to use for the minimization to find the density. For method='gr' this is the r-range of the
         g(r) function to minimize to be close to zero. For method='sq' this is the Q-range of the S(Q) function to
         minimize the difference between the original and optimized S(Q) function.
+    :param optimization_method:
+        Method to use for the optimization. Possible values are 'nelder' and 'least_squares'.
 
     :return:
-        a tuple with the density and the standard error
+        a tuple with two values:
+        - the density and the standard error for optimization_method='least_squares'
+        - the density and the residual for optimization_method='nelder'
     """
 
     params = Parameters()
@@ -169,16 +174,28 @@ def optimize_density(
         result = calculate_pdf(data_config, optim_config)
 
         if method == "gr":
-            residual = np.sum(result.gr.limit(*min_range).y ** 2)
+            r, gr = result.gr.limit(*min_range).data
+            residual = np.trapz(gr**2, r)
         elif method == "sq":
-            residual = np.average(
-                (
-                    result.sq.limit(*min_range).y
-                    - reference_result.sq.limit(*min_range).y
-                )
-                ** 2
-            )
+            q, sq = result.sq.limit(*min_range).data
+            sq_ref = reference_result.sq.limit(*min_range).y
+            residual = np.trapz((sq - sq_ref) ** 2, q)
         return residual
 
-    res = minimize(fcn, params)
-    return res.params["density"].value, res.params["density"].stderr
+    if optimization_method == "nelder":
+        res = minimize(
+            fcn,
+            params,
+            method="nelder",
+            options={"maxfev": 500, "fatol": 0.0001, "xatol": 0.0001},
+        )
+        return res.params["density"].value, res.residual[0]
+    elif optimization_method == "least_squares":
+        res = minimize(
+            fcn,
+            params,
+            method="least_squares",
+        )
+        return res.params["density"].value, res.params["density"].stderr
+    else:
+        raise ValueError(f"Invalid optimization method: {optimization_method}")
