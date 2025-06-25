@@ -99,26 +99,26 @@ from .methods import ExtrapolationMethod
 def optimize_density(
     data_config: DataConfig,
     calculation_config: CalculationConfig,
-    method: str = "gr",
+    type: str = "gr",
     min_range: tuple[float, float] = (0, 1),
-    optimization_method: str = "least_squares",
+    method: str = "least_squares",
 ) -> tuple[float, float]:
     """
     Optimizes the density of the sample using the g(r) or S(Q) (chosen by the method parameter). The density in the
     Sample configuration of the CalculationConfig is taking as starting parameter
 
-    For method='gr' the optimization is based on the g(r) function, and the density is optimized to minimize the
+    For type='gr' the optimization is based on the g(r) function, and the density is optimized to minimize the
     low g(r) region to be close to zero. For better results, the g(r) function is calculated with the Lorch
     modification function. The general procedure is explained in Eggert et al. 2002 PRB, 65, 174105.
 
-    For method='sq' the optimization is based on the low Q part of theS(Q) function, and the density is optimized
+    For type='sq' the optimization is based on the low Q part of theS(Q) function, and the density is optimized
     to minimize the difference between the original S(Q) function without any optimization and the optimized S(Q)
     function. The configuration should have extrapolation enabled for this to work best.
     For polyatomic systems, finding the density using this procedure is much less susceptible to the Q_max value of
     the S(Q) than the g(r) based optimization. However, density is not exactly the same for both methods and the
-    method needs to be verified further. (Please us the method='sq' with caution.)
+    method needs to be verified further. (Please us the type='sq' with caution.)
 
-    The best for both methods is to have a reference density to compare it to. Based on this then further calculations
+    The best for both types is to have a reference density to compare it to. Based on this then further calculations
     of e.g. high pressure or high temperature densities can be performed.
 
     For this procedure to work best, the S(Q) optimization should be enabled in the calculation configuration. The
@@ -127,7 +127,7 @@ def optimize_density(
     example usage:
     ```
     from glassure.calc import create_calculate_pdf_configs
-    from glassure.optimization import find_density
+    from glassure.optimization import optimize_density
 
     data_config, calculation_config = create_calculate_pdf_configs(data, composition, density, background)
     calculation_config.transform.q_min = 1
@@ -135,14 +135,14 @@ def optimize_density(
     calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
     calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
 
-    density, error = find_density(data_config, calculation_config, method='gr', range=(0.1, 1.2))
+    density, error = optimize_density(data_config, calculation_config, type='gr', range=(0.1, 1.2))
     ```
 
     :param data_config:
         Data configuration
     :param calculation_config:
         Calculation configuration
-    :param method:
+    :param type:
         Method to use for the optimization. Possible values are 'gr' and 'sq'.
     :param min_range:
         x range of the data to use for the minimization to find the density. For method='gr' this is the r-range of the
@@ -163,7 +163,7 @@ def optimize_density(
     optim_config = calculation_config.model_copy(deep=True)
     optim_config.transform.use_modification_fcn = True
 
-    if method == "sq":
+    if type == "sq":
         reference_config = calculation_config.model_copy(deep=True)
         reference_config.optimize = None
         reference_result = calculate_pdf(data_config, reference_config)
@@ -173,16 +173,16 @@ def optimize_density(
         optim_config.sample.density = density
         result = calculate_pdf(data_config, optim_config)
 
-        if method == "gr":
+        if type == "gr":
             r, gr = result.gr.limit(*min_range).data
             residual = np.trapz(gr**2, r)
-        elif method == "sq":
+        elif type == "sq":
             q, sq = result.sq.limit(*min_range).data
             sq_ref = reference_result.sq.limit(*min_range).y
             residual = np.trapz((sq - sq_ref) ** 2, q)
         return residual
 
-    if optimization_method == "nelder":
+    if method == "nelder":
         res = minimize(
             fcn,
             params,
@@ -190,7 +190,7 @@ def optimize_density(
             options={"maxfev": 500, "fatol": 0.0001, "xatol": 0.0001},
         )
         return res.params["density"].value, res.residual[0]
-    elif optimization_method == "least_squares":
+    elif method == "least_squares":
         res = minimize(
             fcn,
             params,
@@ -198,4 +198,4 @@ def optimize_density(
         )
         return res.params["density"].value, res.params["density"].stderr
     else:
-        raise ValueError(f"Invalid optimization method: {optimization_method}")
+        raise ValueError(f"Invalid optimization method: {method}")
