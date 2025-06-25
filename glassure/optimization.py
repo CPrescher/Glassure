@@ -101,7 +101,7 @@ def optimize_density(
     calculation_config: CalculationConfig,
     type: str = "gr",
     min_range: tuple[float, float] = (0, 1),
-    method: str = "least_squares",
+    method: str = "lsq",
 ) -> tuple[float, float]:
     """
     Optimizes the density of the sample using the g(r) or S(Q) (chosen by the method parameter). The density in the
@@ -111,7 +111,7 @@ def optimize_density(
     low g(r) region to be close to zero. For better results, the g(r) function is calculated with the Lorch
     modification function. The general procedure is explained in Eggert et al. 2002 PRB, 65, 174105.
 
-    For type='sq' the optimization is based on the low Q part of theS(Q) function, and the density is optimized
+    For type='sq' the optimization is based on the low Q part of the S(Q) function, and the density is optimized
     to minimize the difference between the original S(Q) function without any optimization and the optimized S(Q)
     function. The configuration should have extrapolation enabled for this to work best.
     For polyatomic systems, finding the density using this procedure is much less susceptible to the Q_max value of
@@ -149,11 +149,11 @@ def optimize_density(
         g(r) function to minimize to be close to zero. For method='sq' this is the Q-range of the S(Q) function to
         minimize the difference between the original and optimized S(Q) function.
     :param optimization_method:
-        Method to use for the optimization. Possible values are 'nelder' and 'least_squares'.
+        Method to use for the optimization. Possible values are 'nelder' and 'lsq'.
 
     :return:
         a tuple with two values:
-        - the density and the standard error for optimization_method='least_squares'
+        - the density and the standard error for optimization_method='lsq'
         - the density and the residual for optimization_method='nelder'
     """
 
@@ -190,7 +190,7 @@ def optimize_density(
             options={"maxfev": 500, "fatol": 0.0001, "xatol": 0.0001},
         )
         return res.params["density"].value, res.residual[0]
-    elif method == "least_squares":
+    elif method == "lsq":
         res = minimize(
             fcn,
             params,
