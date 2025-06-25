@@ -93,7 +93,7 @@ def test_optimize_density_x_range():
     assert density_1 != density_2
 
 
-def test_optimize_density_method():
+def test_optimize_density_type():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
     composition = {"Mg": 2, "Si": 1, "O": 4}
@@ -111,17 +111,61 @@ def test_optimize_density_method():
     density_gr, density_gr_error = optimize_density(
         data_config,
         calculation_config,
-        method="gr",
+        type="gr",
         min_range=(0.3, 1.0),
-        optimization_method="least_squares",
+        method="least_squares",
     )
 
     density_sq, density_sq_error = optimize_density(
         data_config,
         calculation_config,
-        method="sq",
-        optimization_method="least_squares",
+        type="sq",
+        method="least_squares",
     )
 
     assert density_gr != density_sq
     assert density_gr_error != density_sq_error
+
+
+def test_optimize_density_method():
+    data = Pattern.from_file(data_path_glass)
+    background = Pattern.from_file(background_path_glass)
+    composition = {"Mg": 2, "Si": 1, "O": 4}
+    density = 3.21
+
+    data_config, calculation_config = create_calculate_pdf_configs(
+        data, composition, density, background
+    )
+
+    calculation_config.transform.q_min = 1
+    calculation_config.transform.q_max = 16
+    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
+    calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
+
+    density_gr, density_gr_residual = optimize_density(
+        data_config, calculation_config, type="sq", method="nelder"
+    )
+
+    density_sq, density_sq_residual = optimize_density(
+        data_config, calculation_config, type="sq", method="least_squares"
+    )
+
+    assert density_gr_residual != density_sq_residual
+    assert density_gr != density_sq
+
+    # compare speed of nelder and least_squares
+    import time
+    start_time = time.time()
+    density_gr, density_gr_residual = optimize_density(
+        data_config, calculation_config, type="sq", method="nelder"
+    )
+    nelder_time = time.time() - start_time
+
+    start_time = time.time()
+    density_sq, density_sq_residual = optimize_density(
+        data_config, calculation_config, type="sq", method="least_squares"
+    )
+    least_squares_time = time.time() - start_time
+
+    print(f"Nelder time: {nelder_time}, Least squares time: {least_squares_time}")
+    assert nelder_time > least_squares_time
