@@ -113,14 +113,14 @@ def test_optimize_density_type():
         calculation_config,
         type="gr",
         min_range=(0.3, 1.0),
-        method="least_squares",
+        method="lsq",
     )
 
     density_sq, density_sq_error = optimize_density(
         data_config,
         calculation_config,
         type="sq",
-        method="least_squares",
+        method="lsq",
     )
 
     assert density_gr != density_sq
@@ -147,7 +147,7 @@ def test_optimize_density_method():
     )
 
     density_sq, density_sq_residual = optimize_density(
-        data_config, calculation_config, type="sq", method="least_squares"
+        data_config, calculation_config, type="sq", method="lsq"
     )
 
     assert density_gr_residual != density_sq_residual
@@ -163,7 +163,7 @@ def test_optimize_density_method():
 
     start_time = time.time()
     density_sq, density_sq_residual = optimize_density(
-        data_config, calculation_config, type="sq", method="least_squares"
+        data_config, calculation_config, type="sq", method="lsq"
     )
     least_squares_time = time.time() - start_time
 
