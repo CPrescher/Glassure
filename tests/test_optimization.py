@@ -108,10 +108,20 @@ def test_optimize_density_method():
     calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
     calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
 
-    density_gr, _ = optimize_density(
-        data_config, calculation_config, method="gr", min_range=(0.3, 1.0)
+    density_gr, density_gr_error = optimize_density(
+        data_config,
+        calculation_config,
+        method="gr",
+        min_range=(0.3, 1.0),
+        optimization_method="least_squares",
     )
 
-    density_sq, _ = optimize_density(data_config, calculation_config, method="sq")
+    density_sq, density_sq_error = optimize_density(
+        data_config,
+        calculation_config,
+        method="sq",
+        optimization_method="least_squares",
+    )
 
     assert density_gr != density_sq
+    assert density_gr_error != density_sq_error
