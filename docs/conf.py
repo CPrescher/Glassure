@@ -23,6 +23,7 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.mathjax',
     'nbsphinx',
+    'sphinxcontrib.autodoc_pydantic',
 ]
 
 source_suffix = ['.rst', '.md']
@@ -35,3 +36,5 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+nbsphinx_allow_errors = True

@@ -6,16 +6,10 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
 
-    #----------------------------------------------
-    #        set up QT environment variables
-    #----------------------------------------------
-    env:
-      QT_QPA_PLATFORM: offscreen
-
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.9", "3.10", "3.11" ]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
       #----------------------------------------------
@@ -24,27 +18,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Install poetry
-        run: pip install poetry
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
-
-      #----------------------------------------------
-      #  -----  install apt dependencies  -----
-      #----------------------------------------------
-      - name: Install Apt Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install libxkbcommon-x11-0 libxkbcommon-x11-dev libxcb-xinerama0  \
-          libxkbcommon-dev libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev \
-          libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev \
-          libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev \
-          libxcb-randr0-dev libxcb-render-util0-dev libegl1
-
+          cache: "pip"
+      
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 -
 
       #----------------------------------------------
       #            install dependencies

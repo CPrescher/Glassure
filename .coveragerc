@@ -1,4 +1,3 @@
 [run]
 omit =
     glassure/tests/*
-    glassure/core/_version.py

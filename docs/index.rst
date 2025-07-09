@@ -15,7 +15,6 @@ The software is maintained by Clemens Prescher from the University of Freiburg, 
 
     introduction.md
     installation.md
-    gui.md
     api.ipynb
     theory.md
 
@@ -29,7 +28,7 @@ The software is maintained by Clemens Prescher from the University of Freiburg, 
     :maxdepth: 1
     :caption: API Documentation
 
-    apidoc/glassure.core.rst
+    apidoc/glassure.rst
 
 
 
