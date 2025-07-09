@@ -1,3 +1,12 @@
+## 2.0.0 (2025/07/09)
+
+### New features
+- complete rework of the codebase
+- removed the GUI from the glassure package
+- removed the Ashcroft-Langreth structure factor calculation method - which was not implemented correctly before
+- added configurations which contain all the information for a single data analysis
+- added more in depth API documentation
+
 ## 1.4.5 (2023/06/20)
 
 ### Bugfixes

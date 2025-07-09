@@ -3,10 +3,19 @@
 
 # Glassure
 
-
-An API and GUI program for data analysis of total x-ray diffraction data.
+A Python API for data analysis of total x-ray diffraction data.
 It performs background subtraction, Fourier transform and optimization of
 experimental data.
+
+**Warning**, the upgrade from version 1.4.5 to 2.0.0 has removed the GUI - which came with glassure. A new WebGUI based on the version 2 API is available under [glassure.vercel.app](https://glassure.vercel.app).
+
+## Documentation
+
+The documentation can be found [here](https://glassure.readthedocs.io/en/latest/).
+
+## Changelog
+
+The changelog can be found [here](https://glassure.readthedocs.io/en/latest/changelog.html).
 
 ## Maintainer
 
