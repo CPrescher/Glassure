@@ -6,12 +6,7 @@ import numpy as np
 from lmfit import Parameters, minimize
 
 from . import Pattern
-from .transform import calculate_fr, calculate_gr, calculate_sq
-from .normalization import normalize_fit, normalize
-from .utility import (
-    convert_density_to_atoms_per_cubic_angstrom,
-)
-from .utility import extrapolate_to_zero_poly
+from .transform import calculate_fr, calculate_gr
 
 __all__ = [
     "optimize_sq",

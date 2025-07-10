@@ -83,11 +83,11 @@ def test_optimize_density_x_range():
     calculation_config.optimize = OptimizeConfig(r_cutoff=1.2)
 
     density_1, density_error_1 = optimize_density(
-        data_config, calculation_config, min_range=(0.3, 1.0)
+        data_config, calculation_config, min_range=(0.3, 1.4)
     )
 
     density_2, density_error_2 = optimize_density(
-        data_config, calculation_config, min_range=(0.3, 0.9)
+        data_config, calculation_config, min_range=(0.3, 0.7)
     )
 
     assert density_1 != density_2

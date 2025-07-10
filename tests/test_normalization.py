@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pytest
 
 from glassure import Pattern
 from glassure.utility import (
@@ -8,94 +9,153 @@ from glassure.utility import (
     calculate_incoherent_scattering,
     convert_density_to_atoms_per_cubic_angstrom,
 )
-from glassure.normalization import normalize, normalize_fit
+from glassure.normalization import normalize, normalize_fit, normalize_fit_lmfit
 from glassure.scattering_factors import calculate_coherent_scattering_factor
+from glassure.transform import calculate_sq
 
 from . import unittest_data_path
 
-data_path = os.path.join(unittest_data_path, "Mg2SiO4_ambient.xy")
-bkg_path = os.path.join(unittest_data_path, "Mg2SiO4_ambient_bkg.xy")
+
+@pytest.fixture
+def data_path():
+    return os.path.join(unittest_data_path, "SiO2.xy")
 
 
-class TestNormalization:
-    def setup_method(self):
-        self.data = Pattern.from_file(data_path)
-        self.bkg = Pattern.from_file(bkg_path)
-
-        self.sample = self.data - self.bkg
-        self.sample = self.sample.limit(1, 15)
-
-        self.composition = {"Mg": 2, "Si": 1, "O": 4}
-        self.density = 2.9
-        self.atomic_density = convert_density_to_atoms_per_cubic_angstrom(self.composition, self.density)
-
-        self.f_squared_mean = calculate_f_squared_mean(self.composition, self.sample.x)
-        self.f_mean_squared = calculate_f_mean_squared(self.composition, self.sample.x)
-        self.incoherent_scattering = calculate_incoherent_scattering(self.composition, self.sample.x)
-
-    def test_normalize(self):
-        n, _ = normalize(
-            self.sample,
-            self.atomic_density,
-            self.f_squared_mean,
-            self.f_mean_squared,
-            self.incoherent_scattering,
-        )
-        assert n > 0
+@pytest.fixture
+def bkg_path():
+    return os.path.join(unittest_data_path, "SiO2_bkg.xy")
 
 
-    def test_normalize_fit(self):
-        params_1, _ = normalize_fit(
-            self.sample, self.f_squared_mean, self.incoherent_scattering, multiple_scattering=False
-        )
-        params_2, _ = normalize_fit(
-            self.sample, self.f_squared_mean, self.incoherent_scattering, multiple_scattering=True
-        )
-        diamond_scattering = calculate_coherent_scattering_factor("C", self.sample.x)
-        params_3, _ = normalize_fit(
-            self.sample,
-            self.f_squared_mean,
-            self.incoherent_scattering,
-            container_scattering=diamond_scattering,
-        )
+@pytest.fixture
+def sample(data_path, bkg_path):
+    """Create a sample pattern by subtracting background from data."""
+    data = Pattern.from_file(data_path)
+    bkg = Pattern.from_file(bkg_path)
+    sample = data - bkg
+    return sample.limit(1, 17)
 
-        assert params_1["n"].value != params_2["n"].value
-        assert params_1["n"].value != params_3["n"].value
-        assert params_2["multiple"].value > 0
-        assert params_3["n_container"].value > 0
 
-        params_4, _ = normalize_fit(
-            self.sample, self.f_squared_mean, self.incoherent_scattering, q_cutoff=5
-        )
-        assert params_4["n"].value != params_1["n"].value
+@pytest.fixture
+def composition():
+    """Sample composition for testing."""
+    return {"Si": 1, "O": 2}
 
-    def test_normalize_fit_without_incoherent_scattering(self):
-        params, _ = normalize_fit(
-            self.sample,
-            self.f_squared_mean,
-            None
-        )
-        assert params["n"].value > 0
 
-    def tesT_normalize_fit_without_container_scattering_and_with_container_scattering(self):
-        diamond_scattering = calculate_coherent_scattering_factor("C", self.sample.x)
-        params, _ = normalize_fit(
-            self.sample,
-            self.f_squared_mean,
-            None,
-            container_scattering=diamond_scattering,
-        )
-        assert params["n"].value > 0
+@pytest.fixture
+def density():
+    """Sample density for testing."""
+    return 2.9
 
-    def test_compare_normalize_and_normalize_fit(self):
-        n_normalize, normalized_pattern_1 = normalize(
-            self.sample,
-            self.atomic_density,
-            self.f_squared_mean,
-            self.f_mean_squared,
-            self.incoherent_scattering,
-        )
-        p_normalize_fit, normalized_pattern_2 = normalize_fit(
-            self.sample, self.f_squared_mean, self.incoherent_scattering, q_cutoff=5
-        )
-        assert np.isclose(n_normalize, p_normalize_fit["n"].value, rtol=1e-2)
+
+@pytest.fixture
+def atomic_density(composition, density):
+    """Calculate atomic density from composition and density."""
+    return convert_density_to_atoms_per_cubic_angstrom(composition, density)
+
+
+@pytest.fixture
+def f_squared_mean(composition, sample):
+    """Calculate f squared mean for the sample."""
+    return calculate_f_squared_mean(composition, sample.x)
+
+
+@pytest.fixture
+def f_mean_squared(composition, sample):
+    """Calculate f mean squared for the sample."""
+    return calculate_f_mean_squared(composition, sample.x)
+
+
+@pytest.fixture
+def incoherent_scattering(composition, sample):
+    """Calculate incoherent scattering for the sample."""
+    return calculate_incoherent_scattering(composition, sample.x)
+
+
+def test_normalize(
+    sample, atomic_density, f_squared_mean, f_mean_squared, incoherent_scattering
+):
+    """Test the normalize function."""
+    n, _ = normalize(
+        sample,
+        atomic_density,
+        f_squared_mean,
+        f_mean_squared,
+        incoherent_scattering,
+    )
+    assert n > 0
+
+
+def test_normalize_fit(sample, f_squared_mean, incoherent_scattering, f_mean_squared):
+    """Test the normalize_fit function with different parameters."""
+    # Test without multiple scattering
+    params_1, _ = normalize_fit(
+        sample, f_squared_mean, incoherent_scattering, multiple_scattering=False
+    )
+
+    # Test with multiple scattering
+    new_sample = Pattern(sample.x, sample.y + 1e11)
+    params_2, _ = normalize_fit(
+        new_sample,
+        f_squared_mean,
+        incoherent_scattering,
+        multiple_scattering=True,
+    )
+    assert params_1["n"] != params_2["n"]
+    assert params_2["multiple"] > 1000
+
+    # Test with container scattering
+    diamond_scattering = calculate_incoherent_scattering({"C": 1}, sample.x)
+    new_sample = Pattern(sample.x, sample.y + 1e11 * diamond_scattering)
+    params_3, _ = normalize_fit(
+        new_sample,
+        f_squared_mean,
+        incoherent_scattering,
+        container_scattering=diamond_scattering,
+        q_cutoff=10,
+    )
+    # Verify different parameters produce different results
+    assert params_1["n"] != params_3["n"]
+    assert params_3["n_container"] > 1000
+
+    # Test with q_cutoff
+    params_4, _ = normalize_fit(
+        sample, f_squared_mean, incoherent_scattering, q_cutoff=5
+    )
+    assert params_4["n"] != params_1["n"]
+
+
+def test_normalize_fit_without_incoherent_scattering(sample, f_squared_mean):
+    """Test normalize_fit without incoherent scattering."""
+    params, _ = normalize_fit(sample, f_squared_mean, None)
+    assert params["n"] > 0
+
+
+def test_normalize_fit_without_container_scattering_and_with_container_scattering(
+    sample, f_squared_mean
+):
+    """Test normalize_fit with and without container scattering."""
+    diamond_scattering = calculate_coherent_scattering_factor("C", sample.x)
+    params, _ = normalize_fit(
+        sample,
+        f_squared_mean,
+        None,
+        container_scattering=diamond_scattering,
+    )
+    assert params["n"] > 0
+
+
+def test_compare_normalize_and_normalize_fit(
+    sample, atomic_density, f_squared_mean, f_mean_squared, incoherent_scattering
+):
+    """Compare results from normalize and normalize_fit functions."""
+    n_normalize, _ = normalize(
+        sample,
+        atomic_density,
+        f_squared_mean,
+        f_mean_squared,
+        incoherent_scattering,
+    )
+    p_normalize_fit, _ = normalize_fit(
+        sample, f_squared_mean, incoherent_scattering, q_cutoff=5
+    )
+    assert np.isclose(n_normalize, p_normalize_fit["n"], rtol=1e-2)

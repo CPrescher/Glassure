@@ -1,42 +1,50 @@
-## 2.0.0 (2025/07/09)
+## 2.0.0 (2025/07/10)
 
 ### New features
+
 - complete rework of the codebase
 - removed the GUI from the glassure package
 - removed the Ashcroft-Langreth structure factor calculation method - which was not implemented correctly before
 - added configurations which contain all the information for a single data analysis
 - added more in depth API documentation
+- the normalize_fit method now uses the normal equations to solve the least squares problem, which is much faster and more accurate. The output is now a dictionary with the parameters and the normalized pattern. This will break existing code. In case you need the old result and output of the function the normalize_fit_lmfit function can be used.
 
 ## 1.4.5 (2023/06/20)
 
 ### Bugfixes
+
 - fixes an issue which caused glassure not to start with some pyqt6 versions
 
 ## 1.4.4 (2023/11/14)
 
 ### Bugfixes
+
 - subtraction and addition of patterns works now correctly when both have different x values
 
 ## 1.4.3 (2023/11/02)
 
 ### Bugfixes
+
 - fix recursion error due to recent extrapolation gui changes
 
 ## 1.4.2 (2023/10/31)
 
 ### Bug fixes:
+
 - not specifically dependent on pyside anymore, glassure should now also work with pyqt6, pyqt5 or pyside2, default
   is still pyside6
 
 ## 1.4.1 (2023/10/27)
 
 ### Bug fixes:
+
 - fix error with s0 auto calculation when using brown hubbell form factors.
-- fix python compatibility for 3.9 and 3.10 
+- fix python compatibility for 3.9 and 3.10
 
 ## 1.4.0 (2023/09/03)
 
 ### New features:
+
 - the chosen scattering factor source can now be applied per configuration and are not global anymore
 - added support for ionic scattering factors when using the brown et al. 2006 scattering factors
 - calculations now also work correctly without specifying a background pattern
@@ -53,8 +61,8 @@
   documentation for the data processing
 - created basic documentation for the core functions, available under (glassure.readthedocs.io)
 
-
 ### Bug fixes:
+
 - consistent naming for patterns - file endings will now always be omitted
 - removing a configuration now correctly switches to the correct configuration and updates the parameters in the gui
 - renaming configurations is now persistent after removing a configuration
@@ -65,6 +73,7 @@
 ## 1.3.0 (2023/04/26)
 
 ### New features:
+
 - changed to pyqt 6 which should reduce issues with high dpi screens
-- added support for brown et al. 2006 scattering factors (from international tables of crystallography) and hubbell et 
+- added support for brown et al. 2006 scattering factors (from international tables of crystallography) and hubbell et
   al.1975 compton scattering intensities
