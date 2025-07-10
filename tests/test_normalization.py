@@ -9,8 +9,9 @@ from glassure.utility import (
     calculate_incoherent_scattering,
     convert_density_to_atoms_per_cubic_angstrom,
 )
-from glassure.normalization import normalize, normalize_fit
+from glassure.normalization import normalize, normalize_fit, normalize_fit_lmfit
 from glassure.scattering_factors import calculate_coherent_scattering_factor
+from glassure.transform import calculate_sq
 
 from . import unittest_data_path
 
@@ -84,7 +85,7 @@ def test_normalize(
     assert n > 0
 
 
-def test_normalize_fit(sample, f_squared_mean, incoherent_scattering):
+def test_normalize_fit(sample, f_squared_mean, incoherent_scattering, f_mean_squared):
     """Test the normalize_fit function with different parameters."""
     # Test without multiple scattering
     params_1, _ = normalize_fit(
@@ -92,36 +93,41 @@ def test_normalize_fit(sample, f_squared_mean, incoherent_scattering):
     )
 
     # Test with multiple scattering
+    new_sample = Pattern(sample.x, sample.y + 1e11)
     params_2, _ = normalize_fit(
-        sample, f_squared_mean, incoherent_scattering, multiple_scattering=True
+        new_sample,
+        f_squared_mean,
+        incoherent_scattering,
+        multiple_scattering=True,
     )
+    assert params_1["n"] != params_2["n"]
+    assert params_2["multiple"] > 1000
 
     # Test with container scattering
-    diamond_scattering = calculate_coherent_scattering_factor("C", sample.x)
+    diamond_scattering = calculate_incoherent_scattering({"C": 1}, sample.x)
+    new_sample = Pattern(sample.x, sample.y + 1e11 * diamond_scattering)
     params_3, _ = normalize_fit(
-        sample,
+        new_sample,
         f_squared_mean,
         incoherent_scattering,
         container_scattering=diamond_scattering,
+        q_cutoff=10,
     )
-
     # Verify different parameters produce different results
-    assert params_1["n"].value != params_2["n"].value
-    assert params_1["n"].value != params_3["n"].value
-    assert params_2["multiple"].value > 0
-    assert params_3["n_container"].value > 0
+    assert params_1["n"] != params_3["n"]
+    assert params_3["n_container"] > 1000
 
     # Test with q_cutoff
     params_4, _ = normalize_fit(
         sample, f_squared_mean, incoherent_scattering, q_cutoff=5
     )
-    assert params_4["n"].value != params_1["n"].value
+    assert params_4["n"] != params_1["n"]
 
 
 def test_normalize_fit_without_incoherent_scattering(sample, f_squared_mean):
     """Test normalize_fit without incoherent scattering."""
     params, _ = normalize_fit(sample, f_squared_mean, None)
-    assert params["n"].value > 0
+    assert params["n"] > 0
 
 
 def test_normalize_fit_without_container_scattering_and_with_container_scattering(
@@ -135,21 +141,21 @@ def test_normalize_fit_without_container_scattering_and_with_container_scatterin
         None,
         container_scattering=diamond_scattering,
     )
-    assert params["n"].value > 0
+    assert params["n"] > 0
 
 
 def test_compare_normalize_and_normalize_fit(
     sample, atomic_density, f_squared_mean, f_mean_squared, incoherent_scattering
 ):
     """Compare results from normalize and normalize_fit functions."""
-    n_normalize, normalized_pattern_1 = normalize(
+    n_normalize, _ = normalize(
         sample,
         atomic_density,
         f_squared_mean,
         f_mean_squared,
         incoherent_scattering,
     )
-    p_normalize_fit, normalized_pattern_2 = normalize_fit(
+    p_normalize_fit, _ = normalize_fit(
         sample, f_squared_mean, incoherent_scattering, q_cutoff=5
     )
-    assert np.isclose(n_normalize, p_normalize_fit["n"].value, rtol=1e-2)
+    assert np.isclose(n_normalize, p_normalize_fit["n"], rtol=1e-2)

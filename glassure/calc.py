@@ -1,5 +1,4 @@
 import numpy as np
-from pydantic import ValidationError
 
 from .configuration import (
     Result,
