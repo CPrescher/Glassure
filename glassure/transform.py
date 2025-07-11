@@ -45,7 +45,7 @@ def calculate_fr(
 
     :param sq_pattern:              Structure factor S(Q) with lim_inf S(Q) = 1 and unit(q)=A^-1
     :param r:                       numpy array giving the r-values for which F(r) will be calculated,
-                                    default is 0 to 10 with 0.01 as a step. units should be in Angstrom.
+                                    default is 0.01 to 10 with 0.01 as a step. units should be in Angstrom.
     :param use_modification_fcn:    boolean flag whether to use the Lorch modification function
     :param method:                  determines the method used for calculating fr, possible values are:
                                             - 'integral' solves the Fourier integral, by calculating the integral
@@ -54,7 +54,8 @@ def calculate_fr(
     :return: F(r) pattern
     """
     if r is None:
-        r = np.linspace(0.01, 10, 1000)
+        r = np.arange(0.0, 10.005, 0.01)
+        r[0] = 1e-10  # to avoid division by zero
 
     q, sq = sq_pattern.data
     if use_modification_fcn:
@@ -75,12 +76,22 @@ def calculate_fr(
         r_step = r[1] - r[0]
 
         n_out = np.max([len(q), int(np.pi / (r_step * q_step))])
-        q_max_for_ifft = 2 * n_out * q_step
-        y_for_ifft = np.concatenate(
-            (modification * q * (sq - 1), np.zeros(2 * n_out - len(q)))
-        )
+        n_out = 2 ** int(np.ceil(np.log2(n_out)))
 
-        ifft_result = np.fft.ifft(y_for_ifft) * 2 / np.pi * q_max_for_ifft
+        # find the number of q points needed to resolve the r-space
+        q_max_target = 2 * np.pi / r_step
+        n_target = int(np.ceil(q_max_target / q_step))
+
+        # Round up to the next power of 2 for fastest possible fft
+        n_out = 2 ** int(np.ceil(np.log2(n_target)))
+
+        q_max_for_ifft = n_out * q_step
+
+        f_q = modification * q * (sq - 1)
+        y_for_ifft = np.zeros(n_out)
+        y_for_ifft[: len(f_q)] = f_q
+
+        ifft_result = np.fft.ifft(y_for_ifft) * 2 * q_max_for_ifft / np.pi
         ifft_imag = np.imag(ifft_result)[:n_out]
         ifft_x_step = 2 * np.pi / q_max_for_ifft
         ifft_x = np.arange(n_out) * ifft_x_step
