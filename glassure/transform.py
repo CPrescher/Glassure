@@ -2,6 +2,7 @@ from typing import Optional
 
 import numpy as np
 from scipy.integrate import simpson
+from scipy.interpolate import interp1d
 
 from .pattern import Pattern
 from .methods import FourierTransformMethod
@@ -104,7 +105,12 @@ def calculate_fr(
     return Pattern(r, fr)
 
 
-def calculate_sq_from_fr(fr_pattern: Pattern, q: np.ndarray) -> Pattern:
+def calculate_sq_from_fr(
+    fr_pattern: Pattern,
+    q: Optional[np.ndarray] = None,
+    method: str = "integral",
+    use_modification_fcn: bool = False,
+) -> Pattern:
     """
     Calculates S(Q) from an F(r) pattern for given q values.
 
@@ -113,26 +119,62 @@ def calculate_sq_from_fr(fr_pattern: Pattern, q: np.ndarray) -> Pattern:
 
     :return: F(r) pattern
     """
+    if q is None:
+        q = np.arange(0.0, 25.005, 0.05)
+        q[0] = 1e-10  # to avoid division by zero
+
     r, fr = fr_pattern.data
-    sq = simpson(fr * np.array(np.sin(np.outer(r.T, q))).T, x=r) / q + 1
+    if method == "integral" or method == FourierTransformMethod.INTEGRAL:
+        iq = simpson(fr * np.array(np.sin(np.outer(r.T, q))).T, x=r) 
+    elif method == "fft" or method == FourierTransformMethod.FFT:
+        r_step = r[1] - r[0]
+        q_step = q[1] - q[0]
 
-    # there should be a way of doing this with fft, but the current implementation is not working
-    # correctly (it will not reproduce the S(q) pattern after transforming to fr and back accurately)
-    # elif method == "fft":
-    #     q_step = q[1] - q[0]
-    #     r_step = r[1] - r[0]
+        n_out = max(len(r), int(np.pi / (q_step * r_step)))
+        n_out = 2 ** int(np.ceil(np.log2(n_out)))
 
-    #     n_out = int(np.pi / (r_step * q_step))
+        fr_padded = np.zeros(n_out)
+        fr_padded[: len(fr)] = fr
 
-    #     r_max_for_ifft = 2 * n_out * r_step
-    #     ifft_x_step = 2 * np.pi / r_max_for_ifft
-    #     ifft_x = np.arange(n_out) * ifft_x_step
+        r_max_for_ifft = n_out * r_step
 
-    #     y_for_ifft = np.concatenate((fr, np.zeros(2 * n_out - len(r))))
-    #     ifft_result = np.fft.ifft(y_for_ifft) * r_max_for_ifft
-    #     ifft_imag = np.imag(ifft_result)[:n_out]
+        fft_result = np.fft.ifft(fr_padded) * r_max_for_ifft
+        fft_imag = np.imag(fft_result)[:n_out]
+        fft_q_step = 2 * np.pi / (n_out * r_step)
+        fft_q = np.arange(n_out) * fft_q_step
 
-    #     sq = np.interp(q, ifft_x, ifft_imag) / q + 1
+        iq = np.interp(q, fft_q, fft_imag) 
+    else:
+        raise NotImplementedError(f"{method} is not a valid method for calculate_sq")
+
+    if use_modification_fcn:
+        modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+    else:
+        modification = 1
+
+    if use_modification_fcn:
+        # when using the modification function we get issues at large q values, since it is very close to 0 there
+        # we need to extrapolate a couple of points to avoid issues
+
+        eps = 1e-9
+
+        # find area where there is no problem with the modification function
+        valid = modification * q > eps
+        iq_new = np.empty_like(q)
+        iq_new[:] = np.nan # initialize
+
+        iq_new[valid] = iq[valid] / (q[valid] * modification[valid])
+
+        # extrapolate the last few unstable points
+        last_valid = np.where(valid)[0][-1]
+        if last_valid < len(q) - 1:
+            f = interp1d(q[valid], iq_new[valid], kind="linear", fill_value="extrapolate")
+            iq_new[~valid] = f(q[~valid])
+
+        sq = 1 + iq_new
+    else:
+        sq = 1 + iq/q
+
     return Pattern(q, sq)
 
 

@@ -165,3 +165,24 @@ def test_calculate_sq_from_fr(sq):
     # the first few points are not very accurate, so we ignore them
     start_index = 10 
     assert np.allclose(sq.y[start_index:], sq_from_fr.y[start_index:], atol=0.12)
+
+    sq_from_fr_fft = calculate_sq_from_fr(fr, sq.x, method="fft")
+    assert np.allclose(sq_from_fr.y, sq_from_fr_fft.y, atol=0.05)
+
+
+def test_calculate_sq_from_fr_with_modification_fcn(sq):
+    """Test the calculate_sq_from_fr function with the modification function."""
+    fr = calculate_fr(sq, use_modification_fcn=True)
+    q = sq.x
+    sq_from_fr = calculate_sq_from_fr(fr, q, use_modification_fcn=True)
+    start_index = 10
+    assert np.allclose(sq.y[start_index:], sq_from_fr.y[start_index:], atol=0.15)
+
+    sq_from_fr_fft = calculate_sq_from_fr(fr, q, method="fft", use_modification_fcn=True)
+    assert np.allclose(sq.y[start_index:], sq_from_fr_fft.y[start_index:], atol=0.15)
+    
+def test_calculate_fr_then_sq_and_fr(sq):
+    fr = calculate_fr(sq)
+    sq_from_fr = calculate_sq_from_fr(fr, sq.x, method="fft")
+    fr_from_sq = calculate_fr(sq_from_fr)
+    assert np.allclose(fr.y, fr_from_sq.y, atol=0.2)
