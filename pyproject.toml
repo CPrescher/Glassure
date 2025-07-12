@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "glassure"
-version = "2.0.0"
+version = "2.1.0"
 description = "API and GUI for analysis of X-ray total scattering data"
 authors = ["Clemens Prescher <clemens.prescher@gmail.com>"]
 license = "MIT"
