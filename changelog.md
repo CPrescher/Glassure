@@ -1,3 +1,11 @@
+## 2.1.0 (2025/07/12)
+
+### New features
+
+- calculate_fr now rounds to a power of 2 number of points for padding when doing fft - improving the speed
+- calculate_sq_from_fr is now working correctly with using fft
+- calculate_sq_from_fr can also inverse apply the modification function
+
 ## 2.0.0 (2025/07/10)
 
 ### New features
