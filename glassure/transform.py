@@ -125,7 +125,7 @@ def calculate_sq_from_fr(
 
     r, fr = fr_pattern.data
     if method == "integral" or method == FourierTransformMethod.INTEGRAL:
-        iq = simpson(fr * np.array(np.sin(np.outer(r.T, q))).T, x=r) 
+        iq = simpson(fr * np.array(np.sin(np.outer(r.T, q))).T, x=r)
     elif method == "fft" or method == FourierTransformMethod.FFT:
         r_step = r[1] - r[0]
         q_step = q[1] - q[0]
@@ -143,7 +143,7 @@ def calculate_sq_from_fr(
         fft_q_step = 2 * np.pi / (n_out * r_step)
         fft_q = np.arange(n_out) * fft_q_step
 
-        iq = np.interp(q, fft_q, fft_imag) 
+        iq = np.interp(q, fft_q, fft_imag)
     else:
         raise NotImplementedError(f"{method} is not a valid method for calculate_sq")
 
@@ -161,19 +161,21 @@ def calculate_sq_from_fr(
         # find area where there is no problem with the modification function
         valid = modification * q > eps
         iq_new = np.empty_like(q)
-        iq_new[:] = np.nan # initialize
+        iq_new[:] = np.nan  # initialize
 
         iq_new[valid] = iq[valid] / (q[valid] * modification[valid])
 
         # extrapolate the last few unstable points
         last_valid = np.where(valid)[0][-1]
         if last_valid < len(q) - 1:
-            f = interp1d(q[valid], iq_new[valid], kind="linear", fill_value="extrapolate")
+            f = interp1d(
+                q[valid], iq_new[valid], kind="linear", fill_value="extrapolate"
+            )
             iq_new[~valid] = f(q[~valid])
 
         sq = 1 + iq_new
     else:
-        sq = 1 + iq/q
+        sq = 1 + iq / q
 
     return Pattern(q, sq)
 

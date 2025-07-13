@@ -3,10 +3,11 @@
 from copy import deepcopy
 
 import numpy as np
+from scipy.integrate import simpson
 from lmfit import Parameters, minimize
 
 from . import Pattern
-from .transform import calculate_fr, calculate_gr
+from .transform import calculate_fr, calculate_gr, calculate_sq_from_fr
 
 __all__ = [
     "optimize_sq",
@@ -58,7 +59,7 @@ def optimize_sq(
     :return:
         optimized S(Q) pattern
     """
-    r = np.arange(0, r_cutoff, 0.02)
+    r = np.arange(0, r_cutoff, 0.01)
     sq_pattern = deepcopy(sq_pattern)
     for iteration in range(iterations):
         fr_pattern = calculate_fr(
@@ -69,11 +70,16 @@ def optimize_sq(
 
         delta_fr = fr_int + 4 * np.pi * r * atomic_density
 
-        in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
-        integral = np.trapz(in_integral, r) / attenuation_factor
-        sq_optimized = sq_int * (1 - 1.0 / q * integral)
+        if fourier_transform_method == "fft":
+            sq_trans_fft = calculate_sq_from_fr(
+                Pattern(r, delta_fr), sq_pattern.x, method="fft"
+            ) - 1 
+            iq = sq_trans_fft.y
+        else:
+            in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
+            iq = simpson(in_integral, r) / q
 
-        sq_pattern = Pattern(q, sq_optimized)
+        sq_pattern = sq_pattern * (1 - iq / attenuation_factor)
 
         if fcn_callback is not None and iteration % callback_period == 0:
             fr_pattern = calculate_fr(
