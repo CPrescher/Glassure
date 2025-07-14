@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import unittest
+import pytest
 import numpy as np
 
 from glassure import Pattern, convert_density_to_atoms_per_cubic_angstrom
@@ -14,7 +14,7 @@ from glassure.utility import (
     calculate_s0,
 )
 from glassure.transform import calculate_sq, calculate_fr
-from glassure.normalization import normalize_fit
+from glassure.normalization import normalize_fit, normalize
 from glassure.configuration import OptimizeConfig
 from glassure.optimization import optimize_sq, optimize_density
 from glassure.calc import calculate_pdf, create_calculate_pdf_configs
@@ -32,58 +32,98 @@ data_path_SiO2 = os.path.join(unittest_data_path, "SiO2.xy")
 background_path_SiO2 = os.path.join(unittest_data_path, "SiO2_bkg.xy")
 
 
-def test_optimize_sq():
-    data = Pattern.from_file(data_path_alloy)
-    background = Pattern.from_file(background_path_alloy)
-    composition = {"Fe": 0.81, "S": 0.19}
-    density = 7.9
-    atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
-    f_squared_mean = calculate_f_squared_mean(composition, data.x)
-    f_mean_squared = calculate_f_mean_squared(composition, data.x)
-    incoherent_scattering = calculate_incoherent_scattering(composition, data.x)
-    background_scaling = 0.97
+@pytest.fixture
+def data_path():
+    """Path to the test data file."""
+    return os.path.join(unittest_data_path, "SiO2.xy")
 
-    sample_pattern = data - background_scaling * background
 
-    sq = calculate_sq(sample_pattern, f_squared_mean, f_mean_squared)
-    sq = extrapolate_to_zero_poly(sq, np.min(sq.x) + 0.3)
-    sq_optimized = optimize_sq(sq, 1.6, 5, atomic_density)
+@pytest.fixture
+def bkg_path():
+    """Path to the background data file."""
+    return os.path.join(unittest_data_path, "SiO2_bkg.xy")
+
+
+@pytest.fixture
+def sample(data_path, bkg_path):
+    """Create a sample pattern by subtracting background from data."""
+    data = Pattern.from_file(data_path)
+    bkg = Pattern.from_file(bkg_path)
+    sample = data - bkg
+    return sample.limit(1, 17)
+
+
+@pytest.fixture
+def sq(normalized_pattern, f_squared_mean, f_mean_squared, composition):
+    """Create a sq pattern for testing."""
+    sq = calculate_sq(normalized_pattern, f_squared_mean, f_mean_squared)
+    sq = extrapolate_to_zero_linear(sq, y0=calculate_s0(composition))
+    sq = sq.rebin(0.05)
+    sq.x[0] = 1e-10
+    return sq
+
+
+@pytest.fixture
+def composition():
+    """Sample composition for testing."""
+    return {"Si": 1, "O": 2}
+
+
+@pytest.fixture
+def density():
+    """Sample density for testing."""
+    return 2.2
+
+
+@pytest.fixture
+def atomic_density(composition, density):
+    """Calculate atomic density from composition and density."""
+    return convert_density_to_atoms_per_cubic_angstrom(composition, density)
+
+
+@pytest.fixture
+def f_squared_mean(composition, sample):
+    """Calculate f squared mean for the sample."""
+    return calculate_f_squared_mean(composition, sample.x)
+
+
+@pytest.fixture
+def f_mean_squared(composition, sample):
+    """Calculate f mean squared for the sample."""
+    return calculate_f_mean_squared(composition, sample.x)
+
+
+@pytest.fixture
+def incoherent_scattering(composition, sample):
+    """Calculate incoherent scattering for the sample."""
+    return calculate_incoherent_scattering(composition, sample.x)
+
+
+@pytest.fixture
+def normalized_pattern(sample, f_squared_mean, incoherent_scattering):
+    """Create normalized pattern for testing."""
+    _, normalized = normalize_fit(
+        sample, f_squared_mean, incoherent_scattering, q_cutoff=10
+    )
+    return normalized
+
+
+def test_optimize_sq(sq, atomic_density):
+    sq_optimized = optimize_sq(sq, 1.4, 5, atomic_density)
     assert not np.allclose(sq.y, sq_optimized.y)
 
 
-def test_optimize_sq_fft():
-    data = Pattern.from_file(data_path_SiO2)
-    background = Pattern.from_file(background_path_SiO2)
-    composition = {"Si": 1, "O": 2}
-    density = 2.2
-    atomic_density = convert_density_to_atoms_per_cubic_angstrom(composition, density)
-    background_scaling = 1.0
-
-    sample_pattern = data - background_scaling * background
-    sample_pattern = sample_pattern.limit(0, 17).rebin(0.05)
-    q = sample_pattern.x
-    f_squared_mean = calculate_f_squared_mean(composition, q)
-    f_mean_squared = calculate_f_mean_squared(composition, q)
-    incoherent_scattering = calculate_incoherent_scattering(composition, q)
-
-    _, norm_pattern = normalize_fit(
-        sample_pattern, f_squared_mean, incoherent_scattering
-    )
-
-    sq = calculate_sq(norm_pattern, f_squared_mean, f_mean_squared)
-    sq = extrapolate_to_zero_linear(sq, y0=calculate_s0(composition))
-    sq.x[0] = 1e-10
-    iterations = 5 
-
-    fr = calculate_fr(sq, method="fft")
-
+def test_optimize_sq_fft(sq, atomic_density):
+    iterations = 5
+    r_step = 0.001 # need high value to be accurate for fft
     sq_optimized = optimize_sq(
-        sq, 1.3, iterations, atomic_density, fourier_transform_method="integral"
+        sq, 1.3, iterations, atomic_density, fourier_transform_method="integral", r_step=r_step
     )
     fr_optimized = calculate_fr(sq_optimized, method="fft")
 
+
     sq_optimized_fft = optimize_sq(
-        sq, 1.3, iterations, atomic_density, fourier_transform_method="fft"
+        sq, 1.3, iterations, atomic_density, fourier_transform_method="fft", r_step=r_step
     )
     fr_optimized_fft = calculate_fr(sq_optimized_fft, method="fft")
 

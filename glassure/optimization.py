@@ -8,6 +8,7 @@ from lmfit import Parameters, minimize
 
 from . import Pattern
 from .transform import calculate_fr, calculate_gr, calculate_sq_from_fr
+from .utility import convert_density_to_atoms_per_cubic_angstrom
 
 __all__ = [
     "optimize_sq",
@@ -20,6 +21,7 @@ def optimize_sq(
     r_cutoff: float,
     iterations: int,
     atomic_density: float,
+    r_step: float = 0.01,
     use_modification_fcn: bool = False,
     attenuation_factor: float = 1,
     fcn_callback=None,
@@ -39,6 +41,9 @@ def optimize_sq(
         number of back and forward transforms
     :param atomic_density:
         density in atoms/A^3
+    :param r_step:
+        step size for the r-axis, default is 0.01. Use smaller values for better accuracy (especially if needed for
+         fft)
     :param use_modification_fcn:
         Whether to use the Lorch modification function during the Fourier transform.
         Warning: When using the Lorch modification function, usually more iterations are needed to get to the
@@ -59,7 +64,7 @@ def optimize_sq(
     :return:
         optimized S(Q) pattern
     """
-    r = np.arange(0, r_cutoff, 0.01)
+    r = np.arange(0, r_cutoff, r_step)
     sq_pattern = deepcopy(sq_pattern)
     for iteration in range(iterations):
         fr_pattern = calculate_fr(
@@ -71,13 +76,14 @@ def optimize_sq(
         delta_fr = fr_int + 4 * np.pi * r * atomic_density
 
         if fourier_transform_method == "fft":
-            sq_trans_fft = calculate_sq_from_fr(
-                Pattern(r, delta_fr), sq_pattern.x, method="fft"
-            ) - 1 
+            sq_trans_fft = (
+                calculate_sq_from_fr(Pattern(r, delta_fr), sq_pattern.x, method="fft")
+                - 1
+            )
             iq = sq_trans_fft.y
         else:
             in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
-            iq = simpson(in_integral, r) / q
+            iq = simpson(in_integral, x=r) / q
 
         sq_pattern = sq_pattern * (1 - iq / attenuation_factor)
 
@@ -177,6 +183,10 @@ def optimize_density(
         if type == "gr":
             r, gr = result.gr.limit(*min_range).data
             residual = np.trapz(gr**2, r)
+        if type == "fr":
+            atomic_density = optim_config.sample.atomic_density
+            r, fr = result.fr.limit(*min_range).data
+            residual = np.trapz(fr + 4 * np.pi * r * atomic_density)
         elif type == "sq":
             q, sq = result.sq.limit(*min_range).data
             sq_ref = reference_result.sq.limit(*min_range).y

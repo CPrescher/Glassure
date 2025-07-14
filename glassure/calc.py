@@ -69,7 +69,7 @@ def create_calculate_pdf_configs(
 
 def calculate_pdf(
     data_config: DataConfig, calculation_config: CalculationConfig
-) -> Pattern:
+) -> Result:
     """
     Process the input configuration and return the result.
     """
