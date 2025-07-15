@@ -1,3 +1,9 @@
+## 2.1.1 (in development)
+
+### Bugfixes
+- fixed an issue with the integral normalization method (normalize), which caused the normalization factor to be too high for most patterns
+
+
 ## 2.1.0 (2025/07/12)
 
 ### New features
