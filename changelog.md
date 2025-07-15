@@ -1,9 +1,13 @@
 ## 2.1.1 (in development)
 
+### New features
+
+- added xraylib scattering factor calculator, which can be used as an alternative to the Hajdu and Brown-Hubbell calculators - choose it by setting sf_source to 'xraylib' in the corresponding functions or in the configuration
+
 ### Bugfixes
+
 - fixed an issue with the integral normalization method (normalize), which caused the normalization factor to be too high for most patterns
 - calculate_pdf now also applies the correct r_step and fourier_transform method to the optimize function
-
 
 ## 2.1.0 (2025/07/12)
 
