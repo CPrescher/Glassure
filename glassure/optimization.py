@@ -83,7 +83,7 @@ def optimize_sq(
             iq = sq_trans_fft.y
         else:
             in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
-            iq = simpson(in_integral, x=r) / q
+            iq = np.trapz(in_integral, r) / q
 
         sq_pattern = sq_pattern * (1 - iq / attenuation_factor)
 

@@ -68,8 +68,8 @@ def calculate_fr(
         fr = (
             2.0
             / np.pi
-            * simpson(
-                modification * q * (sq - 1) * np.array(np.sin(np.outer(q.T, r))).T, x=q
+            * np.trapz(
+                modification * q * (sq - 1) * np.array(np.sin(np.outer(q.T, r))).T, q
             )
         )
     elif method == "fft" or method == FourierTransformMethod.FFT:
@@ -125,7 +125,7 @@ def calculate_sq_from_fr(
 
     r, fr = fr_pattern.data
     if method == "integral" or method == FourierTransformMethod.INTEGRAL:
-        iq = simpson(fr * np.array(np.sin(np.outer(r.T, q))).T, x=r)
+        iq = np.trapz(fr * np.array(np.sin(np.outer(r.T, q))).T, r)
     elif method == "fft" or method == FourierTransformMethod.FFT:
         r_step = r[1] - r[0]
         q_step = q[1] - q[0]
