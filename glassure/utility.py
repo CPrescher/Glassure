@@ -322,7 +322,7 @@ def extrapolate_to_zero_step(pattern: Pattern, y0: float = 0) -> Pattern:
     """
     x, y = pattern.data
     step = x[1] - x[0]
-    low_x = np.arange(min(x), 0 - step / 2, -step)[::-1]
+    low_x = np.arange(min(x) - step, 0 - step / 2, -step)[::-1]
     low_y = np.zeros(low_x.shape) + y0
 
     return Pattern(np.concatenate((low_x, x)), np.concatenate((low_y, y)))
@@ -339,7 +339,7 @@ def extrapolate_to_zero_linear(pattern: Pattern, y0: float = 0) -> Pattern:
     """
     x, y = pattern.data
     step = x[1] - x[0]
-    low_x = np.arange(min(x), 0 - step / 2, -step)[::-1]
+    low_x = np.arange(min(x) - step, 0 - step / 2, -step)[::-1]
     low_y = (y[0] - y0) / x[0] * low_x + y0
     return Pattern(np.concatenate((low_x, x)), np.concatenate((low_y, y)))
 
@@ -369,7 +369,7 @@ def extrapolate_to_zero_spline(
 
     x, y = pattern.data
     x_step = x[1] - x[0]
-    x_low = np.arange(min(x), 0 - x_step / 2, -x_step)[::-1]
+    x_low = np.arange(min(x) - x_step, 0 - x_step / 2, -x_step)[::-1]
 
     x_overlap_ind = np.where(x < x_max)[0]
 

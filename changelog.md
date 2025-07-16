@@ -8,6 +8,7 @@
 
 - fixed an issue with the integral normalization method (normalize), which caused the normalization factor to be too high for most patterns
 - calculate_pdf now also applies the correct r_step and fourier_transform method to the optimize function
+- fixed a bug in the extrapolation functions (utility module), which was causing the a double point at min(x) of the extrapolated data (the one from the original data and one from the extrapolation)
 
 ## 2.1.0 (2025/07/12)
 
