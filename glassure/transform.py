@@ -214,5 +214,6 @@ def calculate_gr(fr_pattern: Pattern, atomic_density: float) -> Pattern:
     :return: g(r) pattern
     """
     r, f_r = fr_pattern.data
-    g_r = 1 + f_r / (4.0 * np.pi * r * atomic_density)
+    r_safe = np.where(r == 0, 1e-10, r)
+    g_r = 1 + f_r / (4.0 * np.pi * r_safe * atomic_density)
     return Pattern(r, g_r)

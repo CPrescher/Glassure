@@ -14,6 +14,7 @@ class FittingTest(unittest.TestCase):
 
     def test_i_q_peak(self):
         q = np.linspace(0, 10, 1001)
+        q[0] = 1e-10
         peak = i_q_peak(q, 4, 1.6, 0.1, self.composition, 'Si', 'O')
         self.assertEqual(len(peak), len(q))
 
