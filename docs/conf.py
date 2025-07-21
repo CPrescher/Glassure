@@ -9,9 +9,9 @@ import sys
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Glassure'
-copyright = '2023, Clemens Prescher'
+copyright = '2025, Clemens Prescher'
 author = 'Clemens Prescher'
-release = '1.3.0'
+release = '2.2.0'
 
 sys.path.insert(0, os.path.abspath('..'))
 # -- General configuration ---------------------------------------------------
