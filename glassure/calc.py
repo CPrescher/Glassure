@@ -69,7 +69,7 @@ def create_calculate_pdf_configs(
 
 def calculate_pdf(
     data_config: DataConfig, calculation_config: CalculationConfig
-) -> Pattern:
+) -> Result:
     """
     Process the input configuration and return the result.
     """
@@ -209,8 +209,10 @@ def calculate_pdf(
             sq,
             atomic_density=config.sample.atomic_density,
             r_cutoff=opt.r_cutoff,
+            r_step=transform.r_step,
             iterations=opt.iterations,
             use_modification_fcn=opt.use_modification_fcn,
+            fourier_transform_method=transform.fourier_transform_method,
         )
 
     fr = calculate_fr(

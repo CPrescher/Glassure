@@ -11,7 +11,6 @@ from glassure.utility import (
 )
 from glassure.normalization import normalize, normalize_fit, normalize_fit_lmfit
 from glassure.scattering_factors import calculate_coherent_scattering_factor
-from glassure.transform import calculate_sq
 
 from . import unittest_data_path
 

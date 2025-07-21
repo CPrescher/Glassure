@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "glassure"
-version = "2.1.0"
+version = "2.2.0"
 description = "API and GUI for analysis of X-ray total scattering data"
 authors = ["Clemens Prescher <clemens.prescher@gmail.com>"]
 license = "MIT"
@@ -33,6 +33,7 @@ lmfit = "^1.2.0"
 pandas = "^2.1.0"
 pydantic = "^2.7.1"
 autodoc-pydantic = "^2.2.0"
+xraylib = "^4.1.5"
 
 [tool.poetry.group.dev.dependencies]
 mock = "^5.0.1"
