@@ -11,7 +11,7 @@ import sys
 project = 'Glassure'
 copyright = '2025, Clemens Prescher'
 author = 'Clemens Prescher'
-release = '2.2.0'
+release = '2.2.1'
 
 sys.path.insert(0, os.path.abspath('..'))
 # -- General configuration ---------------------------------------------------
