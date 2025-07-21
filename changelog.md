@@ -1,4 +1,4 @@
-## 2.1.1 (in development)
+## 2.2.0 (2025/07/21)
 
 ### New features
 
