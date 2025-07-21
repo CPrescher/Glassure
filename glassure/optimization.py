@@ -117,9 +117,9 @@ def optimize_density(
     The density in the SampleConfig of the DataConfig is taking as starting parameter
 
     For method='gr' or method='fr' the optimization is based on the g(r) or f(r) function, and the density is
-    optimized to minimize the low g(r) or f(r) region to be close to zero. For better results, the g(r) function
-    is calculated with the Lorch modification function. The general procedure is explained in
-    Eggert et al. 2002 PRB, 65, 174105.
+    optimized to minimize the low g(r) or f(r) region to be close to zero. The Lorch modification function will be 
+    applied before calculating the chi square of the low r region if it is applied in the calculation configuration. 
+    The general procedure is explained in Eggert et al. 2002 PRB, 65, 174105.
 
     For method='sq' the optimization is based on the low Q part of the S(Q) function, and the density is optimized
     to minimize the difference between the original S(Q) function without any optimization and the optimized S(Q)
@@ -193,7 +193,6 @@ def optimize_density(
     )
 
     optim_config = calculation_config.model_copy(deep=True)
-    optim_config.transform.use_modification_fcn = False
 
     if method == "sq":
         reference_config = calculation_config.model_copy(deep=True)
