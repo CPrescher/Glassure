@@ -171,7 +171,9 @@ def optimize_density(
 
     :return:
         a tuple with four values:
-        - the density, the standard error, the background scaling and the standard error for optimization_method='lsq'
+        - the density,  its error value, the background scaling and the error value
+        whereby the error value is the standard error of the fit parameter for optimization_method ='lsq' and the
+        sum of the squared residuals for optimization_method='nelder'.
     """
 
     if calculation_config.optimize is None and min_range is None and not method == "sq":
