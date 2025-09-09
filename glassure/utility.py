@@ -9,6 +9,7 @@ from scipy import interpolate
 import scipy.constants as const
 
 import lmfit
+import xraylib as xr
 
 from .scattering_factors import (
     calculate_coherent_scattering_factor,
@@ -250,6 +251,129 @@ def calculate_weighting_factor(
         * f[element_2]
         / f_sum_squared
     )
+
+
+def calculate_weighting_factor_wkm(
+    composition: Composition,
+    element_1: str,
+    element_2: str,
+    q: np.ndarray | float = 0.0,
+    sf_source="hajdu",
+) -> float:
+    """
+    Calculates the weighting factor for an element-element contribution in a given composition (e.g. for Si-O in SiO2)
+    using the Warren-Krutter-Morningstar approximation for the form factors or effective atomic numbers (Warren et al.
+    1936).
+
+    This means we calculate:
+    .. math::
+        W_{\alpha \beta} = \frac{c_\alpha c_\beta K_\alpha(q) K_\beta(q) (2-\delta_{\alpha \beta})}{\sum_{\alpha} c_\alpha K_\alpha(q)^2}
+
+    :param composition: dictionary with elements as key and abundances as relative numbers
+    :param element_1: string giving element 1
+    :param element_2: string giving element 2
+    :param q: Q value or numpy array with a unit of A^-1. Default is 0.0.
+    :param sf_source: source of the scattering factors. Possible sources are 'hajdu' and 'brown_hubbell'.
+    :return: weighting factor
+    """
+    if element_1 == element_2:
+        factor = 1
+    else:
+        factor = 2
+
+    effective_atomic_numbers = {
+        element: calculate_wkm_effective_atomic_number(
+            composition, element, q, sf_source
+        )
+        for element in composition.keys()
+    }
+
+    denominator = (
+        np.sum(
+            [
+                effective_atomic_numbers[element] * c
+                for element, c in composition.items()
+            ]
+        )
+        ** 2
+    )
+    numerator = (
+        composition[element_1]
+        * composition[element_2]
+        * effective_atomic_numbers[element_1]
+        * effective_atomic_numbers[element_2]
+        * factor
+    )
+
+    return numerator / denominator
+
+
+def calculate_wkm_effective_atomic_number(
+    composition: Composition,
+    element: str,
+    q: np.ndarray,
+    sf_source="hajdu",
+) -> float:
+    """
+    Calculates the effective atomic number for a given element using the Warren-Krutter-Morningstar approximation
+    (Warren et al. 1936).
+
+    This means we calculate:
+    .. math::
+       K_\alpha(q) = \left\langle\frac{f_\alpha( q)}{f_e(q)}\right\rangle
+    where :math:`f_\alpha(q)` is the form factor of the element :math:`\alpha` and :math:`f_e(q)` is the effective
+    form factor of the composition.
+
+    .. math::
+       f_e(q) = \frac{\sum_{\alpha} f_\alpha(q)}{Z_{tot}}
+    where :math:`Z_{tot}` is the total atomic number of the compositional unit
+
+    :param composition: dictionary with elements as key and abundances as relative numbers
+    :param element: string giving element for which the effective atomic number will be calculated
+    :param q: Q value or numpy array with a unit of A^-1
+    :param sf_source: source of the scattering factors. Possible sources are 'hajdu', 'brown_hubbell' and 'xraylib'.
+    """
+
+    effective_form_factor = calculate_effective_form_factor(composition, q, sf_source)
+    form_factor = calculate_coherent_scattering_factor(element, q, sf_source)
+    return np.mean(form_factor / effective_form_factor)
+
+
+def calculate_total_atomic_number(composition: Composition) -> float:
+    """
+    Calculates the total atomic number of a given composition.
+    """
+    return sum(
+        [xr.SymbolToAtomicNumber(element) * c for element, c in composition.items()]
+    )
+
+
+def calculate_effective_form_factor(
+    composition: Composition, q: np.ndarray, sf_source="hajdu"
+) -> np.ndarray:
+    """
+    Calculates the effective form factor for a given composition, which is given by
+
+    .. math::
+        f_e(q) = \frac{\sum_{\alpha} f_\alpha(q)}{Z_{tot}}
+    where :math:`f_\alpha(q)` is the form factor of the element :math:`\alpha` and :math:`Z_{tot}` is the total atomic
+    number of the compositional unit
+
+    :param composition: dictionary with elements as key and abundances as relative numbers
+    :param q: Q value or numpy array with a unit of A^-1
+    :param sf_source: source of the scattering factors. Possible sources are 'hajdu', 'brown_hubbell' and 'xraylib'.
+
+    :return: effective form factor array
+    """
+    total_atomic_number = calculate_total_atomic_number(composition)
+
+    form_factors = [
+        calculate_coherent_scattering_factor(element, q, sf_source) * c
+        for element, c in composition.items()
+    ]
+    form_factor_sum = np.sum(form_factors, axis=0)
+
+    return form_factor_sum / total_atomic_number
 
 
 def normalize_composition(composition: Composition) -> dict[str, float]:

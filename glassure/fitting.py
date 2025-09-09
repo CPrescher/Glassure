@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from .utility import calculate_weighting_factor
+from .utility import calculate_weighting_factor, calculate_weighting_factor_wkm
 from .transform import calculate_fr
 from .pattern import Pattern
 
@@ -24,10 +24,28 @@ def i_q_peak(q, n, position, sigma, composition, element_1, element_2):
     num_atoms = sum([val for _, val in composition.items()])
     c_2 = composition[element_2] / num_atoms
     w = calculate_weighting_factor(composition, element_1, element_2, q)
-    return n * w / c_2 * np.sin(q * position) / (q * position) * np.exp(-q ** 2 * sigma ** 2 / 2)
+    return (
+        n
+        * w
+        / c_2
+        * np.sin(q * position)
+        / (q * position)
+        * np.exp(-(q**2) * sigma**2 / 2)
+    )
 
 
-def t_r_peak(r, n, position, sigma, composition, element_1, element_2, q, use_modification_fcn=False, method='fft'):
+def t_r_peak(
+    r,
+    n,
+    position,
+    sigma,
+    composition,
+    element_1,
+    element_2,
+    q,
+    use_modification_fcn=False,
+    method="fft",
+):
     """
     Calculates the contribution of one element 1 - element 2 peak in real space to t(r). We assume a gaussian
     broadening. The math is explained in the paper about NXFit (Pickup et al. 2014, J. Appl. Cryst. 47, 1790-1796).
@@ -54,4 +72,35 @@ def t_r_peak(r, n, position, sigma, composition, element_1, element_2, q, use_mo
                     - 'fft' solves the Fourier integral by using fast fourier transformation
     """
     q_peak = i_q_peak(q, n, position, sigma, composition, element_1, element_2)
-    return calculate_fr(Pattern(q, q_peak + 1), r, use_modification_fcn=use_modification_fcn, method=method).y
+    return calculate_fr(
+        Pattern(q, q_peak + 1),
+        r,
+        use_modification_fcn=use_modification_fcn,
+        method=method,
+    ).y
+
+
+def t_r_peak_gaussian(r, n, position, sigma, composition, element_1, element_2):
+    """
+    Calculates the contribution of one element 1 - element 2 peak in real space to t(r). We assume a gaussian
+    distribution. The math is well explained in the LiquidDiffract paper (Heinen and Drewitt 2022. Physics and
+    Chemistry of Minerals 49, no. 5: 9. https://doi.org/10.1007/s00269-022-01186-6).
+
+    The gaussian is weighted based on the X-ray form factors of the two elements.
+
+    :param r: numpy array giving the r-values for which the peak will be calculated
+    :param n: coordination number of element 2 to element 1
+    :param position: average distance between the two elements
+    :param sigma: measure for broadness of distances distribution
+    :param composition: composition: dictionary with elements as key and abundances as relative numbers
+    :param element_1: string giving element 1
+    :param element_2: string giving element 1
+
+    :return: T(r) pattern
+    """
+
+    wf = 1 / calculate_weighting_factor_wkm(composition, element_1, element_2, 0)
+
+    part1 = n * wf / (composition[element_2] * sigma * r * np.sqrt(2 * np.pi))
+    part2 = np.exp(-((r - position) ** 2) / (2 * sigma**2))
+    return part1 * part2

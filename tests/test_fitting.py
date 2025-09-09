@@ -3,7 +3,7 @@
 import unittest
 import numpy as np
 
-from glassure.fitting import i_q_peak, t_r_peak
+from glassure.fitting import i_q_peak, t_r_peak, t_r_peak_gaussian
 
 
 class FittingTest(unittest.TestCase):
@@ -22,3 +22,12 @@ class FittingTest(unittest.TestCase):
         q = np.linspace(0.01, 10, 1001)
         peak = t_r_peak(self.r, 4, 1.6, 0.15, self.composition, 'Si', 'O', q)
         self.assertEqual(len(peak), len(self.r))
+
+    def test_t_r_peak_gaussian(self):
+        r = np.linspace(0.1, 10, 1001)
+        peak = t_r_peak_gaussian(r, 4, 1.6, 0.15, self.composition, 'Si', 'O')
+        self.assertEqual(len(peak), len(r))
+
+        import matplotlib.pyplot as plt
+        plt.plot(r, peak)
+        plt.show()

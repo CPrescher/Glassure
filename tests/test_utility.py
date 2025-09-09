@@ -18,6 +18,10 @@ from glassure.utility import (
     calculate_s0,
     calculate_kn_correction,
     parse_str_to_composition,
+    calculate_total_atomic_number,
+    calculate_effective_form_factor,
+    calculate_wkm_effective_atomic_number,
+    calculate_weighting_factor_wkm,
 )
 from glassure import Pattern
 
@@ -39,13 +43,11 @@ class UtilityTest(unittest.TestCase):
 
         self.assertAlmostEqual(density_au, 0.0662, places=4)
 
-
     def test_convert_density_to_grams_per_cubic_centimeter(self):
         composition = {"Si": 1, "O": 2}
         density_au = convert_density_to_atoms_per_cubic_angstrom(composition, 2.2)
         density = convert_density_to_grams_per_cubic_centimeter(composition, density_au)
         self.assertAlmostEqual(density, 2.2, places=4)
-
 
     def test_calculate_f_mean_squared(self):
         q = np.linspace(0, 10)
@@ -238,7 +240,6 @@ class UtilityTest(unittest.TestCase):
             np.max(pattern_q.x), 4 * np.pi * np.sin(25.0 / 360 * np.pi) / wavelength
         )
 
-
     def test_parse_string_to_composition(self):
         inputs = [
             "Si O 0.5",
@@ -246,7 +247,7 @@ class UtilityTest(unittest.TestCase):
             "[Al2O3]3",
             "\\{Fe3O4\\}2.5",
             "(H2O)2[NaCl]\\{KOH\\}0.5",
-            "\\{[Co(NH3)4(OH)2]3[Co(CN)6]\\}2"
+            "\\{[Co(NH3)4(OH)2]3[Co(CN)6]\\}2",
         ]
 
         outputs = [
@@ -255,9 +256,54 @@ class UtilityTest(unittest.TestCase):
             {"Al": 6, "O": 9},
             {"Fe": 7.5, "O": 10},
             {"H": 4.5, "O": 2.5, "Na": 1, "Cl": 1, "K": 0.5},
-            {"Co": 8, "N": 36, "H": 84, "O": 12, "C": 12}
+            {"Co": 8, "N": 36, "H": 84, "O": 12, "C": 12},
         ]
 
         for input, output in zip(inputs, outputs):
             parsed_formula = parse_str_to_composition(input)
             self.assertEqual(parsed_formula, output)
+
+    def test_calculate_total_atomic_number(self):
+        def test_composition(composition, total_atomic_number):
+            total_atomic_number = calculate_total_atomic_number(composition)
+            self.assertEqual(total_atomic_number, total_atomic_number)
+
+        test_composition({"Si": 1, "O": 2}, 30)
+        test_composition({"Ge": 1, "O": 2}, 48)
+        test_composition({"H": 2, "O": 1}, 10)
+        test_composition({"C": 1}, 6)
+
+    def test_calculate_effective_form_factor(self):
+        q = np.linspace(0, 10, 234)
+        composition = {"Si": 1, "O": 2}
+        effective_form_factor = calculate_effective_form_factor(composition, q)
+        self.assertEqual(len(q), len(effective_form_factor))
+
+        effective_form_factor = calculate_effective_form_factor(
+            composition, q, sf_source="brown_hubbell"
+        )
+        self.assertEqual(len(q), len(effective_form_factor))
+
+        effective_form_factor = calculate_effective_form_factor(
+            composition, q, sf_source="xraylib"
+        )
+        self.assertEqual(len(q), len(effective_form_factor))
+
+        effective_form_factor = calculate_effective_form_factor(
+            composition, 0, sf_source="hajdu"
+        )
+        self.assertAlmostEqual(effective_form_factor, 1.0, places=3)
+
+    def test_calculate_wkm_form_factor(self):
+        q = 0.0
+        composition = {"Si": 1, "O": 2}
+        wkm_form_factor = calculate_wkm_effective_atomic_number(composition, "Si", q)
+        self.assertAlmostEqual(wkm_form_factor, 14.005, places=2)
+        wkm_form_factor = calculate_wkm_effective_atomic_number(composition, "O", q)
+        self.assertAlmostEqual(wkm_form_factor, 7.9975, places=2)
+
+    def test_calculate_wkm_weighting_factor(self):
+        q = 0.0
+        composition = {"Si": 1, "O": 2}
+        wkm_weighting_factor = calculate_weighting_factor_wkm(composition, "Si", "O", q)
+        print(wkm_weighting_factor)
