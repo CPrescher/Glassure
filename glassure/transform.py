@@ -217,3 +217,35 @@ def calculate_gr(fr_pattern: Pattern, atomic_density: float) -> Pattern:
     r_safe = np.where(r == 0, 1e-10, r)
     g_r = 1 + f_r / (4.0 * np.pi * r_safe * atomic_density)
     return Pattern(r, g_r)
+
+
+def calculate_rdf(gr_pattern: Pattern, atomic_density: float) -> Pattern:
+    """
+    Calculates a RDF pattern from a given g(r) pattern and the atomic density
+
+    RDF = 4 * pi * r^2 * g(r) * rho
+
+    :param gr_pattern:     g(r) pattern
+    :param atomic_density:  atomic density in atoms/A^3
+
+    :return: RDF pattern
+    """
+    r, g_r = gr_pattern.data
+    rdf = 4 * np.pi * r**2 * g_r * atomic_density
+    return Pattern(r, rdf)
+
+
+def calculate_tr(gr_pattern: Pattern, atomic_density: float) -> Pattern:
+    """
+    Calculates a transfer function from a given g(r) pattern and the atomic density
+
+    T(r) = 4 * pi * r * g(r) * rho = RDF/r
+
+    :param gr_pattern:     g(r) pattern
+    :param atomic_density:  atomic density in atoms/A^3
+
+    :return: transfer function
+    """
+    r, g_r = gr_pattern.data
+    tr = 4 * np.pi * r * g_r * atomic_density
+    return Pattern(r, tr)

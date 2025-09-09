@@ -1,9 +1,14 @@
+## 2.2.2 (upcoming)
+
+### New features
+
+- added calculate_rdf and calculate_tr functions to the transform module
+
 ## 2.2.1 (2025/07/21)
 
 ### Bugfixes
 
 - when optimizing the density, the lorch modififcation function is applied in accordance with the calculation configuration. This means, that it is applied before the chi-square calculation.
-
 
 ## 2.2.0 (2025/07/21)
 

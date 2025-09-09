@@ -16,7 +16,10 @@ from glassure.transform import (
     calculate_sq,
     calculate_fr,
     calculate_gr,
+    calculate_rdf,
     calculate_sq_from_fr,
+    calculate_rdf,
+    calculate_tr,
 )
 
 from . import unittest_data_path
@@ -186,3 +189,20 @@ def test_calculate_fr_then_sq_and_fr(sq):
     sq_from_fr = calculate_sq_from_fr(fr, sq.x, method="fft")
     fr_from_sq = calculate_fr(sq_from_fr)
     assert np.allclose(fr.y, fr_from_sq.y, atol=0.2)
+
+
+def test_calculate_rdf(sq, atomic_density):
+    fr = calculate_fr(sq)
+    gr = calculate_gr(fr, atomic_density)
+
+    rdf = calculate_rdf(gr, atomic_density)
+
+    assert np.allclose(rdf.y, 4 * np.pi * gr.x**2 * atomic_density * gr.y, atol=0.2)
+
+
+def test_calculate_tr(sq, atomic_density):
+    fr = calculate_fr(sq)
+    gr = calculate_gr(fr, atomic_density)
+    rdf = calculate_rdf(gr, atomic_density)
+    tr = calculate_tr(gr, atomic_density)
+    assert np.allclose(tr.y, rdf.y / gr.x, atol=0.2)
