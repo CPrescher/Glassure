@@ -2,13 +2,13 @@
 from __future__ import annotations
 import os
 from typing_extensions import Annotated
-from typing import Union, Optional
-from pydantic import PlainSerializer, PlainValidator, BaseModel
+from typing import Union, Optional, TYPE_CHECKING
+from pydantic import PlainSerializer, PlainValidator
 import numpy as np
 import base64
 import gzip
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import io
 from scipy.interpolate import interp1d
@@ -28,17 +28,34 @@ class Pattern:
     :param name: name of the pattern
     """
 
-    x: Optional[PydanticNpArray] = None
-    y: Optional[PydanticNpArray] = None
+    x: PydanticNpArray = field(init=False)
+    y: PydanticNpArray = field(init=False)
     name: str = ""
 
-    def __post_init__(self):
-        if self.y is None and self.x is None:
-            self.x = np.linspace(0, 10, 101)
-            self.y = np.log(self.x**2) - (self.x * 0.2) ** 2
+    def __init__(
+        self,
+        x: Optional[PydanticNpArray] = None,
+        y: Optional[PydanticNpArray] = None,
+        name: str = "",
+    ):
+        x_values: PydanticNpArray
+        y_values: PydanticNpArray
 
-        if len(self.x) != len(self.y):
+        if x is None and y is None:
+            x_values = np.linspace(0, 10, 101)
+            y_values = np.log(x_values**2) - (x_values * 0.2) ** 2
+        elif x is None or y is None:
+            raise ValueError("Either both x and y must be provided or neither.")
+        else:
+            x_values = x
+            y_values = y
+
+        if len(x_values) != len(y_values):
             raise ValueError("x and y values must have the same length")
+
+        self.x = x_values
+        self.y = y_values
+        self.name = name
 
     def load(self, filename: str, skiprows: int = 0):
         """
@@ -61,7 +78,7 @@ class Pattern:
             return -1
 
     @staticmethod
-    def from_file(filename: str, skip_rows: int = 0) -> Pattern | "-1":
+    def from_file(filename: str, skip_rows: int = 0) -> Pattern | int:
         """
         Loads a pattern from a file. The file can be either a .xy or a .chi file. The .chi file will be loaded with
         skiprows=4 by default.
@@ -89,7 +106,8 @@ class Pattern:
         :param filename: path to the file
         :param header: header to be written to the file
         """
-        data = np.dstack((self.x, self.y))
+        x, y = self.data
+        data = np.dstack((x, y))
         np.savetxt(filename, data[0], header=header)
 
     def smooth(self, amount: float) -> Pattern:
@@ -97,7 +115,8 @@ class Pattern:
         Smoothing the pattern by applying a gaussian filter. Returns the smoothed pattern.
         :param amount: amount of smoothing to be applied
         """
-        return Pattern(self.x, gaussian_filter1d(self.y, amount))
+        x, y = self.data
+        return Pattern(x, gaussian_filter1d(y, amount))
 
     def rebin(self, bin_size: float) -> Pattern:
         """
@@ -117,7 +136,7 @@ class Pattern:
         return Pattern(new_x, new_y)
 
     @property
-    def data(self) -> tuple[np.ndarray, np.ndarray]:
+    def data(self) -> tuple[PydanticNpArray, PydanticNpArray]:
         """
         Returns the data of the pattern as a tuple of x and y values.
 
@@ -132,8 +151,11 @@ class Pattern:
 
         :param data: tuple of x and y values
         """
-        self.x = data[0]
-        self.y = data[1]
+        x_values, y_values = data
+        if len(x_values) != len(y_values):
+            raise ValueError("x and y values must have the same length")
+        self.x = x_values
+        self.y = y_values
 
     def limit(self, x_min: float, x_max: float) -> Pattern:
         """
@@ -144,10 +166,9 @@ class Pattern:
         :return: limited Pattern
         """
         x, y = self.data
-        return Pattern(
-            x[np.where((x_min < x) & (x < x_max))],
-            y[np.where((x_min < x) & (x < x_max))],
-        )
+        x_limited = x[np.where((x_min < x) & (x < x_max))]
+        y_limited = y[np.where((x_min < x) & (x < x_max))]
+        return Pattern(x_limited, y_limited)
 
     def extend_to(self, x_value: float, y_value: float) -> Pattern:
         """
@@ -159,23 +180,24 @@ class Pattern:
         :param y_value: number to fill the pattern with
         :return: extended Pattern
         """
-        x_step = np.mean(np.diff(self.x))
-        x_min = np.min(self.x)
-        x_max = np.max(self.x)
+        x, y = self.data
+        x_step = np.mean(np.diff(x))
+        x_min = np.min(x)
+        x_max = np.max(x)
         if x_value < x_min:
             x_fill = np.arange(x_min - x_step, x_value - x_step * 0.5, -x_step)[::-1]
             y_fill = np.zeros(x_fill.shape)
             y_fill.fill(y_value)
 
-            new_x = np.concatenate((x_fill, self.x))
-            new_y = np.concatenate((y_fill, self.y))
+            new_x = np.concatenate((x_fill, x))
+            new_y = np.concatenate((y_fill, y))
         elif x_value > x_max:
             x_fill = np.arange(x_max + x_step, x_value + x_step * 0.5, x_step)
             y_fill = np.zeros(x_fill.shape)
             y_fill.fill(y_value)
 
-            new_x = np.concatenate((self.x, x_fill))
-            new_y = np.concatenate((self.y, y_fill))
+            new_x = np.concatenate((x, x_fill))
+            new_y = np.concatenate((y, y_fill))
         else:
             return self
 
@@ -187,10 +209,11 @@ class Pattern:
 
         :return: dictionary representation of the pattern
         """
+        x, y = self.data
         return {
             "name": self.name,
-            "x": self.x.tolist(),
-            "y": self.y.tolist(),
+            "x": x.tolist(),
+            "y": y.tolist(),
         }
 
     @staticmethod
@@ -300,7 +323,7 @@ class Pattern:
         """
         return self.__rmul__(other)
 
-    def __eq__(self, other: Pattern) -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Checks if two patterns are equal. Two patterns are equal if their data
         is equal.
@@ -327,6 +350,14 @@ class BkgNotInRangeError(Exception):
 
 
 def validate(value):
+    """
+    Validates a numpy array. If the value is a list, it is converted to a numpy array.
+    If the value is a string, it is decoded from a base64 encoded string.
+    If the value is already a numpy array, it is returned as is.
+
+    :param value: The value to validate
+    :return: The validated numpy array
+    """
     if isinstance(value, list):
         return np.array(value)
     if isinstance(value, str):
@@ -343,8 +374,18 @@ def validate(value):
 
 
 def serialize(value):
-    if isinstance(value, np.ndarray):
-        # Save numpy array to compressed bytyes
+    """
+    Serializes a numpy array to a base64 encoded string.
+    If the value is a numpy array, it is saved to a compressed bytes buffer and then encoded to a base64 string.
+    If the value is a list, it is converted to a numpy array and then serialized.
+    If the value is a string, it is decoded from a base64 encoded string and then deserialized.
+    If the value is already a numpy array, it is returned as is.
+
+    :param value: The value to serialize
+    :return: The serialized numpy array
+    """
+    if isinstance(value, (list, np.ndarray)):
+        # Save numpy array to compressed bytes buffer
         with io.BytesIO() as buffer:
             np.save(buffer, value, allow_pickle=False)
             binary_data = buffer.getvalue()
@@ -354,6 +395,15 @@ def serialize(value):
     raise TypeError(f"Invalid type for numpy array: {type(value)}")
 
 
-PydanticNpArray = Annotated[
-    np.ndarray, PlainValidator(validate), PlainSerializer(serialize)
-]
+"""
+This is a workaround to allow numpy arrays to be used as fields in a pydantic model.
+It is necessary because pydantic does not support numpy arrays as fields.
+We use a custom validator and serializer to convert the numpy array to a base64 encoded string
+and back again.
+"""
+if TYPE_CHECKING:
+    PydanticNpArray = np.ndarray
+else:
+    PydanticNpArray = Annotated[
+        np.ndarray, PlainValidator(validate), PlainSerializer(serialize)
+    ]
