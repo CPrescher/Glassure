@@ -62,7 +62,7 @@ def calculate_fr(
     if use_modification_fcn:
         modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
     else:
-        modification = 1
+        modification = np.ones_like(q)
 
     if method == "integral" or method == FourierTransformMethod.INTEGRAL:
         fr = (
@@ -150,7 +150,7 @@ def calculate_sq_from_fr(
     if use_modification_fcn:
         modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
     else:
-        modification = 1
+        modification = np.ones_like(q)
 
     if use_modification_fcn:
         # when using the modification function we get issues at large q values, since it is very close to 0 there
@@ -169,7 +169,7 @@ def calculate_sq_from_fr(
         last_valid = np.where(valid)[0][-1]
         if last_valid < len(q) - 1:
             f = interp1d(
-                q[valid], iq_new[valid], kind="linear", fill_value="extrapolate"
+                q[valid], iq_new[valid], kind="linear", fill_value="extrapolate"  # type: ignore[arg-type]
             )
             iq_new[~valid] = f(q[~valid])
 

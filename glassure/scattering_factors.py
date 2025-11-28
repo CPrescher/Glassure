@@ -68,11 +68,11 @@ class ScatteringFactorCalculatorHajdu(ScatteringFactorCalculator):
         fs_coh = 0
         s = q / (4 * np.pi)
         for ind in range(1, 5):
-            A = self.coherent_param["A" + str(ind)][element]
-            B = self.coherent_param["B" + str(ind)][element]
+            A = self.coherent_param.loc[element, "A" + str(ind)]
+            B = self.coherent_param.loc[element, "B" + str(ind)]
             fs_coh += A * np.exp(-B * s**2)
 
-        C = self.coherent_param["C"][element]
+        C = self.coherent_param.loc[element, "C"]
         fs_coh += C
         return fs_coh
 
@@ -87,10 +87,10 @@ class ScatteringFactorCalculatorHajdu(ScatteringFactorCalculator):
         fs_coherent = self.get_coherent_scattering_factor(element, q)
         intensity_coherent = fs_coherent**2
         s = q / (4 * np.pi)
-        Z = float(self.incoherent_param["Z"][element])
-        M = float(self.incoherent_param["M"][element])
-        K = float(self.incoherent_param["K"][element])
-        L = float(self.incoherent_param["L"][element])
+        Z = float(self.incoherent_param.loc[element, "Z"])
+        M = float(self.incoherent_param.loc[element, "M"])
+        K = float(self.incoherent_param.loc[element, "K"])
+        L = float(self.incoherent_param.loc[element, "L"])
         intensity_incoherent = (Z - intensity_coherent / Z) * (
             1 - M * (np.exp(-K * s) - np.exp(-L * s))
         )
@@ -140,11 +140,11 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
         fs_coh = 0
         s = q / (4 * np.pi)
         for ind in range(1, 5):
-            A = self.coherent_params["a" + str(ind)][element]
-            B = self.coherent_params["b" + str(ind)][element]
+            A = self.coherent_params.loc[element, "a" + str(ind)]
+            B = self.coherent_params.loc[element, "b" + str(ind)]
             fs_coh += A * np.exp(-B * s**2)
 
-        C = self.coherent_params["c"][element]
+        C = self.coherent_params.loc[element, "c"]
         fs_coh += C
         return fs_coh
 
@@ -278,8 +278,8 @@ def get_available_elements(source: str) -> list[str]:
 
 
 def calculate_coherent_scattering_factor(
-    element: str, q: np.array, source: str = "hajdu"
-) -> np.array:
+    element: str, q: np.ndarray, source: str = "hajdu"
+) -> np.ndarray:
     """
     Calculates the coherent scattering factor for a given element and q values.
 
@@ -292,8 +292,8 @@ def calculate_coherent_scattering_factor(
 
 
 def calculate_incoherent_scattered_intensity(
-    element: str, q: np.array, source: str = "hajdu"
-) -> np.array:
+    element: str, q: np.ndarray, source: str = "hajdu"
+) -> np.ndarray:
     """
     Calculates the incoherent scattering intensity for a given element and q values.
 

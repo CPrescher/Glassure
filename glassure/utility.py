@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Dict, Any
 from collections import defaultdict
 from copy import copy
 
@@ -260,7 +260,7 @@ def calculate_weighting_factor_wkm(
     q: np.ndarray | float = 0.0,
     sf_source="hajdu",
 ) -> float:
-    """
+    r"""
     Calculates the weighting factor for an element-element contribution in a given composition (e.g. for Si-O in SiO2)
     using the Warren-Krutter-Morningstar approximation for the form factors or effective atomic numbers (Warren et al.
     1936).
@@ -311,10 +311,10 @@ def calculate_weighting_factor_wkm(
 def calculate_wkm_effective_atomic_number(
     composition: Composition,
     element: str,
-    q: np.ndarray,
+    q: np.ndarray | float,
     sf_source="hajdu",
 ) -> float:
-    """
+    r"""
     Calculates the effective atomic number for a given element using the Warren-Krutter-Morningstar approximation
     (Warren et al. 1936).
 
@@ -333,10 +333,12 @@ def calculate_wkm_effective_atomic_number(
     :param q: Q value or numpy array with a unit of A^-1
     :param sf_source: source of the scattering factors. Possible sources are 'hajdu', 'brown_hubbell' and 'xraylib'.
     """
+    if isinstance(q, (int, float)):
+        q = np.array([q])
 
     effective_form_factor = calculate_effective_form_factor(composition, q, sf_source)
     form_factor = calculate_coherent_scattering_factor(element, q, sf_source)
-    return np.mean(form_factor / effective_form_factor)
+    return float(np.mean(form_factor / effective_form_factor))
 
 
 def calculate_total_atomic_number(composition: Composition) -> float:
@@ -412,7 +414,7 @@ def convert_density_to_atoms_per_cubic_angstrom(
     for element, concentration in norm_elemental_abundances.items():
         element = re.findall("[A-zA-Z]*", element)[0]
         mean_z += concentration * scattering_factors.atomic_weights["AW"][element]
-    return density / mean_z * 0.602214129
+    return float(density / mean_z * 0.602214129)
 
 
 def convert_density_to_grams_per_cubic_centimeter(
@@ -432,7 +434,7 @@ def convert_density_to_grams_per_cubic_centimeter(
     for element, concentration in norm_elemental_abundances.items():
         element = re.findall("[A-zA-Z]*", element)[0]
         mean_z += concentration * scattering_factors.atomic_weights["AW"][element]
-    return atomic_density * mean_z / 0.602214129
+    return float(atomic_density * mean_z / 0.602214129)
 
 
 def extrapolate_to_zero_step(pattern: Pattern, y0: float = 0) -> Pattern:
@@ -559,7 +561,7 @@ def extrapolate_to_zero_poly(
 
         return y_fit - (x_fit - c) * a - (x_fit - c) ** 2 * b + y0
 
-    result = lmfit.minimize(optimization_fcn, params)
+    result: Any = lmfit.minimize(optimization_fcn, params)
     if not hasattr(result, "params") or result.params is None:
         raise ValueError("Polynomial extrapolation failed")
 
@@ -595,5 +597,5 @@ def convert_two_theta_to_q_space(pattern: Pattern, wavelength: float) -> Pattern
     Returns a new pattern with the x-axis converted from two theta into q space
     """
     q_pattern = copy(pattern)
-    q_pattern.x = convert_two_theta_to_q_space_raw(q_pattern.x, wavelength)
+    q_pattern.x = np.asarray(convert_two_theta_to_q_space_raw(q_pattern.x, wavelength))
     return q_pattern
