@@ -28,6 +28,3 @@ class FittingTest(unittest.TestCase):
         peak = t_r_peak_gaussian(r, 4, 1.6, 0.15, self.composition, 'Si', 'O')
         self.assertEqual(len(peak), len(r))
 
-        import matplotlib.pyplot as plt
-        plt.plot(r, peak)
-        plt.show()
