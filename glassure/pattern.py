@@ -2,7 +2,7 @@
 from __future__ import annotations
 import os
 from typing_extensions import Annotated
-from typing import Union, Optional, TYPE_CHECKING
+from typing import Union, Optional, TYPE_CHECKING, Sequence
 from pydantic import PlainSerializer, PlainValidator
 import numpy as np
 import base64
@@ -304,21 +304,22 @@ class Pattern:
         """
         return self.__add__(other)
 
-    def __rmul__(self, other: float) -> Pattern:
+    def __rmul__(self, other: Union[float, np.ndarray, Sequence[float]]) -> Pattern:
         """
-        Multiplies the pattern with a scalar.
+        Multiplies the pattern with a scalar or an array-like of the same shape as the y-values.
 
-        :param other: scalar to multiply with
+        :param other: scalar or array-like to multiply with
         :return: new Pattern
         """
         orig_x, orig_y = self.data
-        return Pattern(np.copy(orig_x), np.copy(orig_y) * other)
+        multiplier = self._normalize_multiplier(other, orig_y.shape)
+        return Pattern(np.copy(orig_x), np.multiply(orig_y, multiplier))
 
-    def __mul__(self, other: float) -> Pattern:
+    def __mul__(self, other: Union[float, np.ndarray, Sequence[float]]) -> Pattern:
         """
-        Multiplies the pattern with a scalar.
+        Multiplies the pattern with a scalar or an array-like of the same shape as the y-values.
 
-        :param other: scalar to multiply with
+        :param other: scalar or array-like to multiply with
         :return: new Pattern
         """
         return self.__rmul__(other)
@@ -336,6 +337,25 @@ class Pattern:
         if np.array_equal(self.data, other.data):
             return True
         return False
+
+    @staticmethod
+    def _normalize_multiplier(
+        multiplier: Union[float, np.ndarray, Sequence[float]], target_shape: tuple[int, ...]
+    ) -> np.ndarray:
+        """
+        Normalizes the multiplier to a float or an array of the same shape as the target shape.
+        :param multiplier: The multiplier to normalize
+        :param target_shape: The shape of the target array
+        :return: The normalized multiplier
+        """
+        array_multiplier = np.asarray(multiplier, dtype=float)
+        if array_multiplier.ndim == 0:
+            return array_multiplier
+        if array_multiplier.shape != target_shape:
+            raise ValueError(
+                "Array multiplier must have the same shape as the pattern's y values."
+            )
+        return array_multiplier
 
 
 class BkgNotInRangeError(Exception):

@@ -37,7 +37,7 @@ def create_calculate_pdf_configs(
     data: Pattern,
     composition: Composition,
     density: float,
-    bkg: Pattern = None,
+    bkg: Pattern | None = None,
     bkg_scaling: float = 1,
 ) -> tuple[DataConfig, CalculationConfig]:
     """
@@ -79,6 +79,9 @@ def calculate_pdf(
     config = calculation_config
     transform = config.transform
     composition = config.sample.composition
+    sample_atomic_density = config.sample.atomic_density
+    if sample_atomic_density is None:
+        raise ValueError("Sample atomic density must be provided for PDF calculation.")
 
     # subtract background
     if data_config.bkg is not None:
@@ -150,7 +153,7 @@ def calculate_pdf(
 
         n, norm = normalize(
             sample_pattern=sample,
-            atomic_density=config.sample.atomic_density,
+            atomic_density=sample_atomic_density,
             f_squared_mean=f_squared_mean,
             f_mean_squared=f_mean_squared,
             incoherent_scattering=norm_inc,
@@ -207,7 +210,7 @@ def calculate_pdf(
         opt = config.optimize
         sq = optimize_sq(
             sq,
-            atomic_density=config.sample.atomic_density,
+            atomic_density=sample_atomic_density,
             r_cutoff=opt.r_cutoff,
             r_step=transform.r_step,
             iterations=opt.iterations,
@@ -228,7 +231,7 @@ def calculate_pdf(
 
     gr = calculate_gr(
         fr,
-        atomic_density=config.sample.atomic_density,
+        atomic_density=sample_atomic_density,
     )
 
     res = Result(

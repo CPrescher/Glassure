@@ -34,7 +34,7 @@ class SampleConfig(BaseModel):
     )
     @property
     def atomic_density(self) -> Optional[float]:
-        if self.composition == {}:  # empty composition
+        if self.composition == {} or self.density is None:  # empty composition or density is not set
             return None
         return convert_density_to_atoms_per_cubic_angstrom(
             self.composition, self.density
@@ -42,7 +42,7 @@ class SampleConfig(BaseModel):
 
     @atomic_density.setter
     def atomic_density(self, value: Optional[float]):
-        if self.composition == {}:
+        if self.composition == {} or value is None:
             self.density = None
         else:
             self.density = convert_density_to_grams_per_cubic_centimeter(

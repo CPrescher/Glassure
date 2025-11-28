@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from copy import deepcopy
-from typing import Optional
+from typing import Any
 
 import numpy as np
 from lmfit import Parameters, minimize
@@ -179,14 +179,14 @@ def fit_polynom_through_origin(x, y , degree: int) -> np.ndarray:
 
 
 from .calc import calculate_pdf
-from .configuration import CalculationConfig, DataConfig
+from .configuration import CalculationConfig, DataConfig, Result
 
 
 def optimize_density(
     data_config: DataConfig,
     calculation_config: CalculationConfig,
     method: str = "fr",
-    min_range: Optional[tuple[float, float]] = None,
+    min_range: tuple[float, float] | None = None,
     vary_bkg_scaling: bool = True,
     bkg_limits: tuple[float, float] = (0.9, 1.1),
     optimization_method: str = "lsq",
@@ -272,17 +272,30 @@ def optimize_density(
     )
 
     optim_config = calculation_config.model_copy(deep=True)
+    reference_result: Result | None = None
+    range_limits: tuple[float, float] | None = min_range
 
     if method == "sq":
         reference_config = calculation_config.model_copy(deep=True)
         reference_config.optimize = None
         reference_result = calculate_pdf(data_config, reference_config)
-        if min_range is None:
-            min_range = (0, reference_config.transform.q_max)
+        if range_limits is None:
+            range_limits = (0, reference_config.transform.q_max)
+    elif method in ("gr", "fr"):
+        if range_limits is None:
+            optimize_settings = optim_config.optimize
+            if optimize_settings is None:
+                raise ValueError(
+                    "Optimization range cannot be inferred because calculation_config.optimize is None."
+                )
+            range_limits = (0, optimize_settings.r_cutoff)
+    else:
+        raise ValueError(
+            f"Invalid optimize density method: {method}, only 'gr', 'fr' and 'sq' are supported."
+        )
 
-    elif method == "gr" or method == "fr":
-        if min_range is None:
-            min_range = (0, optim_config.optimize.r_cutoff)
+    if range_limits is None:
+        raise ValueError("Optimization range must be specified.")
 
     def fcn(params):
         density = params["density"].value
@@ -292,46 +305,52 @@ def optimize_density(
         result = calculate_pdf(data_config, optim_config)
 
         if method == "gr":
-            r, gr = result.gr.limit(*min_range).data
+            if result.gr is None:
+                raise ValueError("Result does not contain g(r) data required for 'gr' optimization.")
+            r, gr = result.gr.limit(*range_limits).data
             residual = gr * (r[1] - r[0])
         elif method == "fr":
+            if result.fr is None:
+                raise ValueError("Result does not contain F(r) data required for 'fr' optimization.")
             atomic_density = optim_config.sample.atomic_density
-            r, fr = result.fr.limit(*min_range).data
+            if atomic_density is None:
+                raise ValueError("Sample atomic density must be set for 'fr' optimization.")
+            r, fr = result.fr.limit(*range_limits).data
             residual = (fr + 4 * np.pi * r * atomic_density) * (r[1] - r[0])
         elif method == "sq":
-            q, sq = result.sq.limit(*min_range).data
-            sq_ref = reference_result.sq.limit(*min_range).y
+            if reference_result is None or reference_result.sq is None:
+                raise ValueError("Reference result does not contain S(q) data required for 'sq' optimization.")
+            if result.sq is None:
+                raise ValueError("Result does not contain S(q) data required for 'sq' optimization.")
+            q, sq = result.sq.limit(*range_limits).data
+            sq_ref = reference_result.sq.limit(*range_limits).y
             residual = (sq - sq_ref) * (q[1] - q[0])
-        else:
-            raise ValueError(
-                f"Invalid optimize density method: {method}, only 'gr', 'fr' and 'sq' are supported."
-            )
         return residual
 
     if optimization_method == "nelder":
-        res = minimize(
+        nelder_res: Any = minimize(
             fcn,
             params,
             method="nelder",
             options={"maxfev": 500, "fatol": 0.0001, "xatol": 0.0001},
         )
         return (
-            res.params["density"].value,
-            np.sum(res.residual**2),
-            res.params["bkg_scaling"].value,
-            np.sum(res.residual**2),
+            nelder_res.params["density"].value,
+            np.sum(nelder_res.residual**2),
+            nelder_res.params["bkg_scaling"].value,
+            np.sum(nelder_res.residual**2),
         )
     elif optimization_method == "lsq":
-        res = minimize(
+        lsq_res: Any = minimize(
             fcn,
             params,
             method="least_squares",
         )
         return (
-            res.params["density"].value,
-            res.params["density"].stderr,
-            res.params["bkg_scaling"].value,
-            res.params["bkg_scaling"].stderr,
+            lsq_res.params["density"].value,
+            lsq_res.params["density"].stderr,
+            lsq_res.params["bkg_scaling"].value,
+            lsq_res.params["bkg_scaling"].stderr,
         )
     else:
         raise ValueError(f"Invalid optimization method: {optimization_method}")
