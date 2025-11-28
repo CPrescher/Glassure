@@ -1,4 +1,5 @@
-from typing import Optional
+
+from typing import Any
 
 import numpy as np
 import lmfit
@@ -12,7 +13,7 @@ def normalize(
     atomic_density: float,
     f_squared_mean: np.ndarray,
     f_mean_squared: np.ndarray,
-    incoherent_scattering: Optional[np.ndarray] = None,
+    incoherent_scattering: np.ndarray | None = None,
     attenuation_factor: float = 0.001,
 ) -> tuple[float, Pattern]:
     """
@@ -52,11 +53,11 @@ def normalize(
 def normalize_fit_lmfit(
     sample_pattern: Pattern,
     f_squared_mean: np.ndarray,
-    incoherent_scattering: Optional[np.ndarray] = None,
+    incoherent_scattering: np.ndarray | None = None,
     q_cutoff: float = 3,
     method: str = "squared",
     multiple_scattering: bool = False,
-    container_scattering: Optional[np.ndarray] = None,
+    container_scattering: np.ndarray | None = None,
 ) -> tuple[lmfit.Parameters, Pattern]:
     """
     This function is deprecated and will be removed in the future. It is replaced by a new
@@ -112,8 +113,8 @@ def normalize_fit_lmfit(
 
     # calculate values for integrals
     if incoherent_scattering is None:
-        incoherent_scattering = 0
-        incoherent_scattering_cut = 0
+        incoherent_scattering = np.array(0)
+        incoherent_scattering_cut = np.array(0)
     else:
         assert len(incoherent_scattering) == len(
             q
@@ -149,8 +150,8 @@ def normalize_fit_lmfit(
         container_contribution_cut = container_contribution[q_ind]
     else:
         params.add("n_container", value=0, vary=False)
-        container_contribution = 0
-        container_contribution_cut = 0
+        container_contribution = np.array(0)
+        container_contribution_cut = np.array(0)
 
     def optimization_fcn(params):
         n = params["n"].value
@@ -166,7 +167,7 @@ def normalize_fit_lmfit(
         theory = f_squared_mean_cut + compton
         return ((n * intensity_cut - multiple - theory) * scaling) ** 2
 
-    out = lmfit.minimize(optimization_fcn, params)
+    out: Any = lmfit.minimize(optimization_fcn, params)
 
     # prepare final output
     q_out = sample_pattern.x
@@ -183,11 +184,11 @@ def normalize_fit_lmfit(
 def normalize_fit(
     sample_pattern: Pattern,
     f_squared_mean: np.ndarray,
-    incoherent_scattering: Optional[np.ndarray] = None,
+    incoherent_scattering: np.ndarray | None = None,
     q_cutoff: float = 3,
     method: str = "squared",
     multiple_scattering: bool = False,
-    container_scattering: Optional[np.ndarray] = None,
+    container_scattering: np.ndarray | None = None,
 ) -> tuple[dict, Pattern]:
     """
     Estimates the normalization factor n for calculating S(Q) by solving the linear least squares problem
