@@ -12,10 +12,10 @@ from glassure.utility import (
     calculate_incoherent_scattering,
     calculate_s0,
 )
-from glassure.transform import calculate_sq, calculate_fr
-from glassure.normalization import normalize_fit, normalize
+from glassure.transform import calculate_sq, calculate_fr, calculate_gr
+from glassure.normalization import normalize_fit
 from glassure.configuration import OptimizeConfig
-from glassure.optimization import optimize_sq, optimize_density
+from glassure.optimization import optimize_sq, optimize_density, optimize_sq_fit
 from glassure.calc import create_calculate_pdf_configs
 from glassure.methods import ExtrapolationMethod
 
@@ -111,7 +111,6 @@ def test_optimize_sq(sq, atomic_density):
     sq_optimized = optimize_sq(sq, 1.4, 5, atomic_density)
     assert not np.allclose(sq.y, sq_optimized.y)
 
-
 def test_optimize_sq_fft(sq, atomic_density):
     iterations = 5
     r_step = 0.001  # need high value to be accurate for fft
@@ -137,6 +136,31 @@ def test_optimize_sq_fft(sq, atomic_density):
 
     assert np.allclose(sq_optimized.y, sq_optimized_fft.y, atol=0.035)
     assert np.allclose(fr_optimized.y, fr_optimized_fft.y, atol=0.1)
+
+
+def test_optimize_sq_fit_SiO2(sq, atomic_density):
+    sq_fit = optimize_sq_fit(sq, 1.4)
+    sq_kaplow = optimize_sq(sq, 1.4, 5, atomic_density)
+
+
+    assert np.mean((np.array(sq.y) - np.array(sq_fit.y)) ** 2) < 0.3
+    assert np.mean((np.array(sq.y) - np.array(sq_kaplow.y)) ** 2) < 0.3
+
+    fr_original = calculate_fr(sq, method="fft")
+    fr_fit = calculate_fr(sq_fit, method="fft")
+    fr_kaplow = calculate_fr(sq_kaplow, method="fft")
+
+    assert np.mean((np.array(fr_original.y) - np.array(fr_fit.y)) ** 2) < 1.0
+    assert np.mean((np.array(fr_original.y) - np.array(fr_kaplow.y)) ** 2) < 1.0
+    assert np.mean((np.array(fr_fit.y) - np.array(fr_kaplow.y)) ** 2) < 1.0
+    
+    gr_original = calculate_gr(fr_original, atomic_density).limit(1, 10)
+    gr_fit = calculate_gr(fr_fit, atomic_density).limit(1, 10)
+    gr_kaplow = calculate_gr(fr_kaplow, atomic_density).limit(1, 10)
+
+    assert np.mean((np.array(gr_original.y) - np.array(gr_fit.y)) ** 2) < 1.0
+    assert np.mean((np.array(gr_original.y) - np.array(gr_kaplow.y)) ** 2) < 1.0
+    assert np.mean((np.array(gr_fit.y) - np.array(gr_kaplow.y)) ** 2) < 1.0
 
 
 def test_optimize_density_SiO2(data_path, bkg_path):

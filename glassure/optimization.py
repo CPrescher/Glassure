@@ -4,7 +4,6 @@ from copy import deepcopy
 from typing import Optional
 
 import numpy as np
-from scipy.integrate import simpson
 from lmfit import Parameters, minimize
 
 from . import Pattern
@@ -12,6 +11,7 @@ from .transform import calculate_fr, calculate_gr, calculate_sq_from_fr
 
 __all__ = [
     "optimize_sq",
+    "optimize_sq_fit",
     "optimize_density",
 ]
 
@@ -98,9 +98,88 @@ def optimize_sq(
     return sq_pattern
 
 
+def optimize_sq_fit(sq_pattern: Pattern, r_cutoff: float) -> Pattern:
+    """
+    Optimizes the S(Q) pattern by fitting a polynomial to the F(Q) = q( S(Q) - 1 ). The order of the polynomial
+    is determined by the q_max and r_cutoff value = r_cutoff * q_max / pi. The zero order term is fixed to 0.
+
+    This method is based on the normalization description for PDFGetX3 in the following reference:
+
+    Juhás, P., Davis, T., Farrow, C.L., Billinge, S.J.L., 2013. PDFgetX3: a rapid and highly automatable
+    program for processing powder diffraction data into total scattering pair distribution functions.
+    J Appl Crystallogr 46, 560–566. https://doi.org/10.1107/S0021889813005190
+
+    In order to try to do a similar procedure as in the above paper, the input S(Q) should be created using
+    a normalization without incoherent scattering. Since it is assume that the polynomial fit, will also
+    remove the incoherent scattering.
+
+    :param sq_pattern:
+        original S(Q)
+    :param r_cutoff:
+        cutoff value below which there is no signal expected (below the first peak in g(r))
+
+    :return:
+        optimized S(Q) pattern
+    """
+
+    q = sq_pattern.x
+    fq = sq_pattern.x * (sq_pattern.y - 1)
+
+    degree = q.max() * r_cutoff / (np.pi)
+    degree = max(1.0, degree)  # at least a linear fit
+
+    degree_high = np.ceil(degree).astype(int)
+    degree_low = np.floor(degree).astype(int)
+
+    if degree_low == degree_high:
+        # When degrees are the same, we only need to fit once
+        coeffs_low = fit_polynom_through_origin(q, fq, degree_low)
+        p_low = np.poly1d(coeffs_low)
+        fq_fit = p_low(q)
+    else:
+        weight_low, weight_high = degree_high - degree, degree - degree_low
+        coeffs_low = fit_polynom_through_origin(q, fq, degree_low)
+        coeffs_high = fit_polynom_through_origin(q, fq, degree_high)
+        p_low = np.poly1d(coeffs_low)
+        p_high = np.poly1d(coeffs_high)
+        fq_fit = p_low(q) * weight_low + p_high(q) * weight_high
+
+    return Pattern(sq_pattern.x, sq_pattern.y - fq_fit / sq_pattern.x)
+
+
+def fit_polynom_through_origin(x, y , degree: int) -> np.ndarray:
+    """
+    Fits a polynomial of given degree through the data points (x, y) with the constraint that the polynomial goes
+    through the origin (0,0). The zero order term is fixed to 0.
+    
+    Implementation is based on ChatGPT recommendation for it to be the fastest solution.
+
+    :param x:
+        x data points
+    :param y:
+        y data points
+    :param degree:
+        degree of the polynomial
+
+    :return:
+        coefficients of the polynomial, highest degree first
+    """
+    # Vandermonde matrix WITHOUT the x⁰ column
+    # shape: (len(x), degree)
+    X = np.vstack([x**k for k in range(1, degree + 1)]).T
+
+    # Solve X * beta = y
+    beta, *_ = np.linalg.lstsq(
+        X, y, rcond=-1
+    )  # rcond=-1 means as much precision as possible
+
+    return np.concatenate(
+        (beta[::-1], [0])
+    )  # add zero coefficient for x⁰ and reverse order
+
+
 from .calc import calculate_pdf
-from .configuration import DataConfig, CalculationConfig
-from .methods import ExtrapolationMethod
+from .configuration import CalculationConfig, DataConfig
 
 
 def optimize_density(
@@ -117,8 +196,8 @@ def optimize_density(
     The density in the SampleConfig of the DataConfig is taking as starting parameter
 
     For method='gr' or method='fr' the optimization is based on the g(r) or f(r) function, and the density is
-    optimized to minimize the low g(r) or f(r) region to be close to zero. The Lorch modification function will be 
-    applied before calculating the chi square of the low r region if it is applied in the calculation configuration. 
+    optimized to minimize the low g(r) or f(r) region to be close to zero. The Lorch modification function will be
+    applied before calculating the chi square of the low r region if it is applied in the calculation configuration.
     The general procedure is explained in Eggert et al. 2002 PRB, 65, 174105.
 
     For method='sq' the optimization is based on the low Q part of the S(Q) function, and the density is optimized
