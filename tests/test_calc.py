@@ -17,11 +17,6 @@ def prepare_input():
     data_pattern = Pattern.from_file(data_path)
     bkg_pattern = Pattern.from_file(bkg_path)
 
-    if not isinstance(data_pattern, Pattern):
-        raise ValueError(f"Failed to load data pattern from {data_path}")
-    if not isinstance(bkg_pattern, Pattern):
-        raise ValueError(f"Failed to load background pattern from {bkg_path}")
-
     data_config, calculation_config = create_calculate_pdf_configs(
         data_pattern,
         composition={"Mg": 2, "Si": 1, "O": 4},

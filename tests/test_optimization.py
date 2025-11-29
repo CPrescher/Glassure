@@ -48,8 +48,6 @@ def sample(data_path, bkg_path):
     """Create a sample pattern by subtracting background from data."""
     data = Pattern.from_file(data_path)
     bkg = Pattern.from_file(bkg_path)
-    assert isinstance(data, Pattern)
-    assert isinstance(bkg, Pattern)
 
     sample = data - bkg
     return sample.limit(1, 17)
@@ -169,8 +167,6 @@ def test_optimize_sq_fit_SiO2(sq, atomic_density):
 def test_optimize_density_SiO2(data_path, bkg_path):
     data = Pattern.from_file(data_path)
     background = Pattern.from_file(bkg_path)
-    assert isinstance(data, Pattern)
-    assert isinstance(background, Pattern)
     composition = {"Si": 1.0, "O": 2.0}
     density = 2.2
 
@@ -198,8 +194,6 @@ def test_optimize_density_SiO2(data_path, bkg_path):
 def test_optimize_density_Mg2SiO4():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    assert isinstance(data, Pattern)
-    assert isinstance(background, Pattern)
 
     composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21
@@ -227,8 +221,6 @@ def test_optimize_density_Mg2SiO4():
 def test_optimize_density_method():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    assert isinstance(data, Pattern)
-    assert isinstance(background, Pattern)
     composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21
 
@@ -263,8 +255,6 @@ def test_optimize_density_method():
 def test_optimize_density_method_nelder():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    assert isinstance(data, Pattern)
-    assert isinstance(background, Pattern)
 
     composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21
@@ -310,8 +300,6 @@ def test_optimize_density_method_nelder():
 def test_optimize_density_vary_bkg_scaling():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    assert isinstance(data, Pattern)
-    assert isinstance(background, Pattern)
 
     composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21
@@ -342,8 +330,6 @@ def test_optimize_density_vary_bkg_scaling():
 def test_invalid_optimize_density_method():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    assert isinstance(data, Pattern)
-    assert isinstance(background, Pattern)
 
     composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21

@@ -64,6 +64,7 @@ class Pattern:
 
         :param filename: path to the file
         :param skiprows: number of rows to skip when loading the data (header)
+        :raises PatternLoadError: if the file cannot be loaded
         """
         try:
             if filename.endswith(".chi"):
@@ -73,18 +74,25 @@ class Pattern:
             self.y = data.T[1]
             self.name = os.path.basename(filename).split(".")[:-1][0]
 
-        except ValueError:
-            print("Wrong data format for pattern file! - " + filename)
-            return -1
+        except FileNotFoundError:
+            raise PatternLoadError(filename, "File not found")
+        except OSError as e:
+            raise PatternLoadError(filename, f"OS error: {e}")
+        except ValueError as e:
+            raise PatternLoadError(filename, f"Wrong data format: {e}")
+        except Exception as e:
+            raise PatternLoadError(filename, f"Unexpected error: {e}")
 
     @staticmethod
-    def from_file(filename: str, skip_rows: int = 0) -> Pattern | int:
+    def from_file(filename: str, skip_rows: int = 0) -> Pattern:
         """
         Loads a pattern from a file. The file can be either a .xy or a .chi file. The .chi file will be loaded with
         skiprows=4 by default.
 
         :param filename: path to the file
         :param skip_rows: number of rows to skip when loading the data (header)
+        :return: Pattern object loaded from the file
+        :raises PatternLoadError: if the file cannot be loaded
         """
         try:
             if filename.endswith(".chi"):
@@ -95,9 +103,14 @@ class Pattern:
             name = os.path.basename(filename).split(".")[:-1][0]
             return Pattern(x, y, name)
 
-        except ValueError:
-            print("Wrong data format for pattern file! - " + filename)
-            return -1
+        except FileNotFoundError:
+            raise PatternLoadError(filename, "File not found")
+        except OSError as e:
+            raise PatternLoadError(filename, f"OS error: {e}")
+        except ValueError as e:
+            raise PatternLoadError(filename, f"Wrong data format: {e}")
+        except Exception as e:
+            raise PatternLoadError(filename, f"Unexpected error: {e}")
 
     def save(self, filename: str, header: str = ""):
         """
@@ -367,6 +380,17 @@ class BkgNotInRangeError(Exception):
             "The background range does not overlap with the Pattern range for "
             + self.pattern_name
         )
+
+
+class PatternLoadError(Exception):
+    """Exception raised when a pattern file cannot be loaded."""
+
+    def __init__(self, filename: str, reason: str):
+        self.filename = filename
+        self.reason = reason
+
+    def __str__(self):
+        return f"Failed to load pattern from file '{self.filename}': {self.reason}"
 
 
 def validate(value):

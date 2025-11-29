@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import pytest
 from pytest import approx
 from pydantic import BaseModel
-from glassure.pattern import PydanticNpArray
+from glassure.pattern import PydanticNpArray, PatternLoadError
 
 from glassure import Pattern
 
@@ -147,3 +148,22 @@ def test_pydantic_nparray_from_json():
     input = {"x": [1, 2, 3]}
     t = DummyModel(**input)
     assert np.array_equal(t.x, np.array([1, 2, 3]))
+
+
+def test_from_file_raises_exception_for_nonexistent_file():
+    """Test that from_file raises PatternLoadError for nonexistent files."""
+    with pytest.raises(PatternLoadError) as exc_info:
+        Pattern.from_file("nonexistent_file.xy")
+    assert "nonexistent_file.xy" in str(exc_info.value)
+    assert "File not found" in str(exc_info.value)
+
+
+def test_from_file_raises_exception_for_invalid_format(tmp_path):
+    """Test that from_file raises PatternLoadError for invalid file format."""
+    invalid_file = tmp_path / "invalid.xy"
+    invalid_file.write_text("not a valid pattern file\ninvalid data")
+    
+    with pytest.raises(PatternLoadError) as exc_info:
+        Pattern.from_file(str(invalid_file))
+    assert "invalid.xy" in str(exc_info.value)
+    assert "Wrong data format" in str(exc_info.value)
