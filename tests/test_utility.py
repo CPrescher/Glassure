@@ -142,7 +142,7 @@ class UtilityTest(unittest.TestCase):
 
         x_linear = x1[x1 < 1]
         y_linear = y1[x1 < 1]
-        self.assertAlmostEqual(np.sum(y_linear - x_linear), 0)
+        self.assertAlmostEqual(float(np.sum(y_linear - x_linear)), 0)
 
     def test_linear_extrapolation_with_different_y(self):
         x = np.arange(1, 5.05, 0.05)
@@ -197,7 +197,7 @@ class UtilityTest(unittest.TestCase):
         y_expected = a * (x_extrapolate - c) + b * (x_extrapolate - c) ** 2
         y_expected[x_extrapolate < c] = 0
 
-        self.assertAlmostEqual(np.sum(y_extrapolate - y_expected), 0)
+        self.assertAlmostEqual(float(np.sum(y_extrapolate - y_expected)), 0.0)
 
         extrapolated_pattern = extrapolate_to_zero_poly(pattern, x_max, replace=True)
         x1, y1 = extrapolated_pattern.data
@@ -208,7 +208,7 @@ class UtilityTest(unittest.TestCase):
         y_expected = a * (x_extrapolate - c) + b * (x_extrapolate - c) ** 2
         y_expected[x_extrapolate < c] = 0
 
-        self.assertAlmostEqual(np.sum(y_extrapolate - y_expected), 0)
+        self.assertAlmostEqual(float(np.sum(y_extrapolate - y_expected)), 0)
 
     def test_extrapolate_to_zero_poly_with_different_y(self):
         x = np.arange(1, 5.05, 0.05)
@@ -290,9 +290,9 @@ class UtilityTest(unittest.TestCase):
         self.assertEqual(len(q), len(effective_form_factor))
 
         effective_form_factor = calculate_effective_form_factor(
-            composition, 0, sf_source="hajdu"
+            composition, np.array([0]), sf_source="hajdu"
         )
-        self.assertAlmostEqual(effective_form_factor, 1.0, places=3)
+        self.assertAlmostEqual(float(effective_form_factor[0]), 1.0, places=3)
 
     def test_calculate_wkm_form_factor(self):
         q = 0.0

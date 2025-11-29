@@ -146,7 +146,7 @@ def test_pydantic_nparray_with_list_input():
 
 def test_pydantic_nparray_from_json():
     input = {"x": [1, 2, 3]}
-    t = DummyModel(**input)
+    t = DummyModel(**input)  # type: ignore[arg-type]
     assert np.array_equal(t.x, np.array([1, 2, 3]))
 
 

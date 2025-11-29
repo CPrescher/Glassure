@@ -34,7 +34,7 @@ __all__ = [
     "calculate_weighting_factor",
 ]
 
-Composition = Dict[str, Union[int, float]]
+Composition = dict[str, float] | dict[str, int]
 
 
 def parse_str_to_composition(formula: str) -> Composition:
@@ -341,8 +341,10 @@ def calculate_wkm_effective_atomic_number(
     return float(np.mean(form_factor / effective_form_factor))
 
 
-def calculate_total_atomic_number(composition: Composition) -> float:
-    """
+def calculate_total_atomic_number(
+    composition: Composition | dict[str, float] | dict[str, int],
+) -> float:
+    r"""
     Calculates the total atomic number of a given composition.
     """
     return sum(
@@ -351,9 +353,11 @@ def calculate_total_atomic_number(composition: Composition) -> float:
 
 
 def calculate_effective_form_factor(
-    composition: Composition, q: np.ndarray, sf_source="hajdu"
+    composition: Composition,
+    q: np.ndarray,
+    sf_source="hajdu",
 ) -> np.ndarray:
-    """
+    r"""
     Calculates the effective form factor for a given composition, which is given by
 
     .. math::
@@ -389,7 +393,7 @@ def normalize_composition(composition: Composition) -> dict[str, float]:
     for key, val in composition.items():
         sum += val
 
-    result = copy(composition)
+    result: dict[str, float] = {key: float(val) for key, val in composition.items()}
 
     for key in result:
         result[key] /= sum
