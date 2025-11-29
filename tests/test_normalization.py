@@ -30,6 +30,9 @@ def sample(data_path, bkg_path):
     """Create a sample pattern by subtracting background from data."""
     data = Pattern.from_file(data_path)
     bkg = Pattern.from_file(bkg_path)
+    assert isinstance(data, Pattern)
+    assert isinstance(bkg, Pattern)
+
     sample = data - bkg
     return sample.limit(1, 17)
 

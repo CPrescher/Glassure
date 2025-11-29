@@ -35,7 +35,7 @@ __all__ = [
 
 def create_calculate_pdf_configs(
     data: Pattern,
-    composition: Composition,
+    composition: Composition | str,
     density: float,
     bkg: Pattern | None = None,
     bkg_scaling: float = 1,

@@ -34,7 +34,9 @@ class SampleConfig(BaseModel):
     )
     @property
     def atomic_density(self) -> Optional[float]:
-        if self.composition == {} or self.density is None:  # empty composition or density is not set
+        if (
+            self.composition == {} or self.density is None
+        ):  # empty composition or density is not set
             return None
         return convert_density_to_atoms_per_cubic_angstrom(
             self.composition, self.density
@@ -55,6 +57,13 @@ class SampleConfig(BaseModel):
         if isinstance(v, str):
             return parse_str_to_composition(v)
         return v
+
+    # Light wrapper for allowing to pass a string to the composition field
+    def __init__(self, composition: Composition | str | None = None, **data) -> None:
+        if composition is not None:
+            super().__init__(composition=composition, **data)
+        else:
+            super().__init__(**data)
 
 
 class FitNormalization(BaseModel):
@@ -105,6 +114,15 @@ class FitNormalization(BaseModel):
         if isinstance(v, str):
             return parse_str_to_composition(v)
         return v
+
+    # Light wrapper for allowing to pass a string to the container_scattering field
+    def __init__(
+        self, container_scattering: Composition | str | None = None, **data
+    ) -> None:
+        if container_scattering is not None:
+            super().__init__(container_scattering=container_scattering, **data)
+        else:
+            super().__init__(**data)
 
 
 class IntNormalization(BaseModel):

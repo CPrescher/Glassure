@@ -17,7 +17,7 @@ from glassure.normalization import normalize_fit
 from glassure.configuration import OptimizeConfig
 from glassure.optimization import optimize_sq, optimize_density, optimize_sq_fit
 from glassure.calc import create_calculate_pdf_configs
-from glassure.methods import ExtrapolationMethod
+from glassure.methods import ExtrapolationMethod, FourierTransformMethod
 
 from . import unittest_data_path
 
@@ -48,6 +48,9 @@ def sample(data_path, bkg_path):
     """Create a sample pattern by subtracting background from data."""
     data = Pattern.from_file(data_path)
     bkg = Pattern.from_file(bkg_path)
+    assert isinstance(data, Pattern)
+    assert isinstance(bkg, Pattern)
+
     sample = data - bkg
     return sample.limit(1, 17)
 
@@ -111,6 +114,7 @@ def test_optimize_sq(sq, atomic_density):
     sq_optimized = optimize_sq(sq, 1.4, 5, atomic_density)
     assert not np.allclose(sq.y, sq_optimized.y)
 
+
 def test_optimize_sq_fft(sq, atomic_density):
     iterations = 5
     r_step = 0.001  # need high value to be accurate for fft
@@ -142,7 +146,6 @@ def test_optimize_sq_fit_SiO2(sq, atomic_density):
     sq_fit = optimize_sq_fit(sq, 1.4)
     sq_kaplow = optimize_sq(sq, 1.4, 5, atomic_density)
 
-
     assert np.mean((np.array(sq.y) - np.array(sq_fit.y)) ** 2) < 0.3
     assert np.mean((np.array(sq.y) - np.array(sq_kaplow.y)) ** 2) < 0.3
 
@@ -153,7 +156,7 @@ def test_optimize_sq_fit_SiO2(sq, atomic_density):
     assert np.mean((np.array(fr_original.y) - np.array(fr_fit.y)) ** 2) < 1.0
     assert np.mean((np.array(fr_original.y) - np.array(fr_kaplow.y)) ** 2) < 1.0
     assert np.mean((np.array(fr_fit.y) - np.array(fr_kaplow.y)) ** 2) < 1.0
-    
+
     gr_original = calculate_gr(fr_original, atomic_density).limit(1, 10)
     gr_fit = calculate_gr(fr_fit, atomic_density).limit(1, 10)
     gr_kaplow = calculate_gr(fr_kaplow, atomic_density).limit(1, 10)
@@ -166,7 +169,9 @@ def test_optimize_sq_fit_SiO2(sq, atomic_density):
 def test_optimize_density_SiO2(data_path, bkg_path):
     data = Pattern.from_file(data_path)
     background = Pattern.from_file(bkg_path)
-    composition = {"Si": 1, "O": 2}
+    assert isinstance(data, Pattern)
+    assert isinstance(background, Pattern)
+    composition = {"Si": 1.0, "O": 2.0}
     density = 2.2
 
     data_config, calculation_config = create_calculate_pdf_configs(
@@ -177,7 +182,7 @@ def test_optimize_density_SiO2(data_path, bkg_path):
     calculation_config.transform.q_max = 16
     calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
     calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
-    calculation_config.transform.fourier_transform_method = "fft"
+    calculation_config.transform.fourier_transform_method = FourierTransformMethod.FFT
 
     density, density_error, bkg_scaling, bkg_scaling_error = optimize_density(
         data_config, calculation_config, method="fr"
@@ -193,7 +198,10 @@ def test_optimize_density_SiO2(data_path, bkg_path):
 def test_optimize_density_Mg2SiO4():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    composition = {"Mg": 2, "Si": 1, "O": 4}
+    assert isinstance(data, Pattern)
+    assert isinstance(background, Pattern)
+
+    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21
 
     data_config, calculation_config = create_calculate_pdf_configs(
@@ -204,7 +212,7 @@ def test_optimize_density_Mg2SiO4():
     calculation_config.transform.q_max = 16
     calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
     calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
-    calculation_config.transform.fourier_transform_method = "fft"
+    calculation_config.transform.fourier_transform_method = FourierTransformMethod.FFT
 
     density, density_error, bkg_scaling, bkg_scaling_error = optimize_density(
         data_config, calculation_config, method="fr"
@@ -219,7 +227,9 @@ def test_optimize_density_Mg2SiO4():
 def test_optimize_density_method():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    composition = {"Mg": 2, "Si": 1, "O": 4}
+    assert isinstance(data, Pattern)
+    assert isinstance(background, Pattern)
+    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21
 
     data_config, calculation_config = create_calculate_pdf_configs(
@@ -231,7 +241,7 @@ def test_optimize_density_method():
     calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
     calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
 
-    density_gr, density_gr_error = optimize_density(
+    density_gr, density_gr_error, _, _ = optimize_density(
         data_config,
         calculation_config,
         method="gr",
@@ -239,7 +249,7 @@ def test_optimize_density_method():
         optimization_method="lsq",
     )
 
-    density_sq, density_sq_error = optimize_density(
+    density_sq, density_sq_error, _, _ = optimize_density(
         data_config,
         calculation_config,
         method="sq",
@@ -250,10 +260,13 @@ def test_optimize_density_method():
     assert density_gr_error != density_sq_error
 
 
-def test_optimize_density_method():
+def test_optimize_density_method_nelder():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    composition = {"Mg": 2, "Si": 1, "O": 4}
+    assert isinstance(data, Pattern)
+    assert isinstance(background, Pattern)
+
+    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21
 
     data_config, calculation_config = create_calculate_pdf_configs(
@@ -297,7 +310,10 @@ def test_optimize_density_method():
 def test_optimize_density_vary_bkg_scaling():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    composition = {"Mg": 2, "Si": 1, "O": 4}
+    assert isinstance(data, Pattern)
+    assert isinstance(background, Pattern)
+
+    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21
 
     data_config, calculation_config = create_calculate_pdf_configs(
@@ -326,17 +342,29 @@ def test_optimize_density_vary_bkg_scaling():
 def test_invalid_optimize_density_method():
     data = Pattern.from_file(data_path_glass)
     background = Pattern.from_file(background_path_glass)
-    composition = {"Mg": 2, "Si": 1, "O": 4}
+    assert isinstance(data, Pattern)
+    assert isinstance(background, Pattern)
+
+    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
     density = 3.21
 
     data_config, calculation_config = create_calculate_pdf_configs(
         data, composition, density, background
     )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match="For optimizing density using 'gr' or 'fr' the calculation configuration needs to have the "
+        "optimize configuration or the min_range parameter needs to be set.",
+    ):
         optimize_density(data_config, calculation_config, method="gr", min_range=None)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match="For optimizing density using 'gr' or 'fr' the calculation configuration needs to have the "
+        "optimize configuration or the min_range parameter needs to be set.",
+    ):
         optimize_density(data_config, calculation_config, method="fr", min_range=None)
 
-    res = optimize_density(data_config, calculation_config, method="sq", min_range=None)
+    # test without minrange for sq should work --> is just using 0 to q_max
+    optimize_density(data_config, calculation_config, method="sq", min_range=None)
