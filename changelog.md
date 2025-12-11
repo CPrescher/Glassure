@@ -1,8 +1,14 @@
-## 2.2.2 (upcoming)
+## 2.3.0 (upcoming)
 
 ### New features
 
 - added calculate_rdf and calculate_tr functions to the transform module
+- added optimize_sq_fit function which uses the adhoc method for which pdfgetx3 is known
+- added gaussian t_r function with correct x-weighting factors for estimating coordination numbers
+
+### Bugfixes
+
+- fixed typing isses in several parts of the codebase
 
 ## 2.2.1 (2025/07/21)
 

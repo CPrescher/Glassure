@@ -3,7 +3,7 @@ import os
 
 from .pattern import Pattern
 
-__version__ = "2.2.1"
+__version__ = "2.3.0"
 
 
 def _module_path():
