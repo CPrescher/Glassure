@@ -57,3 +57,6 @@ target/
 
 ##My stuff
 *.png
+
+# version file:
+_version.py

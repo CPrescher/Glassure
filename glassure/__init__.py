@@ -2,8 +2,10 @@ import sys
 import os
 
 from .pattern import Pattern
-
-__version__ = "2.3.0"
+try:
+    from ._version import __version__
+except ImportError:
+    __version__ = "development"
 
 
 def _module_path():
