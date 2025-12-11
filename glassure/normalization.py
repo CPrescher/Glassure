@@ -45,7 +45,7 @@ def normalize(
     )
     n2 = q**2 * intensity * np.exp(-attenuation_factor * q**2) / f_mean_squared
 
-    n = (-2 * np.pi**2 * atomic_density + np.trapz(n1, q)) / np.trapz(n2, q)
+    n = (-2 * np.pi**2 * atomic_density + np.trapezoid(n1, q)) / np.trapezoid(n2, q)
 
     return n, Pattern(q, n * intensity - incoherent_scattering)
 
