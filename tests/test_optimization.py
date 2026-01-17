@@ -108,6 +108,50 @@ def normalized_pattern(sample, f_squared_mean, incoherent_scattering):
     return normalized
 
 
+@pytest.fixture
+def glass_data():
+    """Load Mg2SiO4 glass data pattern."""
+    return Pattern.from_file(data_path_glass)
+
+
+@pytest.fixture
+def glass_background():
+    """Load Mg2SiO4 glass background pattern."""
+    return Pattern.from_file(background_path_glass)
+
+
+@pytest.fixture
+def glass_composition():
+    """Mg2SiO4 glass composition."""
+    return {"Mg": 2.0, "Si": 1.0, "O": 4.0}
+
+
+@pytest.fixture
+def glass_density():
+    """Mg2SiO4 glass density."""
+    return 3.21
+
+
+@pytest.fixture
+def glass_configs_base(glass_data, glass_background, glass_composition, glass_density):
+    """Create base data_config and calculation_config for glass data (without optimize)."""
+    data_config, calculation_config = create_calculate_pdf_configs(
+        glass_data, glass_composition, glass_density, glass_background
+    )
+    calculation_config.transform.q_min = 1
+    calculation_config.transform.q_max = 16
+    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
+    return data_config, calculation_config
+
+
+@pytest.fixture
+def glass_configs(glass_configs_base):
+    """Create configured data_config and calculation_config for glass data."""
+    data_config, calculation_config = glass_configs_base
+    calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
+    return data_config, calculation_config
+
+
 def test_optimize_sq(sq, atomic_density):
     sq_optimized = optimize_sq(sq, 1.4, 5, atomic_density)
     assert not np.allclose(sq.y, sq_optimized.y)
@@ -191,47 +235,22 @@ def test_optimize_density_SiO2(data_path, bkg_path):
     assert bkg_scaling_error > 0
 
 
-def test_optimize_density_Mg2SiO4():
-    data = Pattern.from_file(data_path_glass)
-    background = Pattern.from_file(background_path_glass)
-
-    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
-    density = 3.21
-
-    data_config, calculation_config = create_calculate_pdf_configs(
-        data, composition, density, background
-    )
-
-    calculation_config.transform.q_min = 1
-    calculation_config.transform.q_max = 16
-    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
-    calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
+def test_optimize_density_Mg2SiO4(glass_configs, glass_density):
+    data_config, calculation_config = glass_configs
     calculation_config.transform.fourier_transform_method = FourierTransformMethod.FFT
 
     density, density_error, bkg_scaling, bkg_scaling_error = optimize_density(
         data_config, calculation_config, method="fr"
     )
     assert density > 0
-    assert density != 3.21
+    assert density != glass_density
     assert density_error > 0
     assert bkg_scaling != 1.0
     assert bkg_scaling_error > 0
 
 
-def test_optimize_density_method():
-    data = Pattern.from_file(data_path_glass)
-    background = Pattern.from_file(background_path_glass)
-    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
-    density = 3.21
-
-    data_config, calculation_config = create_calculate_pdf_configs(
-        data, composition, density, background
-    )
-
-    calculation_config.transform.q_min = 1
-    calculation_config.transform.q_max = 16
-    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
-    calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
+def test_optimize_density_method(glass_configs):
+    data_config, calculation_config = glass_configs
 
     density_gr, density_gr_error, _, _ = optimize_density(
         data_config,
@@ -252,21 +271,8 @@ def test_optimize_density_method():
     assert density_gr_error != density_sq_error
 
 
-def test_optimize_density_method_nelder():
-    data = Pattern.from_file(data_path_glass)
-    background = Pattern.from_file(background_path_glass)
-
-    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
-    density = 3.21
-
-    data_config, calculation_config = create_calculate_pdf_configs(
-        data, composition, density, background
-    )
-
-    calculation_config.transform.q_min = 1
-    calculation_config.transform.q_max = 16
-    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
-    calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
+def test_optimize_density_method_nelder(glass_configs):
+    data_config, calculation_config = glass_configs
 
     density_gr, density_gr_residual, _, _ = optimize_density(
         data_config, calculation_config, method="sq", optimization_method="nelder"
@@ -297,23 +303,10 @@ def test_optimize_density_method_nelder():
     assert nelder_time > least_squares_time
 
 
-def test_optimize_density_vary_bkg_scaling():
-    data = Pattern.from_file(data_path_glass)
-    background = Pattern.from_file(background_path_glass)
+def test_optimize_density_vary_bkg_scaling(glass_configs):
+    data_config, calculation_config = glass_configs
 
-    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
-    density = 3.21
-
-    data_config, calculation_config = create_calculate_pdf_configs(
-        data, composition, density, background
-    )
-
-    calculation_config.transform.q_min = 1
-    calculation_config.transform.q_max = 16
-    calculation_config.transform.extrapolation.method = ExtrapolationMethod.LINEAR
-    calculation_config.optimize = OptimizeConfig(r_cutoff=1.4)
-
-    density_1, density_error, bkg_scaling, bkg_scaling_error = optimize_density(
+    density_1, _, bkg_scaling, bkg_scaling_error = optimize_density(
         data_config, calculation_config, method="fr", vary_bkg_scaling=False
     )
     assert bkg_scaling == 1.0
@@ -327,16 +320,24 @@ def test_optimize_density_vary_bkg_scaling():
     assert density_1 != density_2
 
 
-def test_invalid_optimize_density_method():
-    data = Pattern.from_file(data_path_glass)
-    background = Pattern.from_file(background_path_glass)
+def test_optimize_density_use_modification_fcn(glass_configs):
+    data_config, calculation_config = glass_configs
 
-    composition = {"Mg": 2.0, "Si": 1.0, "O": 4.0}
-    density = 3.21
-
-    data_config, calculation_config = create_calculate_pdf_configs(
-        data, composition, density, background
+    calculation_config.transform.use_modification_fcn = True
+    density_mod, _, _, _ = optimize_density(
+        data_config, calculation_config, method="fr"
     )
+
+    calculation_config.transform.use_modification_fcn = False
+    density_no_mod, _, _, _ = optimize_density(
+        data_config, calculation_config, method="fr"
+    )
+
+    assert density_mod != density_no_mod
+
+
+def test_invalid_optimize_density_method(glass_configs_base):
+    data_config, calculation_config = glass_configs_base
 
     with pytest.raises(
         ValueError,
