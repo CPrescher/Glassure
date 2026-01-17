@@ -162,8 +162,81 @@ def test_from_file_raises_exception_for_invalid_format(tmp_path):
     """Test that from_file raises PatternLoadError for invalid file format."""
     invalid_file = tmp_path / "invalid.xy"
     invalid_file.write_text("not a valid pattern file\ninvalid data")
-    
+
     with pytest.raises(PatternLoadError) as exc_info:
         Pattern.from_file(str(invalid_file))
     assert "invalid.xy" in str(exc_info.value)
     assert "Wrong data format" in str(exc_info.value)
+
+
+class PatternModel(BaseModel):
+    """Model containing a Pattern field for testing Pydantic integration."""
+    pattern: Pattern
+
+
+def test_pattern_in_pydantic_model():
+    """Test that Pattern can be used as a field in a Pydantic model."""
+    x = np.arange(10, dtype=float)
+    y = np.sin(x)
+    pattern = Pattern(x, y, "test")
+
+    model = PatternModel(pattern=pattern)
+    assert np.array_equal(model.pattern.x, x)
+    assert np.array_equal(model.pattern.y, y)
+    assert model.pattern.name == "test"
+
+
+def test_pattern_pydantic_serialization_roundtrip():
+    """Test that Pattern survives JSON serialization/deserialization in a Pydantic model."""
+    x = np.arange(10, dtype=float)
+    y = np.sin(x)
+    pattern = Pattern(x, y, "test")
+
+    model = PatternModel(pattern=pattern)
+    json_data = model.model_dump()
+
+    # Reconstruct from JSON (simulates API deserialization)
+    reconstructed = PatternModel(**json_data)
+
+    assert np.array_equal(reconstructed.pattern.x, x)
+    assert np.array_equal(reconstructed.pattern.y, y)
+    assert reconstructed.pattern.name == "test"
+
+
+def test_pattern_from_dict_in_pydantic_model():
+    """Test that Pattern can be constructed from a dict when used in a Pydantic model."""
+    x = [0.0, 1.0, 2.0, 3.0]
+    y = [0.0, 0.5, 1.0, 0.5]
+
+    # Simulate JSON input like an API would receive
+    json_input = {
+        "pattern": {
+            "x": x,
+            "y": y,
+            "name": "from_json",
+        }
+    }
+
+    model = PatternModel(**json_input)
+
+    assert np.array_equal(model.pattern.x, np.array(x))
+    assert np.array_equal(model.pattern.y, np.array(y))
+    assert model.pattern.name == "from_json"
+
+
+def test_pattern_arithmetic_after_pydantic_deserialization():
+    """Test that Pattern arithmetic works after Pydantic deserialization."""
+    json_input = {
+        "pattern": {
+            "x": [0.0, 1.0, 2.0],
+            "y": [1.0, 2.0, 3.0],
+            "name": "test",
+        }
+    }
+
+    model = PatternModel(**json_input)
+
+    # This was the operation that failed before the fix
+    result = model.pattern * 2.0
+
+    assert np.array_equal(result.y, np.array([2.0, 4.0, 6.0]))

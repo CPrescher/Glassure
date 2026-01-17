@@ -2,8 +2,9 @@
 from __future__ import annotations
 import os
 from typing_extensions import Annotated
-from typing import Union, Optional, TYPE_CHECKING, Sequence
-from pydantic import PlainSerializer, PlainValidator
+from typing import Union, Optional, TYPE_CHECKING, Sequence, Any
+from pydantic import PlainSerializer, PlainValidator, GetCoreSchemaHandler
+from pydantic_core import CoreSchema, core_schema
 import numpy as np
 import base64
 import gzip
@@ -369,6 +370,44 @@ class Pattern:
                 "Array multiplier must have the same shape as the pattern's y values."
             )
         return array_multiplier
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        """
+        Tells Pydantic how to validate and serialize Pattern objects.
+        This is necessary because Pattern is a dataclass with custom __init__.
+        """
+        return core_schema.no_info_plain_validator_function(
+            cls._pydantic_validate,
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                cls._pydantic_serialize,
+                info_arg=False,
+                return_schema=core_schema.dict_schema(),
+            ),
+        )
+
+    @classmethod
+    def _pydantic_validate(cls, value: Any) -> Pattern:
+        """Validates and constructs a Pattern from various input types."""
+        if isinstance(value, Pattern):
+            return value
+        if isinstance(value, dict):
+            x = validate(value.get("x", []))
+            y = validate(value.get("y", []))
+            name = value.get("name", "")
+            return cls(x, y, name)
+        raise ValueError(f"Cannot convert {type(value)} to Pattern")
+
+    @staticmethod
+    def _pydantic_serialize(pattern: Pattern) -> dict:
+        """Serializes a Pattern to a dictionary."""
+        return {
+            "x": serialize(pattern.x),
+            "y": serialize(pattern.y),
+            "name": pattern.name,
+        }
 
 
 class BkgNotInRangeError(Exception):
