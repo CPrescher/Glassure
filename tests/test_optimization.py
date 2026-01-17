@@ -355,3 +355,88 @@ def test_invalid_optimize_density_method(glass_configs_base):
 
     # test without minrange for sq should work --> is just using 0 to q_max
     optimize_density(data_config, calculation_config, method="sq", min_range=None)
+
+
+def test_invalid_optimize_density_method_name(glass_configs):
+    data_config, calculation_config = glass_configs
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid optimize density method: invalid, only 'gr', 'fr' and 'sq' are supported.",
+    ):
+        optimize_density(data_config, calculation_config, method="invalid")
+
+
+def test_invalid_optimization_method(glass_configs):
+    data_config, calculation_config = glass_configs
+
+    with pytest.raises(ValueError, match="Invalid optimization method: invalid"):
+        optimize_density(
+            data_config, calculation_config, method="fr", optimization_method="invalid"
+        )
+
+
+def test_optimize_density_bkg_limits(glass_configs):
+    data_config, calculation_config = glass_configs
+
+    _, _, bkg_scaling_narrow, _ = optimize_density(
+        data_config,
+        calculation_config,
+        method="fr",
+        vary_bkg_scaling=True,
+        bkg_limits=(0.99, 1.01),
+    )
+
+    _, _, bkg_scaling_wide, _ = optimize_density(
+        data_config,
+        calculation_config,
+        method="fr",
+        vary_bkg_scaling=True,
+        bkg_limits=(0.5, 1.5),
+    )
+
+    # narrow limits should constrain the scaling more
+    assert 0.99 <= bkg_scaling_narrow <= 1.01
+    # wide limits allow more variation
+    assert bkg_scaling_narrow != bkg_scaling_wide
+
+
+def test_optimize_sq_use_modification_fcn(sq, atomic_density):
+    sq_no_mod = optimize_sq(sq, 1.4, 5, atomic_density, use_modification_fcn=False)
+    sq_with_mod = optimize_sq(sq, 1.4, 5, atomic_density, use_modification_fcn=True)
+
+    assert not np.allclose(sq_no_mod.y, sq_with_mod.y)
+
+
+def test_optimize_sq_attenuation_factor(sq, atomic_density):
+    sq_no_attenuation = optimize_sq(sq, 1.4, 5, atomic_density, attenuation_factor=1)
+    sq_with_attenuation = optimize_sq(sq, 1.4, 5, atomic_density, attenuation_factor=2)
+
+    # higher attenuation factor should result in smaller changes per iteration
+    assert not np.allclose(sq_no_attenuation.y, sq_with_attenuation.y)
+
+
+def test_optimize_sq_callback(sq, atomic_density):
+    callback_calls = []
+
+    def callback(sq_pattern, fr_pattern, gr_pattern):
+        callback_calls.append((sq_pattern, fr_pattern, gr_pattern))
+        return True
+
+    optimize_sq(
+        sq,
+        1.4,
+        10,
+        atomic_density,
+        fcn_callback=callback,
+        callback_period=2,
+    )
+
+    # with 10 iterations and period 2, callback should be called at iterations 0, 2, 4, 6, 8
+    assert len(callback_calls) == 5
+
+    # verify callback received valid patterns
+    for sq_cb, fr_cb, gr_cb in callback_calls:
+        assert len(sq_cb.x) > 0
+        assert len(fr_cb.x) > 0
+        assert len(gr_cb.x) > 0
