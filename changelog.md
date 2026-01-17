@@ -1,3 +1,9 @@
+## 2.3.1 (2026/01/17)
+
+### Bugfixes
+
+- fixed an issue with pydantic serialization and deserialization of the Pattern class
+
 ## 2.3.0 (2025/12/11)
 
 ### New features
