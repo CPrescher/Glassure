@@ -3,21 +3,23 @@ from __future__ import annotations
 import os
 from typing_extensions import Annotated
 from typing import Union, Optional, TYPE_CHECKING, Sequence, Any
-from pydantic import PlainSerializer, PlainValidator, GetCoreSchemaHandler
-from pydantic_core import CoreSchema, core_schema
+from pydantic import (
+    PlainSerializer,
+    PlainValidator,
+    BaseModel,
+    ConfigDict,
+    model_validator,
+)
 import numpy as np
 import base64
 import gzip
-
-from dataclasses import dataclass, field
 
 import io
 from scipy.interpolate import interp1d
 from scipy.ndimage import gaussian_filter1d
 
 
-@dataclass
-class Pattern:
+class Pattern(BaseModel):
     """
     A Pattern is a set of x and y values.
     It can be loaded from a file or created from scratch and can be modified by
@@ -29,8 +31,10 @@ class Pattern:
     :param name: name of the pattern
     """
 
-    x: PydanticNpArray = field(init=False)
-    y: PydanticNpArray = field(init=False)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    x: PydanticNpArray
+    y: PydanticNpArray
     name: str = ""
 
     def __init__(
@@ -38,25 +42,28 @@ class Pattern:
         x: Optional[PydanticNpArray] = None,
         y: Optional[PydanticNpArray] = None,
         name: str = "",
+        **data: Any,
     ):
-        x_values: PydanticNpArray
-        y_values: PydanticNpArray
+        """
+        Initialize a Pattern with x and y values.
 
+        If both x and y are None, creates a default pattern.
+        If only one of x or y is provided, raises ValueError.
+        """
         if x is None and y is None:
-            x_values = np.linspace(0, 10, 101)
-            y_values = np.log(x_values**2) - (x_values * 0.2) ** 2
+            x = np.linspace(0, 10, 101)
+            y = np.log(x**2) - (x * 0.2) ** 2
         elif x is None or y is None:
             raise ValueError("Either both x and y must be provided or neither.")
-        else:
-            x_values = x
-            y_values = y
 
-        if len(x_values) != len(y_values):
+        super().__init__(x=x, y=y, name=name, **data)
+
+    @model_validator(mode="after")
+    def _validate_lengths(self) -> "Pattern":
+        """Validate that x and y have the same length."""
+        if len(self.x) != len(self.y):
             raise ValueError("x and y values must have the same length")
-
-        self.x = x_values
-        self.y = y_values
-        self.name = name
+        return self
 
     def load(self, filename: str, skiprows: int = 0):
         """
@@ -219,7 +226,8 @@ class Pattern:
 
     def to_dict(self) -> dict:
         """
-        Returns a dictionary representation of the pattern which can be used to save the pattern to a json file.
+        Returns a dictionary representation of the pattern with x and y as plain lists.
+        For JSON serialization with base64-encoded arrays, use model_dump() instead.
 
         :return: dictionary representation of the pattern
         """
@@ -239,7 +247,7 @@ class Pattern:
         :return: new Pattern
         """
         return Pattern(
-            np.array(json_dict["x"]), np.array(json_dict["y"]), json_dict["name"]
+            np.array(json_dict["x"]), np.array(json_dict["y"]), json_dict.get("name", "")
         )
 
     ###########################################################
@@ -370,44 +378,6 @@ class Pattern:
                 "Array multiplier must have the same shape as the pattern's y values."
             )
         return array_multiplier
-
-    @classmethod
-    def __get_pydantic_core_schema__(
-        cls, source_type: Any, handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
-        """
-        Tells Pydantic how to validate and serialize Pattern objects.
-        This is necessary because Pattern is a dataclass with custom __init__.
-        """
-        return core_schema.no_info_plain_validator_function(
-            cls._pydantic_validate,
-            serialization=core_schema.plain_serializer_function_ser_schema(
-                cls._pydantic_serialize,
-                info_arg=False,
-                return_schema=core_schema.dict_schema(),
-            ),
-        )
-
-    @classmethod
-    def _pydantic_validate(cls, value: Any) -> Pattern:
-        """Validates and constructs a Pattern from various input types."""
-        if isinstance(value, Pattern):
-            return value
-        if isinstance(value, dict):
-            x = validate(value.get("x", []))
-            y = validate(value.get("y", []))
-            name = value.get("name", "")
-            return cls(x, y, name)
-        raise ValueError(f"Cannot convert {type(value)} to Pattern")
-
-    @staticmethod
-    def _pydantic_serialize(pattern: Pattern) -> dict:
-        """Serializes a Pattern to a dictionary."""
-        return {
-            "x": serialize(pattern.x),
-            "y": serialize(pattern.y),
-            "name": pattern.name,
-        }
 
 
 class BkgNotInRangeError(Exception):
