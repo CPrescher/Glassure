@@ -104,7 +104,7 @@ def optimize_sq_fit(sq_pattern: Pattern, r_cutoff: float) -> Pattern:
     Optimizes the S(Q) pattern by fitting a polynomial to the F(Q) = q( S(Q) - 1 ). The order of the polynomial
     is determined by the q_max and r_cutoff value = r_cutoff * q_max / pi. The zero order term is fixed to 0.
 
-    This method is based on the normalization description for PDFGetX3 in the following reference:
+    This method is based on the normalization description in the following reference:
 
     Juhás, P., Davis, T., Farrow, C.L., Billinge, S.J.L., 2013. PDFgetX3: a rapid and highly automatable
     program for processing powder diffraction data into total scattering pair distribution functions.
@@ -148,11 +148,11 @@ def optimize_sq_fit(sq_pattern: Pattern, r_cutoff: float) -> Pattern:
     return Pattern(sq_pattern.x, sq_pattern.y - fq_fit / sq_pattern.x)
 
 
-def fit_polynom_through_origin(x, y , degree: int) -> np.ndarray:
+def fit_polynom_through_origin(x, y, degree: int) -> np.ndarray:
     """
     Fits a polynomial of given degree through the data points (x, y) with the constraint that the polynomial goes
     through the origin (0,0). The zero order term is fixed to 0.
-    
+
     Implementation is based on ChatGPT recommendation for it to be the fastest solution.
 
     :param x:
@@ -307,22 +307,32 @@ def optimize_density(
 
         if method == "gr":
             if result.gr is None:
-                raise ValueError("Result does not contain g(r) data required for 'gr' optimization.")
+                raise ValueError(
+                    "Result does not contain g(r) data required for 'gr' optimization."
+                )
             r, gr = result.gr.limit(*range_limits).data
             residual = gr * (r[1] - r[0])
         elif method == "fr":
             if result.fr is None:
-                raise ValueError("Result does not contain F(r) data required for 'fr' optimization.")
+                raise ValueError(
+                    "Result does not contain F(r) data required for 'fr' optimization."
+                )
             atomic_density = optim_config.sample.atomic_density
             if atomic_density is None:
-                raise ValueError("Sample atomic density must be set for 'fr' optimization.")
+                raise ValueError(
+                    "Sample atomic density must be set for 'fr' optimization."
+                )
             r, fr = result.fr.limit(*range_limits).data
             residual = (fr + 4 * np.pi * r * atomic_density) * (r[1] - r[0])
         elif method == "sq":
             if reference_result is None or reference_result.sq is None:
-                raise ValueError("Reference result does not contain S(q) data required for 'sq' optimization.")
+                raise ValueError(
+                    "Reference result does not contain S(q) data required for 'sq' optimization."
+                )
             if result.sq is None:
-                raise ValueError("Result does not contain S(q) data required for 'sq' optimization.")
+                raise ValueError(
+                    "Result does not contain S(q) data required for 'sq' optimization."
+                )
             q, sq = result.sq.limit(*range_limits).data
             sq_ref = reference_result.sq.limit(*range_limits).y
             residual = (sq - sq_ref) * (q[1] - q[0])

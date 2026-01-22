@@ -4,6 +4,7 @@ import numpy as np
 from glassure.pattern import Pattern
 from glassure.calc import calculate_pdf, create_calculate_pdf_configs
 from glassure.configuration import OptimizeConfig, IntNormalization, FitNormalization
+from glassure.methods import OptimizationMethod
 from glassure.methods import ExtrapolationMethod
 
 
@@ -50,6 +51,33 @@ def test_calculate_pdf_optimize_sq():
     assert res_optimize.sq is not None
 
     assert not np.array_equal(res.sq.y, res_optimize.sq.y)
+
+
+def test_calculate_pdf_optimize_sq_fit():
+    data_input, calculation_input = prepare_input()
+    res = calculate_pdf(data_input, calculation_input)
+    assert res.sq is not None
+
+    calculation_input.optimize = OptimizeConfig(method=OptimizationMethod.FIT)
+    res_optimize = calculate_pdf(data_input, calculation_input)
+    assert res_optimize.sq is not None
+
+    assert not np.array_equal(res.sq.y, res_optimize.sq.y)
+
+
+def test_calculate_pdf_optimize_methods_differ():
+    """Test that the two optimization methods produce different results."""
+    data_input, calculation_input = prepare_input()
+
+    calculation_input.optimize = OptimizeConfig(method=OptimizationMethod.ITERATIVE)
+    res_iterative = calculate_pdf(data_input, calculation_input)
+    assert res_iterative.sq is not None
+
+    calculation_input.optimize = OptimizeConfig(method=OptimizationMethod.FIT)
+    res_fit = calculate_pdf(data_input, calculation_input)
+    assert res_fit.sq is not None
+
+    assert not np.array_equal(res_iterative.sq.y, res_fit.sq.y)
 
 
 def test_calculate_pdf_norm_int():

@@ -48,3 +48,12 @@ class ExtrapolationMethod(str, Enum):
     POLY = "poly"
     SPLINE = "spline"
 
+
+class OptimizationMethod(str, Enum):
+    """
+    Enum class for the different S(Q) optimization methods.
+    """
+
+    ITERATIVE = "iterative"
+    FIT = "fit"
+

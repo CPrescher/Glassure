@@ -12,7 +12,8 @@ from .configuration import (
 from .pattern import Pattern
 from .methods import ExtrapolationMethod
 from .normalization import normalize, normalize_fit
-from .optimization import optimize_sq
+from .optimization import optimize_sq, optimize_sq_fit
+from .methods import OptimizationMethod
 from .transform import calculate_sq, calculate_fr, calculate_gr
 from .utility import (
     calculate_f_squared_mean,
@@ -205,18 +206,23 @@ def calculate_pdf(
                 f"Extrapolation method {extrapolation.method} not implemented."
             )
 
-    # Kaplow optimization
+    # S(Q) optimization
     if config.optimize is not None:
         opt = config.optimize
-        sq = optimize_sq(
-            sq,
-            atomic_density=sample_atomic_density,
-            r_cutoff=opt.r_cutoff,
-            r_step=transform.r_step,
-            iterations=opt.iterations,
-            use_modification_fcn=opt.use_modification_fcn,
-            fourier_transform_method=transform.fourier_transform_method,
-        )
+        if opt.method == OptimizationMethod.ITERATIVE:
+            sq = optimize_sq(
+                sq,
+                atomic_density=sample_atomic_density,
+                r_cutoff=opt.r_cutoff,
+                r_step=transform.r_step,
+                iterations=opt.iterations,
+                use_modification_fcn=opt.use_modification_fcn,
+                fourier_transform_method=transform.fourier_transform_method,
+            )
+        elif opt.method == OptimizationMethod.FIT:
+            sq = optimize_sq_fit(sq, r_cutoff=opt.r_cutoff)
+        else:
+            raise ValueError(f"Unknown optimization method: {opt.method}")
 
     fr = calculate_fr(
         sq,

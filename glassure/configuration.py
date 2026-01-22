@@ -9,7 +9,7 @@ from .utility import (
     convert_density_to_grams_per_cubic_centimeter,
 )
 from .pattern import Pattern
-from .methods import FourierTransformMethod, NormalizationMethod, ExtrapolationMethod
+from .methods import FourierTransformMethod, NormalizationMethod, ExtrapolationMethod, OptimizationMethod
 from .utility import parse_str_to_composition
 
 
@@ -139,17 +139,24 @@ class IntNormalization(BaseModel):
 
 
 class OptimizeConfig(BaseModel):
+    method: OptimizationMethod = Field(
+        default=OptimizationMethod.ITERATIVE,
+        description="Method for S(Q) optimization. 'iterative' uses the Kaplow back-and-forth Fourier transform "
+        "method (Eggert et al. 2002). 'fit' uses polynomial fitting to remove low-r artifacts "
+        "(Juhás et al. 2013).",
+    )
     r_cutoff: float = Field(
         default=1.4,
-        description="Cutoff r for the Kaplow optimization scheme. Should be below the first peak in g(r).",
+        description="Cutoff r for the optimization. Should be below the first peak in g(r).",
     )
     iterations: int = Field(
-        default=5, description="Number of iterations for the Kaplow optimization."
+        default=5,
+        description="Number of iterations for the Kaplow optimization. Only used when method='iterative'.",
     )
     use_modification_fcn: bool = Field(
         default=False,
         description="Whether to use the Lorch modification function during the optimization procedure. "
-        + "This can be different from the transform configuration.",
+        "Only used when method='iterative'. This can be different from the transform configuration.",
     )
 
 
