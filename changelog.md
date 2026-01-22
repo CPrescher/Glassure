@@ -1,3 +1,10 @@
+## 2.3.2 (2025/01/22)
+
+### New features
+
+- OptimizeConfig now has two modes "iterative" (which is standard Kaplow optimization method) 
+  and "fit" using the adhoc method described in Juhás et al. 2013
+
 ## 2.3.1 (2026/01/17)
 
 ### Bugfixes
