@@ -124,9 +124,10 @@ def optimize_sq_fit(sq_pattern: Pattern, r_cutoff: float) -> Pattern:
     """
 
     q = sq_pattern.x
-    fq = sq_pattern.x * (sq_pattern.y - 1)
+    sq = sq_pattern.y
+    fq = q * (sq - 1)
 
-    degree = q.max() * r_cutoff / (np.pi)
+    degree = q.max() * r_cutoff / np.pi
     degree = max(1.0, degree)  # at least a linear fit
 
     degree_high = np.ceil(degree).astype(int)
@@ -134,18 +135,17 @@ def optimize_sq_fit(sq_pattern: Pattern, r_cutoff: float) -> Pattern:
 
     if degree_low == degree_high:
         # When degrees are the same, we only need to fit once
-        coeffs_low = fit_polynom_through_origin(q, fq, degree_low)
-        p_low = np.poly1d(coeffs_low)
-        fq_fit = p_low(q)
+        coeffs = fit_polynom_through_origin(q, fq, degree_low)
+        fq_fit = np.polyval(coeffs, q)
     else:
         weight_low, weight_high = degree_high - degree, degree - degree_low
         coeffs_low = fit_polynom_through_origin(q, fq, degree_low)
         coeffs_high = fit_polynom_through_origin(q, fq, degree_high)
-        p_low = np.poly1d(coeffs_low)
-        p_high = np.poly1d(coeffs_high)
-        fq_fit = p_low(q) * weight_low + p_high(q) * weight_high
+        fq_fit = np.polyval(coeffs_low, q) * weight_low + np.polyval(
+            coeffs_high, q
+        ) * weight_high
 
-    return Pattern(sq_pattern.x, sq_pattern.y - fq_fit / sq_pattern.x)
+    return Pattern(q, sq - fq_fit / q)
 
 
 def fit_polynom_through_origin(x, y, degree: int) -> np.ndarray:
@@ -163,20 +163,17 @@ def fit_polynom_through_origin(x, y, degree: int) -> np.ndarray:
         degree of the polynomial
 
     :return:
-        coefficients of the polynomial, highest degree first
+        coefficients of the polynomial, highest degree first (compatible with np.polyval)
     """
     # Vandermonde matrix WITHOUT the x⁰ column
     # shape: (len(x), degree)
     X = np.vstack([x**k for k in range(1, degree + 1)]).T
 
     # Solve X * beta = y
-    beta, *_ = np.linalg.lstsq(
-        X, y, rcond=-1
-    )  # rcond=-1 means as much precision as possible
+    beta = np.linalg.lstsq(X, y, rcond=None)[0]
 
-    return np.concatenate(
-        (beta[::-1], [0])
-    )  # add zero coefficient for x⁰ and reverse order
+    # Return coefficients in np.polyval order: [c_n, c_{n-1}, ..., c_1, 0]
+    return np.concatenate((beta[::-1], [0]))
 
 
 from .calc import calculate_pdf
