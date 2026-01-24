@@ -15,9 +15,9 @@ build:
       # Install uv for dependency management
       - pip install uv
     post_install:
-      # Install dependencies with 'docs' extra group using uv
-      # https://docs.astral.sh/uv/
-      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH uv sync --extra docs
+      # Install the package with docs dependencies using uv pip
+      # This is more compatible with ReadTheDocs than uv sync
+      - uv pip install -e ".[docs]"
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
