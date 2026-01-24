@@ -12,18 +12,33 @@ build:
     python: "3.12"
   jobs:
     post_create_environment:
-      # Install Poetry for dependency management
-      - pip install poetry
+      # Install uv for dependency management
+      - pip install uv
     post_install:
-      # Install dependencies with 'docs' dependency group
-      # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
-      # VIRTUAL_ENV needs to be set manually for now, see #11150
-      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
+      # Install dependencies with 'docs' extra group using uv
+      # https://docs.astral.sh/uv/
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH uv sync --extra docs
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
   configuration: docs/conf.py
-# Optionally, build your docs in additional formats such as PDF and ePub
+
+# Optionally build your docs in additional formats such as PDF and ePub
 # formats:
 #    - pdf
 #    - epub
+
+# Note: To show individual version tags (v2.3.3, v2.3.2, etc.) in the version dropdown,
+# you need to configure "Automation Rules" in the ReadTheDocs dashboard:
+#
+# 1. Go to: https://readthedocs.org/projects/glassure/
+# 2. Navigate to: Admin → Automation Rules
+# 3. Add a new rule:
+#    - Description: "Activate all version tags"
+#    - Match: "Custom match"
+#    - Custom match: "^[0-9]+\.[0-9]+\.[0-9]+$"  (matches 2.3.3, 2.3.2, etc.)
+#    - Version type: Tag
+#    - Action: Activate version
+#    - Also check: Set version as public
+#
+# This will automatically activate and make public any git tags matching the pattern.

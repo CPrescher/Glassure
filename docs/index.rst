@@ -1,11 +1,14 @@
 Welcome to Glassure's documentation!
 ====================================
 
-Glassure is an open-source Python package for the analysis total scattering X-ray diffraction data.
+Glassure is an open-source Python package for the analysis of total scattering X-ray diffraction data.
 It can be used to calculate structure factors and different forms of pair distribution functions.
-It consists of an API to be used in your own scripts and a graphical user interface (GUI) for interactive
-data analysis. Special tools for the analysis of total scattering data coming from high pressure sources (e.g. diamond anvil cells
+The package provides a comprehensive API for scripting and automation.
+Special tools for the analysis of total scattering data coming from high pressure sources (e.g. diamond anvil cells
 and Paris-Edinburgh Presses) are included in glassure.
+
+.. note::
+   The GUI was removed in v2.0.0. A web-based GUI is available at `glassure.vercel.app <https://glassure.vercel.app>`_.
 
 The software is maintained by Clemens Prescher from the University of Freiburg, Germany.
 
