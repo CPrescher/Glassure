@@ -23,7 +23,7 @@ Clemens Prescher (clemens.prescher@gmail.com)
 
 ## Requirements
 
-- python 3.9+
+- python 3.10+
 
 It is known to run on Windows, Mac OS X and Linux.
 
@@ -35,13 +35,51 @@ The Glassure package can be installed into your existing python distribution usi
 python -m pip install glassure
 ```
 
-The graphical user interface for Glassure can then be started from by typing
-```bash
-glassure
+## Quick Start
+
+Check out the [examples](examples/) directory for complete working examples:
+
+### 1. **Quick Start** ⭐
+```python
+from glassure.pattern import Pattern
+from glassure.calc import create_calculate_pdf_configs, calculate_pdf
+
+# Load your data
+data = Pattern.from_file("sample.xy")
+bkg = Pattern.from_file("background.xy")
+
+# Create configs with defaults - just provide the essentials!
+data_config, calculation_config = create_calculate_pdf_configs(
+    data=data,
+    composition="SiO2",  # or {"Si": 1, "O": 2}
+    density=2.2,  # g/cm³
+    bkg=bkg,
+)
+
+# Calculate PDF
+result = calculate_pdf(data_config, calculation_config)
+
+# Access results: S(Q), F(r), g(r)
+result.sq.save("sq.xy")
+result.fr.save("fr.xy")
+result.gr.save("gr.xy")
 ```
 
-if you want to make a shortcut for the desktop, the glassure executable can be found in the 
-python scripts folder.  
+### 2. Configuration System (For production)
+For more control, use the configuration system with `SampleConfig`, `TransformConfig`, and `CalculationConfig`.
+
+### 3. Raw Functions (For research/debugging)
+For maximum control, use the low-level functions directly.
+
+**See the [examples](examples/) directory for complete, documented examples of all three approaches.**
+
+## Example Datasets
+
+The repository includes test datasets in `tests/data/`:
+- `SiO2.xy` - SiO2 (silica) X-ray scattering pattern
+- `SiO2_bkg.xy` - Background pattern
+
+Use these with the example scripts to get started!  
 
 
 

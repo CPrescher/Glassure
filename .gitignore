@@ -60,3 +60,6 @@ target/
 
 # version file:
 _version.py
+
+# example output files
+examples/*.xy

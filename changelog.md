@@ -1,3 +1,10 @@
+# Changelog
+
+## 2.3.3 (2025/01/24)
+
+### New features
+- added example scripts to the examples folder demonstrating different usage scenarios of the glassure package
+
 ## 2.3.2 (2025/01/22)
 
 ### New features
