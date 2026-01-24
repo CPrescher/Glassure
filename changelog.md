@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.4 (in development)
+
+### New features
+- added much more documentation for theory background
+- renamed f(r) to F(r), to follow common conventions
+
 ## 2.3.3 (2025/01/24)
 
 ### New features

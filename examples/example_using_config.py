@@ -101,7 +101,7 @@ fr = result.fr
 gr = result.gr
 
 assert sq is not None, "S(Q) result is missing"
-assert fr is not None, "f(r) result is missing"
+assert fr is not None, "F(r) result is missing"
 assert gr is not None, "g(r) result is missing"
 
 import matplotlib.pyplot as plt
@@ -114,10 +114,10 @@ plt.ylabel("S(Q)")
 plt.title("Structure Factor S(Q)")
 plt.grid()
 plt.subplot(3, 1, 2)
-plt.plot(fr.x, fr.y, label="f(r)", color="orange")
+plt.plot(fr.x, fr.y, label="F(r)", color="orange")
 plt.xlabel("r (Å)")
-plt.ylabel("f(r)")
-plt.title("Fourier Transform f(r)")
+plt.ylabel("F(r)")
+plt.title("Fourier Transform F(r)")
 plt.grid()
 plt.subplot(3, 1, 3)
 plt.plot(gr.x, gr.y, label="g(r)", color="green")
@@ -133,7 +133,7 @@ print("\n" + "=" * 60)
 print("RESULTS")
 print("=" * 60)
 print(f"\nS(Q) at Q={sq.x[100]:.2f} Å⁻¹: {sq.y[100]:.4f}")
-print(f"f(r) at r={fr.x[100]:.2f} Å: {fr.y[100]:.4f}")
+print(f"F(r) at r={fr.x[100]:.2f} Å: {fr.y[100]:.4f}")
 print(f"g(r) at r={gr.x[100]:.2f} Å: {gr.y[100]:.4f}")
 
 # Find first peak in g(r)

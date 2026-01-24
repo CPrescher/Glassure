@@ -30,7 +30,7 @@ def optimize_sq(
 ):
     """
     Performs an optimization of the structure factor based on an r_cutoff value as described in Eggert et al. 2002 PRB,
-    65, 174105. This basically does back and forward transforms between S(Q) and f(r) until the region below the
+    65, 174105. This basically does back and forward transforms between S(Q) and F(r) until the region below the
     r_cutoff value is a flat line without any oscillations.
 
     :param sq_pattern:
@@ -190,11 +190,11 @@ def optimize_density(
     optimization_method: str = "lsq",
 ) -> tuple[float, float, float, float]:
     """
-    Optimizes the density of the sample using the g(r), f(r) or S(Q) (chosen by the method parameter).
+    Optimizes the density of the sample using the g(r), F(r) or S(Q) (chosen by the method parameter).
     The density in the SampleConfig of the DataConfig is taking as starting parameter
 
-    For method='gr' or method='fr' the optimization is based on the g(r) or f(r) function, and the density is
-    optimized to minimize the low g(r) or f(r) region to be close to zero. The Lorch modification function will be
+    For method='gr' or method='fr' the optimization is based on the g(r) or F(r) function, and the density is
+    optimized to minimize the low g(r) or F(r) region to be close to zero. The Lorch modification function will be
     applied before calculating the chi square of the low r region if it is applied in the calculation configuration.
     The general procedure is explained in Eggert et al. 2002 PRB, 65, 174105.
 
@@ -233,7 +233,7 @@ def optimize_density(
         Method to use for the optimization. Possible values are 'gr', 'fr' and 'sq'.
     :param min_range:
         x range of the data to use for the minimization to find the density. For method='gr' and 'fr this is the
-        r-range of the g(r)/f(r) function to minimize. For method='sq' this is the Q-range of the S(Q) function to
+        r-range of the g(r)/F(r) function to minimize. For method='sq' this is the Q-range of the S(Q) function to
         minimize the difference between the original and optimized S(Q) function. Default is None which means that
         the range is (0, calculation_config.optimize.r_cutoff) for method='gr' and 'fr' and
         (0, calculation_config.transform.q_max) for method='sq'.

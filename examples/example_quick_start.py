@@ -66,7 +66,7 @@ fr = result.fr
 gr = result.gr
 
 assert sq is not None, "S(Q) result is missing"
-assert fr is not None, "f(r) result is missing"
+assert fr is not None, "F(r) result is missing"
 assert gr is not None, "g(r) result is missing"
 
 # Display results
@@ -79,8 +79,8 @@ print(f"\nStructure factor S(Q):")
 print(f"  S(Q) at Q={sq.x[100]:.2f} Å⁻¹: {sq.y[100]:.4f}")
 print(f"  S(Q) at Q={sq.x[-1]:.2f} Å⁻¹: {sq.y[-1]:.4f}")
 
-print(f"\nReduced PDF f(r):")
-print(f"  f(r) at r={fr.x[100]:.2f} Å: {fr.y[100]:.4f}")
+print(f"\nReduced PDF F(r):")
+print(f"  F(r) at r={fr.x[100]:.2f} Å: {fr.y[100]:.4f}")
 
 print(f"\nPair correlation function g(r):")
 print(f"  g(r) at r={gr.x[100]:.2f} Å: {gr.y[100]:.4f}")

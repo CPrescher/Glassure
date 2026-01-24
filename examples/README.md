@@ -25,7 +25,7 @@ Demonstrates the step-by-step process using low-level functions:
 - Normalize intensity
 - Transform to S(Q)
 - Extrapolate to Q=0
-- Fourier transform to f(r) and g(r)
+- Fourier transform to F(r) and g(r)
 
 **Best for**: Learning the internals, debugging, or custom processing pipelines.
 
@@ -68,14 +68,14 @@ All examples will:
 1. Load the SiO2 data
 2. Process it through the complete analysis pipeline
 3. Display key results
-4. Save output files (S(Q), f(r), g(r))
+4. Save output files (S(Q), F(r), g(r))
 
 ## Expected Output
 
 All three approaches produce equivalent results:
 
 - **S(Q)**: Structure factor
-- **f(r)**: Reduced pair distribution function
+- **F(r)**: Reduced pair distribution function
 - **g(r)**: Pair correlation function
 
 The first peak in g(r) for SiO2 should appear around 1.6 Å, corresponding to the Si-O bond length.
