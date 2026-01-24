@@ -76,9 +76,17 @@ $$F(Q) = Q[S(Q) - 1]$$
 
 At $Q = 0$, the structure factor approaches:
 
-$$S(0) = \frac{\langle Z \rangle^2}{\langle Z^2 \rangle}$$
+$$S(0) = -\frac{\langle f^2 \rangle}{\langle f \rangle^2} + 1$$
 
-where $Z_i$ is the atomic number of element $i$:
+where:
+- $\langle f^2 \rangle = \sum_i c_i f_i^2(0)$ is the average of squared form factors at $Q=0$
+- $\langle f \rangle^2 = (\sum_i c_i f_i(0))^2$ is the squared average form factor at $Q=0$
+
+Since $f_i(0) = Z_i$ (atomic number), this can also be written as:
+
+$$S(0) = -\frac{\langle Z^2 \rangle}{\langle Z \rangle^2} + 1$$
+
+where:
 
 $$\langle Z \rangle = \sum_i c_i Z_i$$
 
@@ -220,7 +228,7 @@ Since measurements cannot start at $Q = 0$, extrapolation is required. Common me
 3. **Polynomial** - Polynomial fit to low-Q region
 4. **Spline** - Smooth spline interpolation
 
-All methods constrain $S(0)$ to the theoretical value $\langle Z \rangle^2 / \langle Z^2 \rangle$.
+All methods constrain $S(0)$ to the theoretical value $-\langle f^2 \rangle / \langle f \rangle^2 + 1$ (or equivalently $-\langle Z^2 \rangle / \langle Z \rangle^2 + 1$).
 
 ## References
 
