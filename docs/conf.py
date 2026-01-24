@@ -28,6 +28,12 @@ extensions = [
 
 source_suffix = ['.rst', '.md']
 
+# MyST parser configuration
+myst_enable_extensions = [
+    "amsmath",      # Enable math blocks
+    "dollarmath",   # Enable $...$ and $$...$$ math
+]
+
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
