@@ -1,4 +1,4 @@
-# This workflow installs python, poetry, and builds the package
+# This workflow installs python, uv, and builds the package
 # It then uploads the wheels to the artifacts and later to PyPI
 name: CD
 
