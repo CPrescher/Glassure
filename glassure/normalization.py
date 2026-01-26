@@ -165,7 +165,7 @@ def normalize_fit_lmfit(
             compton = incoherent_scattering_cut
 
         theory = f_squared_mean_cut + compton
-        return ((n * intensity_cut - multiple - theory) * scaling) ** 2
+        return (n * intensity_cut - multiple - theory) * scaling
 
     out: Any = lmfit.minimize(optimization_fcn, params)
 
