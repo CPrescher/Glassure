@@ -3,7 +3,7 @@ import numpy as np
 
 from glassure.pattern import Pattern
 from glassure.calc import calculate_pdf, create_calculate_pdf_configs
-from glassure.configuration import OptimizeConfig, IntNormalization, FitNormalization
+from glassure.configuration import OptimizeConfig, IntNormalization, FitNormalization, DACConfig
 from glassure.methods import OptimizationMethod
 from glassure.methods import ExtrapolationMethod
 
@@ -197,3 +197,60 @@ def test_calculate_pdf_with_container_scattering_and_kn():
     assert res_container.sq is not None
 
     assert not np.array_equal(res.sq.y, res_container.sq.y)
+
+
+def test_calculate_pdf_with_dac_soller_correction():
+    data_input, calculation_input = prepare_input()
+    calculation_input.transform.wavelength = 0.29
+    calculation_input.transform.kn_correction = True
+
+    norm = calculation_input.transform.normalization
+    assert isinstance(norm, FitNormalization)
+    norm.container_scattering = {"C": 1.0}
+
+    # Without DAC correction
+    res_no_dac = calculate_pdf(data_input, calculation_input)
+    assert res_no_dac.sq is not None
+
+    # With DAC correction
+    norm.dac = DACConfig(initial_thickness=40, sample_thickness=20)
+    res_dac = calculate_pdf(data_input, calculation_input)
+    assert res_dac.sq is not None
+
+    # Results should differ due to soller transfer function
+    assert not np.array_equal(res_no_dac.sq.y, res_dac.sq.y)
+
+
+def test_calculate_pdf_with_dac_optimize_thickness():
+    data_input, calculation_input = prepare_input()
+    calculation_input.transform.wavelength = 0.29
+    calculation_input.transform.kn_correction = True
+
+    norm = calculation_input.transform.normalization
+    assert isinstance(norm, FitNormalization)
+    norm.container_scattering = {"C": 1.0}
+    norm.dac = DACConfig(
+        initial_thickness=40, sample_thickness=20, optimize_thickness=True
+    )
+
+    res = calculate_pdf(data_input, calculation_input)
+    assert res.sq is not None
+    # Optimized thickness should have been updated
+    assert norm.dac.sample_thickness > 0
+    assert norm.dac.sample_thickness < 40
+
+
+def test_calculate_pdf_dac_requires_wavelength():
+    data_input, calculation_input = prepare_input()
+
+    norm = calculation_input.transform.normalization
+    assert isinstance(norm, FitNormalization)
+    norm.container_scattering = {"C": 1.0}
+    norm.dac = DACConfig(initial_thickness=40, sample_thickness=20)
+    calculation_input.transform.wavelength = None
+
+    try:
+        calculate_pdf(data_input, calculation_input)
+        assert False, "Should have raised ValueError"
+    except ValueError as e:
+        assert "Wavelength" in str(e)

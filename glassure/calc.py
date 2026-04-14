@@ -8,6 +8,7 @@ from .configuration import (
     DataConfig,
     CalculationConfig,
     Composition,
+    DACConfig,
 )
 from .pattern import Pattern
 from .methods import ExtrapolationMethod
@@ -138,6 +139,27 @@ def calculate_pdf(
             if opt.incoherent_scattering
             else None
         )
+
+        # Apply DAC soller slit correction
+        # The soller slits create angle-dependent transfer functions for both:
+        # 1. The sample region (center) - corrects the measured sample intensity
+        # 2. The diamond region (edges) - corrects the extra diamond Compton
+        if opt.dac is not None and container_scattering is not None:
+            if transform.wavelength is None:
+                raise ValueError(
+                    "Wavelength must be set for DAC soller correction."
+                )
+            from .soller_correction import SollerCorrectionGui
+
+            initial_mm = opt.dac.initial_thickness / 1000
+            max_thickness = initial_mm + 0.1  # mm, margin for lookup table
+            soller = SollerCorrectionGui(q, transform.wavelength, max_thickness)
+
+            sample_tf, diamond_tf = soller.transfer_function_dac(
+                opt.dac.sample_thickness / 1000, initial_mm
+            )
+            sample = Pattern(sample.x, sample.y * sample_tf)
+            container_scattering = container_scattering / diamond_tf
 
         params, norm = normalize_fit(
             sample_pattern=sample,

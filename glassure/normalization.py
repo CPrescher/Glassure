@@ -254,14 +254,15 @@ def normalize_fit(
         f = (f_squared_mean_cut + incoherent_cut) * q_scaling
         n = np.dot(y, f) / np.dot(y, y)
 
-        result = {
+        params = {
             "n": n,
             "multiple": 0,
             "n_container": 0,
+            "residual": 0.0,
         }
         intensity_out = n * intensity - incoherent_scattering
 
-        return result, Pattern(q, intensity_out)
+        return params, Pattern(q, intensity_out)
 
     # If we have multiple scattering or container scattering, we need to use the lstsq solution
     # Build design matrix X (columns: intensity, container, constant)
@@ -290,8 +291,10 @@ def normalize_fit(
     y = (f_squared_mean_cut + incoherent_cut) * q_scaling
 
     # Solve scaled least squares
-    result = np.linalg.lstsq(X, y, rcond=None)
-    coeffs = result[0]
+    lstsq_result = np.linalg.lstsq(X, y, rcond=None)
+    coeffs = lstsq_result[0]
+    # lstsq only returns residuals when rank == n_columns, compute manually
+    residual = np.sum((y - X @ coeffs) ** 2)
 
     # Rescale coefficients back to physical values
     n = coeffs[0] / scale_intensity
@@ -309,10 +312,11 @@ def normalize_fit(
 
     intensity_out = n * intensity - multiple - compton_out
 
-    result = {
+    params = {
         "n": n,
         "n_container": n_container,
         "multiple": multiple,
+        "residual": residual,
     }
 
-    return result, Pattern(q, intensity_out)
+    return params, Pattern(q, intensity_out)

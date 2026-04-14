@@ -1,8 +1,15 @@
 # Changelog
 
-## 2.3.4 (in development)
+## 2.4.0 (2026/04/14)
 
 ### New features
+- added DAC soller slit correction for diamond Compton scattering in the normalization 
+  pipeline. New `DACConfig` in `FitNormalization` allows specifying initial and compressed 
+  sample chamber thickness. The soller transfer function is applied to both the sample 
+  intensity and the diamond container Compton scattering.
+- `normalize_fit()` now returns the lstsq residual in the params dict
+
+### Other
 - added much more documentation for theory background
 - renamed f(r) to F(r), to follow common conventions
 

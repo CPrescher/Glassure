@@ -44,6 +44,7 @@ def test_fit_normalization_config():
         "multiple_scattering": False,
         "incoherent_scattering": True,
         "container_scattering": None,
+        "dac": None,
     }
 
     c = FitNormalization(
@@ -62,6 +63,7 @@ def test_fit_normalization_config():
         "multiple_scattering": True,
         "incoherent_scattering": False,
         "container_scattering": {"Si": 1, "O": 2},
+        "dac": None,
     }
 
 

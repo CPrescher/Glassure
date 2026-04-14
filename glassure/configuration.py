@@ -66,6 +66,28 @@ class SampleConfig(BaseModel):
             super().__init__(**data)
 
 
+class DACConfig(BaseModel):
+    """Configuration for diamond anvil cell (DAC) soller-corrected Compton subtraction."""
+
+    initial_thickness: float = Field(
+        description=(
+            "Initial sample chamber thickness in µm (when background was measured)."
+        ),
+    )
+    sample_thickness: float = Field(
+        description="Current compressed sample thickness in µm.",
+    )
+    @field_validator("sample_thickness")
+    @classmethod
+    def _validate_thicknesses(cls, v, info):
+        initial = info.data.get("initial_thickness")
+        if initial is not None and v >= initial:
+            raise ValueError(
+                f"sample_thickness ({v}) must be less than initial_thickness ({initial})."
+            )
+        return v
+
+
 class FitNormalization(BaseModel):
     TYPE: Literal["fit"] = Field(default="fit", description="Normalization type")
     q_cutoff: float = Field(
@@ -103,6 +125,17 @@ class FitNormalization(BaseModel):
             "incoherent scattering of the container is considered. The container "
             "scattering is subtracted from the total scattering and the amount is "
             "fitted by just muliplying it with a constant value. If None, no container scattering is considered."
+        ),
+    )
+
+    dac: Optional[DACConfig] = Field(
+        default=None,
+        description=(
+            "DAC (diamond anvil cell) configuration for soller-corrected diamond "
+            "Compton subtraction. When set, the container scattering is modified by "
+            "the soller slit transfer function for the diamond region that entered "
+            "the diffraction volume due to compression. Requires container_scattering "
+            "and wavelength to also be set."
         ),
     )
 
