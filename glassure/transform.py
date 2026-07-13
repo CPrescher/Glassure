@@ -14,12 +14,13 @@ def calculate_sq(
     f_mean_squared: np.ndarray,
 ) -> Pattern:
     """
-    Calculates the Faber Ziman structure factor, using the equation:
-    S(Q) = (n * Intensity - incoherent_scattering - <f>^2-)/<f^2> + 1
-    where n is the normalization factor and f are the scattering factors.
-    The function takes in the already normalized intensity (incoherent scattering is also subtracted)
+    Calculates the Faber--Ziman structure factor using
+    S(Q) = (I_coh(Q) - <f^2(Q)>) / <f(Q)>^2 + 1.
+    The input intensity is already normalized and has had incoherent scattering
+    subtracted.
 
-    :param normalized_pattern:    Pattern with q and (n * Intensity - incoherent scattering) as x and y
+    :param normalized_pattern:    Pattern with q as x and normalized coherent intensity
+                                  (n * Intensity - incoherent scattering) as y
     :param f_squared_mean:        <f^2> - mean squared scattering factor for each q value in the pattern
     :param f_mean_squared:        <f>^2 - squared mean scattering factor for each q value in the pattern
 
