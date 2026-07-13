@@ -1,17 +1,30 @@
 # Changelog
 
-## 2.4.0 (2026/04/14)
+## 2.4.0 (2026/07/13)
 
 ### New features
-- added DAC soller slit correction for diamond Compton scattering in the normalization 
-  pipeline. New `DACConfig` in `FitNormalization` allows specifying initial and compressed 
-  sample chamber thickness. The soller transfer function is applied to both the sample 
-  intensity and the diamond container Compton scattering.
-- `normalize_fit()` now returns the lstsq residual in the params dict
+- Added DAC Soller-slit correction for diamond Compton scattering in the normalization
+  pipeline. The new `DACConfig` in `FitNormalization` accepts the initial and compressed
+  sample-chamber thicknesses and applies the transfer function to the affected diamond
+  container scattering.
+- `normalize_fit()` now includes the least-squares residual in the returned parameter
+  dictionary.
 
-### Other
-- added much more documentation for theory background
-- renamed f(r) to F(r), to follow common conventions
+### Bug fixes
+- Corrected the residual function in `normalize_fit_lmfit()`, which previously squared
+  residuals before passing them to lmfit.
+- Fixed the Lorch modification function at exactly $Q=0$ by evaluating its analytic
+  limit, $M(0)=1$, preventing `NaN` values in Fourier transforms.
+- Raised the minimum `urllib3` version to 2.6.3 to include the fix for the
+  decompression-bomb safeguard bypass.
+
+### Documentation
+- Expanded and corrected the theoretical background, including an explicit description
+  of the Faber--Ziman structure-factor convention used by Glassure.
+- Standardized the reduced pair-distribution function notation as $F(r)$.
+
+### Dependencies
+- Refreshed the runtime dependency lock for NumPy, SciPy, Pydantic, urllib3, and xraylib.
 
 ## 2.3.3 (2025/01/24)
 
