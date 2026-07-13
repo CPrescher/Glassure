@@ -100,6 +100,7 @@ def test_calculate_pdf_modification_fcn():
     calculation_input.transform.use_modification_fcn = True
     res_mod = calculate_pdf(data_input, calculation_input)
     assert res_mod.fr is not None
+    assert np.all(np.isfinite(res_mod.fr.y))
 
     assert not np.array_equal(res.fr.y, res_mod.fr.y)
 

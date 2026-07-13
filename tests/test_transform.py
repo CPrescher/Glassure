@@ -147,6 +147,17 @@ def test_calculate_fr(sq):
     assert np.allclose(fr_mod.y, fr_fft_mod.y, atol=0.025)
 
 
+@pytest.mark.parametrize("method", ["integral", "fft"])
+def test_calculate_fr_lorch_modification_at_q_zero(sq, method):
+    """The Lorch function must use its finite limiting value at Q=0."""
+    sq_at_zero = sq.model_copy(deep=True)
+    sq_at_zero.x[0] = 0.0
+
+    fr = calculate_fr(sq_at_zero, use_modification_fcn=True, method=method)
+
+    assert np.all(np.isfinite(fr.y))
+
+
 def test_calculate_gr(sq, atomic_density):
     """Test the calculate_gr function."""
     fr = calculate_fr(sq, method="fft")
@@ -183,7 +194,22 @@ def test_calculate_sq_from_fr_with_modification_fcn(sq):
 
     sq_from_fr_fft = calculate_sq_from_fr(fr, q, method="fft", use_modification_fcn=True)
     assert np.allclose(sq.y[start_index:], sq_from_fr_fft.y[start_index:], atol=0.15)
-    
+
+
+@pytest.mark.parametrize("method", ["integral", "fft"])
+def test_calculate_sq_from_fr_lorch_modification_at_q_zero(sq, method):
+    """The inverse transform must also remain finite at Q=0."""
+    sq_at_zero = sq.model_copy(deep=True)
+    sq_at_zero.x[0] = 0.0
+    fr = calculate_fr(sq_at_zero, use_modification_fcn=True, method=method)
+
+    sq_from_fr = calculate_sq_from_fr(
+        fr, sq_at_zero.x, method=method, use_modification_fcn=True
+    )
+
+    assert np.all(np.isfinite(sq_from_fr.y))
+
+
 def test_calculate_fr_then_sq_and_fr(sq):
     fr = calculate_fr(sq)
     sq_from_fr = calculate_sq_from_fr(fr, sq.x, method="fft")

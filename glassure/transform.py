@@ -61,7 +61,9 @@ def calculate_fr(
 
     q, sq = sq_pattern.data
     if use_modification_fcn:
-        modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+        # np.sinc(x) evaluates sin(pi*x)/(pi*x) and handles the
+        # removable singularity at Q=0 with the correct limit M(0)=1.
+        modification = np.sinc(q / np.max(q))
     else:
         modification = np.ones_like(q)
 
@@ -149,7 +151,7 @@ def calculate_sq_from_fr(
         raise NotImplementedError(f"{method} is not a valid method for calculate_sq")
 
     if use_modification_fcn:
-        modification = np.sin(q * np.pi / np.max(q)) / (q * np.pi / np.max(q))
+        modification = np.sinc(q / np.max(q))
     else:
         modification = np.ones_like(q)
 
