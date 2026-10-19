@@ -125,7 +125,7 @@ def main():
     fig.savefig(svg,metadata={"Date":None,"Creator":"Glassure full-analysis tutorial"})
     text = svg.read_text()
     text = text[text.index("<svg"):]
-    text = text.replace("<svg ",'<svg role="img" aria-label="Intermediate curves from the full Mg2SiO4 analysis" ',1)
+    text = text.replace("<svg ",'<svg style="max-width:100%;height:auto" role="img" aria-label="Intermediate curves from the full Mg2SiO4 analysis" ',1)
     svg.write_text("\n".join(line.rstrip() for line in text.splitlines()) + "\n")
     plt.close(fig)
     print(f"Figure: {svg}; preview: {png}")
