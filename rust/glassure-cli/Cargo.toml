@@ -1,0 +1,22 @@
+[package]
+name = "glassure-cli"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.93"
+authors = ["Clemens Prescher"]
+license = "MIT AND BSD-3-Clause"
+repository = "https://github.com/CPrescher/Glassure"
+homepage = "https://github.com/CPrescher/Glassure"
+description = "Standalone command-line X-ray total-scattering and PDF analysis with Glassure"
+readme = "README.md"
+keywords = ["scattering", "diffraction", "pdf", "materials", "cli"]
+categories = ["science", "command-line-utilities"]
+include = ["Cargo.toml", "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "src/**", "tests/**"]
+
+[[bin]]
+name = "glassure"
+path = "src/main.rs"
+
+[dependencies]
+glassure-core = { version = "0.1.0", path = "../glassure-core" }
+serde_json = { version = "1", features = ["float_roundtrip"] }

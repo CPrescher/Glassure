@@ -1,0 +1,16 @@
+{
+  "version": "xraylib-4.2.1",
+  "source": "https://github.com/tschoonj/xraylib/tree/xraylib-4.2.1",
+  "tables": {
+    "FF": {
+      "elements": 98,
+      "text_sha256": "9aca1801042adee51aac62ab32c9d9445e37ce5c947a7e685b42311f520c530a",
+      "binary_sha256": "24ea0fc3ec83b385f9696d30ae2ce9d4948a0751f35a34602c4e8fc724d59e67"
+    },
+    "SF": {
+      "elements": 98,
+      "text_sha256": "45bed1bb58c57f64a969a2485d0305c6aa2a24117bdb263f54b4696aa3ece154",
+      "binary_sha256": "c1fdad0674f09a457dfb0b2d5758d58f5a5de7528c06564c8528849d1ecdf570"
+    }
+  }
+}

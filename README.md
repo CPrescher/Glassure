@@ -84,3 +84,10 @@ Use these with the example scripts to get started!
 
 
 
+
+## Standalone Rust packages
+
+`glassure-core` 0.1.0 provides the numerical library; `glassure-cli` 0.1.0 installs
+the `glassure` executable. Both require Rust 1.93 or newer and run without Python.
+See [the Rust library](rust/glassure-core/README.md), [CLI usage](rust/glassure-cli/README.md)
+and [the Rust guide](docs/rust.md). The Python distribution remains separate.
