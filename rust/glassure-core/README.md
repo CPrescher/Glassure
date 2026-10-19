@@ -5,11 +5,11 @@ embedded scattering factors, background subtraction, normalization, low-Q
 extrapolation, corrections, Fourier transforms and density optimization. Native
 Rust, Python/NumPy bindings and WebAssembly share this numerical implementation.
 No Python interpreter, installed xraylib library or network connection is needed
-at runtime. Version 0.1.0 is the first standalone Cargo release. Building requires Rust 1.93 or newer.
+at runtime. Version 0.1.1 adds the complete analysis tutorial to the standalone Cargo release. Building requires Rust 1.93 or newer.
 
 ## Add the library to an application
 
-Add the library with `cargo add glassure-core@0.1.0`, or use a local path dependency:
+Add the library with `cargo add glassure-core@0.1.1`, or use a local path dependency:
 
 ```toml
 [dependencies]
@@ -20,7 +20,17 @@ The Rust import name is `glassure_core`. The companion `glassure-cli` package
 installs the standalone `glassure` executable; Python bindings are distributed
 separately as the optional `glassure-native` wheel.
 
-## Start with a calculation
+## Full analysis walkthrough
+
+Start with the [step-by-step analysis tutorial](tutorial). It follows the Python
+quickstart's ambient Mg₂SiO₄ measurement: load patterns, subtract background,
+calculate scattering factors, normalize, obtain S(Q), extrapolate, transform,
+optimize, compare Lorch modification and export every intermediate curve. It
+includes plots and shows an equivalent high-level request. Its code blocks run
+against data bundled in this crate, and the complete program is
+`examples/full_analysis.rs`.
+
+## Small self-contained calculation
 
 Use [`request::Request::new`] to obtain defaults, change settings, then call
 [`request::calculate`]. The following self-contained example synthesizes an

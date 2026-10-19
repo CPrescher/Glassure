@@ -5,8 +5,11 @@ Use it as a library in a Rust application, through the standalone command line,
 or compiled to WebAssembly. The Python API remains supported. This release snapshot contains the standalone
 Rust packages; Python and browser integrations are built separately.
 
-The first Rust release contains `glassure-core`
-0.1.0 (Rust library) and `glassure-cli` 0.1.0 (the `glassure` executable), with
+For a first analysis, follow the [step-by-step Rust tutorial](rust-analysis.md).
+It explains each intermediate result using the Python quickstart dataset.
+
+The published packages are `glassure-core`
+0.1.1 (Rust library) and `glassure-cli` 0.1.0 (the `glassure` executable), with
 a Rust 1.93 minimum build version. No runtime network connection or installed
 xraylib library is required: scattering data are embedded in the core.
 
@@ -33,7 +36,7 @@ cargo test --locked -p glassure-core --doc
 The second command executes the self-contained examples in the crate overview.
 The first treats broken Rust API links and other documentation warnings as
 errors. CI runs these checks and retains the generated reference as an artifact;
-the reference has not been deployed to a public documentation host.
+the public reference is available on [docs.rs](https://docs.rs/glassure-core/0.1.1/glassure_core/).
 
 For another local Rust application, add a path dependency in its `Cargo.toml`,
 adjusting the path relative to that application's manifest:
@@ -45,13 +48,13 @@ glassure-core = { path = "../Glassure/rust/glassure-core" }
 
 Use `glassure_core` in Rust imports. The library accepts owned arrays and typed
 requests; Rust callers do not need to serialize numerical arrays as JSON.
-`cargo add glassure-core@0.1.0` selects the registry dependency, and
+`cargo add glassure-core@0.1.1` selects the registry dependency, and
 `cargo install --locked glassure-cli --version 0.1.0` installs the executable.
 For a local source build, use `cargo install --locked --path rust/glassure-cli`
 from the checkout. Archive verification and release steps are documented in the
 [Rust release guide](https://github.com/CPrescher/Glassure/blob/codex/rust-release-0.1.0/rust/RELEASING.md).
 
-## A complete native workflow
+## Advanced workflow: fitting, batches and sweeps
 
 This executable example loads the repository's SiO₂ measurement and background,
 calculates a PDF, fits density with TRF, executes a mixed batch and sweeps Q_max.

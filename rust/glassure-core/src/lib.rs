@@ -15,6 +15,7 @@ pub mod project;
 pub mod request;
 pub mod scattering;
 pub mod sq_optimization;
+pub mod tutorial;
 mod workspace;
 
 macro_rules! profile_span {

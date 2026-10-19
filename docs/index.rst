@@ -20,6 +20,7 @@ The software is maintained by Clemens Prescher from the University of Freiburg, 
     installation.md
     api.ipynb
     rust.md
+    rust-analysis.md
     theory.md
 
     notebooks/index

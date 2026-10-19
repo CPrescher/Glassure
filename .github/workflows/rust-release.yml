@@ -19,6 +19,7 @@ jobs:
       - run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
       - run: cargo test --locked --workspace --all-features
       - run: cargo build --locked --release -p glassure-cli
+      - run: cargo run --locked --release -p glassure-core --example full_analysis -- rust/glassure-core/tests/data/Mg2SiO4_ambient.xy rust/glassure-core/tests/data/Mg2SiO4_ambient_bkg.xy target/full-analysis
   packages:
     runs-on: ubuntu-latest
     steps:
@@ -30,6 +31,7 @@ jobs:
         with:
           toolchain: "1.93.0"
           targets: wasm32-unknown-unknown
+      - run: python rust/scripts/generate_analysis_docs.py --check
       - run: python rust/scripts/check_packages.py --wasm
       - uses: actions/upload-artifact@v4
         with:

@@ -1,6 +1,6 @@
 [package]
 name = "glassure-core"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.93"
 authors = ["Clemens Prescher"]
@@ -12,7 +12,7 @@ description = "Standalone Glassure total-scattering numerical engine"
 readme = "README.md"
 keywords = ["scattering", "diffraction", "pdf", "materials", "wasm"]
 categories = ["science"]
-include = ["Cargo.toml", "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "src/**", "data/**", "examples/**", "tests/**"]
+include = ["Cargo.toml", "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "src/**", "data/**", "docs/**", "examples/**", "tests/**"]
 
 [package.metadata.docs.rs]
 all-features = true

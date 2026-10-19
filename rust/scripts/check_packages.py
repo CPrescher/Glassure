@@ -90,6 +90,10 @@ def main():
         run(["cargo", "test", "--locked", "--all-features", *cargo_options], cwd=core, environment=environment)
         run(["cargo", "doc", "--locked", "--no-deps", "--all-features", *cargo_options], cwd=core,
             environment=dict(environment, RUSTDOCFLAGS="-D warnings"))
+        if (core / "examples/full_analysis.rs").exists():
+            run(["cargo", "run", "--locked", "--release", "--example", "full_analysis", *cargo_options, "--",
+                 core / "tests/data/Mg2SiO4_ambient.xy", core / "tests/data/Mg2SiO4_ambient_bkg.xy", directory / "tutorial-output"],
+                cwd=core, environment=environment)
         if args.wasm:
             run(["cargo", "check", "--locked", "--all-features", "--target", "wasm32-unknown-unknown", *cargo_options],
                 cwd=core, environment=environment)
@@ -135,6 +139,8 @@ fn main() -> Result<(), String> {
         "fresh independent Rust application"]
     if args.wasm:
         report["checks"].extend(["extracted core WASM compilation", "WASM rustdoc with warnings denied"])
+    if (ROOT / "rust/glassure-core/examples/full_analysis.rs").exists():
+        report["checks"].append("extracted stage-by-stage analysis example")
     destination = target / "package-validation/report.json"
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(report, indent=2) + "\n")
