@@ -100,6 +100,11 @@ def main():
             run(["cargo", "doc", "--locked", "--no-deps", "--all-features", "--target", "wasm32-unknown-unknown", *cargo_options],
                 cwd=core, environment=dict(environment, RUSTDOCFLAGS="-D warnings"))
 
+        if (core / "examples/density_fitting.rs").exists():
+            run(["cargo", "run", "--locked", "--release", "--example", "density_fitting", *cargo_options, "--",
+                 core / "tests/data/Mg2SiO4_ambient.xy", core / "tests/data/Mg2SiO4_ambient_bkg.xy", directory / "density-output"],
+                cwd=core, environment=environment)
+
         cli = unpacked["glassure-cli"]
         # Patch only this unpublished dependency in the disposable check copy.
         # The deliverable archive retains its normal versioned registry dependency.
@@ -141,6 +146,8 @@ fn main() -> Result<(), String> {
         report["checks"].extend(["extracted core WASM compilation", "WASM rustdoc with warnings denied"])
     if (ROOT / "rust/glassure-core/examples/full_analysis.rs").exists():
         report["checks"].append("extracted stage-by-stage analysis example")
+    if (ROOT / "rust/glassure-core/examples/density_fitting.rs").exists():
+        report["checks"].append("extracted density/background fitting and multicore example")
     destination = target / "package-validation/report.json"
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(report, indent=2) + "\n")

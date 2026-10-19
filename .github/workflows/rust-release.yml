@@ -20,6 +20,7 @@ jobs:
       - run: cargo test --locked --workspace --all-features
       - run: cargo build --locked --release -p glassure-cli
       - run: cargo run --locked --release -p glassure-core --example full_analysis -- rust/glassure-core/tests/data/Mg2SiO4_ambient.xy rust/glassure-core/tests/data/Mg2SiO4_ambient_bkg.xy target/full-analysis
+      - run: cargo run --locked --release -p glassure-core --example density_fitting -- rust/glassure-core/tests/data/Mg2SiO4_ambient.xy rust/glassure-core/tests/data/Mg2SiO4_ambient_bkg.xy target/density-tutorial
   packages:
     runs-on: ubuntu-latest
     steps:

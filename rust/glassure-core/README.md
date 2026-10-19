@@ -5,11 +5,11 @@ embedded scattering factors, background subtraction, normalization, low-Q
 extrapolation, corrections, Fourier transforms and density optimization. Native
 Rust, Python/NumPy bindings and WebAssembly share this numerical implementation.
 No Python interpreter, installed xraylib library or network connection is needed
-at runtime. Version 0.1.1 adds the complete analysis tutorial to the standalone Cargo release. Building requires Rust 1.93 or newer.
+at runtime. Version 0.1.2 includes complete analysis and density-fitting tutorials. Building requires Rust 1.93 or newer.
 
 ## Add the library to an application
 
-Add the library with `cargo add glassure-core@0.1.1`, or use a local path dependency:
+Add the library with `cargo add glassure-core@0.1.2`, or use a local path dependency:
 
 ```toml
 [dependencies]
@@ -29,6 +29,11 @@ optimize, compare Lorch modification and export every intermediate curve. It
 includes plots and shows an equivalent high-level request. Its code blocks run
 against data bundled in this crate, and the complete program is
 `examples/full_analysis.rs`.
+
+Continue with [`tutorial::density_fitting`] for density refinement with fixed or
+fitted background, Klein–Nishina and optional DAC corrections, fit diagnostics
+and independent native multicore jobs. The complete program is
+`examples/density_fitting.rs`.
 
 ## Small self-contained calculation
 

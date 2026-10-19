@@ -21,6 +21,7 @@ The software is maintained by Clemens Prescher from the University of Freiburg, 
     api.ipynb
     rust.md
     rust-analysis.md
+    rust-density-fitting.md
     theory.md
 
     notebooks/index

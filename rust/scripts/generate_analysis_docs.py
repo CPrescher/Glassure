@@ -11,18 +11,21 @@ import textwrap
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def generate():
+def render(stem, sphinx_name, standalone=()):
     core = ROOT / "rust/glassure-core"
-    source = (core / "examples/full_analysis.rs").read_text()
+    source = (core / f"examples/{stem}.rs").read_text()
     stages = {name: textwrap.dedent(body).strip() for name, body in re.findall(
         r"// ANCHOR: (\w+)\n(.*?)\s*// ANCHOR_END: \1", source, re.S)}
-    template = (core / "docs/full_analysis.md.in").read_text()
+    template = (core / f"docs/{stem}.md.in").read_text()
     prefix = []
     rust, sphinx = template, template
     for name in re.findall(r"\{\{(\w+)\}\}", template):
         visible = stages[name]
         if name == "imports":
             rust_block = f"```rust\n{visible}\n```"
+        elif name in standalone:
+            hidden = "\n".join("# " + line for line in stages["imports"].splitlines())
+            rust_block = f"```rust\n# #![allow(unused)]\n{hidden}\n{visible}\n```"
         else:
             setup = stages["imports"] + '''
 let data_file = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/data/Mg2SiO4_ambient.xy"));
@@ -36,14 +39,21 @@ let output_dir = scratch.as_path();
             prefix.append(visible)
         rust = rust.replace("{{" + name + "}}", rust_block)
         sphinx = sphinx.replace("{{" + name + "}}", f"```rust\n{visible}\n```")
-    sphinx += '''
+    sphinx += f'''
 ## Intermediate results
 
-```{raw} html
-:file: ../rust/glassure-core/docs/full_analysis.svg
+```{{raw}} html
+:file: ../rust/glassure-core/docs/{stem}.svg
 ```
 '''
-    return {core / "docs/full_analysis.md": rust, ROOT / "docs/rust-analysis.md": sphinx}
+    return {core / f"docs/{stem}.md": rust, ROOT / f"docs/{sphinx_name}.md": sphinx}
+
+
+def generate():
+    return {
+        **render("full_analysis", "rust-analysis"),
+        **render("density_fitting", "rust-density-fitting", standalone=("dac",)),
+    }
 
 
 def main():
