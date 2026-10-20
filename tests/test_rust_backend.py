@@ -218,6 +218,11 @@ def test_density_objective_algorithm_matrix(stem, formula, rho, qmax, algorithm,
     import lmfit
     minimize = lmfit.minimize
     def capture(*args, **kwargs):
+        if kwargs.get("method") == "least_squares":
+            # Independently approximate the Python Jacobian with central differences.
+            # Two-point differences can cross the default gradient stopping threshold
+            # at different iterates on Linux and macOS for shallow objectives.
+            kwargs["jac"] = "3-point"
         result = minimize(*args, **kwargs)
         metadata["success"] = result.success
         return result
