@@ -1,0 +1,387 @@
+{
+  "method": "Inclusive native core stage timers; one warmed build, 64 fits per mode; timing disabled in benchmark wheels",
+  "profile_binary_sha256": "f639dde26278257cf1d86e901d8e20a982c3b0f9bb410cdb4a21c0662131cc30",
+  "cases": [
+    {
+      "case": "SiO2",
+      "modes": {
+        "inplace": {
+          "mode": "inplace",
+          "repetitions": 64,
+          "stages": [
+            {
+              "calls": 64,
+              "milliseconds": 2026.861875,
+              "percent_fit_time": 100.0,
+              "stage": "fit_total"
+            },
+            {
+              "calls": 64,
+              "milliseconds": 3.49638,
+              "percent_fit_time": 0.17250213461141747,
+              "stage": "preparation"
+            },
+            {
+              "calls": 2752,
+              "milliseconds": 1973.799418,
+              "percent_fit_time": 97.38203882294643,
+              "stage": "residual"
+            },
+            {
+              "calls": 2816,
+              "milliseconds": 2.9848,
+              "percent_fit_time": 0.14726213151549855,
+              "stage": "normalization"
+            },
+            {
+              "calls": 2816,
+              "milliseconds": 0.168632,
+              "percent_fit_time": 0.008319856526977202,
+              "stage": "extrapolation"
+            },
+            {
+              "calls": 2816,
+              "milliseconds": 1658.879914,
+              "percent_fit_time": 81.84474405785545,
+              "stage": "sq_optimization"
+            },
+            {
+              "calls": 11264,
+              "milliseconds": 1425.114919,
+              "percent_fit_time": 70.311397958482,
+              "stage": "forward_transform"
+            },
+            {
+              "calls": 8448,
+              "milliseconds": 587.655035,
+              "percent_fit_time": 28.993343959365756,
+              "stage": "backward_transform"
+            },
+            {
+              "calls": 19712,
+              "milliseconds": 37.952468,
+              "percent_fit_time": 1.8724743145114415,
+              "stage": "fft_input"
+            },
+            {
+              "calls": 19712,
+              "milliseconds": 1960.676468,
+              "percent_fit_time": 96.7345872051592,
+              "stage": "fft_kernel"
+            },
+            {
+              "calls": 19712,
+              "milliseconds": 6.234841,
+              "percent_fit_time": 0.30761055190304964,
+              "stage": "fft_output"
+            }
+          ]
+        },
+        "auto": {
+          "mode": "auto",
+          "repetitions": 64,
+          "stages": [
+            {
+              "calls": 64,
+              "milliseconds": 1890.297629,
+              "percent_fit_time": 100.0,
+              "stage": "fit_total"
+            },
+            {
+              "calls": 64,
+              "milliseconds": 3.388833,
+              "percent_fit_time": 0.17927510186809847,
+              "stage": "preparation"
+            },
+            {
+              "calls": 2752,
+              "milliseconds": 1840.7003,
+              "percent_fit_time": 97.37621588055221,
+              "stage": "residual"
+            },
+            {
+              "calls": 2816,
+              "milliseconds": 3.053291,
+              "percent_fit_time": 0.16152435220559652,
+              "stage": "normalization"
+            },
+            {
+              "calls": 2816,
+              "milliseconds": 0.159001,
+              "percent_fit_time": 0.008411426727764255,
+              "stage": "extrapolation"
+            },
+            {
+              "calls": 2816,
+              "milliseconds": 1547.46591,
+              "percent_fit_time": 81.86361164821628,
+              "stage": "sq_optimization"
+            },
+            {
+              "calls": 11264,
+              "milliseconds": 1326.550465,
+              "percent_fit_time": 70.17680415235817,
+              "stage": "forward_transform"
+            },
+            {
+              "calls": 8448,
+              "milliseconds": 550.184465,
+              "percent_fit_time": 29.105705713182164,
+              "stage": "backward_transform"
+            },
+            {
+              "calls": 19712,
+              "milliseconds": 1.650033,
+              "percent_fit_time": 0.08728958734783453,
+              "stage": "fft_input"
+            },
+            {
+              "calls": 19712,
+              "milliseconds": 1860.526297,
+              "percent_fit_time": 98.42504526571567,
+              "stage": "fft_kernel"
+            },
+            {
+              "calls": 19712,
+              "milliseconds": 6.565747,
+              "percent_fit_time": 0.34733932367430376,
+              "stage": "fft_output"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "Mg2SiO4",
+      "modes": {
+        "inplace": {
+          "mode": "inplace",
+          "repetitions": 64,
+          "stages": [
+            {
+              "calls": 64,
+              "milliseconds": 4101.774247,
+              "percent_fit_time": 100.0,
+              "stage": "fit_total"
+            },
+            {
+              "calls": 64,
+              "milliseconds": 18.539253,
+              "percent_fit_time": 0.451981310613558,
+              "stage": "preparation"
+            },
+            {
+              "calls": 1152,
+              "milliseconds": 3864.51699,
+              "percent_fit_time": 94.21574073284195,
+              "stage": "residual"
+            },
+            {
+              "calls": 1216,
+              "milliseconds": 10.043969,
+              "percent_fit_time": 0.24486888831939171,
+              "stage": "normalization"
+            },
+            {
+              "calls": 1216,
+              "milliseconds": 0.583249,
+              "percent_fit_time": 0.014219432003762347,
+              "stage": "extrapolation"
+            },
+            {
+              "calls": 1216,
+              "milliseconds": 3311.677901,
+              "percent_fit_time": 80.73769304642084,
+              "stage": "sq_optimization"
+            },
+            {
+              "calls": 4864,
+              "milliseconds": 2897.419685,
+              "percent_fit_time": 70.63820460424282,
+              "stage": "forward_transform"
+            },
+            {
+              "calls": 3648,
+              "milliseconds": 1162.099418,
+              "percent_fit_time": 28.33162792540201,
+              "stage": "backward_transform"
+            },
+            {
+              "calls": 8512,
+              "milliseconds": 65.944046,
+              "percent_fit_time": 1.6076956465420025,
+              "stage": "fft_input"
+            },
+            {
+              "calls": 8512,
+              "milliseconds": 3969.626703,
+              "percent_fit_time": 96.77828334661149,
+              "stage": "fft_kernel"
+            },
+            {
+              "calls": 8512,
+              "milliseconds": 11.095842,
+              "percent_fit_time": 0.27051322993008203,
+              "stage": "fft_output"
+            }
+          ]
+        },
+        "auto": {
+          "mode": "auto",
+          "repetitions": 64,
+          "stages": [
+            {
+              "calls": 64,
+              "milliseconds": 3764.542753,
+              "percent_fit_time": 100.0,
+              "stage": "fit_total"
+            },
+            {
+              "calls": 64,
+              "milliseconds": 18.238169,
+              "percent_fit_time": 0.48447235684774276,
+              "stage": "preparation"
+            },
+            {
+              "calls": 1152,
+              "milliseconds": 3545.714428,
+              "percent_fit_time": 94.1871207379538,
+              "stage": "residual"
+            },
+            {
+              "calls": 1216,
+              "milliseconds": 9.913196,
+              "percent_fit_time": 0.26333067919337827,
+              "stage": "normalization"
+            },
+            {
+              "calls": 1216,
+              "milliseconds": 0.579166,
+              "percent_fit_time": 0.015384763515793707,
+              "stage": "extrapolation"
+            },
+            {
+              "calls": 1216,
+              "milliseconds": 3047.205243,
+              "percent_fit_time": 80.94489670947827,
+              "stage": "sq_optimization"
+            },
+            {
+              "calls": 4864,
+              "milliseconds": 2641.228983,
+              "percent_fit_time": 70.16068501002358,
+              "stage": "forward_transform"
+            },
+            {
+              "calls": 3648,
+              "milliseconds": 1082.656755,
+              "percent_fit_time": 28.759316231359584,
+              "stage": "backward_transform"
+            },
+            {
+              "calls": 8512,
+              "milliseconds": 5.013213,
+              "percent_fit_time": 0.13316924070008032,
+              "stage": "fft_input"
+            },
+            {
+              "calls": 8512,
+              "milliseconds": 3696.30336,
+              "percent_fit_time": 98.18731257745395,
+              "stage": "fft_kernel"
+            },
+            {
+              "calls": 8512,
+              "milliseconds": 10.89941,
+              "percent_fit_time": 0.28952812373598774,
+              "stage": "fft_output"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "features": [
+      "profiling"
+    ],
+    "timing_build_features": [],
+    "native_core_only": true,
+    "inclusive_stages": true,
+    "hardware": {
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "logical_cpus": 14,
+      "machdep.cpu.brand_string": "Apple M4 Pro",
+      "hw.physicalcpu": "14",
+      "hw.memsize": "51539607552",
+      "hw.perflevel0.physicalcpu": "10",
+      "hw.perflevel1.physicalcpu": "4"
+    },
+    "source_sha256": {
+      "Cargo.lock": "00e67ddbae00e2a9264b6c2cc8dacb661025d1b13f8ca0a83dd3623915d26039",
+      "Cargo.toml": "99084d113c3edb9e64397218cd6132e488207c56a111237ffaad6d5b7dbb82f0",
+      "glassure/__init__.py": "f81aa982faa9aa332a4a15c59e0dd6c4773cea7a1a8492e66175304ed7c78d3e",
+      "glassure/calc.py": "881f00a404653280fb53754c58beedfe311b7bcf3159920a47114c561cb4476f",
+      "glassure/configuration.py": "8d3aafeed3d8ed11d6f257312cc2894c53e76f71a6ab81a4bc48f6bed4f9d15f",
+      "glassure/data/atomic_weights.csv": "882c35cba6cd370e6c438884a8d96cdf4cd794806e729c37f3aba70d68aa3a70",
+      "glassure/data/brown_hubbell/convert_incoherent.py": "d833c77da2ed1cd7f75c56105e2a12d2c72822955aace7260e30c889b01b296a",
+      "glassure/data/brown_hubbell/incoherent_scattering_intensities.csv": "d02420bccb1a3a8d3832b330fa591eb7eafd49ef3cc8e3cbffedec7113b28f8b",
+      "glassure/data/brown_hubbell/param_coherent_scattering_factors.csv": "82660d1ea149d51c85bf45c14d3e35729b373fcbf54c95bd11a0c132072b67bd",
+      "glassure/data/hajdu/param_coherent_scattering_factors.csv": "403753f3267168f9343eab714e594abc9d99c90a2f3f827221f13f0993d857ad",
+      "glassure/data/hajdu/param_incoherent_scattering_intensities.csv": "d861fa6ebd44386467d5f1b8e0f04ffc56abd4bd618dec1ccbf834460082beae",
+      "glassure/fitting.py": "9e18c3a6523599032a5170e2af994d34000ee0011a1837146ca8e78d6a30770e",
+      "glassure/methods.py": "f5bbddf7523ae7da1807b36e0257f30e1a532d33f2e7d98f02be5f89aba6b08f",
+      "glassure/normalization.py": "c9d26d93c86731fb42e17ba6e8669a39fbc8da83271950b8a219a0b66511fd3f",
+      "glassure/optimization.py": "beab005b9080ea47ec4b3e87174b484fcc9abf976cc313f4908b8303a8c2bc31",
+      "glassure/pattern.py": "65e114424663ae4e38e425710cee40e8a8253f42d98c5ade58a5ae2ce7577882",
+      "glassure/rust.py": "e34566c5d7b48bffb183967fc15102d4a3257890cd513b91750c87d3528be477",
+      "glassure/scattering_factors.py": "45c46fc89206219569ffc180c3b6e6ce1c89de68fa784cc9b623bde17330a35c",
+      "glassure/soller_correction.py": "6cd78757ebfa16612f62aff6df003da62b5bff784c953cabdd3daff4287bc808",
+      "glassure/transfer_function.py": "fd6193797175ce1ca9833d4897c6efb22d4b88fb8e69afc1e116b7edf1028eeb",
+      "glassure/transform.py": "e38de1676d767ae9b9995b95fc0e7bda0e0973d1a21646fa33f9e63c428f8a5e",
+      "glassure/utility.py": "a1f4e93ac58a20f6a50a4dcab4800ba70ead59d7553119859102ad0eda3e186d",
+      "rust/glassure-cli/Cargo.toml": "3c38a186bb0c20bca1574b5340657b605b609d036a70bcdb26b282cf4281fed1",
+      "rust/glassure-cli/src/main.rs": "d986e3257500a935fd0d17c200a8aa7827f801889cb399860bb8e42ee5e5675b",
+      "rust/glassure-cli/tests/without_python.rs": "365bc7d804106ce997f2958799ce00e402779e8766b61b51a54a45b5b5ceaa46",
+      "rust/glassure-core/Cargo.toml": "38c3139f6686fdf818b1cc0aa9e1cf53724051823dde248c02e164a708873a68",
+      "rust/glassure-core/data/xraylib/FF.bin": "24ea0fc3ec83b385f9696d30ae2ce9d4948a0751f35a34602c4e8fc724d59e67",
+      "rust/glassure-core/data/xraylib/SF.bin": "c1fdad0674f09a457dfb0b2d5758d58f5a5de7528c06564c8528849d1ecdf570",
+      "rust/glassure-core/examples/pdf.rs": "f1fa9174cae9cf333f953eb861c7862cfa985b1169924a33f5a6ede9568bd95f",
+      "rust/glassure-core/examples/profile_density.rs": "572b71127f75de8902024a7295b2457d4dbc1d9228a5bd44318e600ab7fdc3ec",
+      "rust/glassure-core/src/bounded_trf.rs": "fcc43cd11fd2633f177dde00014f1adec92006ee983abca5884e11c174c0396d",
+      "rust/glassure-core/src/corrections.rs": "c8a03ff737fe9c96e5ccde01480ca0f95c4b6d62412eca03c490a6d8906eac32",
+      "rust/glassure-core/src/density.rs": "de9c5d2e899643e7667aa67bfb577a1239f74bc1eb95bfea21b24f1dec6b03a3",
+      "rust/glassure-core/src/functions.rs": "dc38b216581dee3d6b7bf46e56d7b4c51d9c18c023e339620d5988932ebe6554",
+      "rust/glassure-core/src/hajdu_data.rs": "efa64d3cc4bfbca1fefa5da76603e846d1a6074e34be211b7258645122f6f68d",
+      "rust/glassure-core/src/lib.rs": "905318682ff61be1fa47fc66083cd535210d4736f0e8c3d2c8dde6a3b35b03ee",
+      "rust/glassure-core/src/numeric.rs": "f8e104be7b7d4835da5e5eee2e15a2d98a2193f9c1231b6510c1697ab9b52de4",
+      "rust/glassure-core/src/parallel.rs": "6534e2e0603f3aa75877124e9d7e260138dbca0aaf76880e0c55bc53a87a9ade",
+      "rust/glassure-core/src/pattern.rs": "5fcb45393733397920f34cc48b147fc3925ea368c6383a454bf6fa77b3643652",
+      "rust/glassure-core/src/prepared.rs": "18ad3de997b4587accb1b56333471510000742ea58f82b1ca046d20166614927",
+      "rust/glassure-core/src/profiling.rs": "f1e5fe9447743c2fb4a21058b08aac5ba856e6bfb6ae81c1f603844179d9f275",
+      "rust/glassure-core/src/request.rs": "dd42bb2cc24ecdc6394f1951b6ba62e9b0991b8a4e8e27077f11a92da6cf4b47",
+      "rust/glassure-core/src/scattering.rs": "31de333c4e456f98bc4de9af315b93bcd246802e584c1b6af1846c8e6b47405f",
+      "rust/glassure-core/src/scattering_data.rs": "44259cd0ad75055ecda05813fc1ee0e004cb0e3d0c3e1ff0a88031a0595844b5",
+      "rust/glassure-core/src/sq_optimization.rs": "01ab865f453c77cadfad71ab7cce30989b11f49531c9888fbcf131797e28b6b1",
+      "rust/glassure-core/src/workspace.rs": "1bf1dd881d891dd70246a2110d46acad22aa7802cb2d3afb65f8dfb31773525e",
+      "rust/glassure-core/src/xraylib.rs": "fd74db61b90ace8527390382ac5c403a6706dba5df80282f8c92da66f230ea34",
+      "rust/glassure-core/tests/standalone.rs": "c422491af64898e13350e9aeb50dad87d76c8681ffa0f2c67cd422782d2d587c",
+      "rust/glassure-python/Cargo.toml": "3d85b7b1f5dc0f4f24b81d97f17884b6e2a87b3d78fad6ea0fbdf413f3663526",
+      "rust/glassure-python/src/lib.rs": "575829878f243be1302f4b9b1a4e3ce707ef2ca7c6593fd4fda4d40903c0e387",
+      "rust/glassure-python/src/operations.rs": "0670bfa1a5f5b6e0a05a0faca9210395e486ccef5f3c793098cba7f506736398",
+      "rust/scripts/benchmark_backend.py": "e39d302151ae1db84627e6eb54d05473a83eec85d392335d1c9abd2ca4e1660a",
+      "rust/scripts/benchmark_density.py": "aa4597e11af5168a8589854c802be2fdea920c1ac37b689a9d8d5b411d5132c3",
+      "rust/scripts/benchmark_prepared_density.py": "8477bfc412016ff50a8b4ccb6e8222ada8e1b44a61f4970eec3f06aa5625139f",
+      "rust/scripts/check_density_benchmark.py": "3dfa68df2c378133c316c0e5be4ee8c26873952ebb05188d597847c05617db34",
+      "tests/data/Mg2SiO4_ambient.xy": "4058c9276c13aec36f93ebf102fef72d16b00d673e4d9ee634eb355a4641dd0b",
+      "tests/data/Mg2SiO4_ambient_bkg.xy": "fd495f746bd5ff41279e6faabd399de4c2c20b0cec6772d29d17e6c0b52c302a",
+      "tests/data/SiO2.xy": "4d71112120010f12faea5a507af1f47ab31d030033d53221e2d4220d07afffe1",
+      "tests/data/SiO2_bkg.xy": "80316f30d6ec42ae985e720c4dced9bfda1d9344b9077387d5fddb438b1ea8f6"
+    },
+    "requests_sha256": {
+      "SiO2": "85db517083d164a3dc7805cd9a6f43c31b034e9fe41cc985dfb5cc08f50b71b4",
+      "Mg2SiO4": "bd3da3806514cf1a3fccecf9b43e7de843b48f5267b98377b01e5f2699daf412"
+    },
+    "control": "Thread-local diagnostic forces the previous in-place path; compiled out of ordinary builds."
+  }
+}

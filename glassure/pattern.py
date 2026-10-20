@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
+from .backend import dispatch as _dispatch
 import os
-from typing_extensions import Annotated
-from typing import Union, Optional, TYPE_CHECKING, Sequence, Any
+from typing import Annotated, Union, Optional, TYPE_CHECKING, Sequence, Any
 from pydantic import (
     PlainSerializer,
     PlainValidator,
@@ -15,8 +15,7 @@ import base64
 import gzip
 
 import io
-from scipy.interpolate import interp1d
-from scipy.ndimage import gaussian_filter1d
+from ._optional import import_legacy
 
 
 class Pattern(BaseModel):
@@ -131,14 +130,16 @@ class Pattern(BaseModel):
         data = np.dstack((x, y))
         np.savetxt(filename, data[0], header=header)
 
+    @_dispatch(name="smooth")
     def smooth(self, amount: float) -> Pattern:
         """
         Smoothing the pattern by applying a gaussian filter. Returns the smoothed pattern.
         :param amount: amount of smoothing to be applied
         """
         x, y = self.data
-        return Pattern(x, gaussian_filter1d(y, amount))
+        return Pattern(x, import_legacy("scipy.ndimage").gaussian_filter1d(y, amount))
 
+    @_dispatch(name="rebin")
     def rebin(self, bin_size: float) -> Pattern:
         """
         Returns a new pattern, which is a rebinned version of the current one.
@@ -299,8 +300,6 @@ class Pattern(BaseModel):
 
         if orig_x.shape != other_x.shape:
             # the background will be interpolated
-            other_fcn = interp1d(other_x, other_y, kind="linear")
-
             # find overlapping x and y values:
             ind = np.where((orig_x <= np.max(other_x)) & (orig_x >= np.min(other_x)))
             x = orig_x[ind]
@@ -309,7 +308,9 @@ class Pattern(BaseModel):
             if len(x) == 0:
                 # if there is no overlapping between background and pattern, raise an error
                 raise BkgNotInRangeError(self.name)
-            return Pattern(x, y + other_fcn(x))
+            # interp1d previously sorted the background coordinates internally.
+            order = np.argsort(other_x, kind="stable")
+            return Pattern(x, y + np.interp(x, other_x[order], other_y[order]))
         else:
             return Pattern(orig_x, orig_y + other_y)
 

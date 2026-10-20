@@ -1,7 +1,13 @@
+from __future__ import annotations
 # -*- coding: utf-8 -*-
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scipy.interpolate import UnivariateSpline
+
+from ._optional import import_legacy
 import numpy as np
-from scipy.interpolate import UnivariateSpline
 from .pattern import Pattern
 
 
@@ -14,6 +20,7 @@ def calculate_transfer_function(std_pattern: Pattern, sample_pattern: Pattern, s
     :param smooth_factor: Determines the amount of smoothing of the transfer function
     :return:
     """
+    UnivariateSpline = import_legacy("scipy.interpolate").UnivariateSpline
     transfer_function = std_pattern.y / sample_pattern.y
     transfer_function /= np.min(transfer_function)
 

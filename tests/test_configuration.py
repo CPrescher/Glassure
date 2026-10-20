@@ -69,6 +69,7 @@ def test_fit_normalization_config():
 
 def test_calculation_config():
     c = CalculationConfig()
+    assert isinstance(c.transform.normalization, FitNormalization)
     c_json = c.model_dump_json()
     assert type(c.model_dump()) == dict
     assert type(c_json) == str

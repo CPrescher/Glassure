@@ -3,7 +3,7 @@
 
 # Glassure
 
-A Python API for data analysis of total x-ray diffraction data.
+Python and standalone Rust APIs for analysis of total X-ray diffraction data.
 It performs background subtraction, Fourier transform and optimization of
 experimental data.
 
@@ -12,6 +12,7 @@ experimental data.
 ## Documentation
 
 The documentation can be found [here](https://glassure.readthedocs.io/en/latest/).
+For the source Rust implementation, see [Using Glassure from Rust](docs/rust.md).
 
 ## Changelog
 
@@ -23,7 +24,8 @@ Clemens Prescher (clemens.prescher@gmail.com)
 
 ## Requirements
 
-- python 3.10+
+- Python 3.10+
+- NumPy and Pydantic; the Rust numerical engine is bundled in Glassure 3
 
 It is known to run on Windows, Mac OS X and Linux.
 
@@ -34,6 +36,13 @@ The Glassure package can be installed into your existing python distribution usi
 ```bash
 python -m pip install glassure
 ```
+
+Glassure **3.0.0rc1 is in preparation**. Its standard installation requires only
+NumPy and Pydantic. Matching wheels need no Rust compiler; source builds require
+Rust 1.93 or newer. Install `glassure[legacy]` for the independent Python backend,
+pandas tables, lmfit parameter objects and SciPy spline interfaces. See the
+[Glassure 3 migration guide](docs/migration-3.md) and
+[Python release guide](docs/python-releasing.md).
 
 ## Quick Start
 
@@ -48,7 +57,7 @@ from glassure.calc import create_calculate_pdf_configs, calculate_pdf
 data = Pattern.from_file("sample.xy")
 bkg = Pattern.from_file("background.xy")
 
-# Create configs with defaults - just provide the essentials!
+# Create configs with defaults (including high-Q fit normalization)
 data_config, calculation_config = create_calculate_pdf_configs(
     data=data,
     composition="SiO2",  # or {"Si": 1, "O": 2}
@@ -83,11 +92,13 @@ Use these with the example scripts to get started!
 
 
 
+## Rust backend
 
-
-## Standalone Rust packages
-
-`glassure-core` 0.1.0 provides the numerical library; `glassure-cli` 0.1.0 installs
-the `glassure` executable. Both require Rust 1.93 or newer and run without Python.
-See [the Rust library](rust/glassure-core/README.md), [CLI usage](rust/glassure-cli/README.md)
-and [the Rust guide](docs/rust.md). The Python distribution remains separate.
+A standalone Rust numerical core, command-line application and NumPy-native
+Python adapter are available in the [Rust backend guide](rust/README.md).
+The core runs without Python and also compiles to WebAssembly. The existing
+Python imports and configuration objects remain available. Numerical functions
+default to `auto`: Rust from the bundled extension, with the Python reference
+backend available through `glassure[legacy]`. Use `backend="python"` or `backend="rust"` per call, or select a mode
+for a block with `glassure.use_backend(...)`. See the
+[backend selection guide](docs/rust-backend.md) for examples and coverage.

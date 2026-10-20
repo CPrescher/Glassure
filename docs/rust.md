@@ -2,16 +2,17 @@
 
 Glassure's Rust core runs the calculation pipeline without a Python interpreter.
 Use it as a library in a Rust application, through the standalone command line,
-or compiled to WebAssembly. The Python API remains supported. This release snapshot contains the standalone
-Rust packages; Python and browser integrations are built separately.
+or compiled to WebAssembly. The Python API remains supported; its
+[backend selection](rust-backend.md) controls which numerical engine it calls.
 
 For a first analysis, follow the [step-by-step Rust tutorial](rust-analysis.md).
-It explains each intermediate result using the Python quickstart dataset.
+It mirrors the Python quickstart and explains the intermediate results before
+introducing the high-level API. The sections below cover setup and advanced use.
 
 Continue with [density fitting, corrections and multicore batches](rust-density-fitting.md)
-for fixed/joint background refinement, diagnostics and independent native jobs.
+for fixed/joint background refinement, fit diagnostics and independent native jobs.
 
-The published packages are `glassure-core`
+The published crates.io packages are `glassure-core`
 0.1.2 (Rust library) and `glassure-cli` 0.1.0 (the `glassure` executable), with
 a Rust 1.93 minimum build version. No runtime network connection or installed
 xraylib library is required: scattering data are embedded in the core.
@@ -39,7 +40,8 @@ cargo test --locked -p glassure-core --doc
 The second command executes the self-contained examples in the crate overview.
 The first treats broken Rust API links and other documentation warnings as
 errors. CI runs these checks and retains the generated reference as an artifact;
-the public reference is available on [docs.rs](https://docs.rs/glassure-core/0.1.2/glassure_core/).
+the public Rust API reference is also available on
+[docs.rs](https://docs.rs/glassure-core/0.1.2/glassure_core/), including WASM.
 
 For another local Rust application, add a path dependency in its `Cargo.toml`,
 adjusting the path relative to that application's manifest:
@@ -51,11 +53,11 @@ glassure-core = { path = "../Glassure/rust/glassure-core" }
 
 Use `glassure_core` in Rust imports. The library accepts owned arrays and typed
 requests; Rust callers do not need to serialize numerical arrays as JSON.
-`cargo add glassure-core@0.1.2` selects the registry dependency, and
+`cargo add glassure-core@0.1.2` selects the published registry dependency, and
 `cargo install --locked glassure-cli --version 0.1.0` installs the executable.
 For a local source build, use `cargo install --locked --path rust/glassure-cli`
 from the checkout. Archive verification and release steps are documented in the
-[Rust release guide](https://github.com/CPrescher/Glassure/blob/codex/rust-release-0.1.0/rust/RELEASING.md).
+[Rust release guide](https://github.com/CPrescher/Glassure/blob/develop/rust/RELEASING.md).
 
 ## Advanced workflow: fitting, batches and sweeps
 
@@ -239,18 +241,19 @@ arrays to Float32, which can introduce additional numerical differences.
 ```sh
 rustup target add wasm32-unknown-unknown
 cargo check --locked -p glassure-core --target wasm32-unknown-unknown
-cargo build --locked --release -p glassure-core --target wasm32-unknown-unknown
+cargo build --locked --release --manifest-path prototypes/rust-wasm/Cargo.toml --target wasm32-unknown-unknown --lib
 ```
 
 Native filesystem methods and Rayon are excluded on WASM. A WASM executor accepts
 0/1 threads and runs serially. Browser multicore execution uses separate Web
-Workers with separate WASM instances. The core supplies a byte ABI; browser worker adapters are distributed separately.
-Compiling the core does not deploy a website.
+Workers with separate WASM instances. The compatibility crate supplies the byte
+ABI; browser worker adapters are distributed separately. Compiling the core does
+not deploy a website.
 
-For Python, the optional NumPy/PyO3 wheel accepts array buffers, snapshots owned
+For Python, the bundled NumPy/PyO3 extension accepts array buffers, snapshots owned
 inputs before releasing the GIL and transfers output buffers to NumPy. Numerical
-arrays do not pass through JSON. The ordinary Python container and API remain available. The Python native bindings and
-backend-selection integration use a separate distribution/release process.
+arrays do not pass through JSON. The ordinary Python container and API remain
+available; see [backend selection](rust-backend.md) for installation and controls.
 
 ## Numerical scope
 
@@ -261,6 +264,6 @@ ignores it. The Rust transfer spline supports evaluation, while Python retains
 the full SciPy object interface. Agreement tests establish implementation
 agreement, not independent validation of the physical assumptions.
 
-See the [Rust package release guide](https://github.com/CPrescher/Glassure/blob/codex/rust-release-0.1.0/rust/RELEASING.md)
-for archive checks and publication procedure. Source changes,
+The repository's [Rust backend guide](https://github.com/CPrescher/Glassure/blob/develop/rust/README.md)
+links provenance, measured benchmarks and validation reports. Source changes,
 local checks, configured remote CI and published packages are separate states.

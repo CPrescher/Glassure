@@ -18,11 +18,15 @@ The software is maintained by Clemens Prescher from the University of Freiburg, 
 
     introduction.md
     installation.md
+    migration-3.md
+    changelog.md
+    python-releasing.md
     api.ipynb
+    theory.md
+    rust-backend.md
     rust.md
     rust-analysis.md
     rust-density-fitting.md
-    theory.md
 
     notebooks/index
 

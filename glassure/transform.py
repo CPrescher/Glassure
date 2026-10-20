@@ -1,13 +1,16 @@
+from .backend import dispatch as _dispatch
+from ._optional import import_legacy
 from typing import Optional
 
 import numpy as np
-from scipy.integrate import simpson
-from scipy.interpolate import interp1d
+
+_trapezoid = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
 
 from .pattern import Pattern
 from .methods import FourierTransformMethod
 
 
+@_dispatch
 def calculate_sq(
     normalized_pattern: Pattern,
     f_squared_mean: np.ndarray,
@@ -30,6 +33,7 @@ def calculate_sq(
     return Pattern(normalized_pattern.x, sq)
 
 
+@_dispatch
 def calculate_fr(
     sq_pattern: Pattern,
     r: Optional[np.ndarray] = None,
@@ -71,7 +75,7 @@ def calculate_fr(
         fr = (
             2.0
             / np.pi
-            * np.trapezoid(
+            * _trapezoid(
                 modification * q * (sq - 1) * np.array(np.sin(np.outer(q.T, r))).T, q
             )
         )
@@ -108,6 +112,7 @@ def calculate_fr(
     return Pattern(r, fr)
 
 
+@_dispatch
 def calculate_sq_from_fr(
     fr_pattern: Pattern,
     q: Optional[np.ndarray] = None,
@@ -122,13 +127,14 @@ def calculate_sq_from_fr(
 
     :return: F(r) pattern
     """
+    interp1d = import_legacy("scipy.interpolate").interp1d
     if q is None:
         q = np.arange(0.0, 25.005, 0.05)
         q[0] = 1e-10  # to avoid division by zero
 
     r, fr = fr_pattern.data
     if method == "integral" or method == FourierTransformMethod.INTEGRAL:
-        iq = np.trapezoid(fr * np.array(np.sin(np.outer(r.T, q))).T, r)
+        iq = _trapezoid(fr * np.array(np.sin(np.outer(r.T, q))).T, r)
     elif method == "fft" or method == FourierTransformMethod.FFT:
         r_step = r[1] - r[0]
         q_step = q[1] - q[0]
@@ -183,6 +189,7 @@ def calculate_sq_from_fr(
     return Pattern(q, sq)
 
 
+@_dispatch
 def calculate_sq_from_gr(
     gr_pattern: Pattern,
     q: np.ndarray,
@@ -207,6 +214,7 @@ def calculate_sq_from_gr(
     return calculate_sq_from_fr(fr_pattern, q)
 
 
+@_dispatch
 def calculate_gr(fr_pattern: Pattern, atomic_density: float) -> Pattern:
     """
     Calculates a g(r) pattern from a given F(r) pattern and the atomic density
@@ -222,6 +230,7 @@ def calculate_gr(fr_pattern: Pattern, atomic_density: float) -> Pattern:
     return Pattern(r, g_r)
 
 
+@_dispatch
 def calculate_rdf(gr_pattern: Pattern, atomic_density: float) -> Pattern:
     """
     Calculates a RDF pattern from a given g(r) pattern and the atomic density
@@ -238,6 +247,7 @@ def calculate_rdf(gr_pattern: Pattern, atomic_density: float) -> Pattern:
     return Pattern(r, rdf)
 
 
+@_dispatch
 def calculate_tr(gr_pattern: Pattern, atomic_density: float) -> Pattern:
     """
     Calculates a transfer function from a given g(r) pattern and the atomic density

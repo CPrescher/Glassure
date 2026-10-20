@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["rust/glassure-core", "rust/glassure-cli"]
+members = ["rust/glassure-core", "rust/glassure-python", "rust/glassure-cli"]
 default-members = ["rust/glassure-core", "rust/glassure-cli"]
 exclude = ["prototypes/rust-wasm", "prototypes/rust-wasm/numpy-bridge"]
 

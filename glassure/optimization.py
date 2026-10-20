@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from .backend import dispatch as _dispatch
+from ._optional import import_legacy
 from copy import deepcopy
 from typing import Any
 
 import numpy as np
-from lmfit import Parameters, minimize
+
+_trapezoid = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
 
 from . import Pattern
 from .transform import calculate_fr, calculate_gr, calculate_sq_from_fr
@@ -16,6 +19,7 @@ __all__ = [
 ]
 
 
+@_dispatch
 def optimize_sq(
     sq_pattern: Pattern,
     r_cutoff: float,
@@ -83,8 +87,7 @@ def optimize_sq(
             iq = sq_trans_fft.y
         else:
             in_integral = np.array(np.sin(np.outer(q.T, r))) * delta_fr
-            # np.trapz is deprecated in NumPy 2.0; use np.trapezoid instead
-            iq = np.trapezoid(in_integral, r) / q
+            iq = _trapezoid(in_integral, r) / q
 
         sq_pattern = sq_pattern * (1 - iq / attenuation_factor)
 
@@ -99,6 +102,7 @@ def optimize_sq(
     return sq_pattern
 
 
+@_dispatch
 def optimize_sq_fit(sq_pattern: Pattern, r_cutoff: float) -> Pattern:
     """
     Optimizes the S(Q) pattern by fitting a polynomial to the F(Q) = q( S(Q) - 1 ). The order of the polynomial
@@ -136,24 +140,26 @@ def optimize_sq_fit(sq_pattern: Pattern, r_cutoff: float) -> Pattern:
     if degree_low == degree_high:
         # When degrees are the same, we only need to fit once
         coeffs = fit_polynom_through_origin(q, fq, degree_low)
-        fq_fit = np.polyval(coeffs, q)
+        # The fitted polynomial has no constant term, so P(Q)/Q is exactly the
+        # polynomial with its trailing zero removed.  Evaluating that form
+        # also gives the finite analytic limit at Q=0.
+        fq_fit_over_q = np.polyval(coeffs[:-1], q)
     else:
         weight_low, weight_high = degree_high - degree, degree - degree_low
         coeffs_low = fit_polynom_through_origin(q, fq, degree_low)
         coeffs_high = fit_polynom_through_origin(q, fq, degree_high)
-        fq_fit = np.polyval(coeffs_low, q) * weight_low + np.polyval(
-            coeffs_high, q
+        fq_fit_over_q = np.polyval(coeffs_low[:-1], q) * weight_low + np.polyval(
+            coeffs_high[:-1], q
         ) * weight_high
 
-    return Pattern(q, sq - fq_fit / q)
+    return Pattern(q, sq - fq_fit_over_q)
 
 
+@_dispatch
 def fit_polynom_through_origin(x, y, degree: int) -> np.ndarray:
     """
     Fits a polynomial of given degree through the data points (x, y) with the constraint that the polynomial goes
     through the origin (0,0). The zero order term is fixed to 0.
-
-    Implementation is based on ChatGPT recommendation for it to be the fastest solution.
 
     :param x:
         x data points
@@ -165,21 +171,40 @@ def fit_polynom_through_origin(x, y, degree: int) -> np.ndarray:
     :return:
         coefficients of the polynomial, highest degree first (compatible with np.polyval)
     """
-    # Vandermonde matrix WITHOUT the x⁰ column
-    # shape: (len(x), degree)
-    X = np.vstack([x**k for k in range(1, degree + 1)]).T
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    if x.ndim != 1 or y.ndim != 1 or x.shape != y.shape:
+        raise ValueError("x and y must be one-dimensional arrays of equal length")
+    if degree < 1:
+        raise ValueError("degree must be at least one")
+
+    # Fit in the dimensionless coordinate z=x/x_scale.  This is the same
+    # constrained least-squares problem as fitting powers of x directly, but
+    # avoids the severe conditioning loss of an unscaled Vandermonde matrix
+    # for the polynomial orders used by PDFgetX3-like corrections.
+    x_scale = float(np.max(np.abs(x)))
+    if x_scale == 0:
+        return np.zeros(degree + 1)
+    z = x / x_scale
+
+    # Vandermonde matrix without the z^0 column, fixing the intercept at zero.
+    X = np.vander(z, N=degree + 1, increasing=True)[:, 1:]
 
     # Solve X * beta = y
     beta = np.linalg.lstsq(X, y, rcond=None)[0]
 
-    # Return coefficients in np.polyval order: [c_n, c_{n-1}, ..., c_1, 0]
-    return np.concatenate((beta[::-1], [0]))
+    # Convert from powers of z back to powers of x and return coefficients in
+    # np.polyval order: [c_n, c_{n-1}, ..., c_1, 0].
+    powers = np.arange(1, degree + 1)
+    beta_x = beta / x_scale**powers
+    return np.concatenate((beta_x[::-1], [0]))
 
 
 from .calc import calculate_pdf
 from .configuration import CalculationConfig, DataConfig, Result
 
 
+@_dispatch
 def optimize_density(
     data_config: DataConfig,
     calculation_config: CalculationConfig,
@@ -252,6 +277,8 @@ def optimize_density(
         whereby the error value is the standard error of the fit parameter for optimization_method ='lsq' and the
         sum of the squared residuals for optimization_method='nelder'.
     """
+    Parameters = import_legacy("lmfit").Parameters
+    minimize = import_legacy("lmfit").minimize
 
     if calculation_config.optimize is None and min_range is None and not method == "sq":
         raise ValueError(

@@ -1,3 +1,4 @@
+from .backend import dispatch as _dispatch
 import numpy as np
 
 from .configuration import (
@@ -69,6 +70,7 @@ def create_calculate_pdf_configs(
     return data_config, calculation_config
 
 
+@_dispatch
 def calculate_pdf(
     data_config: DataConfig, calculation_config: CalculationConfig
 ) -> Result:

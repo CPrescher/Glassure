@@ -1,13 +1,21 @@
+from __future__ import annotations
 
-from typing import Any
+from .backend import dispatch as _dispatch
+from ._optional import import_legacy
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import lmfit
 
 import numpy as np
-import lmfit
+
+_trapezoid = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
 
 from .pattern import Pattern
 from .scattering_factors import calculate_incoherent_scattered_intensity
 
 
+@_dispatch
 def normalize(
     sample_pattern: Pattern,
     atomic_density: float,
@@ -45,11 +53,12 @@ def normalize(
     )
     n2 = q**2 * intensity * np.exp(-attenuation_factor * q**2) / f_mean_squared
 
-    n = (-2 * np.pi**2 * atomic_density + np.trapezoid(n1, q)) / np.trapezoid(n2, q)
+    n = (-2 * np.pi**2 * atomic_density + _trapezoid(n1, q)) / _trapezoid(n2, q)
 
     return n, Pattern(q, n * intensity - incoherent_scattering)
 
 
+@_dispatch
 def normalize_fit_lmfit(
     sample_pattern: Pattern,
     f_squared_mean: np.ndarray,
@@ -97,6 +106,7 @@ def normalize_fit_lmfit(
                 normalized Pattern (incoherent scattering already subtracted)
 
     """
+    lmfit = import_legacy("lmfit")
     q, intensity = sample_pattern.data
     q_ind = np.where(q > q_cutoff)[0]
 
@@ -181,6 +191,7 @@ def normalize_fit_lmfit(
     return out.params, Pattern(q_out, intensity_out)
 
 
+@_dispatch
 def normalize_fit(
     sample_pattern: Pattern,
     f_squared_mean: np.ndarray,

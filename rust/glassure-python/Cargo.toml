@@ -1,0 +1,18 @@
+[package]
+name = "glassure-python"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "NumPy-native Python bindings for the Glassure Rust core"
+license = "MIT AND BSD-3-Clause"
+rust-version = "1.93"
+repository = "https://github.com/CPrescher/Glassure"
+
+[lib]
+name = "_glassure_numpy"
+crate-type = ["cdylib"]
+
+[dependencies]
+glassure-core = { version = "0.1.0", path = "../glassure-core" }
+pyo3 = { version = "=0.29.2", features = ["extension-module"] }
+numpy = "=0.29.0"

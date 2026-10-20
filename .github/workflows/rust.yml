@@ -1,0 +1,77 @@
+name: Rust backend
+
+on: [push, pull_request, workflow_call]
+
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.93.0"
+          targets: wasm32-unknown-unknown
+      - name: Verify distributable Rust packages outside the checkout
+        run: python rust/scripts/check_packages.py --wasm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rust-source-packages
+          path: |
+            target/package/*.crate
+            target/package-validation/report.json
+
+  documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build Rust API reference
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+        run: cargo doc --locked --no-deps -p glassure-core
+      - name: Run Rust documentation examples
+        run: cargo test --locked -p glassure-core --doc
+      - name: Check tutorial snippets against executable source
+        run: python3 rust/scripts/generate_analysis_docs.py --check
+      - name: Run stage-by-stage analysis tutorial
+        run: cargo run --locked --release -p glassure-core --example full_analysis -- rust/glassure-core/tests/data/Mg2SiO4_ambient.xy rust/glassure-core/tests/data/Mg2SiO4_ambient_bkg.xy target/full-analysis
+      - name: Run complete Rust workflow example
+        run: cargo run --locked --release -p glassure-core --example workflow -- tests/data/SiO2.xy tests/data/SiO2_bkg.xy target/rust-doc-example
+      - name: Run density fitting tutorial
+        run: cargo run --locked --release -p glassure-core --example density_fitting -- rust/glassure-core/tests/data/Mg2SiO4_ambient.xy rust/glassure-core/tests/data/Mg2SiO4_ambient_bkg.xy target/density-tutorial
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rust-api-reference
+          path: target/doc
+
+  core:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --all --check
+      - run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+      - run: cargo test --locked --workspace --all-features
+      - run: cargo build --locked --release -p glassure-cli
+
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - run: cargo check --locked -p glassure-core --target wasm32-unknown-unknown
+      - run: cargo build --locked --release --manifest-path prototypes/rust-wasm/Cargo.toml --target wasm32-unknown-unknown --lib

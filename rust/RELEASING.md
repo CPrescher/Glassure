@@ -2,10 +2,9 @@
 
 The distributable Cargo packages are `glassure-core` (library, imported as
 `glassure_core`) and `glassure-cli` (installs the `glassure` executable).
-Both begin at 0.1.0 and require Rust 1.93 or newer. The Python package's version
-continues to follow its existing git-tag scheme; the native wheel remains the
-separate `glassure-native` distribution. Creating Rust archives does not release
-or replace either Python package.
+Both begin at 0.1.0 and require Rust 1.93 or newer. The Python package has its own version in the root `pyproject.toml` and bundles
+the native extension in Glassure 3. See [Python releases](../docs/python-releasing.md).
+Creating Rust archives does not release or replace the Python package.
 
 ## Prepare reviewable source archives
 
@@ -66,7 +65,9 @@ build output and manuscript files.
 Before publishing, verify the desired package names are available or owned by
 the releasing account, review changes and artifacts, commit the approved source,
 and check required platform CI. A local `.crate` is not a published version.
-The initial names have not been reserved by creating these archives.
+The initial 0.1.0 packages are now published under the CPrescher account;
+future releases must use a new, approved version. Creating an archive alone
+does not reserve a name or version.
 
 Check registry access and validation without uploading:
 

@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from .backend import dispatch as _dispatch
+from .backend import get_backend as _get_backend, use_backend as _use_backend
 import numpy as np
 
 
 class SollerCorrection(object):
     def __init__(self, two_theta, max_thickness, inner_radius=62, outer_radius=210,
-                 inner_width=0.05, outer_width=0.2, inner_length=8, outer_length=6):
+                 inner_width=0.05, outer_width=0.2, inner_length=8, outer_length=6, *, backend=None):
         """
         This class handles the calculation of the intensity correction when using soller slits. Upon initialization it
         creates a lookup table for the dispersion angles for each two theta angle and thickness of the sample.
@@ -31,9 +33,26 @@ class SollerCorrection(object):
         self._inner_length = inner_length
         self._outer_length = outer_length
 
-        self.dispersion_angle_map = self.calculate_dispersion_angle_map()
+        with _use_backend(backend if backend is not None else _get_backend()):
+            self._backend = _get_backend()
+            self._rust_correction = None
+            if self._backend == "rust":
+                from .rust import SollerCorrection as NativeCorrection
+                self._rust_correction = NativeCorrection(
+                    two_theta, max_thickness, inner_radius, outer_radius,
+                    inner_width, outer_width, inner_length, outer_length,
+                )
+            self.dispersion_angle_map = self.calculate_dispersion_angle_map()
 
     def calculate_dispersion_angle_map(self):
+        """Return a Map of angles X, sample distances Y and dispersion data."""
+        if self._rust_correction is not None:
+            native_map = self._rust_correction.calculate_dispersion_angle_map()
+            return Map(native_map.X, native_map.Y, native_map.data)
+        with _use_backend("python"):
+            return self._calculate_dispersion_angle_map_python()
+
+    def _calculate_dispersion_angle_map_python(self):
         """
         Creates a lookup table of dispersion angles for each two theta value and distance from the center of the
         soller slit rotation center
@@ -122,6 +141,8 @@ class SollerCorrection(object):
         :param d2: upper bound of the sample region
         :return: transfer function with same dimensions as two_theta
         """
+        if self._rust_correction is not None:
+            return self._rust_correction.transfer_function_from_region(d1, d2)
         distance = self.dispersion_angle_map.Y[:, 0]
         region_ind = np.logical_and(distance > d1, distance < d2)
         transfer_function = 1. / np.sum(self.dispersion_angle_map.data[region_ind, :], 0)
@@ -158,11 +179,11 @@ class SollerCorrection(object):
     
 class SollerCorrectionGui(SollerCorrection):
     def __init__(self,  q, wavelength, max_thickness, inner_radius=62, outer_radius=210,
-                 inner_width=0.05, outer_width=0.2, inner_length=8, outer_length=6):
+                 inner_width=0.05, outer_width=0.2, inner_length=8, outer_length=6, *, backend=None):
 
         two_theta = np.arcsin(q * wavelength / (4 * np.pi)) * 360 / np.pi
         super(SollerCorrectionGui, self).__init__(two_theta, max_thickness, inner_radius, outer_radius,
-                 inner_width, outer_width, inner_length, outer_length)
+                 inner_width, outer_width, inner_length, outer_length, backend=backend)
         self.wavelength = wavelength
         self.q = q
 
@@ -175,10 +196,12 @@ class Map(object):
         self.data = data
 
 
+@_dispatch
 def vector_length(vec):
     return np.sqrt(np.sum(vec ** 2))
 
 
+@_dispatch
 def calculate_angles(point1, point2, p):
     """
     calculates the angle between vectors going from the two points (point1, point2) to a central point p using
@@ -189,6 +212,7 @@ def calculate_angles(point1, point2, p):
                          (point2[0] - p[0]) ** 2 + (point2[1] - p[1]) ** 2)))
 
 
+@_dispatch
 def calculate_x_axis_intercept(p1, p2):
     """
     obtains the x-axis intercept of a line defined by two points.
@@ -198,6 +222,7 @@ def calculate_x_axis_intercept(p1, p2):
     return -c / m
 
 
+@_dispatch
 def calculate_y_axis_intercept(p1, p2):
     """
     obtains the y-axis intercept of a line defined by two points.
@@ -206,6 +231,7 @@ def calculate_y_axis_intercept(p1, p2):
     return m * (-p2[0]) + p2[1]
 
 
+@_dispatch
 def calculate_rectangular_side_points(radius, angle, width):
     """
     calculates the points which are rectangularly width/2 away at a certain angle, radius combination

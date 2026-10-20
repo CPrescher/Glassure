@@ -1,21 +1,41 @@
 # -*- coding: utf-8 -*-
+from .backend import dispatch as _dispatch
 import os
 import re
 from abc import ABC, abstractmethod
 
 import numpy as np
-import scipy
-from scipy.interpolate import interp1d
-import pandas
+from functools import cached_property
+from ._optional import import_legacy
 from . import _module_path
 
-import xraylib as xr
 
 module_data_path = os.path.join(_module_path(), "data")
 
-atomic_weights = pandas.read_csv(
-    os.path.join(module_data_path, "atomic_weights.csv"), index_col=0
-)
+
+def __getattr__(name):
+    if name == "atomic_weights":
+        table = import_legacy("pandas").read_csv(
+            os.path.join(module_data_path, "atomic_weights.csv"), index_col=0
+        )
+        globals()[name] = table
+        return table
+    raise AttributeError(name)
+
+
+def _elements_native(calculator):
+    from . import rust
+    return rust.get_available_elements(calculator.source)
+
+
+def _coherent_native(calculator, element, q):
+    from . import rust
+    return rust.calculate_coherent_scattering_factor(element, q, calculator.source)
+
+
+def _incoherent_native(calculator, element, q):
+    from . import rust
+    return rust.calculate_incoherent_scattered_intensity(element, q, calculator.source)
 
 
 class ScatteringFactorCalculator(ABC):
@@ -32,6 +52,7 @@ class ScatteringFactorCalculator(ABC):
         raise NotImplementedError
 
     @property
+    @_dispatch(native=_elements_native)
     def elements(self):
         raise NotImplementedError
 
@@ -40,21 +61,27 @@ class ScatteringFactorCalculatorHajdu(ScatteringFactorCalculator):
     """
     Scattering factor calculator based on the work of Hajdu et al. (Acta Cryst. (1992). A48, 344-352).
     """
+    source = "hajdu"
 
-    def __init__(self):
-        self.coherent_param = pandas.read_csv(
+    @cached_property
+    def coherent_param(self):
+        return import_legacy("pandas").read_csv(
             os.path.join(
                 module_data_path, "hajdu", "param_coherent_scattering_factors.csv"
             ),
             index_col=0,
         )
-        self.incoherent_param = pandas.read_csv(
+
+    @cached_property
+    def incoherent_param(self):
+        return import_legacy("pandas").read_csv(
             os.path.join(
                 module_data_path, "hajdu", "param_incoherent_scattering_intensities.csv"
             ),
             index_col=0,
         )
 
+    @_dispatch(native=_coherent_native)
     def get_coherent_scattering_factor(self, element: str, q):
         """
         Calculates the coherent scattering factor for a given element and q values.
@@ -76,6 +103,7 @@ class ScatteringFactorCalculatorHajdu(ScatteringFactorCalculator):
         fs_coh += C
         return fs_coh
 
+    @_dispatch(native=_incoherent_native)
     def get_incoherent_intensity(self, element: str, q):
         """
         Calculates the incoherent scattering intensity for a given element and q values.
@@ -97,6 +125,7 @@ class ScatteringFactorCalculatorHajdu(ScatteringFactorCalculator):
         return intensity_incoherent
 
     @property
+    @_dispatch(native=_elements_native)
     def elements(self):
         """
         Returns a list of available elements.
@@ -108,9 +137,11 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
     """
     Scattering factor calculator based on the work of Brown et al., 2006 and Hubbell et al., 1975.
     """
+    source = "brown_hubbell"
 
-    def __init__(self):
-        self.coherent_params = pandas.read_csv(
+    @cached_property
+    def coherent_params(self):
+        return import_legacy("pandas").read_csv(
             os.path.join(
                 module_data_path,
                 "brown_hubbell",
@@ -119,7 +150,9 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
             index_col=0,
         )
 
-        self.incoherent_intensities = pandas.read_csv(
+    @cached_property
+    def incoherent_intensities(self):
+        return import_legacy("pandas").read_csv(
             os.path.join(
                 module_data_path,
                 "brown_hubbell",
@@ -127,6 +160,7 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
             )
         )
 
+    @_dispatch(native=_coherent_native)
     def get_coherent_scattering_factor(self, element: str, q):
         """
         Calculates the coherent scattering factor for a given element and q values.
@@ -148,6 +182,7 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
         fs_coh += C
         return fs_coh
 
+    @_dispatch(native=_incoherent_native)
     def get_incoherent_intensity(self, element: str, q):
         """
         Calculates the incoherent scattering intensity for a given element and q values.
@@ -160,7 +195,7 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
         element = re.findall("[A-zA-Z]*", element)[0]
         if element not in self.incoherent_intensities.keys():
             raise ElementNotImplementedException(element)
-        interp = scipy.interpolate.interp1d(
+        interp = import_legacy("scipy.interpolate").interp1d(
             self.incoherent_intensities["q"],
             self.incoherent_intensities[element],
             kind="cubic",
@@ -168,6 +203,7 @@ class ScatteringFactorCalculatorBrownHubbell(ScatteringFactorCalculator):
         return interp(q)
 
     @property
+    @_dispatch(native=_elements_native)
     def elements(self):
         """
         Returns a list of available elements.
@@ -180,14 +216,14 @@ class ScatteringFactorCalculatorXraylib(ScatteringFactorCalculator):
     Scattering factor calculator using xraylib library. See https://github.com/tschoonj/xraylib/wiki
     for more details.
     """
+    source = "xraylib"
 
-    def __init__(self):
-        """
-        Initializes the xraylib scattering factor calculator.
-        """
+    @cached_property
+    def _elements(self):
+        xr = import_legacy("xraylib")
+        return [xr.AtomicNumberToSymbol(i) for i in range(1, 108)]
 
-        self._elements = [xr.AtomicNumberToSymbol(i) for i in range(1, 108)]
-
+    @_dispatch(native=_coherent_native)
     def get_coherent_scattering_factor(self, element: str, q):
         """
         Calculates the coherent scattering factor for a given element and q values.
@@ -196,10 +232,12 @@ class ScatteringFactorCalculatorXraylib(ScatteringFactorCalculator):
         :param q: q array
         :return: coherent scattering factor array
         """
+        xr = import_legacy("xraylib")
         q_xr = q / (4 * np.pi)
         element_number = xr.SymbolToAtomicNumber(element)
         return np.array([xr.FF_Rayl(element_number, v) for v in q_xr])
 
+    @_dispatch(native=_incoherent_native)
     def get_incoherent_intensity(self, element: str, q):
         """
         Calculates the incoherent scattering intensity for a given element and q values,
@@ -209,6 +247,7 @@ class ScatteringFactorCalculatorXraylib(ScatteringFactorCalculator):
         :param q: 1D numpy array of q values
         :return: numpy array of incoherent scattering intensity
         """
+        xr = import_legacy("xraylib")
         element_number = xr.SymbolToAtomicNumber(element)
         q_xr = q / (4 * np.pi)
 
@@ -232,7 +271,7 @@ class ScatteringFactorCalculatorXraylib(ScatteringFactorCalculator):
             interp_q = np.concatenate((left_interp_x, q_xr_high[:n_interp]))
             interp_sf = np.concatenate((left_interp_y, sf_high[:n_interp]))
 
-            f_interp = interp1d(
+            f_interp = import_legacy("scipy.interpolate").interp1d(
                 interp_q, interp_sf, kind="cubic", bounds_error=False, fill_value=0.0
             )
 
@@ -244,6 +283,7 @@ class ScatteringFactorCalculatorXraylib(ScatteringFactorCalculator):
         return values
 
     @property
+    @_dispatch(native=_elements_native)
     def elements(self):
         """
         Returns a list of available elements.
@@ -269,6 +309,7 @@ def get_calculator(source: str) -> ScatteringFactorCalculator:
     return calculators[source]
 
 
+@_dispatch
 def get_available_elements(source: str) -> list[str]:
     """
     Returns a list of available elements for a given source. Possible sources are 'hajdu', 'brown_hubbell' and
@@ -277,6 +318,7 @@ def get_available_elements(source: str) -> list[str]:
     return get_calculator(source).elements
 
 
+@_dispatch
 def calculate_coherent_scattering_factor(
     element: str, q: np.ndarray, source: str = "hajdu"
 ) -> np.ndarray:
@@ -291,6 +333,7 @@ def calculate_coherent_scattering_factor(
     return get_calculator(source).get_coherent_scattering_factor(element, q)
 
 
+@_dispatch
 def calculate_incoherent_scattered_intensity(
     element: str, q: np.ndarray, source: str = "hajdu"
 ) -> np.ndarray:

@@ -77,7 +77,8 @@ class UtilityTest(unittest.TestCase):
 
         f_squared_mean_hand = 1 / 3.0 * si_f**2 + 2 / 3.0 * o_f**2
 
-        self.assertTrue(np.array_equal(f_squared_mean, f_squared_mean_hand))
+        # Independent evaluation paths can differ by floating-point rounding.
+        np.testing.assert_allclose(f_squared_mean, f_squared_mean_hand, rtol=1e-14, atol=0)
 
     def test_calculate_S0(self):
         S0 = calculate_s0({"Si": 1, "O": 2})

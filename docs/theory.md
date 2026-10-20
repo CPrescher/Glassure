@@ -105,7 +105,21 @@ $Q$ because the atomic form factors depend on $Q$.
 
 Let $I_{\mathrm{corr}}(Q)$ denote the background-subtracted and otherwise corrected
 experimental intensity in arbitrary units. Glassure provides two normalization
-methods.
+methods. The high-$Q$ fit method is the default in `TransformConfig`; the integral
+method is available by assigning `IntNormalization` explicitly.
+
+The symbols used below are:
+
+- $\alpha$: scale from arbitrary detector units to calculated atomic-scattering units;
+- $\langle f^2\rangle$: composition-averaged coherent self scattering;
+- $\langle f\rangle^2$: square of the composition-averaged coherent form factor;
+- $I_{\mathrm{inc}}$: tabulated incoherent (Compton) scattering of the sample;
+- $I_{\mathrm{container,inc}}$: incoherent-scattering shape of an optional container;
+- $\beta$: fitted amplitude of that container contribution;
+- $m$: optional constant approximation to residual multiple scattering;
+- $Q_{\mathrm{fit}}$ and $p$: lower fit cutoff and reciprocal-space weighting exponent;
+- $\rho_0$: atomic number density; and
+- $A(Q)=\exp(-aQ^2)$: attenuation function used by integral normalization.
 
 ### Krogh–Moe–Norman integral normalization
 
@@ -176,6 +190,111 @@ $$
 for the reduced total-scattering function in reciprocal space. The symbol $F(r)$
 below denotes its sine transform; naming conventions differ across the total-
 scattering literature, where $F(r)$ is also often called $G(r)$.
+
+### Coordination-number estimation
+
+For a number density $\rho_0$, Glassure derives the radial distribution function
+
+$$
+\operatorname{RDF}(r)=4\pi\rho_0r^2g(r).
+$$
+
+The mean population of a shell bounded by $r_1$ and $r_2$ is estimated by integrating
+this function:
+
+$$
+N(r_1,r_2)=\int_{r_1}^{r_2}\operatorname{RDF}(r)\,dr.
+$$
+
+`calculate_rdf()` returns the integrand as a `Pattern`; the caller selects and records
+the shell boundaries. For elemental samples the integral is a mean coordination
+number.
+
+For a multicomponent material, the number of atoms of species $j$ around a central
+atom of species $i$ is
+
+$$
+N_{ij}(r_1,r_2)=4\pi\rho_0c_j
+\int_{r_1}^{r_2}r^2g_{ij}(r)\,dr,
+$$
+
+where $c_j$ is the atomic fraction of the neighbouring species and $g_{ij}(r)$ is
+the partial pair-distribution function. Thus $N_i=\sum_jN_{ij}$,
+$\overline N=\sum_i c_iN_i$, and equivalent pair counts satisfy
+$c_iN_{ij}=c_jN_{ji}$.
+
+A single X-ray total does not provide the partial functions separately. Glassure
+therefore offers two X-ray-weighted representations for fitting assigned pair
+shells.
+
+The first constructs the shell in reciprocal space. For an assigned Gaussian
+distance distribution, its contribution to $i(Q)=S(Q)-1$ is
+
+$$
+i_{ij}(Q)=\frac{N_{ij}}{c_j}w_{ij}(Q)
+\frac{\sin(Qr_{ij})}{Qr_{ij}}
+\exp\!\left(-\frac{Q^2\sigma_{ij}^2}{2}\right),
+$$
+
+where
+
+$$
+w_{ij}(Q)=(2-\delta_{ij})
+\frac{c_ic_jf_i(Q)f_j(Q)}{\langle f(Q)\rangle^2}.
+$$
+
+The function `i_q_peak()` returns this contribution directly. `t_r_peak()` evaluates
+the same model on the experimental $Q$ grid and Fourier transforms it with the
+selected $Q$ limits and optional Lorch function. This route retains the full
+$Q$-dependent Faber--Ziman weight and the termination effects present in the data.
+
+The second route provides a direct Gaussian model for $T(r)=\operatorname{RDF}(r)/r$
+using Warren--Krutter--Morningstar effective atomic numbers,
+
+$$
+K_i=\left\langle\frac{f_i(Q)}{f_{\mathrm e}(Q)}\right\rangle_Q,
+\qquad
+f_{\mathrm e}(Q)=\frac{\sum_k c_kf_k(Q)}{\sum_k c_kZ_k},
+$$
+
+and the constant X-ray pair weight
+
+$$
+W_{ij}^{\mathrm X}=(2-\delta_{ij})
+\frac{c_ic_jK_iK_j}{\left(\sum_kc_kK_k\right)^2}.
+$$
+
+The assigned peak is
+
+$$
+T_{ij}^{\mathrm G}(r)=
+\frac{N_{ij}W_{ij}^{\mathrm X}}
+{c_j\sigma_{ij}r\sqrt{2\pi}}
+\exp\!\left[-\frac{(r-r_{ij})^2}{2\sigma_{ij}^2}\right].
+$$
+
+If $r_1$ and $r_2$ include the complete modeled peak, its area recovers the
+coordination number as
+
+$$
+N_{ij}=\frac{c_j}{W_{ij}^{\mathrm X}}
+\int_{r_1}^{r_2}rT_{ij}^{\mathrm G}(r)\,dr
+=\frac{c_j}{W_{ij}^{\mathrm X}}
+\int_{r_1}^{r_2}\operatorname{RDF}_{ij}^{\mathrm G}(r)\,dr.
+$$
+
+Thus a multicomponent estimate depends on both the atomic fraction $c_j$ and the
+X-ray pair weight $W_{ij}^{\mathrm X}$. `t_r_peak_gaussian()` implements this
+real-space model. It uses the $Q=0$ effective atomic numbers by default, for which
+$K_i=Z_i$, or accepts the experimental $Q$ array to average $K_i$ over the measured
+range. `calculate_weighting_factor_wkm()` exposes the weight separately.
+
+Both routes yield model-dependent $N_{ij}$ values. Overlapping element pairs cannot
+be separated by integrating the unresolved total RDF alone, and the assumed pair
+assignment, shell shape, density, $Q$ range, modification function and other
+reduction settings must be reported. The reciprocal-space route retains
+$w_{ij}(Q)$, whereas the direct real-space route uses a constant-weight
+approximation.
 
 ### Limiting behavior
 
@@ -307,6 +426,13 @@ $$
 $$
 
 ## Structure-factor optimization
+
+Glassure does not originate either low-$r$ correction method described below. The
+iterative reciprocal--real-space method originates with Kaplow, Strong & Averbach
+(1965) and was developed for quantitative high-pressure X-ray reduction by Eggert
+et al. (2002). The polynomial method was introduced in the PDFgetX3 paper by Juhás
+et al. (2013). Glassure provides both established routes through one configurable
+API.
 
 Optimization reduces slowly varying systematic errors by using the physically empty
 real-space region below the shortest interatomic distance. It should not be used to

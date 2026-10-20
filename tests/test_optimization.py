@@ -15,7 +15,12 @@ from glassure.utility import (
 from glassure.transform import calculate_sq, calculate_fr, calculate_gr
 from glassure.normalization import normalize_fit
 from glassure.configuration import OptimizeConfig
-from glassure.optimization import optimize_sq, optimize_density, optimize_sq_fit
+from glassure.optimization import (
+    fit_polynom_through_origin,
+    optimize_sq,
+    optimize_density,
+    optimize_sq_fit,
+)
 from glassure.calc import create_calculate_pdf_configs
 from glassure.methods import ExtrapolationMethod, FourierTransformMethod
 
@@ -206,6 +211,28 @@ def test_optimize_sq_fit_SiO2(sq, atomic_density):
     assert np.mean((np.array(gr_original.y) - np.array(gr_fit.y)) ** 2) < 1.0
     assert np.mean((np.array(gr_original.y) - np.array(gr_kaplow.y)) ** 2) < 1.0
     assert np.mean((np.array(gr_fit.y) - np.array(gr_kaplow.y)) ** 2) < 1.0
+
+
+def test_fit_polynom_through_origin_is_stable_at_high_degree():
+    x = np.linspace(0.5, 26.0, 2000)
+    z = x / x.max()
+    y = 0.8 * z - 0.3 * z**4 + 0.05 * z**12
+
+    coefficients = fit_polynom_through_origin(x, y, degree=13)
+    fitted = np.polyval(coefficients, x)
+
+    assert coefficients[-1] == 0
+    assert np.max(np.abs(fitted - y)) < 1e-8
+
+
+def test_optimize_sq_fit_is_finite_at_exact_q_zero():
+    q = np.linspace(0, 20, 1001)
+    sq = Pattern(q, 1 + 0.1 * np.cos(q))
+
+    optimized = optimize_sq_fit(sq, r_cutoff=1.5)
+
+    assert np.all(np.isfinite(optimized.y))
+    assert optimized.x[0] == 0
 
 
 def test_optimize_density_SiO2(data_path, bkg_path):

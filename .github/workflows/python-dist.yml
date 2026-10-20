@@ -1,0 +1,120 @@
+name: Python distributions
+
+on:
+  workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  wheels:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15, macos-15-intel, windows-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: astral-sh/setup-uv@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build portable wheel with the bundled Rust engine
+        uses: PyO3/maturin-action@v1
+        with:
+          args: --release --locked --out dist --interpreter ${{ matrix.python }}
+          manylinux: "2014"
+      - name: Audit distribution contents and requirements
+        run: python scripts/check_python_dist.py dist
+      - name: Install wheel and test dependencies outside the source tree
+        shell: bash
+        run: |
+          uv venv "$RUNNER_TEMP/glassure-minimal" --python python
+          uv pip install --python "$RUNNER_TEMP/glassure-minimal" dist/*.whl 'pytest>=7.3,<8'
+      - name: Test minimal installed package
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP"
+          uv run --no-project --python "$RUNNER_TEMP/glassure-minimal" python -m pytest "$GITHUB_WORKSPACE/tests/test_minimal_install.py" --import-mode=importlib -q
+      - name: Install optional legacy interfaces
+        shell: bash
+        run: |
+          for wheel in dist/*.whl; do
+            uv pip install --python "$RUNNER_TEMP/glassure-minimal" "${wheel}[dev]"
+          done
+      - name: Test installed Rust and Python APIs
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP"
+          coverage=()
+          if [ "$RUNNER_OS" = "Linux" ] && [ "${{ matrix.python }}" = "3.13" ]; then
+            coverage=(--cov=glassure --cov-report="xml:$GITHUB_WORKSPACE/coverage.xml")
+          fi
+          uv run --no-project --python "$RUNNER_TEMP/glassure-minimal" python -m pytest "$GITHUB_WORKSPACE/tests" --import-mode=append --glassure-backend=rust -q "${coverage[@]}"
+          uv run --no-project --python "$RUNNER_TEMP/glassure-minimal" python -m pytest "$GITHUB_WORKSPACE/tests" --import-mode=append --glassure-backend=python -q
+      - name: Upload Python API coverage
+        if: runner.os == 'Linux' && matrix.python == '3.13'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist-${{ matrix.os }}-${{ matrix.python }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  sdist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build source archive
+        run: uv build --sdist
+      - name: Audit source archive
+        run: python scripts/check_python_dist.py dist
+      - name: Rebuild and test exclusively from the source archive
+        shell: bash
+        run: |
+          mkdir "$RUNNER_TEMP/glassure-sdist"
+          tar -xzf dist/*.tar.gz -C "$RUNNER_TEMP/glassure-sdist"
+          cd "$RUNNER_TEMP/glassure-sdist"/glassure-*
+          GLASSURE_SDIST_ROOT="$PWD"
+          uv build --wheel --out-dir "$RUNNER_TEMP/rebuilt-wheels"
+          uv venv "$RUNNER_TEMP/sdist-env" --python python
+          uv pip install --python "$RUNNER_TEMP/sdist-env" "$RUNNER_TEMP"/rebuilt-wheels/*.whl 'pytest>=7.3,<8'
+          cd "$RUNNER_TEMP"
+          uv run --no-project --python "$RUNNER_TEMP/sdist-env" python -m pytest "$GLASSURE_SDIST_ROOT/tests/test_minimal_install.py" --import-mode=importlib -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist-sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  minimum-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - uses: astral-sh/setup-uv@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - run: uv build --wheel
+      - name: Verify supported minimum NumPy and Pydantic
+        shell: bash
+        run: |
+          uv venv "$RUNNER_TEMP/glassure-minimum" --python python
+          uv pip install --python "$RUNNER_TEMP/glassure-minimum" dist/*.whl numpy==1.26.0 pydantic==2.7.1 'pytest>=7.3,<8'
+          cd "$RUNNER_TEMP"
+          uv run --no-project --python "$RUNNER_TEMP/glassure-minimum" python -m pytest "$GITHUB_WORKSPACE/tests/test_minimal_install.py" --import-mode=importlib -q

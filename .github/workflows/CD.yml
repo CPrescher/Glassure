@@ -1,67 +1,44 @@
-# This workflow installs python, uv, and builds the package
-# It then uploads the wheels to the artifacts and later to PyPI
-name: CD
+name: Publish Python release
 
 on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
-  build_package:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.12"]
+  distributions:
+    uses: ./.github/workflows/python-dist.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # needed so hatch-vcs/uv see tags for dynamic versioning
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-
-      - name: Sync dependencies
-        run: uv sync --extra dev
-
-      - name: Build package (wheel + sdist)
-        run: uv build
-
-      - name: Upload wheels to artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels
-          path: dist/*
+  rust:
+    uses: ./.github/workflows/rust.yml
 
   pypi-publish:
-    name: Upload release to PyPI
-    needs: build_package
+    name: Publish tested distributions to PyPI
+    needs: [distributions, rust]
     runs-on: ubuntu-latest
     environment:
       name: pypi
       url: https://pypi.org/p/glassure/
     permissions:
-      id-token: write  # required for OIDC auth to PyPI
-
+      id-token: write
+      contents: read
     steps:
-      - name: Download built distributions
-        uses: actions/download-artifact@v4.1.7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          name: wheels
+          python-version: "3.13"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: python-dist-*
+          merge-multiple: true
           path: dist
-
-      - name: Inspect dist folder
-        run: ls -l dist
-
-      - name: Publish to PyPI
+      - name: Check every artifact matches the release tag
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: python scripts/check_python_dist.py dist --expected-tag "$RELEASE_TAG"
+      - name: Publish to PyPI with trusted publishing
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          verbose: true

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .backend import dispatch as _dispatch
 import numpy as np
 
 from .utility import calculate_weighting_factor, calculate_weighting_factor_wkm
@@ -7,6 +8,7 @@ from .transform import calculate_fr
 from .pattern import Pattern
 
 
+@_dispatch
 def i_q_peak(q, n, position, sigma, composition, element_1, element_2):
     """
     Calculates the contribution of one element 1 - element 2 peak in real space to i(Q) (remember i(Q)=S(Q)-1). We
@@ -34,6 +36,7 @@ def i_q_peak(q, n, position, sigma, composition, element_1, element_2):
     )
 
 
+@_dispatch
 def t_r_peak(
     r,
     n,
@@ -80,13 +83,31 @@ def t_r_peak(
     ).y
 
 
-def t_r_peak_gaussian(r, n, position, sigma, composition, element_1, element_2):
-    """
-    Calculates the contribution of one element 1 - element 2 peak in real space to t(r). We assume a gaussian
-    distribution. The math is well explained in the LiquidDiffract paper (Heinen and Drewitt 2022. Physics and
-    Chemistry of Minerals 49, no. 5: 9. https://doi.org/10.1007/s00269-022-01186-6).
+@_dispatch
+def t_r_peak_gaussian(
+    r,
+    n,
+    position,
+    sigma,
+    composition,
+    element_1,
+    element_2,
+    q=0.0,
+):
+    r"""
+    Calculates the contribution of one element 1 - element 2 peak in real space to T(r). We assume a Gaussian
+    distribution. The relation is described by Heinen and Drewitt (2022, Physics and Chemistry of Minerals 49, 9;
+    https://doi.org/10.1007/s00269-022-01186-6):
 
-    The gaussian is weighted based on the X-ray form factors of the two elements.
+    .. math::
+        T_{12}(r) = \frac{N_{12} W_{12}^{\mathrm{X}}}
+        {c_2 \sigma r \sqrt{2\pi}}
+        \exp\left[-\frac{(r-r_{12})^2}{2\sigma^2}\right].
+
+    Here ``c_2`` is the atomic fraction of the neighbouring species and ``W_12^X`` is its Warren--Krutter--Morningstar
+    X-ray pair weight. The default evaluates the effective atomic numbers at Q = 0; passing the experimental Q array
+    instead uses their average over that range. Consequently, integrating ``r * T_12(r)`` over the complete peak and
+    multiplying the result by ``c_2 / W_12^X`` recovers the coordination number ``N_12``.
 
     :param r: numpy array giving the r-values for which the peak will be calculated
     :param n: coordination number of element 2 to element 1
@@ -94,13 +115,18 @@ def t_r_peak_gaussian(r, n, position, sigma, composition, element_1, element_2):
     :param sigma: measure for broadness of distances distribution
     :param composition: composition: dictionary with elements as key and abundances as relative numbers
     :param element_1: string giving element 1
-    :param element_2: string giving element 1
+    :param element_2: string giving element 2
+    :param q: Q value or array used for the Warren--Krutter--Morningstar effective atomic numbers. Default is 0.
 
     :return: T(r) pattern
     """
 
-    wf = 1 / calculate_weighting_factor_wkm(composition, element_1, element_2, 0)
+    num_atoms = sum(composition.values())
+    c_2 = composition[element_2] / num_atoms
+    weight = calculate_weighting_factor_wkm(
+        composition, element_1, element_2, q
+    )
 
-    part1 = n * wf / (composition[element_2] * sigma * r * np.sqrt(2 * np.pi))
+    part1 = n * weight / (c_2 * sigma * r * np.sqrt(2 * np.pi))
     part2 = np.exp(-((r - position) ** 2) / (2 * sigma**2))
     return part1 * part2

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
+from .backend import dispatch as _dispatch
+from ._optional import import_legacy
 import re
 from typing import Optional, Union, Dict, Any
 from collections import defaultdict
 from copy import copy
 
 import numpy as np
-from scipy import interpolate
-import scipy.constants as const
 
-import lmfit
-import xraylib as xr
 
 from .scattering_factors import (
     calculate_coherent_scattering_factor,
@@ -37,6 +35,7 @@ __all__ = [
 Composition = dict[str, float] | dict[str, int]
 
 
+@_dispatch
 def parse_str_to_composition(formula: str) -> Composition:
     """
     Parses a chemical formula string into a dictionary with elements as keys and abundances as relative numbers.
@@ -102,6 +101,7 @@ def parse_str_to_composition(formula: str) -> Composition:
     return dict(final_parsed)
 
 
+@_dispatch
 def calculate_f_mean_squared(
     composition: Composition, q: np.ndarray, sf_source="hajdu"
 ) -> np.ndarray:
@@ -121,6 +121,7 @@ def calculate_f_mean_squared(
     return res**2
 
 
+@_dispatch
 def calculate_f_squared_mean(
     composition: Composition, q: np.ndarray, sf_source: str = "hajdu"
 ) -> np.ndarray:
@@ -141,6 +142,7 @@ def calculate_f_squared_mean(
     return res
 
 
+@_dispatch
 def calculate_incoherent_scattering(
     composition: Composition, q: np.ndarray, sf_source: str = "hajdu"
 ) -> np.ndarray:
@@ -161,6 +163,7 @@ def calculate_incoherent_scattering(
     return res
 
 
+@_dispatch
 def calculate_s0(composition: Composition, sf_source: str = "hajdu") -> float:
     """
     Calculates the I0 value for a given composition by extrapolating the coherent scattering factor to zero where I(Q)
@@ -178,6 +181,7 @@ def calculate_s0(composition: Composition, sf_source: str = "hajdu") -> float:
     return s0[0]
 
 
+@_dispatch
 def calculate_kn_correction(
     q: Union[np.ndarray, float], wavelength: float
 ) -> np.ndarray:
@@ -191,6 +195,7 @@ def calculate_kn_correction(
 
     :return: Klein-Nishina correction array for the given q-values
     """
+    const = import_legacy("scipy.constants")
 
     tth = 2 * np.arcsin(q * wavelength / (4 * np.pi))
 
@@ -208,6 +213,7 @@ def calculate_kn_correction(
     return KN_correction(P(wavelength, tth), tth)
 
 
+@_dispatch
 def calculate_weighting_factor(
     composition: Composition,
     element_1: str,
@@ -253,6 +259,7 @@ def calculate_weighting_factor(
     )
 
 
+@_dispatch
 def calculate_weighting_factor_wkm(
     composition: Composition,
     element_1: str,
@@ -267,7 +274,7 @@ def calculate_weighting_factor_wkm(
 
     This means we calculate:
     .. math::
-        W_{\alpha \beta} = \frac{c_\alpha c_\beta K_\alpha(q) K_\beta(q) (2-\delta_{\alpha \beta})}{\sum_{\alpha} c_\alpha K_\alpha(q)^2}
+        W_{\alpha \beta} = \frac{c_\alpha c_\beta K_\alpha K_\beta (2-\delta_{\alpha \beta})}{\left(\sum_{\gamma} c_\gamma K_\gamma\right)^2}
 
     :param composition: dictionary with elements as key and abundances as relative numbers
     :param element_1: string giving element 1
@@ -308,6 +315,7 @@ def calculate_weighting_factor_wkm(
     return numerator / denominator
 
 
+@_dispatch
 def calculate_wkm_effective_atomic_number(
     composition: Composition,
     element: str,
@@ -341,17 +349,20 @@ def calculate_wkm_effective_atomic_number(
     return float(np.mean(form_factor / effective_form_factor))
 
 
+@_dispatch
 def calculate_total_atomic_number(
     composition: Composition | dict[str, float] | dict[str, int],
 ) -> float:
     r"""
     Calculates the total atomic number of a given composition.
     """
+    xr = import_legacy("xraylib")
     return sum(
         [xr.SymbolToAtomicNumber(element) * c for element, c in composition.items()]
     )
 
 
+@_dispatch
 def calculate_effective_form_factor(
     composition: Composition,
     q: np.ndarray,
@@ -382,6 +393,7 @@ def calculate_effective_form_factor(
     return form_factor_sum / total_atomic_number
 
 
+@_dispatch
 def normalize_composition(composition: Composition) -> dict[str, float]:
     """
     normalizes elemental abundances to 1
@@ -401,6 +413,7 @@ def normalize_composition(composition: Composition) -> dict[str, float]:
     return result
 
 
+@_dispatch
 def convert_density_to_atoms_per_cubic_angstrom(
     composition: Composition, density: float
 ) -> float:
@@ -421,6 +434,7 @@ def convert_density_to_atoms_per_cubic_angstrom(
     return float(density / mean_z * 0.602214129)
 
 
+@_dispatch
 def convert_density_to_grams_per_cubic_centimeter(
     composition: Composition, atomic_density: float
 ) -> float:
@@ -441,6 +455,7 @@ def convert_density_to_grams_per_cubic_centimeter(
     return float(atomic_density * mean_z / 0.602214129)
 
 
+@_dispatch
 def extrapolate_to_zero_step(pattern: Pattern, y0: float = 0) -> Pattern:
     """
     Extrapolates a pattern to (0, y0) by setting everything below the q_min of the pattern to y0 (default=0)
@@ -458,6 +473,7 @@ def extrapolate_to_zero_step(pattern: Pattern, y0: float = 0) -> Pattern:
     return Pattern(np.concatenate((low_x, x)), np.concatenate((low_y, y)))
 
 
+@_dispatch
 def extrapolate_to_zero_linear(pattern: Pattern, y0: float = 0) -> Pattern:
     """
     Extrapolates a pattern to (0, y0) using a linear function from the leftest point in the pattern
@@ -474,6 +490,7 @@ def extrapolate_to_zero_linear(pattern: Pattern, y0: float = 0) -> Pattern:
     return Pattern(np.concatenate((low_x, x)), np.concatenate((low_y, y)))
 
 
+@_dispatch
 def extrapolate_to_zero_spline(
     pattern: Pattern,
     x_max: float,
@@ -496,6 +513,7 @@ def extrapolate_to_zero_spline(
 
     :return: extrapolated Pattern (includes the original one)
     """
+    interpolate = import_legacy("scipy.interpolate")
 
     x, y = pattern.data
     x_step = x[1] - x[0]
@@ -526,6 +544,7 @@ def extrapolate_to_zero_spline(
     return Pattern(np.concatenate((x_low, x)), np.concatenate((y_low, y)))
 
 
+@_dispatch
 def extrapolate_to_zero_poly(
     pattern: Pattern, x_max: float, replace: bool = False, y0: float = 0
 ) -> Pattern:
@@ -546,6 +565,7 @@ def extrapolate_to_zero_poly(
 
     :return: extrapolated Pattern
     """
+    lmfit = import_legacy("lmfit")
 
     x, y = pattern.data
     x_step = x[1] - x[0]
@@ -587,6 +607,7 @@ def extrapolate_to_zero_poly(
     return Pattern(np.concatenate((x_low, x)), np.concatenate((y_low, y)))
 
 
+@_dispatch
 def convert_two_theta_to_q_space_raw(
     two_theta: Union[float, np.ndarray], wavelength: float
 ) -> Union[float, np.ndarray]:
@@ -596,6 +617,7 @@ def convert_two_theta_to_q_space_raw(
     return 4 * np.pi * np.sin(two_theta / 360.0 * np.pi) / wavelength
 
 
+@_dispatch
 def convert_two_theta_to_q_space(pattern: Pattern, wavelength: float) -> Pattern:
     """
     Returns a new pattern with the x-axis converted from two theta into q space

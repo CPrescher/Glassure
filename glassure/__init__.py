@@ -1,10 +1,14 @@
 import sys
 import os
 
+from .backend import get_backend, set_backend, use_backend
+
 from .pattern import Pattern
+from importlib.metadata import PackageNotFoundError, version
+
 try:
-    from ._version import __version__
-except ImportError:
+    __version__ = version("glassure")
+except PackageNotFoundError:
     __version__ = "development"
 
 

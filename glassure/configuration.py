@@ -249,7 +249,8 @@ class TransformConfig(BaseModel):
     normalization: FitNormalization | IntNormalization = Field(
         default_factory=FitNormalization,
         description=(
-            "Normalization configuration model. Possible values are "
+            "Normalization configuration model. FitNormalization is the default. "
+            "Possible values are "
             ":class:`FitNormalization` or :class:`IntNormalization`."
         ),
     )

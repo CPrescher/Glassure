@@ -1,0 +1,456 @@
+{
+  "repetitions": 64,
+  "executable_sha256": "1458f54e73c4ca6bd06a3930f5568a66b4bf842817b745daba081a26a27a798d",
+  "rows": [
+    {
+      "case": "SiO2_density_lsq",
+      "algorithm": "lsq",
+      "request_sha256": "85db517083d164a3dc7805cd9a6f43c31b034e9fe41cc985dfb5cc08f50b71b4",
+      "mode": "auto",
+      "repetitions": 64,
+      "stages": [
+        {
+          "calls": 64,
+          "milliseconds": 1055.080835,
+          "percent_fit_time": 100.0,
+          "stage": "fit_total"
+        },
+        {
+          "calls": 64,
+          "milliseconds": 3.568254,
+          "percent_fit_time": 0.3381972150029623,
+          "stage": "preparation"
+        },
+        {
+          "calls": 1472,
+          "milliseconds": 1005.861131,
+          "percent_fit_time": 95.33498265087907,
+          "stage": "residual"
+        },
+        {
+          "calls": 1536,
+          "milliseconds": 1.751296,
+          "percent_fit_time": 0.1659869027949882,
+          "stage": "normalization"
+        },
+        {
+          "calls": 1536,
+          "milliseconds": 0.088805,
+          "percent_fit_time": 0.008416890635682905,
+          "stage": "extrapolation"
+        },
+        {
+          "calls": 1536,
+          "milliseconds": 857.195665,
+          "percent_fit_time": 81.24454890700389,
+          "stage": "sq_optimization"
+        },
+        {
+          "calls": 6144,
+          "milliseconds": 735.692876,
+          "percent_fit_time": 69.7285792325097,
+          "stage": "forward_transform"
+        },
+        {
+          "calls": 4608,
+          "milliseconds": 305.109775,
+          "percent_fit_time": 28.918142087188986,
+          "stage": "backward_transform"
+        },
+        {
+          "calls": 10752,
+          "milliseconds": 0.849285,
+          "percent_fit_time": 0.08049478028856434,
+          "stage": "fft_input"
+        },
+        {
+          "calls": 10752,
+          "milliseconds": 1012.907707,
+          "percent_fit_time": 96.00285337378912,
+          "stage": "fft_kernel"
+        },
+        {
+          "calls": 10752,
+          "milliseconds": 12.895212,
+          "percent_fit_time": 1.2222013301947618,
+          "stage": "fft_output"
+        }
+      ]
+    },
+    {
+      "case": "SiO2_density_brent_local",
+      "algorithm": "brent_local",
+      "request_sha256": "f70a224e2f5160403aefeabb0e8e06193648d85c355955af9aed7c035d1e796e",
+      "mode": "auto",
+      "repetitions": 64,
+      "stages": [
+        {
+          "calls": 64,
+          "milliseconds": 888.726411,
+          "percent_fit_time": 100.0,
+          "stage": "fit_total"
+        },
+        {
+          "calls": 64,
+          "milliseconds": 3.430586,
+          "percent_fit_time": 0.38601148312222267,
+          "stage": "preparation"
+        },
+        {
+          "calls": 1280,
+          "milliseconds": 842.162654,
+          "percent_fit_time": 94.76061964360818,
+          "stage": "residual"
+        },
+        {
+          "calls": 1344,
+          "milliseconds": 1.499637,
+          "percent_fit_time": 0.16874000608495476,
+          "stage": "normalization"
+        },
+        {
+          "calls": 1344,
+          "milliseconds": 0.076037,
+          "percent_fit_time": 0.008555726380905316,
+          "stage": "extrapolation"
+        },
+        {
+          "calls": 1344,
+          "milliseconds": 725.322494,
+          "percent_fit_time": 81.61369854912526,
+          "stage": "sq_optimization"
+        },
+        {
+          "calls": 5376,
+          "milliseconds": 623.03232,
+          "percent_fit_time": 70.10395013454821,
+          "stage": "forward_transform"
+        },
+        {
+          "calls": 4032,
+          "milliseconds": 257.549218,
+          "percent_fit_time": 28.979584134357406,
+          "stage": "backward_transform"
+        },
+        {
+          "calls": 9408,
+          "milliseconds": 0.728643,
+          "percent_fit_time": 0.08198732376819169,
+          "stage": "fft_input"
+        },
+        {
+          "calls": 9408,
+          "milliseconds": 871.631107,
+          "percent_fit_time": 98.076426694604,
+          "stage": "fft_kernel"
+        },
+        {
+          "calls": 9408,
+          "milliseconds": 3.708104,
+          "percent_fit_time": 0.4172379659368534,
+          "stage": "fft_output"
+        }
+      ]
+    },
+    {
+      "case": "SiO2_density_brent",
+      "algorithm": "brent",
+      "request_sha256": "49388ed41bd260317a79d38ee480434cc56b0a6748e95db3e63d9320e60abe24",
+      "mode": "auto",
+      "repetitions": 64,
+      "stages": [
+        {
+          "calls": 64,
+          "milliseconds": 728.600542,
+          "percent_fit_time": 100.0,
+          "stage": "fit_total"
+        },
+        {
+          "calls": 64,
+          "milliseconds": 3.708832,
+          "percent_fit_time": 0.5090350317087741,
+          "stage": "preparation"
+        },
+        {
+          "calls": 1024,
+          "milliseconds": 681.728695,
+          "percent_fit_time": 93.56686630079395,
+          "stage": "residual"
+        },
+        {
+          "calls": 1088,
+          "milliseconds": 1.272485,
+          "percent_fit_time": 0.17464782506296844,
+          "stage": "normalization"
+        },
+        {
+          "calls": 1088,
+          "milliseconds": 0.060987,
+          "percent_fit_time": 0.008370430226773013,
+          "stage": "extrapolation"
+        },
+        {
+          "calls": 1088,
+          "milliseconds": 594.297085,
+          "percent_fit_time": 81.5669287547689,
+          "stage": "sq_optimization"
+        },
+        {
+          "calls": 4352,
+          "milliseconds": 510.052275,
+          "percent_fit_time": 70.0043776525217,
+          "stage": "forward_transform"
+        },
+        {
+          "calls": 3264,
+          "milliseconds": 210.751264,
+          "percent_fit_time": 28.92548822726514,
+          "stage": "backward_transform"
+        },
+        {
+          "calls": 7616,
+          "milliseconds": 0.590282,
+          "percent_fit_time": 0.08101586067719395,
+          "stage": "fft_input"
+        },
+        {
+          "calls": 7616,
+          "milliseconds": 713.283387,
+          "percent_fit_time": 97.89772939806569,
+          "stage": "fft_kernel"
+        },
+        {
+          "calls": 7616,
+          "milliseconds": 3.102266,
+          "percent_fit_time": 0.4257842015165561,
+          "stage": "fft_output"
+        }
+      ]
+    },
+    {
+      "case": "Mg2SiO4_density_lsq",
+      "algorithm": "lsq",
+      "request_sha256": "bd3da3806514cf1a3fccecf9b43e7de843b48f5267b98377b01e5f2699daf412",
+      "mode": "auto",
+      "repetitions": 64,
+      "stages": [
+        {
+          "calls": 64,
+          "milliseconds": 2016.356374,
+          "percent_fit_time": 100.0,
+          "stage": "fit_total"
+        },
+        {
+          "calls": 64,
+          "milliseconds": 18.053205,
+          "percent_fit_time": 0.8953380083395913,
+          "stage": "preparation"
+        },
+        {
+          "calls": 576,
+          "milliseconds": 1801.932441,
+          "percent_fit_time": 89.365772054737,
+          "stage": "residual"
+        },
+        {
+          "calls": 640,
+          "milliseconds": 5.592745,
+          "percent_fit_time": 0.2773688754684394,
+          "stage": "normalization"
+        },
+        {
+          "calls": 640,
+          "milliseconds": 0.417172,
+          "percent_fit_time": 0.020689398232338466,
+          "stage": "extrapolation"
+        },
+        {
+          "calls": 640,
+          "milliseconds": 1633.574983,
+          "percent_fit_time": 81.01618365008328,
+          "stage": "sq_optimization"
+        },
+        {
+          "calls": 2560,
+          "milliseconds": 1389.416891,
+          "percent_fit_time": 68.90730770194693,
+          "stage": "forward_transform"
+        },
+        {
+          "calls": 1920,
+          "milliseconds": 588.84268,
+          "percent_fit_time": 29.203303919528263,
+          "stage": "backward_transform"
+        },
+        {
+          "calls": 4480,
+          "milliseconds": 2.087704,
+          "percent_fit_time": 0.10353844324941738,
+          "stage": "fft_input"
+        },
+        {
+          "calls": 4480,
+          "milliseconds": 1931.285779,
+          "percent_fit_time": 95.78097423169105,
+          "stage": "fft_kernel"
+        },
+        {
+          "calls": 4480,
+          "milliseconds": 22.179441,
+          "percent_fit_time": 1.0999762386249683,
+          "stage": "fft_output"
+        }
+      ]
+    },
+    {
+      "case": "Mg2SiO4_density_brent_local",
+      "algorithm": "brent_local",
+      "request_sha256": "68ea0f3f4b3c781e917fad8a734f19c51ac77055078753e9450ebf9c40b4df2d",
+      "mode": "auto",
+      "repetitions": 64,
+      "stages": [
+        {
+          "calls": 64,
+          "milliseconds": 3296.721584,
+          "percent_fit_time": 100.0,
+          "stage": "fit_total"
+        },
+        {
+          "calls": 64,
+          "milliseconds": 18.180004,
+          "percent_fit_time": 0.5514570623201283,
+          "stage": "preparation"
+        },
+        {
+          "calls": 1024,
+          "milliseconds": 3083.293692,
+          "percent_fit_time": 93.52605652124733,
+          "stage": "residual"
+        },
+        {
+          "calls": 1088,
+          "milliseconds": 8.639144,
+          "percent_fit_time": 0.26205258102256535,
+          "stage": "normalization"
+        },
+        {
+          "calls": 1088,
+          "milliseconds": 0.774775,
+          "percent_fit_time": 0.023501377967742876,
+          "stage": "extrapolation"
+        },
+        {
+          "calls": 1088,
+          "milliseconds": 2675.250675,
+          "percent_fit_time": 81.1488203305918,
+          "stage": "sq_optimization"
+        },
+        {
+          "calls": 4352,
+          "milliseconds": 2305.854457,
+          "percent_fit_time": 69.94386387346199,
+          "stage": "forward_transform"
+        },
+        {
+          "calls": 3264,
+          "milliseconds": 953.863137,
+          "percent_fit_time": 28.933687989589114,
+          "stage": "backward_transform"
+        },
+        {
+          "calls": 7616,
+          "milliseconds": 3.557761,
+          "percent_fit_time": 0.10791815169551788,
+          "stage": "fft_input"
+        },
+        {
+          "calls": 7616,
+          "milliseconds": 3232.957959,
+          "percent_fit_time": 98.06584743736127,
+          "stage": "fft_kernel"
+        },
+        {
+          "calls": 7616,
+          "milliseconds": 11.181223,
+          "percent_fit_time": 0.33916188295262484,
+          "stage": "fft_output"
+        }
+      ]
+    },
+    {
+      "case": "Mg2SiO4_density_brent",
+      "algorithm": "brent",
+      "request_sha256": "ef1c467ea726a37c0db1c6fda3d60a70c37978569cc142dc4caa9f0435158721",
+      "mode": "auto",
+      "repetitions": 64,
+      "stages": [
+        {
+          "calls": 64,
+          "milliseconds": 3116.345126,
+          "percent_fit_time": 100.0,
+          "stage": "fit_total"
+        },
+        {
+          "calls": 64,
+          "milliseconds": 18.015666,
+          "percent_fit_time": 0.5781024011010005,
+          "stage": "preparation"
+        },
+        {
+          "calls": 960,
+          "milliseconds": 2903.765933,
+          "percent_fit_time": 93.17857347613943,
+          "stage": "residual"
+        },
+        {
+          "calls": 1024,
+          "milliseconds": 8.445168,
+          "percent_fit_time": 0.2709959153606275,
+          "stage": "normalization"
+        },
+        {
+          "calls": 1024,
+          "milliseconds": 0.707717,
+          "percent_fit_time": 0.022709840257917568,
+          "stage": "extrapolation"
+        },
+        {
+          "calls": 1024,
+          "milliseconds": 2536.121996,
+          "percent_fit_time": 81.38129422318676,
+          "stage": "sq_optimization"
+        },
+        {
+          "calls": 4096,
+          "milliseconds": 2173.883671,
+          "percent_fit_time": 69.75747496203346,
+          "stage": "forward_transform"
+        },
+        {
+          "calls": 3072,
+          "milliseconds": 906.50551,
+          "percent_fit_time": 29.088739319561487,
+          "stage": "backward_transform"
+        },
+        {
+          "calls": 7168,
+          "milliseconds": 3.366545,
+          "percent_fit_time": 0.10802863174276031,
+          "stage": "fft_input"
+        },
+        {
+          "calls": 7168,
+          "milliseconds": 3054.787013,
+          "percent_fit_time": 98.02466958853773,
+          "stage": "fft_kernel"
+        },
+        {
+          "calls": 7168,
+          "milliseconds": 10.72559,
+          "percent_fit_time": 0.34417208512995745,
+          "stage": "fft_output"
+        }
+      ]
+    }
+  ]
+}

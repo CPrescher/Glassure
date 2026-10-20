@@ -1,0 +1,790 @@
+{
+  "created_utc": "2026-10-19T14:23:14.155547+00:00",
+  "script_sha256": "3dfa68df2c378133c316c0e5be4ee8c26873952ebb05188d597847c05617db34",
+  "workload_script_sha256": "e39d302151ae1db84627e6eb54d05473a83eec85d392335d1c9abd2ca4e1660a",
+  "parameter_tolerances": {
+    "absolute": 1e-05,
+    "relative_fitted": 1e-06,
+    "relative_errors": 0.001
+  },
+  "options": {
+    "method": "gr",
+    "min_range": [
+      0.1,
+      1.0
+    ],
+    "vary_bkg_scaling": false
+  },
+  "rows": [
+    {
+      "case": "SiO2_density",
+      "job": 0,
+      "background_scale": 0.98,
+      "strict_parameter_parity": true,
+      "python": [
+        9.676537901249102,
+        0.594440270032973,
+        0.98,
+        0
+      ],
+      "rust": [
+        9.676537419593036,
+        0.5944402497134861,
+        0.98,
+        0.0
+      ],
+      "absolute_density_difference": 4.816560661424774e-07,
+      "python_objective": 0.0004707803349991023,
+      "rust_fit_objective_evaluated_in_python": 0.00047078033498468497,
+      "relative_objective_difference": 3.062434844263272e-11,
+      "rust_evaluations": 43,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 1,
+      "background_scale": 0.9826666666666667,
+      "strict_parameter_parity": true,
+      "python": [
+        9.624582972297791,
+        0.5961687223996714,
+        0.9826666666666667,
+        0
+      ],
+      "rust": [
+        9.624583361062445,
+        0.5961687011830995,
+        0.9826666666666667,
+        0.0
+      ],
+      "absolute_density_difference": 3.8876465424664275e-07,
+      "python_objective": 0.0004443329605677786,
+      "rust_fit_objective_evaluated_in_python": 0.0004443329605767774,
+      "relative_objective_difference": 2.0252311689669856e-11,
+      "rust_evaluations": 43,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 2,
+      "background_scale": 0.9853333333333333,
+      "strict_parameter_parity": true,
+      "python": [
+        9.563716413345265,
+        0.5974318556109552,
+        0.9853333333333333,
+        0
+      ],
+      "rust": [
+        9.563715957688448,
+        0.5974318909732688,
+        0.9853333333333333,
+        0.0
+      ],
+      "absolute_density_difference": 4.556568171665276e-07,
+      "python_objective": 0.0004168754455288696,
+      "rust_fit_objective_evaluated_in_python": 0.0004168754455247926,
+      "relative_objective_difference": 9.779850751664207e-12,
+      "rust_evaluations": 46,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 3,
+      "background_scale": 0.988,
+      "strict_parameter_parity": true,
+      "python": [
+        9.492982602565995,
+        0.5980581669532398,
+        0.988,
+        0
+      ],
+      "rust": [
+        9.492982581022996,
+        0.5980582008095059,
+        0.988,
+        0.0
+      ],
+      "absolute_density_difference": 2.154299849621566e-08,
+      "python_objective": 0.0003884092334308255,
+      "rust_fit_objective_evaluated_in_python": 0.00038840923343032237,
+      "relative_objective_difference": 1.2953451536097511e-12,
+      "rust_evaluations": 41,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 4,
+      "background_scale": 0.9906666666666667,
+      "strict_parameter_parity": false,
+      "python": [
+        9.409127170257625,
+        0.5979072382777784,
+        0.9906666666666667,
+        0
+      ],
+      "rust": [
+        9.408828789264224,
+        0.5979192104000057,
+        0.9906666666666667,
+        0.0
+      ],
+      "absolute_density_difference": 0.0002983809934011816,
+      "python_objective": 0.00035894736095773015,
+      "rust_fit_objective_evaluated_in_python": 0.00035894736045374447,
+      "relative_objective_difference": 1.4040657283947291e-09,
+      "rust_evaluations": 44,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 5,
+      "background_scale": 0.9933333333333333,
+      "strict_parameter_parity": true,
+      "python": [
+        9.310007690625536,
+        0.5967046014921773,
+        0.9933333333333333,
+        0
+      ],
+      "rust": [
+        9.310007673688474,
+        0.5967045367657156,
+        0.9933333333333333,
+        0.0
+      ],
+      "absolute_density_difference": 1.6937061531052677e-08,
+      "python_objective": 0.0003285181421831008,
+      "rust_fit_objective_evaluated_in_python": 0.0003285181421832362,
+      "relative_objective_difference": 4.1204007892924935e-13,
+      "rust_evaluations": 42,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 6,
+      "background_scale": 0.996,
+      "strict_parameter_parity": true,
+      "python": [
+        9.192662181053901,
+        0.594086712363486,
+        0.996,
+        0
+      ],
+      "rust": [
+        9.192662340723802,
+        0.5940867150860087,
+        0.996,
+        0.0
+      ],
+      "absolute_density_difference": 1.5966990041249574e-07,
+      "python_objective": 0.0002971698593428924,
+      "rust_fit_objective_evaluated_in_python": 0.0002971698593419052,
+      "relative_objective_difference": 3.321891662333765e-12,
+      "rust_evaluations": 42,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 7,
+      "background_scale": 0.9986666666666667,
+      "strict_parameter_parity": true,
+      "python": [
+        9.052159281018469,
+        0.5895905203714357,
+        0.9986666666666667,
+        0
+      ],
+      "rust": [
+        9.05215912912524,
+        0.5895904798401861,
+        0.9986666666666667,
+        0.0
+      ],
+      "absolute_density_difference": 1.5189322866149269e-07,
+      "python_objective": 0.0002649771178873568,
+      "rust_fit_objective_evaluated_in_python": 0.000264977117888071,
+      "relative_objective_difference": 2.6953956885758117e-12,
+      "rust_evaluations": 42,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 8,
+      "background_scale": 1.0013333333333334,
+      "strict_parameter_parity": true,
+      "python": [
+        8.882433633262313,
+        0.582534124332679,
+        1.0013333333333334,
+        0
+      ],
+      "rust": [
+        8.88243356788186,
+        0.5825342212539512,
+        1.0013333333333334,
+        0.0
+      ],
+      "absolute_density_difference": 6.538045305148898e-08,
+      "python_objective": 0.00023204953913757325,
+      "rust_fit_objective_evaluated_in_python": 0.00023204953913779345,
+      "relative_objective_difference": 9.48941601221009e-13,
+      "rust_evaluations": 42,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 9,
+      "background_scale": 1.004,
+      "strict_parameter_parity": true,
+      "python": [
+        8.675094826464836,
+        0.5719254142264055,
+        1.004,
+        0
+      ],
+      "rust": [
+        8.675094767253347,
+        0.5719254632562742,
+        1.004,
+        0.0
+      ],
+      "absolute_density_difference": 5.9211489045196686e-08,
+      "python_objective": 0.00019854426094114617,
+      "rust_fit_objective_evaluated_in_python": 0.00019854426094141137,
+      "relative_objective_difference": 1.335701420594401e-12,
+      "rust_evaluations": 39,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 10,
+      "background_scale": 1.0066666666666666,
+      "strict_parameter_parity": true,
+      "python": [
+        8.418638907792175,
+        0.556262838561574,
+        1.0066666666666666,
+        0
+      ],
+      "rust": [
+        8.41863896479128,
+        0.556262764343914,
+        1.0066666666666666,
+        0.0
+      ],
+      "absolute_density_difference": 5.699910410328357e-08,
+      "python_objective": 0.00016468515978911036,
+      "rust_fit_objective_evaluated_in_python": 0.0001646851597889482,
+      "relative_objective_difference": 9.84560084848208e-13,
+      "rust_evaluations": 42,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 11,
+      "background_scale": 1.0093333333333334,
+      "strict_parameter_parity": true,
+      "python": [
+        8.095977494891105,
+        0.5332213755344878,
+        1.0093333333333334,
+        0
+      ],
+      "rust": [
+        8.095977306670253,
+        0.5332213828471941,
+        1.0093333333333334,
+        0.0
+      ],
+      "absolute_density_difference": 1.88220852237464e-07,
+      "python_objective": 0.0001307954860241784,
+      "rust_fit_objective_evaluated_in_python": 0.00013079548602470235,
+      "relative_objective_difference": 4.005801085190097e-12,
+      "rust_evaluations": 40,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 12,
+      "background_scale": 1.012,
+      "strict_parameter_parity": true,
+      "python": [
+        7.682115472867812,
+        0.4990162138227242,
+        1.012,
+        0
+      ],
+      "rust": [
+        7.682112971964543,
+        0.49901631864503393,
+        1.012,
+        0.0
+      ],
+      "absolute_density_difference": 2.500903269364585e-06,
+      "python_objective": 9.736134867222846e-05,
+      "rust_fit_objective_evaluated_in_python": 9.736134866579065e-05,
+      "relative_objective_difference": 6.612291638480797e-11,
+      "rust_evaluations": 33,
+      "rust_termination": "gradient_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 13,
+      "background_scale": 1.0146666666666666,
+      "strict_parameter_parity": true,
+      "python": [
+        7.137229343615504,
+        0.44728024732020283,
+        1.0146666666666666,
+        0
+      ],
+      "rust": [
+        7.137231867501618,
+        0.447280325351992,
+        1.0146666666666666,
+        0.0
+      ],
+      "absolute_density_difference": 2.52388611432508e-06,
+      "python_objective": 6.517922135565179e-05,
+      "rust_fit_objective_evaluated_in_python": 6.517922135662108e-05,
+      "relative_objective_difference": 1.487115486452721e-11,
+      "rust_evaluations": 33,
+      "rust_termination": "gradient_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 14,
+      "background_scale": 1.0173333333333334,
+      "strict_parameter_parity": true,
+      "python": [
+        6.403333344370305,
+        0.3671556386927673,
+        1.0173333333333334,
+        0
+      ],
+      "rust": [
+        6.403330984592549,
+        0.367155660454951,
+        1.0173333333333334,
+        0.0
+      ],
+      "absolute_density_difference": 2.3597777554229538e-06,
+      "python_objective": 3.578572363858315e-05,
+      "rust_fit_objective_evaluated_in_python": 3.578572363276745e-05,
+      "relative_objective_difference": 1.6251455942400983e-10,
+      "rust_evaluations": 32,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "SiO2_density",
+      "job": 15,
+      "background_scale": 1.02,
+      "strict_parameter_parity": true,
+      "python": [
+        5.447870238316371,
+        0.2482410927820333,
+        1.02,
+        0
+      ],
+      "rust": [
+        5.4478692168568195,
+        0.24824115437941888,
+        1.02,
+        0.0
+      ],
+      "absolute_density_difference": 1.0214595516089275e-06,
+      "python_objective": 1.314064756366876e-05,
+      "rust_fit_objective_evaluated_in_python": 1.314064756293383e-05,
+      "relative_objective_difference": 5.592797669903429e-11,
+      "rust_evaluations": 23,
+      "rust_termination": "gradient_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 0,
+      "background_scale": 0.98,
+      "strict_parameter_parity": true,
+      "python": [
+        4.3910687022395205,
+        0.24318485644658944,
+        0.98,
+        0
+      ],
+      "rust": [
+        4.391068391588357,
+        0.24318491106045156,
+        0.98,
+        0.0
+      ],
+      "absolute_density_difference": 3.106511634598519e-07,
+      "python_objective": 0.0002544962428012447,
+      "rust_fit_objective_evaluated_in_python": 0.00025449624280197037,
+      "relative_objective_difference": 2.8513447037851475e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 1,
+      "background_scale": 0.9826666666666667,
+      "strict_parameter_parity": true,
+      "python": [
+        4.393463351624085,
+        0.2434410760392279,
+        0.9826666666666667,
+        0
+      ],
+      "rust": [
+        4.393463326586962,
+        0.2434411011845107,
+        0.9826666666666667,
+        0.0
+      ],
+      "absolute_density_difference": 2.5037123485560642e-08,
+      "python_objective": 0.00025516407178937674,
+      "rust_fit_objective_evaluated_in_python": 0.00025516407178943523,
+      "relative_objective_difference": 2.2923567097594885e-13,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 2,
+      "background_scale": 0.9853333333333333,
+      "strict_parameter_parity": true,
+      "python": [
+        4.395860004509393,
+        0.2436972281467034,
+        0.9853333333333333,
+        0
+      ],
+      "rust": [
+        4.395860710626744,
+        0.24369720235541598,
+        0.9853333333333333,
+        0.0
+      ],
+      "absolute_density_difference": 7.061173512568075e-07,
+      "python_objective": 0.0002558329835523294,
+      "rust_fit_objective_evaluated_in_python": 0.0002558329835506731,
+      "relative_objective_difference": 6.474285042949943e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 3,
+      "background_scale": 0.988,
+      "strict_parameter_parity": true,
+      "python": [
+        4.398256609676732,
+        0.24395332562380218,
+        0.988,
+        0
+      ],
+      "rust": [
+        4.39825644319736,
+        0.243953348480656,
+        0.988,
+        0.0
+      ],
+      "absolute_density_difference": 1.6647937250979794e-07,
+      "python_objective": 0.0002565029794079795,
+      "rust_fit_objective_evaluated_in_python": 0.00025650297940839014,
+      "relative_objective_difference": 1.6009232086764223e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 4,
+      "background_scale": 0.9906666666666667,
+      "strict_parameter_parity": true,
+      "python": [
+        4.400654067008389,
+        0.244209419400077,
+        0.9906666666666667,
+        0
+      ],
+      "rust": [
+        4.400653881144646,
+        0.24420947708134114,
+        0.9906666666666667,
+        0.0
+      ],
+      "absolute_density_difference": 1.8586374306295284e-07,
+      "python_objective": 0.0002571740606709159,
+      "rust_fit_objective_evaluated_in_python": 0.00025717406067139883,
+      "relative_objective_difference": 1.8777307725563154e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 5,
+      "background_scale": 0.9933333333333333,
+      "strict_parameter_parity": true,
+      "python": [
+        4.403053627485444,
+        0.2444655136805477,
+        0.9933333333333333,
+        0
+      ],
+      "rust": [
+        4.403053424838503,
+        0.2444655247823309,
+        0.9933333333333333,
+        0.0
+      ],
+      "absolute_density_difference": 2.0264694100546876e-07,
+      "python_objective": 0.0002578462286583367,
+      "rust_fit_objective_evaluated_in_python": 0.0002578462286588508,
+      "relative_objective_difference": 1.993935194894321e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 6,
+      "background_scale": 0.996,
+      "strict_parameter_parity": true,
+      "python": [
+        4.405453930449015,
+        0.24472163531194385,
+        0.996,
+        0
+      ],
+      "rust": [
+        4.405453993654067,
+        0.24472163000037772,
+        0.996,
+        0.0
+      ],
+      "absolute_density_difference": 6.320505185897218e-08,
+      "python_objective": 0.00025851948469791713,
+      "rust_fit_objective_evaluated_in_python": 0.00025851948469775906,
+      "relative_objective_difference": 6.114691004165542e-13,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 7,
+      "background_scale": 0.9986666666666667,
+      "strict_parameter_parity": true,
+      "python": [
+        4.407854733217512,
+        0.24497768428860883,
+        0.9986666666666667,
+        0
+      ],
+      "rust": [
+        4.407854254303451,
+        0.2449776406597856,
+        0.9986666666666667,
+        0.0
+      ],
+      "absolute_density_difference": 4.789140612970755e-07,
+      "python_objective": 0.00025919383011826006,
+      "rust_fit_objective_evaluated_in_python": 0.0002591938301195042,
+      "relative_objective_difference": 4.7999676240729644e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 8,
+      "background_scale": 1.0013333333333334,
+      "strict_parameter_parity": true,
+      "python": [
+        4.410256547213574,
+        0.24523371530981788,
+        1.0013333333333334,
+        0
+      ],
+      "rust": [
+        4.410256156680546,
+        0.24523372557260914,
+        1.0013333333333334,
+        0.0
+      ],
+      "absolute_density_difference": 3.9053302813840673e-07,
+      "python_objective": 0.00025986926624983276,
+      "rust_fit_objective_evaluated_in_python": 0.0002598692662508564,
+      "relative_objective_difference": 3.939094052653669e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 9,
+      "background_scale": 1.004,
+      "strict_parameter_parity": true,
+      "python": [
+        4.412658834172476,
+        0.24548975773005802,
+        1.004,
+        0
+      ],
+      "rust": [
+        4.412659166299336,
+        0.24548973721227912,
+        1.004,
+        0.0
+      ],
+      "absolute_density_difference": 3.3212685934813635e-07,
+      "python_objective": 0.0002605457944295989,
+      "rust_fit_objective_evaluated_in_python": 0.0002605457944287119,
+      "relative_objective_difference": 3.404545482535889e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 10,
+      "background_scale": 1.0066666666666666,
+      "strict_parameter_parity": true,
+      "python": [
+        4.415063793169649,
+        0.24574577803969475,
+        1.0066666666666666,
+        0
+      ],
+      "rust": [
+        4.415062534642076,
+        0.24574576658663558,
+        1.0066666666666666,
+        0.0
+      ],
+      "absolute_density_difference": 1.258527572822743e-06,
+      "python_objective": 0.0002612234159910254,
+      "rust_fit_objective_evaluated_in_python": 0.00026122341599436725,
+      "relative_objective_difference": 1.2793019889024352e-11,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 11,
+      "background_scale": 1.0093333333333334,
+      "strict_parameter_parity": true,
+      "python": [
+        4.417467420042208,
+        0.24600178409675627,
+        1.0093333333333334,
+        0
+      ],
+      "rust": [
+        4.417467754322068,
+        0.2460018303249384,
+        1.0093333333333334,
+        0.0
+      ],
+      "absolute_density_difference": 3.342798597927299e-07,
+      "python_objective": 0.0002619021322878437,
+      "rust_fit_objective_evaluated_in_python": 0.00026190213228693493,
+      "relative_objective_difference": 3.4699154720075227e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 12,
+      "background_scale": 1.012,
+      "strict_parameter_parity": true,
+      "python": [
+        4.419872806583393,
+        0.2462578309319036,
+        1.012,
+        0
+      ],
+      "rust": [
+        4.419873744719297,
+        0.24625780635876104,
+        1.012,
+        0.0
+      ],
+      "absolute_density_difference": 9.381359040716575e-07,
+      "python_objective": 0.00026258194465878643,
+      "rust_fit_objective_evaluated_in_python": 0.0002625819446562069,
+      "relative_objective_difference": 9.823728787329616e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 13,
+      "background_scale": 1.0146666666666666,
+      "strict_parameter_parity": true,
+      "python": [
+        4.422280760931381,
+        0.24651377027394658,
+        1.0146666666666666,
+        0
+      ],
+      "rust": [
+        4.422280937451899,
+        0.24651382628811838,
+        1.0146666666666666,
+        0.0
+      ],
+      "absolute_density_difference": 1.7652051820249426e-07,
+      "python_objective": 0.00026326285445220116,
+      "rust_fit_objective_evaluated_in_python": 0.0002632628544517255,
+      "relative_objective_difference": 1.8067094731579362e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 14,
+      "background_scale": 1.0173333333333334,
+      "strict_parameter_parity": true,
+      "python": [
+        4.424687800829011,
+        0.24676979163696253,
+        1.0173333333333334,
+        0
+      ],
+      "rust": [
+        4.424687173335762,
+        0.24676975848622368,
+        1.0173333333333334,
+        0.0
+      ],
+      "absolute_density_difference": 6.274932484728879e-07,
+      "python_objective": 0.0002639448630321333,
+      "rust_fit_objective_evaluated_in_python": 0.00026394486303390335,
+      "relative_objective_difference": 6.706205403907945e-12,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    },
+    {
+      "case": "Mg2SiO4_density",
+      "job": 15,
+      "background_scale": 1.02,
+      "strict_parameter_parity": true,
+      "python": [
+        4.42709523178652,
+        0.2470257344458889,
+        1.02,
+        0
+      ],
+      "rust": [
+        4.427096837240708,
+        0.24702579345653716,
+        1.02,
+        0.0
+      ],
+      "absolute_density_difference": 1.6054541873700146e-06,
+      "python_objective": 0.00026462797175351086,
+      "rust_fit_objective_evaluated_in_python": 0.0002646279717489347,
+      "relative_objective_difference": 1.7292753631428914e-11,
+      "rust_evaluations": 18,
+      "rust_termination": "cost_tolerance"
+    }
+  ],
+  "strict_passed": false,
+  "mismatched_cases": 1
+}

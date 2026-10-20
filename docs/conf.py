@@ -4,14 +4,16 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import os
 import sys
+from importlib.metadata import version as package_version
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Glassure'
-copyright = '2025, Clemens Prescher'
+copyright = '2026, Clemens Prescher'
 author = 'Clemens Prescher'
-release = '2.2.1'
+release = package_version('glassure')
+version = release
 
 sys.path.insert(0, os.path.abspath('..'))
 # -- General configuration ---------------------------------------------------
