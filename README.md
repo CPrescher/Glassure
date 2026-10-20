@@ -37,7 +37,7 @@ The Glassure package can be installed into your existing python distribution usi
 python -m pip install glassure
 ```
 
-Glassure **3.0.0rc1 is in preparation**. Its standard installation requires only
+Glassure **3.0.0** includes the Rust numerical core. Its standard installation requires only
 NumPy and Pydantic. Matching wheels need no Rust compiler; source builds require
 Rust 1.93 or newer. Install `glassure[legacy]` for the independent Python backend,
 pandas tables, lmfit parameter objects and SciPy spline interfaces. See the

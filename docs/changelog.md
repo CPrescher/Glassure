@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.0rc1 — in preparation
+## 3.0.0 (2026/10/20)
 
 - Bundle the Rust numerical engine in the Python distribution. Standard installs
   run the native engine without a separate native package.
@@ -17,6 +17,7 @@
   numerical corrections can change results compared with Glassure 2.
 - Include the Rust core's SciPy and Xraylib notices in Python distributions.
 
-See the [migration guide](migration-3.md) for compatibility details. This release
-candidate has not yet been published. Earlier releases are recorded in the
+Promotes the tested 3.0.0rc1 release candidate without numerical or API changes.
+See the [migration guide](migration-3.md) for compatibility details. Earlier
+releases are recorded in the
 [GitHub release history](https://github.com/CPrescher/Glassure/releases).

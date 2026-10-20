@@ -20,8 +20,8 @@ interfaces, install the optional extra:
 python -m pip install 'glassure[legacy]'
 ```
 
-The repository currently prepares 3.0.0rc1; it is not yet on PyPI. After release,
-use `--pre` to select the release candidate.
+To install this stable release explicitly, use `glassure==3.0.0` or
+`glassure[legacy]==3.0.0`.
 
 ## Development version for contributing
 

@@ -1,6 +1,6 @@
 [project]
 name = "glassure"
-version = "3.0.0rc1"
+version = "3.0.0"
 description = "X-ray total-scattering analysis with a Rust numerical core"
 readme = "README.md"
 license = "MIT AND BSD-3-Clause"

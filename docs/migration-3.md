@@ -1,15 +1,15 @@
 # Migrating to Glassure 3
 
 Glassure 3 includes its Rust numerical engine in the `glassure` Python package.
-The release is currently being prepared as **3.0.0rc1**; it has not been published.
+**3.0.0** is the stable release following the tested 3.0.0rc1 release candidate.
 
 ## Installation
 
 ```sh
-python -m pip install --pre 'glassure==3.0.0rc1'
+python -m pip install 'glassure==3.0.0'
 ```
 
-Use that command once the release candidate is published. Supported wheels include
+Supported wheels include
 Python 3.10–3.13 on Linux x86-64, Windows x86-64, and macOS on Intel and Apple
 Silicon. Installing a matching wheel needs no Rust compiler. Source installations
 require Rust 1.93 or newer and a platform C linker; maturin is installed by the
